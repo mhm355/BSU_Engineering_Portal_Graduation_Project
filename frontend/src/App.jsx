@@ -33,11 +33,6 @@ import UserProfile from './pages/UserProfile';
 import { AuthProvider } from './context/AuthContext';
 import axios from 'axios';
 
-// Configure Axios defaults
-axios.defaults.xsrfCookieName = 'csrftoken';
-axios.defaults.xsrfHeaderName = 'X-CSRFToken';
-axios.defaults.withCredentials = true;
-
 function App() {
   return (
     <AuthProvider>
