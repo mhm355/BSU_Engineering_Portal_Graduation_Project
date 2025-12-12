@@ -31,6 +31,16 @@ class LevelViewSet(viewsets.ModelViewSet):
     serializer_class = LevelSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
+    def get_queryset(self):
+        queryset = Level.objects.all()
+        department = self.request.query_params.get('department')
+        academic_year = self.request.query_params.get('academic_year')
+        if department:
+            queryset = queryset.filter(department_id=department)
+        if academic_year:
+            queryset = queryset.filter(academic_year_id=academic_year)
+        return queryset
+
     def get_permissions(self):
         if self.action in ['create', 'update', 'partial_update', 'destroy']:
             return [IsAdminRole()]
