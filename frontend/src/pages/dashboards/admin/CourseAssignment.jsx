@@ -24,7 +24,7 @@ export default function CourseAssignment() {
 
     const fetchAssignments = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/api/academic/assignments/');
+            const response = await axios.get('/api/academic/assignments/');
             setAssignments(response.data);
         } catch (err) {
             console.error('Error fetching assignments:', err);
@@ -33,7 +33,7 @@ export default function CourseAssignment() {
 
     const fetchDoctors = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/api/auth/users/?role=DOCTOR');
+            const response = await axios.get('/api/auth/users/?role=DOCTOR');
             setDoctors(response.data);
         } catch (err) {
             console.error('Error fetching doctors:', err);
@@ -42,7 +42,7 @@ export default function CourseAssignment() {
 
     const fetchCourses = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/api/academic/courses/');
+            const response = await axios.get('/api/academic/courses/');
             setCourses(response.data);
         } catch (err) {
             console.error('Error fetching courses:', err);
@@ -51,7 +51,7 @@ export default function CourseAssignment() {
 
     const fetchYears = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/api/academic/years/');
+            const response = await axios.get('/api/academic/years/');
             setYears(response.data);
         } catch (err) {
             console.error('Error fetching years:', err);
@@ -72,9 +72,9 @@ export default function CourseAssignment() {
     const handleSave = async () => {
         try {
             if (isEdit) {
-                await axios.put(`http://localhost:8000/api/academic/assignments/${currentAssignment.id}/`, currentAssignment);
+                await axios.put(`/api/academic/assignments/${currentAssignment.id}/`, currentAssignment);
             } else {
-                await axios.post('http://localhost:8000/api/academic/assignments/', currentAssignment);
+                await axios.post('/api/academic/assignments/', currentAssignment);
             }
             fetchAssignments();
             handleClose();
@@ -87,7 +87,7 @@ export default function CourseAssignment() {
     const handleDelete = async (id) => {
         if (window.confirm('هل أنت متأكد من حذف هذا التعيين؟')) {
             try {
-                await axios.delete(`http://localhost:8000/api/academic/assignments/${id}/`);
+                await axios.delete(`/api/academic/assignments/${id}/`);
                 fetchAssignments();
             } catch (err) {
                 console.error('Error deleting assignment:', err);

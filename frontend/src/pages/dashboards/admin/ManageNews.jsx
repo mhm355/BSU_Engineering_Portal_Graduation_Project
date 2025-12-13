@@ -19,7 +19,7 @@ export default function ManageNews() {
 
     const fetchNews = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/api/content/news/');
+            const response = await axios.get('/api/content/news/');
             setNewsList(response.data);
         } catch (err) {
             console.error('Error fetching news:', err);
@@ -53,12 +53,12 @@ export default function ManageNews() {
 
         try {
             if (isEdit) {
-                await axios.patch(`http://localhost:8000/api/content/news/${currentNews.id}/`, formData, {
+                await axios.patch(`/api/content/news/${currentNews.id}/`, formData, {
                     headers: { 'Content-Type': 'multipart/form-data' },
                     withCredentials: true
                 });
             } else {
-                await axios.post('http://localhost:8000/api/content/news/', formData, {
+                await axios.post('/api/content/news/', formData, {
                     headers: { 'Content-Type': 'multipart/form-data' },
                     withCredentials: true
                 });
@@ -76,7 +76,7 @@ export default function ManageNews() {
     const handleDelete = async (id) => {
         if (window.confirm('هل أنت متأكد من حذف هذا الخبر؟')) {
             try {
-                await axios.delete(`http://localhost:8000/api/content/news/${id}/`, { withCredentials: true });
+                await axios.delete(`/api/content/news/${id}/`, { withCredentials: true });
                 fetchNews();
             } catch (err) {
                 console.error('Error deleting news:', err);

@@ -21,7 +21,7 @@ export default function ManageUsers() {
             // Note: We need a list endpoint for users. Assuming /api/auth/users/ or similar.
             // Since we didn't explicitly create a list endpoint in users/views.py, we might need to add it.
             // For now, let's assume we added a UserViewSet in users/views.py
-            const response = await axios.get('http://localhost:8000/api/auth/users/');
+            const response = await axios.get('/api/auth/users/');
             setUsers(response.data);
         } catch (err) {
             console.error('Error fetching users:', err);
@@ -44,9 +44,9 @@ export default function ManageUsers() {
     const handleSave = async () => {
         try {
             if (isEdit) {
-                await axios.put(`http://localhost:8000/api/auth/users/${currentUser.id}/`, currentUser);
+                await axios.put(`/api/auth/users/${currentUser.id}/`, currentUser);
             } else {
-                await axios.post('http://localhost:8000/api/auth/users/', { ...currentUser, password: currentUser.national_id || 'password123' });
+                await axios.post('/api/auth/users/', { ...currentUser, password: currentUser.national_id || 'password123' });
             }
             fetchUsers();
             handleClose();
@@ -59,7 +59,7 @@ export default function ManageUsers() {
     const handleDelete = async (id) => {
         if (window.confirm('هل أنت متأكد من حذف هذا المستخدم؟')) {
             try {
-                await axios.delete(`http://localhost:8000/api/auth/users/${id}/`);
+                await axios.delete(`/api/auth/users/${id}/`);
                 fetchUsers();
             } catch (err) {
                 console.error('Error deleting user:', err);

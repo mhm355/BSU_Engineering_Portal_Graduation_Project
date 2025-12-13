@@ -29,7 +29,7 @@ export default function UploadGrades() {
 
         try {
             // Using a new endpoint for bulk grade upload
-            const res = await axios.post('http://localhost:8000/api/academic/grades/upload/', formData, {
+            const res = await axios.post('/api/academic/grades/upload/', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },

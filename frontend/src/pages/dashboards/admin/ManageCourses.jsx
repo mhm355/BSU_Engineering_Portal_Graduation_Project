@@ -22,7 +22,7 @@ export default function ManageCourses() {
 
     const fetchCourses = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/api/academic/courses/');
+            const response = await axios.get('/api/academic/courses/');
             setCourses(response.data);
         } catch (err) {
             console.error('Error fetching courses:', err);
@@ -31,7 +31,7 @@ export default function ManageCourses() {
 
     const fetchDepartments = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/api/academic/departments/');
+            const response = await axios.get('/api/academic/departments/');
             setDepartments(response.data);
         } catch (err) {
             console.error('Error fetching departments:', err);
@@ -40,7 +40,7 @@ export default function ManageCourses() {
 
     const fetchLevels = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/api/academic/levels/');
+            const response = await axios.get('/api/academic/levels/');
             setLevels(response.data);
         } catch (err) {
             console.error('Error fetching levels:', err);
@@ -61,9 +61,9 @@ export default function ManageCourses() {
     const handleSave = async () => {
         try {
             if (isEdit) {
-                await axios.put(`http://localhost:8000/api/academic/courses/${currentCourse.id}/`, currentCourse);
+                await axios.put(`/api/academic/courses/${currentCourse.id}/`, currentCourse);
             } else {
-                await axios.post('http://localhost:8000/api/academic/courses/', currentCourse);
+                await axios.post('/api/academic/courses/', currentCourse);
             }
             fetchCourses();
             handleClose();
@@ -76,7 +76,7 @@ export default function ManageCourses() {
     const handleDelete = async (id) => {
         if (window.confirm('هل أنت متأكد من حذف هذا المقرر؟')) {
             try {
-                await axios.delete(`http://localhost:8000/api/academic/courses/${id}/`);
+                await axios.delete(`/api/academic/courses/${id}/`);
                 fetchCourses();
             } catch (err) {
                 console.error('Error deleting course:', err);

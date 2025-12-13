@@ -13,7 +13,7 @@ export default function Departments() {
 
     const fetchDepartments = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/api/academic/departments/');
+            const response = await axios.get('/api/academic/departments/');
             setDepartments(response.data);
         } catch (err) {
             console.error('Error fetching departments:', err);

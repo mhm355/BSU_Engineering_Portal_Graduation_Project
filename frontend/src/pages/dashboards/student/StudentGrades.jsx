@@ -30,7 +30,7 @@ export default function StudentGrades() {
             // Let's assume we are using SessionAuthentication and the login endpoint set the session cookie.
             // We need to ensure axios sends credentials.
 
-            const response = await axios.get('http://localhost:8000/api/academic/grades/', { withCredentials: true });
+            const response = await axios.get('/api/academic/grades/', { withCredentials: true });
             setGrades(response.data);
         } catch (err) {
             console.error('Error fetching grades:', err);

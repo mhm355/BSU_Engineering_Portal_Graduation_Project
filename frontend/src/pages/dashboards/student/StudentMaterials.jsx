@@ -14,7 +14,7 @@ export default function StudentMaterials() {
 
     const fetchMaterials = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/api/academic/materials/', { withCredentials: true });
+            const response = await axios.get('/api/academic/materials/', { withCredentials: true });
             setMaterials(response.data);
         } catch (err) {
             console.error('Error fetching materials:', err);

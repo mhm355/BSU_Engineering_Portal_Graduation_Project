@@ -19,7 +19,7 @@ export default function StaffDirectory() {
             // Let's create a public endpoint in users/views.py first?
             // Or just try to fetch from a new public endpoint I will create.
             // Let's assume I will create /api/auth/public/staff/
-            const response = await axios.get('http://localhost:8000/api/auth/public/staff/');
+            const response = await axios.get('/api/auth/public/staff/');
             setStaff(response.data);
         } catch (err) {
             console.error('Error fetching staff:', err);

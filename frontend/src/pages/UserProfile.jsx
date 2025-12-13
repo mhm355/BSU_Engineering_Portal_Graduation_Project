@@ -44,7 +44,7 @@ export default function UserProfile() {
             // Usually users can update their own profile via /api/auth/profile/ (if implemented) or /api/auth/users/{id}/
             // Let's check urls.py. /api/auth/profile/ maps to UserProfileView.
 
-            const response = await axios.patch('http://localhost:8000/api/auth/profile/', dataToSend, { withCredentials: true });
+            const response = await axios.patch('/api/auth/profile/', dataToSend, { withCredentials: true });
 
             // Update context
             login(response.data);

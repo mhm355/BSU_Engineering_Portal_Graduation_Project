@@ -18,7 +18,7 @@ export default function ManageDepartments() {
 
     const fetchDepartments = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/api/academic/departments/');
+            const response = await axios.get('/api/academic/departments/');
             setDepartments(response.data);
         } catch (err) {
             console.error('Error fetching departments:', err);
@@ -39,9 +39,9 @@ export default function ManageDepartments() {
     const handleSave = async () => {
         try {
             if (isEdit) {
-                await axios.put(`http://localhost:8000/api/academic/departments/${currentDept.id}/`, currentDept);
+                await axios.put(`/api/academic/departments/${currentDept.id}/`, currentDept);
             } else {
-                await axios.post('http://localhost:8000/api/academic/departments/', currentDept);
+                await axios.post('/api/academic/departments/', currentDept);
             }
             fetchDepartments();
             handleClose();
@@ -54,7 +54,7 @@ export default function ManageDepartments() {
     const handleDelete = async (id) => {
         if (window.confirm('هل أنت متأكد من حذف هذا القسم؟')) {
             try {
-                await axios.delete(`http://localhost:8000/api/academic/departments/${id}/`);
+                await axios.delete(`/api/academic/departments/${id}/`);
                 fetchDepartments();
             } catch (err) {
                 console.error('Error deleting department:', err);

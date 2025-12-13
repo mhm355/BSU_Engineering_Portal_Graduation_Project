@@ -15,7 +15,7 @@ export default function Home() {
     const fetchNews = async () => {
         try {
             // Public endpoint for news? NewsViewSet allows AllowAny for read.
-            const response = await fetch('http://localhost:8000/api/content/news/');
+            const response = await fetch('/api/content/news/');
             const data = await response.json();
             setNewsList(data);
         } catch (err) {

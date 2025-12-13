@@ -22,7 +22,7 @@ const MaterialsTab = ({ courseId }) => {
 
     const fetchMaterials = async () => {
         try {
-            const response = await axios.get(`http://localhost:8000/api/academic/materials/?course=${courseId}`, { withCredentials: true });
+            const response = await axios.get(`/api/academic/materials/?course=${courseId}`, { withCredentials: true });
             setMaterials(response.data);
         } catch (err) {
             console.error('Error fetching materials:', err);
@@ -43,7 +43,7 @@ const MaterialsTab = ({ courseId }) => {
         setUploading(true);
         setError('');
         try {
-            await axios.post('http://localhost:8000/api/academic/materials/', formData, {
+            await axios.post('/api/academic/materials/', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' },
                 withCredentials: true
             });
@@ -61,7 +61,7 @@ const MaterialsTab = ({ courseId }) => {
     const handleDelete = async (id) => {
         if (!window.confirm('هل أنت متأكد من حذف هذا الملف؟')) return;
         try {
-            await axios.delete(`http://localhost:8000/api/academic/materials/${id}/`, { withCredentials: true });
+            await axios.delete(`/api/academic/materials/${id}/`, { withCredentials: true });
             fetchMaterials();
         } catch (err) {
             console.error('Error deleting material:', err);
@@ -162,7 +162,7 @@ const GradesTab = ({ courseId }) => {
     const fetchGradesAndStudents = async () => {
         try {
             // Fetch grades for this course
-            const gradesRes = await axios.get(`http://localhost:8000/api/academic/grades/?course=${courseId}`, { withCredentials: true });
+            const gradesRes = await axios.get(`/api/academic/grades/?course=${courseId}`, { withCredentials: true });
             setGrades(gradesRes.data);
 
             // Ideally we should fetch enrolled students, but for now we might need to rely on grades or a separate endpoint
@@ -178,7 +178,7 @@ const GradesTab = ({ courseId }) => {
 
     const handleGradeChange = async (gradeId, newScore) => {
         try {
-            await axios.patch(`http://localhost:8000/api/academic/grades/${gradeId}/`, { score: newScore }, { withCredentials: true });
+            await axios.patch(`/api/academic/grades/${gradeId}/`, { score: newScore }, { withCredentials: true });
             // Update local state
             setGrades(grades.map(g => g.id === gradeId ? { ...g, score: newScore } : g));
         } catch (err) {
@@ -251,8 +251,8 @@ const AttendanceTab = ({ courseId }) => {
         setLoading(true);
         try {
             const [attRes, studRes] = await Promise.all([
-                axios.get(`http://localhost:8000/api/academic/attendance/?course=${courseId}`, { withCredentials: true }),
-                axios.get(`http://localhost:8000/api/academic/courses/${courseId}/students/`, { withCredentials: true })
+                axios.get(`/api/academic/attendance/?course=${courseId}`, { withCredentials: true }),
+                axios.get(`/api/academic/courses/${courseId}/students/`, { withCredentials: true })
             ]);
             setAttendance(attRes.data);
             setStudents(studRes.data);
@@ -279,10 +279,10 @@ const AttendanceTab = ({ courseId }) => {
             );
 
             if (existingRecord) {
-                await axios.patch(`http://localhost:8000/api/academic/attendance/${existingRecord.id}/`, { status }, { withCredentials: true });
+                await axios.patch(`/api/academic/attendance/${existingRecord.id}/`, { status }, { withCredentials: true });
                 setAttendance(prev => prev.map(a => a.id === existingRecord.id ? { ...a, status } : a));
             } else {
-                const res = await axios.post('http://localhost:8000/api/academic/attendance/', {
+                const res = await axios.post('/api/academic/attendance/', {
                     student: studentId,
                     course: courseId,
                     date: selectedDate,
@@ -379,7 +379,7 @@ const ExamsTab = ({ courseId }) => {
 
     const fetchExams = async () => {
         try {
-            const response = await axios.get(`http://localhost:8000/api/academic/exams/?course=${courseId}`, { withCredentials: true });
+            const response = await axios.get(`/api/academic/exams/?course=${courseId}`, { withCredentials: true });
             setExams(response.data);
         } catch (err) {
             console.error('Error fetching exams:', err);
@@ -392,7 +392,7 @@ const ExamsTab = ({ courseId }) => {
         e.preventDefault();
         setAdding(true);
         try {
-            await axios.post('http://localhost:8000/api/academic/exams/', { ...newExam, course: courseId }, { withCredentials: true });
+            await axios.post('/api/academic/exams/', { ...newExam, course: courseId }, { withCredentials: true });
             setNewExam({ date: '', start_time: '', duration_minutes: 60, location: '' });
             fetchExams();
         } catch (err) {
@@ -490,7 +490,7 @@ const ExamsTab = ({ courseId }) => {
                                                 onClick={async () => {
                                                     if (window.confirm('هل أنت متأكد من حذف هذا الامتحان؟')) {
                                                         try {
-                                                            await axios.delete(`http://localhost:8000/api/academic/exams/${exam.id}/`, { withCredentials: true });
+                                                            await axios.delete(`/api/academic/exams/${exam.id}/`, { withCredentials: true });
                                                             fetchExams();
                                                         } catch (e) {
                                                             console.error(e);
@@ -526,7 +526,7 @@ export default function DoctorCourseManager() {
 
     const fetchCourseDetails = async () => {
         try {
-            const response = await axios.get(`http://localhost:8000/api/academic/courses/${courseId}/`, { withCredentials: true });
+            const response = await axios.get(`/api/academic/courses/${courseId}/`, { withCredentials: true });
             setCourse(response.data);
         } catch (err) {
             console.error('Error fetching course details:', err);

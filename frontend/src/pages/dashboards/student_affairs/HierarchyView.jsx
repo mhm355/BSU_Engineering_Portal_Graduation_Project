@@ -21,7 +21,7 @@ export default function HierarchyView() {
 
     const fetchDepartments = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/api/academic/departments/', { withCredentials: true });
+            const response = await axios.get('/api/academic/departments/', { withCredentials: true });
             setDepartments(response.data);
             setLoading(false);
         } catch (err) {
@@ -36,7 +36,7 @@ export default function HierarchyView() {
             // Ideally we filter levels by department. Our API might return all.
             // Let's assume we filter on frontend or add query param.
             // For now, fetch all and filter.
-            const response = await axios.get('http://localhost:8000/api/academic/levels/', { withCredentials: true });
+            const response = await axios.get('/api/academic/levels/', { withCredentials: true });
             const deptLevels = response.data.filter(l => l.department === deptId); // Assuming department ID is in 'department' field
             setLevels(deptLevels);
             setLoading(false);
@@ -56,7 +56,7 @@ export default function HierarchyView() {
             // For this demo, let's just show a placeholder list or fetch all users and filter (inefficient but works for demo).
             // Actually, let's just show a dummy list or "No students found" if we can't easily fetch.
             // Better: Fetch all users with role STUDENT.
-            const response = await axios.get('http://localhost:8000/api/auth/users/', { withCredentials: true });
+            const response = await axios.get('/api/auth/users/', { withCredentials: true });
             const allStudents = response.data.filter(u => u.role === 'STUDENT');
             setStudents(allStudents); // In real app, filter by level via enrollment
             setLoading(false);

@@ -19,7 +19,7 @@ export default function ManageYears() {
 
     const fetchYears = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/api/academic/years/');
+            const response = await axios.get('/api/academic/years/');
             setYears(response.data);
         } catch (err) {
             console.error('Error fetching years:', err);
@@ -40,9 +40,9 @@ export default function ManageYears() {
     const handleSave = async () => {
         try {
             if (isEdit) {
-                await axios.put(`http://localhost:8000/api/academic/years/${currentYear.id}/`, currentYear);
+                await axios.put(`/api/academic/years/${currentYear.id}/`, currentYear);
             } else {
-                await axios.post('http://localhost:8000/api/academic/years/', currentYear);
+                await axios.post('/api/academic/years/', currentYear);
             }
             fetchYears();
             handleClose();
@@ -55,7 +55,7 @@ export default function ManageYears() {
     const handleDelete = async (id) => {
         if (window.confirm('هل أنت متأكد من حذف هذا العام الدراسي؟')) {
             try {
-                await axios.delete(`http://localhost:8000/api/academic/years/${id}/`);
+                await axios.delete(`/api/academic/years/${id}/`);
                 fetchYears();
             } catch (err) {
                 console.error('Error deleting year:', err);

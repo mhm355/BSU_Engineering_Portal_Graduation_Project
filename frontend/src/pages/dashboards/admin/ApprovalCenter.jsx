@@ -16,7 +16,7 @@ export default function ApprovalCenter() {
 
     const fetchRequests = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/api/system/delete-requests/', { withCredentials: true });
+            const response = await axios.get('/api/system/delete-requests/', { withCredentials: true });
             setRequests(response.data);
             setLoading(false);
         } catch (err) {
@@ -28,7 +28,7 @@ export default function ApprovalCenter() {
 
     const handleAction = async (id, action) => {
         try {
-            await axios.post(`http://localhost:8000/api/system/delete-requests/${id}/${action}/`, {}, { withCredentials: true });
+            await axios.post(`/api/system/delete-requests/${id}/${action}/`, {}, { withCredentials: true });
             setActionMessage(action === 'approve' ? 'تمت الموافقة والحذف بنجاح.' : 'تم رفض الطلب.');
             fetchRequests(); // Refresh list
             setTimeout(() => setActionMessage(''), 3000);

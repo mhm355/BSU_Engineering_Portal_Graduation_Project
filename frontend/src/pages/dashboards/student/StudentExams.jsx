@@ -16,7 +16,7 @@ export default function StudentExams() {
 
     const fetchExams = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/api/academic/exams/', { withCredentials: true });
+            const response = await axios.get('/api/academic/exams/', { withCredentials: true });
             setExams(response.data);
         } catch (err) {
             console.error('Error fetching exams:', err);

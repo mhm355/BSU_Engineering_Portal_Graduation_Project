@@ -13,7 +13,7 @@ export default function StudentAttendance() {
 
     const fetchAttendance = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/api/academic/attendance/', { withCredentials: true });
+            const response = await axios.get('/api/academic/attendance/', { withCredentials: true });
             setAttendance(response.data);
         } catch (err) {
             console.error('Error fetching attendance:', err);

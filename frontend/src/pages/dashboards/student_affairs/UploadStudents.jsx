@@ -29,7 +29,7 @@ export default function UploadStudents() {
         setResult(null);
 
         try {
-            const response = await axios.post('http://localhost:8000/api/academic/upload-students/', formData, {
+            const response = await axios.post('/api/academic/upload-students/', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },

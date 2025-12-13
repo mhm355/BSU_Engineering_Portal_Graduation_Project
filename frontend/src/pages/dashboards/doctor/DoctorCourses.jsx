@@ -27,7 +27,7 @@ export default function DoctorCourses() {
             // Let's assume for this demo we show all courses, or I should update CourseViewSet.
             // Let's update CourseViewSet quickly in the next step if needed.
             // For now, let's just fetch courses.
-            const response = await axios.get('http://localhost:8000/api/academic/courses/', { withCredentials: true });
+            const response = await axios.get('/api/academic/courses/', { withCredentials: true });
             setCourses(response.data);
         } catch (err) {
             console.error('Error fetching courses:', err);

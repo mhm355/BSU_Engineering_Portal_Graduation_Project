@@ -17,7 +17,7 @@ export default function UploadCertificates() {
 
     const fetchStudents = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/api/auth/users/', { withCredentials: true });
+            const response = await axios.get('/api/auth/users/', { withCredentials: true });
             setStudents(response.data.filter(u => u.role === 'STUDENT'));
         } catch (err) {
             console.error('Error fetching students:', err);
@@ -40,7 +40,7 @@ export default function UploadCertificates() {
         setSuccess('');
 
         try {
-            await axios.post('http://localhost:8000/api/academic/certificates/', formData, {
+            await axios.post('/api/academic/certificates/', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },

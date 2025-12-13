@@ -32,7 +32,7 @@ export default function ManageLevels() {
 
     const fetchLevels = async () => {
         try {
-            const response = await axios.get(`http://localhost:8000/api/academic/levels/?department=${selectedDept}&academic_year=${selectedYear}`);
+            const response = await axios.get(`/api/academic/levels/?department=${selectedDept}&academic_year=${selectedYear}`);
             setLevels(response.data);
         } catch (err) {
             console.error('Error fetching levels:', err);
@@ -41,7 +41,7 @@ export default function ManageLevels() {
 
     const fetchDepartments = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/api/academic/departments/');
+            const response = await axios.get('/api/academic/departments/');
             setDepartments(response.data);
         } catch (err) {
             console.error('Error fetching departments:', err);
@@ -50,7 +50,7 @@ export default function ManageLevels() {
 
     const fetchYears = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/api/academic/years/');
+            const response = await axios.get('/api/academic/years/');
             setYears(response.data);
         } catch (err) {
             console.error('Error fetching years:', err);
@@ -71,9 +71,9 @@ export default function ManageLevels() {
     const handleSave = async () => {
         try {
             if (isEdit) {
-                await axios.put(`http://localhost:8000/api/academic/levels/${currentLevel.id}/`, currentLevel);
+                await axios.put(`/api/academic/levels/${currentLevel.id}/`, currentLevel);
             } else {
-                await axios.post('http://localhost:8000/api/academic/levels/', currentLevel);
+                await axios.post('/api/academic/levels/', currentLevel);
             }
             fetchLevels();
             handleClose();
@@ -86,7 +86,7 @@ export default function ManageLevels() {
     const handleDelete = async (id) => {
         if (window.confirm('هل أنت متأكد من حذف هذا المستوى؟')) {
             try {
-                await axios.delete(`http://localhost:8000/api/academic/levels/${id}/`);
+                await axios.delete(`/api/academic/levels/${id}/`);
                 fetchLevels();
             } catch (err) {
                 console.error('Error deleting level:', err);
@@ -105,7 +105,7 @@ export default function ManageLevels() {
     const handleViewStudents = async (level) => {
         setSelectedLevelName(level.name);
         try {
-            const response = await axios.get(`http://localhost:8000/api/academic/levels/${level.id}/students/`);
+            const response = await axios.get(`/api/academic/levels/${level.id}/students/`);
             setLevelStudents(response.data);
             setStudentsOpen(true);
         } catch (err) {
