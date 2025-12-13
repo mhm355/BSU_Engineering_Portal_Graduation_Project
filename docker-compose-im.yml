@@ -1,0 +1,43 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: bsu_db_1
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: bsu_db
+      MYSQL_USER: bsu_user
+      MYSQL_PASSWORD: bsu_password
+    volumes:
+      - db_data_1:/var/lib/mysql
+    ports:
+      - "3307:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    image: mhmdocker1/bsu_backend:v1.1
+    container_name: bsu_backend_1
+    ports:
+      - "8001:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: always
+    environment:
+      - DATABASE_URL=mysql://bsu_user:bsu_password@db:3306/bsu_db
+
+  frontend:
+    image: mhmdocker1/bsu_frontend:v1.1
+    container_name: bsu_frontend_1
+    ports:
+      - "5172:80"
+    depends_on:
+      - backend
+    restart: always 
+
+volumes:
+  db_data_1:
