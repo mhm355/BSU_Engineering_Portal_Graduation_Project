@@ -18,3 +18,8 @@ class NewsViewSet(viewsets.ModelViewSet):
         if self.action in ['create', 'update', 'partial_update', 'destroy']:
             return [IsAdminOrStaff()]
         return [permissions.AllowAny()]
+
+    def perform_create(self, serializer):
+        """Automatically set created_by to the current user."""
+        serializer.save(created_by=self.request.user)
+

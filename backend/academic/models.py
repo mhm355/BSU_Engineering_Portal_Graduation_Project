@@ -17,17 +17,62 @@ class AcademicYear(models.Model):
         return self.name
 
 class Level(models.Model):
-    name = models.CharField(max_length=50) # e.g., "First Year"
-    department = models.ForeignKey(Department, on_delete=models.CASCADE, related_name='levels')
+    class LevelName(models.TextChoices):
+        PREPARATORY = "PREPARATORY", "Preparatory"
+        FIRST = "FIRST", "First Year"
+        SECOND = "SECOND", "Second Year"
+        THIRD = "THIRD", "Third Year"
+        FOURTH = "FOURTH", "Fourth Year"
+
+    name = models.CharField(max_length=50, choices=LevelName.choices)
+    # Department is nullable for Preparatory level
+    department = models.ForeignKey(
+        Department, 
+        on_delete=models.CASCADE, 
+        related_name='levels',
+        null=True,
+        blank=True
+    )
     academic_year = models.ForeignKey(AcademicYear, on_delete=models.CASCADE)
 
+    class Meta:
+        unique_together = ('name', 'department', 'academic_year')
+
     def __str__(self):
-        return f"{self.name} - {self.department.name} ({self.academic_year.name})"
+        if self.department:
+            return f"{self.get_name_display()} - {self.department.name} ({self.academic_year.name})"
+        return f"{self.get_name_display()} ({self.academic_year.name})"
+
+class Student(models.Model):
+    """Academic entity for students - separate from User authentication"""
+    national_id = models.CharField(max_length=14, unique=True)
+    full_name = models.CharField(max_length=200)
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.CASCADE, 
+        related_name='student_profile',
+        null=True,
+        blank=True
+    )
+    level = models.ForeignKey(Level, on_delete=models.CASCADE, related_name='students')
+    academic_year = models.ForeignKey(AcademicYear, on_delete=models.CASCADE)
+    department = models.ForeignKey(
+        Department, 
+        on_delete=models.CASCADE, 
+        null=True, 
+        blank=True,
+        related_name='students'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.full_name} ({self.national_id})"
 
 class Course(models.Model):
     name = models.CharField(max_length=100)
     code = models.CharField(max_length=20, unique=True)
-    department = models.ForeignKey(Department, on_delete=models.CASCADE)
+    department = models.ForeignKey(Department, on_delete=models.CASCADE, null=True, blank=True)
     level = models.ForeignKey(Level, on_delete=models.CASCADE)
     semester = models.CharField(max_length=20, choices=[('1', 'First'), ('2', 'Second')])
     credit_hours = models.IntegerField(default=3)
@@ -106,4 +151,26 @@ class Certificate(models.Model):
 
     def __str__(self):
         return f"Certificate for {self.student.username}"
+
+class AuditLog(models.Model):
+    """Track batch upload and other administrative actions"""
+    class ActionType(models.TextChoices):
+        STUDENT_BATCH_UPLOAD = "STUDENT_BATCH_UPLOAD", "Student Batch Upload"
+        DOCTOR_BATCH_UPLOAD = "DOCTOR_BATCH_UPLOAD", "Doctor Batch Upload"
+        PASSWORD_RESET = "PASSWORD_RESET", "Password Reset"
+
+    action = models.CharField(max_length=50, choices=ActionType.choices)
+    performed_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.CASCADE, 
+        related_name='audit_logs'
+    )
+    entity_type = models.CharField(max_length=50)  # e.g., 'ACADEMIC_YEAR', 'STUDENT'
+    entity_id = models.IntegerField(null=True, blank=True)
+    details = models.JSONField(null=True, blank=True)  # Additional info about the action
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.action} by {self.performed_by.username} at {self.created_at}"
+
 

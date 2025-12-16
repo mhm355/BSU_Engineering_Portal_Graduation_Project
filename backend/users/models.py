@@ -8,11 +8,23 @@ class User(AbstractUser):
         DOCTOR = "DOCTOR", "Doctor"
         STAFF = "STAFF", "Staff Affairs"
 
+    class GraduationStatus(models.TextChoices):
+        PENDING = "PENDING", "Pending"
+        APPROVED = "APPROVED", "Approved"
+        REJECTED = "REJECTED", "Rejected"
+
     role = models.CharField(max_length=50, choices=Role.choices, default=Role.STUDENT)
     national_id = models.CharField(max_length=14, unique=True, null=True, blank=True)
     phone_number = models.CharField(max_length=15, null=True, blank=True)
     address = models.TextField(null=True, blank=True)
     profile_picture = models.ImageField(upload_to='profile_pics/', null=True, blank=True)
+    first_login_required = models.BooleanField(default=False)
+    graduation_status = models.CharField(
+        max_length=20, 
+        choices=GraduationStatus.choices, 
+        default=GraduationStatus.PENDING,
+        blank=True
+    )
 
     def save(self, *args, **kwargs):
         if not self.pk and not self.is_superuser:
@@ -23,3 +35,4 @@ class User(AbstractUser):
 
     def __str__(self):
         return f"{self.username} ({self.get_role_display()})"
+

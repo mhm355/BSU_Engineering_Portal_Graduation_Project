@@ -1,0 +1,45 @@
+# Backend .dockerignore - Reduces image size
+# Safe for both production and testing
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg
+*.egg-info/
+.eggs/
+
+# Virtual environments
+venv/
+.venv/
+ENV/
+env/
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Git
+.git/
+.gitignore
+
+# Testing cache
+pytest_cache/
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Documentation
+docs/
+
+# Logs
+*.log
+
+# macOS
+.DS_Store
+

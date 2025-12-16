@@ -19,7 +19,10 @@ class LoginView(APIView):
         print(f"Authenticate result: {user}")
         if user:
             login(request, user)
-            return Response(UserSerializer(user).data)
+            user_data = UserSerializer(user).data
+            # Include first_login_required flag
+            user_data['first_login_required'] = user.first_login_required
+            return Response(user_data)
         return Response({'error': 'Invalid Credentials'}, status=status.HTTP_400_BAD_REQUEST)
 
 class LogoutView(APIView):
@@ -51,6 +54,63 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
     def get_object(self):
         return self.request.user
 
+class ChangePasswordView(APIView):
+    """
+    Change password endpoint - particularly for first login requirement.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        current_password = request.data.get('current_password')
+        new_password = request.data.get('new_password')
+        confirm_password = request.data.get('confirm_password')
+
+        # Validate inputs
+        if not current_password or not new_password or not confirm_password:
+            return Response(
+                {'error': 'All password fields are required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Check current password
+        if not user.check_password(current_password):
+            return Response(
+                {'error': 'Current password is incorrect'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Check new passwords match
+        if new_password != confirm_password:
+            return Response(
+                {'error': 'New passwords do not match'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Check new password is not the same as national_id
+        if user.national_id and new_password == user.national_id:
+            return Response(
+                {'error': 'New password cannot be the same as your National ID'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Check minimum password length
+        if len(new_password) < 6:
+            return Response(
+                {'error': 'Password must be at least 6 characters'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Update password
+        user.set_password(new_password)
+        user.first_login_required = False
+        user.save()
+
+        # Re-authenticate user with new password
+        login(request, user)
+
+        return Response({'message': 'Password changed successfully'})
+
 from rest_framework import viewsets
 from .serializers import UserManagementSerializer
 from django.contrib.auth import get_user_model
@@ -62,3 +122,4 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserManagementSerializer
     permission_classes = [IsAdminRole]
+

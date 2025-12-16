@@ -18,11 +18,27 @@ echo "Checking for admin user..."
 python manage.py shell -c "
 from django.contrib.auth import get_user_model
 User = get_user_model()
-if not User.objects.filter(username='admin').exists():
-    User.objects.create_superuser('admin', 'admin@example.com', 'password123', role='ADMIN')
+admin, created = User.objects.get_or_create(
+    username='admin',
+    defaults={
+        'email': 'admin@example.com',
+        'is_superuser': True,
+        'is_staff': True,
+        'role': 'ADMIN'
+    }
+)
+if created:
+    admin.set_password('password123')
+    admin.save()
     print('Admin user created!')
 else:
-    print('Admin user already exists.')
+    # Ensure existing admin has correct role
+    if admin.role != 'ADMIN':
+        admin.role = 'ADMIN'
+        admin.save()
+        print('Admin role updated!')
+    else:
+        print('Admin user already exists.')
 "
 
 # Start the server
