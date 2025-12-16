@@ -30,7 +30,7 @@ export default function ManageUsers() {
         }
     };
 
-    const handleOpen = (user = { username: '', first_name: '', last_name: '', email: '', role: 'STUDENT', national_id: '' }) => {
+    const handleOpen = (user = { first_name: '', last_name: '', email: '', role: 'STUDENT', national_id: '' }) => {
         setCurrentUser(user);
         setIsEdit(!!user.id);
         setOpen(true);
@@ -44,9 +44,19 @@ export default function ManageUsers() {
     const handleSave = async () => {
         try {
             if (isEdit) {
-                await axios.put(`/api/auth/users/${currentUser.id}/`, currentUser);
+                // Only include password if it's not empty
+                const updateData = { ...currentUser };
+                if (!updateData.password || updateData.password.trim() === '') {
+                    delete updateData.password;
+                }
+                await axios.put(`/api/auth/users/${currentUser.id}/`, updateData);
             } else {
-                await axios.post('/api/auth/users/', { ...currentUser, password: currentUser.national_id || 'password123' });
+                // For new users: username = national_id, password = national_id
+                await axios.post('/api/auth/users/', {
+                    ...currentUser,
+                    username: currentUser.national_id,
+                    password: currentUser.national_id
+                });
             }
             fetchUsers();
             handleClose();
@@ -123,14 +133,16 @@ export default function ManageUsers() {
                 <DialogContent>
                     {error && <Alert severity="error" sx={{ mb: 2, fontFamily: 'Cairo' }}>{error}</Alert>}
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
-                        <TextField
-                            label="اسم المستخدم"
-                            fullWidth
-                            value={currentUser.username}
-                            onChange={(e) => setCurrentUser({ ...currentUser, username: e.target.value })}
-                            InputLabelProps={{ style: { fontFamily: 'Cairo' } }}
-                            disabled={isEdit}
-                        />
+                        {isEdit && (
+                            <TextField
+                                label="اسم المستخدم (الرقم القومي)"
+                                fullWidth
+                                value={currentUser.username}
+                                InputLabelProps={{ style: { fontFamily: 'Cairo' } }}
+                                disabled={true}
+                                helperText="اسم المستخدم هو الرقم القومي ولا يمكن تغييره"
+                            />
+                        )}
                         <TextField
                             label="الاسم الأول"
                             fullWidth
@@ -146,7 +158,7 @@ export default function ManageUsers() {
                             InputLabelProps={{ style: { fontFamily: 'Cairo' } }}
                         />
                         <TextField
-                            label="الرقم القومي (كلمة المرور الافتراضية)"
+                            label={isEdit ? "الرقم القومي" : "الرقم القومي (اسم المستخدم وكلمة المرور)"}
                             fullWidth
                             value={currentUser.national_id}
                             onChange={(e) => {
@@ -155,9 +167,20 @@ export default function ManageUsers() {
                                 }
                             }}
                             InputLabelProps={{ style: { fontFamily: 'Cairo' } }}
-                            helperText={`${currentUser.national_id.length}/14`}
-                            error={currentUser.national_id.length > 0 && currentUser.national_id.length !== 14}
+                            helperText={isEdit ? "الرقم القومي لا يمكن تغييره" : `${currentUser.national_id?.length || 0}/14 - سيكون هذا اسم المستخدم وكلمة المرور`}
+                            error={!isEdit && currentUser.national_id?.length > 0 && currentUser.national_id?.length !== 14}
+                            disabled={isEdit}
                         />
+                        {isEdit && (
+                            <TextField
+                                label="كلمة المرور الجديدة (اتركها فارغة للإبقاء على القديمة)"
+                                fullWidth
+                                type="password"
+                                value={currentUser.password || ''}
+                                onChange={(e) => setCurrentUser({ ...currentUser, password: e.target.value })}
+                                InputLabelProps={{ style: { fontFamily: 'Cairo' } }}
+                            />
+                        )}
                         <TextField
                             select
                             label="الدور"

@@ -50,6 +50,9 @@ export default function ManageNews() {
         if (currentNews.image instanceof File) {
             formData.append('image', currentNews.image);
         }
+        if (currentNews.attachment instanceof File) {
+            formData.append('attachment', currentNews.attachment);
+        }
 
         try {
             if (isEdit) {
@@ -169,6 +172,19 @@ export default function ManageNews() {
                                 hidden
                                 accept="image/*"
                                 onChange={(e) => setCurrentNews({ ...currentNews, image: e.target.files[0] })}
+                            />
+                        </Button>
+                        <Button
+                            variant="outlined"
+                            component="label"
+                            sx={{ fontFamily: 'Cairo' }}
+                        >
+                            {currentNews.attachment instanceof File ? currentNews.attachment.name : 'رفع ملف مرفق (PDF, Excel, Word)'}
+                            <input
+                                type="file"
+                                hidden
+                                accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip,.rar"
+                                onChange={(e) => setCurrentNews({ ...currentNews, attachment: e.target.files[0] })}
                             />
                         </Button>
                     </Box>
