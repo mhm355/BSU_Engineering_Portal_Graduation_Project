@@ -1,0 +1,63 @@
+# Root .dockerignore - For production builds using backend-dockerfile and frontend-dockerfile
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.idea/
+.vscode/
+
+# Documentation
+*.md
+*.pdf
+docs/
+
+# Screenshots and exports
+screenshots/
+pdf-forge-exports/
+
+# Sample files not needed in production
+sample_*.xlsx
+
+# Development docker compose
+docker-compose.yml
+
+# macOS
+.DS_Store
+
+# Node modules (frontend will install fresh)
+frontend/node_modules/
+
+# Python cache
+**/__pycache__/
+**/*.py[cod]
+**/*.so
+
+# Virtual environments
+**/venv/
+**/.venv/
+
+# Media (should be volume mounted)
+backend/media/
+
+# Temporary files
+**/tmp/
+**/temp/
+backend/tmp_exel/
+
+# Testing scripts
+verify_system.sh
+
+# Seed scripts (not needed in production)
+backend/seed_*.py
+
+# Local Dockerfiles (for development)
+backend/Dockerfile
+frontend/Dockerfile
+
+# Markdown files
+*.md
+
+# Pdf files
+*.pdf
