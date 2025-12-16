@@ -85,15 +85,30 @@ export default function Home() {
                 </Box>
 
                 <Grid container spacing={4}>
+                    {newsList.length === 0 && (
+                        <Grid item xs={12}>
+                            <Typography variant="body1" sx={{ fontFamily: 'Cairo', textAlign: 'center', color: 'text.secondary' }}>
+                                لا توجد أخبار حالياً
+                            </Typography>
+                        </Grid>
+                    )}
                     {newsList.map((news) => (
                         <Grid item xs={12} md={4} key={news.id}>
                             <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', transition: 'transform 0.3s', '&:hover': { transform: 'translateY(-5px)', boxShadow: 6 } }}>
-                                <CardMedia
-                                    component="img"
-                                    height="200"
-                                    image={news.image}
-                                    alt={news.title}
-                                />
+                                {news.image && (
+                                    <CardMedia
+                                        component="img"
+                                        height="200"
+                                        image={news.image}
+                                        alt={news.title}
+                                        sx={{ objectFit: 'cover' }}
+                                    />
+                                )}
+                                {!news.image && (
+                                    <Box sx={{ height: 200, bgcolor: '#e0e0e0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                        <NewspaperIcon sx={{ fontSize: 60, color: '#9e9e9e' }} />
+                                    </Box>
+                                )}
                                 <CardContent sx={{ flexGrow: 1 }}>
                                     <Typography variant="caption" color="textSecondary" sx={{ fontFamily: 'Cairo', display: 'block', mb: 1 }}>
                                         {new Date(news.created_at).toLocaleDateString('ar-EG')}
@@ -101,12 +116,19 @@ export default function Home() {
                                     <Typography variant="h6" component="h2" gutterBottom sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342' }}>
                                         {news.title}
                                     </Typography>
-                                    <Typography variant="body2" color="text.secondary" sx={{ fontFamily: 'Cairo', mb: 2 }}>
+                                    <Typography variant="body2" color="text.secondary" sx={{ fontFamily: 'Cairo', mb: 2, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' }}>
                                         {news.content}
                                     </Typography>
-                                    <Button size="small" sx={{ fontFamily: 'Cairo', color: '#3b82f6' }} endIcon={<ArrowBackIcon sx={{ transform: 'rotate(180deg)' }} />}>
-                                        اقرأ المزيد
-                                    </Button>
+                                    {news.attachment && (
+                                        <Button
+                                            size="small"
+                                            href={news.attachment}
+                                            target="_blank"
+                                            sx={{ fontFamily: 'Cairo', color: '#3b82f6', mb: 1 }}
+                                        >
+                                            تحميل المرفق
+                                        </Button>
+                                    )}
                                 </CardContent>
                             </Card>
                         </Grid>
