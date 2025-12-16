@@ -3,25 +3,21 @@ import { Box, Container, Typography, Grid, Card, CardContent, Button, Alert } fr
 import PeopleIcon from '@mui/icons-material/People';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import CardMembershipIcon from '@mui/icons-material/CardMembership';
+import NewspaperIcon from '@mui/icons-material/Newspaper';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 export default function StudentAffairsDashboard() {
-    const [user, setUser] = useState(null);
+    const { user } = useAuth();
     const navigate = useNavigate();
 
     useEffect(() => {
-        const storedUser = localStorage.getItem('user');
-        if (storedUser) {
-            const parsedUser = JSON.parse(storedUser);
-            setUser(parsedUser);
-            if (parsedUser.role !== 'STAFF') { // Assuming role is still STAFF in backend for now, or we should update it?
-                // Let's keep role as STAFF in backend for simplicity, but display "Student Affairs"
-                navigate('/');
-            }
-        } else {
+        if (!user) {
             navigate('/login');
+        } else if (user.role !== 'STAFF' && user.role !== 'ADMIN') {
+            navigate('/');
         }
-    }, [navigate]);
+    }, [user, navigate]);
 
     if (!user) return null;
 
@@ -37,7 +33,7 @@ export default function StudentAffairsDashboard() {
             </Box>
 
             <Grid container spacing={3}>
-                <Grid item xs={12} md={4}>
+                <Grid item xs={12} md={3}>
                     <Card sx={{ height: '100%', bgcolor: '#e3f2fd' }}>
                         <CardContent sx={{ textAlign: 'center' }}>
                             <PeopleIcon sx={{ fontSize: 60, color: '#1976d2', mb: 2 }} />
@@ -47,7 +43,7 @@ export default function StudentAffairsDashboard() {
                         </CardContent>
                     </Card>
                 </Grid>
-                <Grid item xs={12} md={4}>
+                <Grid item xs={12} md={3}>
                     <Card sx={{ height: '100%', bgcolor: '#fff3e0' }}>
                         <CardContent sx={{ textAlign: 'center' }}>
                             <UploadFileIcon sx={{ fontSize: 60, color: '#f57c00', mb: 2 }} />
@@ -57,7 +53,7 @@ export default function StudentAffairsDashboard() {
                         </CardContent>
                     </Card>
                 </Grid>
-                <Grid item xs={12} md={4}>
+                <Grid item xs={12} md={3}>
                     <Card sx={{ height: '100%', bgcolor: '#e8f5e9' }}>
                         <CardContent sx={{ textAlign: 'center' }}>
                             <CardMembershipIcon sx={{ fontSize: 60, color: '#388e3c', mb: 2 }} />
@@ -67,7 +63,18 @@ export default function StudentAffairsDashboard() {
                         </CardContent>
                     </Card>
                 </Grid>
+                <Grid item xs={12} md={3}>
+                    <Card sx={{ height: '100%', bgcolor: '#fce4ec' }}>
+                        <CardContent sx={{ textAlign: 'center' }}>
+                            <NewspaperIcon sx={{ fontSize: 60, color: '#c2185b', mb: 2 }} />
+                            <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>الأخبار والإعلانات</Typography>
+                            <Typography variant="body2" color="textSecondary" sx={{ mb: 2, fontFamily: 'Cairo' }}>نشر أخبار للطلاب</Typography>
+                            <Button variant="contained" color="secondary" sx={{ mt: 2, fontFamily: 'Cairo' }} onClick={() => navigate('/student-affairs/news')}>إدارة الأخبار</Button>
+                        </CardContent>
+                    </Card>
+                </Grid>
             </Grid>
         </Container>
     );
 }
+

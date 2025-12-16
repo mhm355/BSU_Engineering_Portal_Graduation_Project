@@ -32,6 +32,12 @@ export default function Login() {
             // Use context login
             login(response.data);
 
+            // Check if first login - redirect to password change
+            if (response.data.first_login_required) {
+                navigate('/change-password');
+                return;
+            }
+
             // Redirect based on role
             const role = response.data.role;
             if (role === 'STUDENT') navigate('/student/dashboard');

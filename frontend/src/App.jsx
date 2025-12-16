@@ -7,6 +7,7 @@ import Departments from './pages/dashboards/student_affairs/public/Departments';
 import ManageNews from './pages/dashboards/admin/ManageNews';
 import Contact from './pages/Contact';
 import Login from './pages/Login';
+import ChangePassword from './pages/ChangePassword';
 import StudentDashboard from './pages/dashboards/StudentDashboard';
 import DoctorDashboard from './pages/dashboards/DoctorDashboard';
 import AdminDashboard from './pages/dashboards/AdminDashboard';
@@ -22,6 +23,7 @@ import StudentAffairsDashboard from './pages/dashboards/StudentAffairsDashboard'
 import HierarchyView from './pages/dashboards/student_affairs/HierarchyView';
 import UploadStudents from './pages/dashboards/student_affairs/UploadStudents';
 import UploadCertificates from './pages/dashboards/student_affairs/UploadCertificates';
+import ManageStaffNews from './pages/dashboards/student_affairs/ManageStaffNews';
 import DoctorCourseManager from './pages/dashboards/doctor/DoctorCourseManager';
 import UploadGrades from './pages/dashboards/doctor/UploadGrades';
 import ApprovalCenter from './pages/dashboards/admin/ApprovalCenter';
@@ -41,12 +43,14 @@ function App() {
           <Route path="/" element={<Layout />}>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/change-password" element={<ChangePassword />} />
             <Route path="/staff" element={<StaffDirectory />} />
             <Route path="/departments" element={<Departments />} />
             <Route path="departments" element={<Departments />} />
             <Route path="contact" element={<Contact />} />
             <Route path="login" element={<Login />} />
             <Route path="about" element={<About />} /> {/* Kept existing route not in instruction */}
+
 
             {/* Protected Dashboard Routes */}
             <Route path="student/dashboard" element={<StudentDashboard />} />
@@ -66,6 +70,7 @@ function App() {
             <Route path="student-affairs/hierarchy" element={<HierarchyView />} />
             <Route path="student-affairs/upload-students" element={<UploadStudents />} />
             <Route path="student-affairs/certificates" element={<UploadCertificates />} />
+            <Route path="student-affairs/news" element={<ManageStaffNews />} />
             <Route path="admin/dashboard" element={<AdminDashboard />} />
 
             {/* Admin Routes */}

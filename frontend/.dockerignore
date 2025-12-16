@@ -1,0 +1,35 @@
+# Frontend .dockerignore - Reduces image size
+# Safe for both production and testing
+
+# Dependencies (will be installed fresh during build)
+node_modules/
+
+# Build output (will be created during build)
+dist/
+build/
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Git
+.git/
+.gitignore
+
+# Testing cache
+coverage/
+.nyc_output/
+
+# Logs
+*.log
+.eslintcache
+
+# macOS
+.DS_Store
+
+# TypeScript cache
+*.tsbuildinfo
+
