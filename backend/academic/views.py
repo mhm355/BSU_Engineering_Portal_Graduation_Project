@@ -395,3 +395,104 @@ class StudentProfileView(APIView):
                 'department': None,
                 'academic_year': None,
             })
+
+
+# ========== Bulk Attendance API ==========
+class BulkAttendanceView(APIView):
+    """Doctor saves attendance for multiple students at once"""
+    permission_classes = [IsDoctorRole]
+
+    def post(self, request):
+        attendance_list = request.data
+        if not isinstance(attendance_list, list):
+            return Response({'error': 'Expected list of attendance records'}, status=status.HTTP_400_BAD_REQUEST)
+
+        created = 0
+        updated = 0
+        for item in attendance_list:
+            student_id = item.get('student_id')
+            course_offering_id = item.get('course_offering_id')
+            date = item.get('date')
+            attendance_status = item.get('status', 'PRESENT')
+
+            try:
+                student = Student.objects.get(id=student_id)
+                course_offering = CourseOffering.objects.get(id=course_offering_id)
+
+                # Verify doctor owns this course
+                if course_offering.doctor != request.user:
+                    continue
+
+                obj, is_created = Attendance.objects.update_or_create(
+                    student=student,
+                    course_offering=course_offering,
+                    date=date,
+                    defaults={'status': attendance_status}
+                )
+                if is_created:
+                    created += 1
+                else:
+                    updated += 1
+
+            except (Student.DoesNotExist, CourseOffering.DoesNotExist):
+                continue
+
+        return Response({'created': created, 'updated': updated})
+
+
+# ========== Bulk Student Grades API ==========
+class BulkStudentGradeView(APIView):
+    """Doctor saves grades for multiple students at once"""
+    permission_classes = [IsDoctorRole]
+
+    def post(self, request):
+        grades_list = request.data
+        if not isinstance(grades_list, list):
+            return Response({'error': 'Expected list of grade records'}, status=status.HTTP_400_BAD_REQUEST)
+
+        created = 0
+        updated = 0
+        for item in grades_list:
+            student_id = item.get('student_id')
+            course_offering_id = item.get('course_offering_id')
+
+            try:
+                student = Student.objects.get(id=student_id)
+                course_offering = CourseOffering.objects.get(id=course_offering_id)
+
+                # Verify doctor owns this course
+                if course_offering.doctor != request.user:
+                    continue
+
+                # Check if academic year is open
+                if course_offering.academic_year.status == 'CLOSED':
+                    continue
+
+                defaults = {}
+                if item.get('attendance_grade') is not None:
+                    defaults['attendance_grade'] = item['attendance_grade']
+                if item.get('quizzes_grade') is not None:
+                    defaults['quizzes_grade'] = item['quizzes_grade']
+                if item.get('coursework_grade') is not None:
+                    defaults['coursework_grade'] = item['coursework_grade']
+                if item.get('midterm_grade') is not None:
+                    defaults['midterm_grade'] = item['midterm_grade']
+                if item.get('final_grade') is not None:
+                    defaults['final_grade'] = item['final_grade']
+
+                if defaults:
+                    obj, is_created = StudentGrade.objects.update_or_create(
+                        student=student,
+                        course_offering=course_offering,
+                        defaults=defaults
+                    )
+                    if is_created:
+                        created += 1
+                    else:
+                        updated += 1
+
+            except (Student.DoesNotExist, CourseOffering.DoesNotExist):
+                continue
+
+        return Response({'created': created, 'updated': updated})
+

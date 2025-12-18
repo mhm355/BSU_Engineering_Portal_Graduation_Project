@@ -352,6 +352,7 @@ class AuditLog(models.Model):
         DOCTOR_BATCH_UPLOAD = "DOCTOR_BATCH_UPLOAD", "Doctor Batch Upload"
         STAFF_BATCH_UPLOAD = "STAFF_BATCH_UPLOAD", "Staff Batch Upload"
         GRADE_UPLOAD = "GRADE_UPLOAD", "Grade Upload"
+        STUDENT_PASSWORD_RESET = "STUDENT_PASSWORD_RESET", "Student Password Reset"
 
     action = models.CharField(max_length=50, choices=ActionType.choices)
     performed_by = models.ForeignKey(
@@ -366,3 +367,93 @@ class AuditLog(models.Model):
 
     def __str__(self):
         return f"{self.action} by {self.performed_by.username} at {self.created_at}"
+
+
+class Quiz(models.Model):
+    """Quiz created by doctor for students"""
+    class QuizType(models.TextChoices):
+        MCQ = "MCQ", "Multiple Choice"
+        ESSAY = "ESSAY", "Essay"
+        IMAGE = "IMAGE", "Image-based"
+
+    course_offering = models.ForeignKey(CourseOffering, on_delete=models.CASCADE, related_name='quizzes')
+    title = models.CharField(max_length=255)
+    description = models.TextField(blank=True)
+    quiz_type = models.CharField(max_length=20, choices=QuizType.choices, default=QuizType.MCQ)
+    image = models.ImageField(upload_to='quiz_images/', null=True, blank=True)  # For image-based quizzes
+    total_points = models.DecimalField(max_digits=5, decimal_places=2, default=10)
+    is_active = models.BooleanField(default=True)
+    time_limit_minutes = models.IntegerField(null=True, blank=True)  # Optional time limit
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.title} - {self.course_offering.subject.name}"
+
+    class Meta:
+        verbose_name_plural = "Quizzes"
+
+
+class QuizQuestion(models.Model):
+    """Individual question in a quiz"""
+    class QuestionType(models.TextChoices):
+        MCQ = "MCQ", "Multiple Choice"
+        ESSAY = "ESSAY", "Essay"
+
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='questions')
+    question_text = models.TextField()
+    question_type = models.CharField(max_length=20, choices=QuestionType.choices, default=QuestionType.MCQ)
+    points = models.DecimalField(max_digits=5, decimal_places=2, default=1)
+    order = models.IntegerField(default=0)
+
+    def __str__(self):
+        return f"Q{self.order}: {self.question_text[:50]}"
+
+    class Meta:
+        ordering = ['order']
+
+
+class QuizChoice(models.Model):
+    """Answer choices for MCQ questions"""
+    question = models.ForeignKey(QuizQuestion, on_delete=models.CASCADE, related_name='choices')
+    choice_text = models.CharField(max_length=500)
+    is_correct = models.BooleanField(default=False)
+    order = models.IntegerField(default=0)
+
+    def __str__(self):
+        return f"{self.choice_text} ({'✓' if self.is_correct else '✗'})"
+
+    class Meta:
+        ordering = ['order']
+
+
+class StudentQuizAttempt(models.Model):
+    """Student's attempt at a quiz"""
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='quiz_attempts')
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='attempts')
+    score = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    started_at = models.DateTimeField(auto_now_add=True)
+    submitted_at = models.DateTimeField(null=True, blank=True)
+    is_graded = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.student.full_name} - {self.quiz.title}"
+
+    class Meta:
+        unique_together = ['student', 'quiz']  # One attempt per quiz
+
+
+class StudentQuizAnswer(models.Model):
+    """Student's answer to a quiz question"""
+    attempt = models.ForeignKey(StudentQuizAttempt, on_delete=models.CASCADE, related_name='answers')
+    question = models.ForeignKey(QuizQuestion, on_delete=models.CASCADE, related_name='student_answers')
+    selected_choice = models.ForeignKey(QuizChoice, on_delete=models.SET_NULL, null=True, blank=True)  # For MCQ
+    essay_answer = models.TextField(blank=True)  # For essay questions
+    points_earned = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+
+    def __str__(self):
+        return f"Answer by {self.attempt.student.full_name} for Q{self.question.order}"
+
+    class Meta:
+        unique_together = ['attempt', 'question']
+
