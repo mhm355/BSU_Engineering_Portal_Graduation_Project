@@ -86,6 +86,17 @@ export default function StudentAffairsDashboard() {
                         </CardContent>
                     </Card>
                 </Grid>
+
+                <Grid item xs={12} md={3}>
+                    <Card sx={{ height: '100%', bgcolor: '#e0f7fa' }}>
+                        <CardContent sx={{ textAlign: 'center' }}>
+                            <PeopleIcon sx={{ fontSize: 60, color: '#00838f', mb: 2 }} />
+                            <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>عرض درجات الطلاب</Typography>
+                            <Typography variant="body2" color="textSecondary" sx={{ mb: 2, fontFamily: 'Cairo' }}>عرض درجات كل فرقة (للقراءة فقط)</Typography>
+                            <Button variant="contained" sx={{ mt: 2, fontFamily: 'Cairo', bgcolor: '#00838f' }} onClick={() => navigate('/student-affairs/grades')}>عرض الدرجات</Button>
+                        </CardContent>
+                    </Card>
+                </Grid>
             </Grid>
         </Container>
     );

@@ -69,11 +69,14 @@ const AssignDoctors = () => {
         }
     }, [selectedDepartment, selectedYear]);
 
+    // Only fetch subjects when BOTH level AND term are selected
     useEffect(() => {
-        if (selectedLevel) {
+        if (selectedLevel && selectedTerm && terms.length > 0) {
             fetchSubjects();
+        } else {
+            setSubjects([]); // Clear subjects if no term selected
         }
-    }, [selectedLevel]);
+    }, [selectedLevel, selectedTerm, terms]);
 
     const fetchInitialData = async () => {
         setLoading(true);
@@ -133,7 +136,10 @@ const AssignDoctors = () => {
 
             // Filter by semester based on term
             const term = terms.find(t => t.id === parseInt(selectedTerm));
-            const semester = term?.name === 'FIRST' ? 1 : 2;
+            if (!term) return; // Don't fetch if no term selected
+
+            const semester = term.name === 'FIRST' ? 1 : 2;
+            console.log(`Fetching subjects: level=${level.name}, semester=${semester}, term=${term.name}`);
 
             const res = await axios.get(
                 `/api/academic/subjects/?department=${selectedDepartment}&level=${level.name}&semester=${semester}`,
@@ -144,13 +150,6 @@ const AssignDoctors = () => {
             console.error(err);
         }
     };
-
-    // Refetch subjects when term changes
-    useEffect(() => {
-        if (selectedLevel && selectedTerm) {
-            fetchSubjects();
-        }
-    }, [selectedTerm]);
 
     const handleAssign = async () => {
         if (!selectedDoctor || !selectedSubject || !selectedLevel || !selectedTerm) {

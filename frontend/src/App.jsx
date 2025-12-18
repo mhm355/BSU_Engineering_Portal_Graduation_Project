@@ -17,6 +17,8 @@ import StudentGrades from './pages/dashboards/student/StudentGrades';
 import StudentAttendance from './pages/dashboards/student/StudentAttendance';
 import StudentMaterials from './pages/dashboards/student/StudentMaterials';
 import StudentExams from './pages/dashboards/student/StudentExams';
+import StudentQuizzes from './pages/dashboards/student/StudentQuizzes';
+import TakeQuiz from './pages/dashboards/student/TakeQuiz';
 import DoctorCourses from './pages/dashboards/doctor/DoctorCourses';
 import StudentAffairsDashboard from './pages/dashboards/StudentAffairsDashboard';
 import HierarchyView from './pages/dashboards/student_affairs/HierarchyView';
@@ -24,8 +26,11 @@ import UploadStudents from './pages/dashboards/student_affairs/UploadStudents';
 import UploadCertificates from './pages/dashboards/student_affairs/UploadCertificates';
 import ManageStaffNews from './pages/dashboards/student_affairs/ManageStaffNews';
 import UploadExamGrades from './pages/dashboards/student_affairs/UploadExamGrades';
+import StudentGradesView from './pages/dashboards/student_affairs/StudentGradesView';
 import DoctorCourseManager from './pages/dashboards/doctor/DoctorCourseManager';
+import DoctorCourseDetail from './pages/dashboards/doctor/DoctorCourseDetail';
 import UploadGrades from './pages/dashboards/doctor/UploadGrades';
+import CreateQuiz from './pages/dashboards/doctor/CreateQuiz';
 import ApprovalCenter from './pages/dashboards/admin/ApprovalCenter';
 import PendingApprovals from './pages/dashboards/admin/PendingApprovals';
 import AdminAcademicStructure from './pages/dashboards/admin/AdminAcademicStructure';
@@ -69,13 +74,17 @@ function App() {
             <Route path="student/attendance" element={<StudentAttendance />} />
             <Route path="student/materials" element={<StudentMaterials />} />
             <Route path="student/exams" element={<StudentExams />} />
+            <Route path="student/quizzes" element={<StudentQuizzes />} />
+            <Route path="student/quiz/:quizId" element={<TakeQuiz />} />
             <Route path="profile" element={<UserProfile />} />
 
             {/* Doctor Routes */}
             <Route path="doctor/dashboard" element={<DoctorDashboard />} />
             <Route path="doctor/courses" element={<DoctorCourses />} />
-            <Route path="doctor/courses/:courseId" element={<DoctorCourseManager />} />
+            <Route path="doctor/courses/:courseId" element={<DoctorCourseDetail />} />
+            <Route path="doctor/courses/:courseId/manage" element={<DoctorCourseManager />} />
             <Route path="doctor/courses/:courseId/upload-grades" element={<UploadGrades />} />
+            <Route path="doctor/courses/:courseId/quiz" element={<CreateQuiz />} />
 
             {/* Student Affairs Routes */}
             <Route path="staff/dashboard" element={<StudentAffairsDashboard />} />
@@ -85,6 +94,7 @@ function App() {
             <Route path="student-affairs/certificates" element={<UploadCertificates />} />
             <Route path="student-affairs/news" element={<ManageStaffNews />} />
             <Route path="student-affairs/exam-grades" element={<UploadExamGrades />} />
+            <Route path="student-affairs/grades" element={<StudentGradesView />} />
 
             {/* Staff Affairs Routes (NEW) */}
             <Route path="staff-affairs" element={<StaffAffairsDashboard />} />

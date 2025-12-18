@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import {
   Box, Container, Typography, Card, CardContent, Button,
-  CircularProgress, Alert, Chip, FormControl, InputLabel, Select, MenuItem
+  CircularProgress, Alert, Chip, FormControl, InputLabel, Select, MenuItem,
+  Accordion, AccordionSummary, AccordionDetails, Divider
 } from '@mui/material';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import GroupIcon from '@mui/icons-material/Group';
 import SchoolIcon from '@mui/icons-material/School';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
@@ -71,9 +73,119 @@ export default function DoctorDashboard() {
 
   if (!user) return null;
 
-  const getTermColor = (termName) => {
-    return termName === 'FIRST' ? 'primary' : 'secondary';
-  };
+  // Group courses by term
+  const firstTermCourses = courses.filter(c => c.term_name === 'FIRST');
+  const secondTermCourses = courses.filter(c => c.term_name === 'SECOND');
+
+  const CourseCard = ({ course }) => (
+    <Card
+      sx={{
+        width: { xs: '100%', sm: 'calc(50% - 12px)', md: 'calc(33.33% - 16px)' },
+        bgcolor: '#fff',
+        border: '1px solid #e0e0e0',
+        borderRadius: 2,
+        transition: 'all 0.3s',
+        '&:hover': {
+          boxShadow: 4,
+          transform: 'translateY(-4px)',
+        }
+      }}
+    >
+      <CardContent>
+        {/* Course Header */}
+        <Box sx={{ mb: 2 }}>
+          <Typography variant="subtitle2" color="textSecondary">
+            {course.subject_code}
+          </Typography>
+          <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
+            {course.subject_name}
+          </Typography>
+        </Box>
+
+        {/* Course Details */}
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 2 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <SchoolIcon fontSize="small" color="action" />
+            <Typography variant="body2" sx={{ fontFamily: 'Cairo' }}>
+              {course.department_name}
+            </Typography>
+          </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <CalendarMonthIcon fontSize="small" color="action" />
+            <Typography variant="body2" sx={{ fontFamily: 'Cairo' }}>
+              {course.level_name}
+            </Typography>
+          </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <GroupIcon fontSize="small" color="action" />
+            <Typography variant="body2" sx={{ fontFamily: 'Cairo' }}>
+              {course.student_count} طالب
+            </Typography>
+          </Box>
+        </Box>
+
+        {/* Grading Template Badge */}
+        {course.grading_template && (
+          <Chip
+            label={`قالب: ${course.grading_template}`}
+            size="small"
+            variant="outlined"
+            sx={{ mb: 2 }}
+          />
+        )}
+
+        {/* Action Buttons */}
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+          <Button
+            variant="contained"
+            size="small"
+            onClick={() => navigate(`/doctor/courses/${course.id}`)}
+            sx={{ fontFamily: 'Cairo' }}
+          >
+            إدارة المقرر
+          </Button>
+        </Box>
+      </CardContent>
+    </Card>
+  );
+
+  const TermSection = ({ title, courses, color, defaultExpanded }) => (
+    <Accordion defaultExpanded={defaultExpanded} sx={{ mb: 2, borderRadius: 2, overflow: 'hidden' }}>
+      <AccordionSummary
+        expandIcon={<ExpandMoreIcon sx={{ color: 'white' }} />}
+        sx={{
+          bgcolor: color,
+          color: 'white',
+          '& .MuiAccordionSummary-content': { alignItems: 'center', gap: 2 }
+        }}
+      >
+        <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
+          {title}
+        </Typography>
+        <Chip
+          label={`${courses.length} مقرر`}
+          size="small"
+          sx={{ bgcolor: 'rgba(255,255,255,0.2)', color: 'white' }}
+        />
+      </AccordionSummary>
+      <AccordionDetails sx={{ p: 3, bgcolor: '#fafafa' }}>
+        {courses.length > 0 ? (
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
+            {courses.map((course) => (
+              <CourseCard key={course.id} course={course} />
+            ))}
+          </Box>
+        ) : (
+          <Box sx={{ textAlign: 'center', py: 4 }}>
+            <MenuBookIcon sx={{ fontSize: 40, color: '#ccc', mb: 1 }} />
+            <Typography sx={{ fontFamily: 'Cairo', color: '#999' }}>
+              لا توجد مقررات معينة لك في هذا الترم
+            </Typography>
+          </Box>
+        )}
+      </AccordionDetails>
+    </Accordion>
+  );
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
@@ -117,11 +229,6 @@ export default function DoctorDashboard() {
 
       {error && <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError('')}>{error}</Alert>}
 
-      {/* Course Cards */}
-      <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', mb: 2 }}>
-        مقرراتي الدراسية ({courses.length})
-      </Typography>
-
       {loading ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
           <CircularProgress />
@@ -137,95 +244,23 @@ export default function DoctorDashboard() {
           </Typography>
         </Card>
       ) : (
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
-          {courses.map((course) => (
-            <Card
-              key={course.id}
-              sx={{
-                width: { xs: '100%', sm: 'calc(50% - 12px)', md: 'calc(33.33% - 16px)' },
-                bgcolor: '#fff',
-                border: '1px solid #e0e0e0',
-                borderRadius: 2,
-                transition: 'all 0.3s',
-                '&:hover': {
-                  boxShadow: 4,
-                  transform: 'translateY(-4px)',
-                }
-              }}
-            >
-              <CardContent>
-                {/* Course Header */}
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-                  <Box>
-                    <Typography variant="subtitle2" color="textSecondary">
-                      {course.subject_code}
-                    </Typography>
-                    <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
-                      {course.subject_name}
-                    </Typography>
-                  </Box>
-                  <Chip
-                    label={course.term}
-                    color={getTermColor(course.term_name)}
-                    size="small"
-                  />
-                </Box>
+        <>
+          {/* First Term Section */}
+          <TermSection
+            title="الترم الأول"
+            courses={firstTermCourses}
+            color="#1976d2"
+            defaultExpanded={true}
+          />
 
-                {/* Course Details */}
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 2 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <SchoolIcon fontSize="small" color="action" />
-                    <Typography variant="body2" sx={{ fontFamily: 'Cairo' }}>
-                      {course.department_name}
-                    </Typography>
-                  </Box>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <CalendarMonthIcon fontSize="small" color="action" />
-                    <Typography variant="body2" sx={{ fontFamily: 'Cairo' }}>
-                      {course.level_name}
-                    </Typography>
-                  </Box>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <GroupIcon fontSize="small" color="action" />
-                    <Typography variant="body2" sx={{ fontFamily: 'Cairo' }}>
-                      {course.student_count} طالب
-                    </Typography>
-                  </Box>
-                </Box>
-
-                {/* Grading Template Badge */}
-                {course.grading_template && (
-                  <Chip
-                    label={`قالب: ${course.grading_template}`}
-                    size="small"
-                    variant="outlined"
-                    sx={{ mb: 2 }}
-                  />
-                )}
-
-                {/* Action Buttons */}
-                <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                  <Button
-                    variant="contained"
-                    size="small"
-                    onClick={() => navigate(`/doctor/courses/${course.id}`)}
-                    sx={{ fontFamily: 'Cairo' }}
-                  >
-                    إدارة المقرر
-                  </Button>
-                  <Button
-                    variant="outlined"
-                    size="small"
-                    onClick={() => navigate(`/doctor/courses/${course.id}/grades`)}
-                    sx={{ fontFamily: 'Cairo' }}
-                  >
-                    الدرجات
-                  </Button>
-                </Box>
-              </CardContent>
-            </Card>
-          ))}
-        </Box>
+          {/* Second Term Section */}
+          <TermSection
+            title="الترم الثاني"
+            courses={secondTermCourses}
+            color="#7b1fa2"
+            defaultExpanded={secondTermCourses.length > 0}
+          />
+        </>
       )}
     </Container>
   );

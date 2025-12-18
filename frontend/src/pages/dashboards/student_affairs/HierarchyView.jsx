@@ -93,10 +93,38 @@ export default function HierarchyView() {
 
     const handleYearClick = (year) => {
         setSelectedYear(year);
-        fetchLevels(selectedDept.id, year.id);
-        setSelectedLevel(null);
-        setStudents([]);
+
+        // Special handling for Preparatory - skip level selection, fetch prep students directly
+        if (selectedDept?.isPreparatory) {
+            // Create a virtual "PREPARATORY" level
+            const prepLevel = { id: 'PREP', name: 'PREPARATORY' };
+            setSelectedLevel(prepLevel);
+            // Fetch students with level name = PREPARATORY
+            fetchPrepStudents(year.id);
+        } else {
+            fetchLevels(selectedDept.id, year.id);
+            setSelectedLevel(null);
+            setStudents([]);
+        }
     };
+
+    const fetchPrepStudents = async (yearId) => {
+        setLoading(true);
+        try {
+            // Fetch students with PREPARATORY level (no specific department)
+            const response = await axios.get(
+                `/api/academic/student-affairs/students/?level_name=PREPARATORY&academic_year=${yearId}`,
+                { withCredentials: true }
+            );
+            setStudents(response.data);
+            setLoading(false);
+        } catch (err) {
+            console.error('Error fetching prep students:', err);
+            setStudents([]);
+            setLoading(false);
+        }
+    };
+
 
     const handleLevelClick = (level) => {
         setSelectedLevel(level);
@@ -176,9 +204,24 @@ export default function HierarchyView() {
 
             {loading && <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}><CircularProgress /></Box>}
 
-            {/* Step 1: Departments */}
+            {/* Step 1: Departments + Preparatory */}
             {!loading && !selectedDept && (
                 <Grid container spacing={3}>
+                    {/* Special: Preparatory Year Card */}
+                    <Grid item xs={12} md={4}>
+                        <Card
+                            sx={{ cursor: 'pointer', '&:hover': { bgcolor: '#fff3e0' }, border: '2px solid #ff9800' }}
+                            onClick={() => handleDeptClick({ id: null, name: 'السنة التحضيرية', code: 'PREP', isPreparatory: true })}
+                        >
+                            <CardContent sx={{ textAlign: 'center' }}>
+                                <SchoolIcon sx={{ fontSize: 50, color: '#ff9800', mb: 2 }} />
+                                <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>السنة التحضيرية</Typography>
+                                <Typography variant="body2" color="textSecondary" sx={{ fontFamily: 'Cairo' }}>جميع طلاب الإعدادية</Typography>
+                            </CardContent>
+                        </Card>
+                    </Grid>
+
+                    {/* Regular Departments */}
                     {departments.map((dept) => (
                         <Grid item xs={12} md={4} key={dept.id}>
                             <Card sx={{ cursor: 'pointer', '&:hover': { bgcolor: '#f5f5f5' } }} onClick={() => handleDeptClick(dept)}>

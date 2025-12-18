@@ -5,7 +5,9 @@ import axios from 'axios';
 export default function UploadCertificates() {
     const [departments, setDepartments] = useState([]);
     const [students, setStudents] = useState([]);
+    const [academicYears, setAcademicYears] = useState([]);
     const [selectedDepartment, setSelectedDepartment] = useState('');
+    const [selectedYear, setSelectedYear] = useState('');
     const [selectedStudent, setSelectedStudent] = useState('');
     const [description, setDescription] = useState('');
     const [file, setFile] = useState(null);
@@ -24,18 +26,28 @@ export default function UploadCertificates() {
             const response = await axios.get('/api/academic/departments/', { withCredentials: true });
             setDepartments(response.data);
             setLoadingDepts(false);
+            // Also fetch academic years
+            const yearsRes = await axios.get('/api/academic/years/', { withCredentials: true });
+            setAcademicYears(yearsRes.data);
+            // Auto-select current year
+            const currentYear = yearsRes.data.find(y => y.is_current);
+            if (currentYear) setSelectedYear(currentYear.id);
         } catch (err) {
-            console.error('Error fetching departments:', err);
-            setError('فشل تحميل الأقسام');
+            console.error('Error fetching data:', err);
+            setError('فشل تحميل البيانات');
             setLoadingDepts(false);
         }
     };
 
-    const fetchStudentsByDepartment = async (deptId) => {
+    const fetchStudentsByDepartment = async (deptId, yearId) => {
+        if (!deptId || !yearId) return;
         setLoadingStudents(true);
         try {
-            // Fetch fourth year students filtered by department
-            const response = await axios.get(`/api/academic/student-affairs/students/?level_name=FOURTH&department=${deptId}`, { withCredentials: true });
+            // Fetch fourth year students filtered by department and academic year
+            const response = await axios.get(
+                `/api/academic/student-affairs/students/?level_name=FOURTH&department=${deptId}&academic_year=${yearId}`,
+                { withCredentials: true }
+            );
             setStudents(response.data);
             setLoadingStudents(false);
         } catch (err) {
@@ -50,8 +62,19 @@ export default function UploadCertificates() {
         const deptId = e.target.value;
         setSelectedDepartment(deptId);
         setSelectedStudent('');
-        if (deptId) {
-            fetchStudentsByDepartment(deptId);
+        if (deptId && selectedYear) {
+            fetchStudentsByDepartment(deptId, selectedYear);
+        } else {
+            setStudents([]);
+        }
+    };
+
+    const handleYearChange = (e) => {
+        const yearId = e.target.value;
+        setSelectedYear(yearId);
+        setSelectedStudent('');
+        if (selectedDepartment && yearId) {
+            fetchStudentsByDepartment(selectedDepartment, yearId);
         } else {
             setStudents([]);
         }
@@ -106,7 +129,7 @@ export default function UploadCertificates() {
             </Typography>
 
             <Alert severity="info" sx={{ mb: 3, fontFamily: 'Cairo' }}>
-                اختر القسم أولاً ثم اختر الطالب من طلاب السنة الرابعة في هذا القسم.
+                اختر القسم والعام الدراسي ثم اختر الطالب من طلاب السنة الرابعة.
             </Alert>
 
             <Paper sx={{ p: 4 }}>
@@ -117,8 +140,8 @@ export default function UploadCertificates() {
                     <Box sx={{ display: 'flex', justifyContent: 'center' }}><CircularProgress /></Box>
                 ) : (
                     <Grid container spacing={3}>
-                        {/* Step 1: Select Department */}
-                        <Grid item xs={12}>
+                        {/* Step 1: Select Department and Year */}
+                        <Grid item xs={12} md={6}>
                             <TextField
                                 select
                                 label="اختر القسم"
@@ -137,8 +160,27 @@ export default function UploadCertificates() {
                             </TextField>
                         </Grid>
 
-                        {/* Step 2: Select Student (only shows after department is selected) */}
-                        {selectedDepartment && (
+                        <Grid item xs={12} md={6}>
+                            <TextField
+                                select
+                                label="اختر العام الدراسي"
+                                fullWidth
+                                value={selectedYear}
+                                onChange={handleYearChange}
+                                InputLabelProps={{ style: { fontFamily: 'Cairo' } }}
+                                SelectProps={{ style: { fontFamily: 'Cairo' } }}
+                            >
+                                <MenuItem value="" sx={{ fontFamily: 'Cairo' }}>-- اختر العام --</MenuItem>
+                                {academicYears.map((year) => (
+                                    <MenuItem key={year.id} value={year.id} sx={{ fontFamily: 'Cairo' }}>
+                                        {year.name} {year.is_current && '(الحالي)'}
+                                    </MenuItem>
+                                ))}
+                            </TextField>
+                        </Grid>
+
+                        {/* Step 2: Select Student (only shows after department and year are selected) */}
+                        {selectedDepartment && selectedYear && (
                             <Grid item xs={12}>
                                 {loadingStudents ? (
                                     <Box sx={{ display: 'flex', justifyContent: 'center', py: 2 }}><CircularProgress size={30} /></Box>
