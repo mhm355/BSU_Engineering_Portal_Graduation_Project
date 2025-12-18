@@ -6,7 +6,8 @@ class User(AbstractUser):
         ADMIN = "ADMIN", "Admin"
         STUDENT = "STUDENT", "Student"
         DOCTOR = "DOCTOR", "Doctor"
-        STAFF = "STAFF", "Staff Affairs"
+        STUDENT_AFFAIRS = "STUDENT_AFFAIRS", "Student Affairs"
+        STAFF_AFFAIRS = "STAFF_AFFAIRS", "Staff Affairs"
 
     class GraduationStatus(models.TextChoices):
         PENDING = "PENDING", "Pending"

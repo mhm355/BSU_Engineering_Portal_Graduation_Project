@@ -11,7 +11,7 @@ import pandas as pd
 import io
 
 from .models import Student, Level, AcademicYear, Department, AuditLog
-from users.permissions import IsStaffRole, IsStudentRole
+from users.permissions import IsStudentAffairsRole, IsStudentRole
 
 User = get_user_model()
 
@@ -22,7 +22,7 @@ class UploadStudentsView(APIView):
     Expected columns: national_id, full_name, academic_year, level, department_code
     """
     parser_classes = (MultiPartParser, FormParser)
-    permission_classes = [IsStaffRole]
+    permission_classes = [IsStudentAffairsRole]
 
     def post(self, request):
         file = request.FILES.get('file')
@@ -70,7 +70,6 @@ class UploadStudentsView(APIView):
         errors = []
 
         for index, row in df.iterrows():
-            # Use a savepoint for each row so errors don't break the whole batch
             try:
                 with transaction.atomic():
                     national_id = str(row['national_id']).strip()
@@ -115,7 +114,6 @@ class UploadStudentsView(APIView):
 
                     # Check if student record exists
                     student_exists = Student.objects.filter(national_id=national_id).exists()
-                    # Check if user account exists (might exist if Student was cascade-deleted)
                     user_exists = User.objects.filter(username=national_id).exists()
                     
                     if student_exists:
@@ -128,8 +126,7 @@ class UploadStudentsView(APIView):
                         student.save()
                         updated_count += 1
                     elif user_exists:
-                        # User exists but Student record was deleted (e.g., Level was deleted)
-                        # Recreate the Student record linked to existing user
+                        # User exists but Student record was deleted
                         user = User.objects.get(username=national_id)
                         user.first_name = full_name.split()[0] if full_name else ''
                         user.last_name = ' '.join(full_name.split()[1:]) if len(full_name.split()) > 1 else ''
@@ -143,7 +140,7 @@ class UploadStudentsView(APIView):
                             academic_year=academic_year,
                             department=department
                         )
-                        updated_count += 1  # Count as update since user existed
+                        updated_count += 1
                     else:
                         # Create new student and user account
                         user = User.objects.create_user(
@@ -169,7 +166,7 @@ class UploadStudentsView(APIView):
             except Exception as e:
                 errors.append(f"Row {index + 2}: {str(e)}")
 
-        # Create audit log outside of any transaction issues
+        # Create audit log
         try:
             AuditLog.objects.create(
                 action=AuditLog.ActionType.STUDENT_BATCH_UPLOAD,
@@ -193,7 +190,7 @@ class UploadStudentsView(APIView):
 
 class StudentListView(generics.ListAPIView):
     """List students with filtering by department, academic year, and level"""
-    permission_classes = [IsStaffRole]
+    permission_classes = [IsStudentAffairsRole]
 
     def get(self, request):
         queryset = Student.objects.select_related(
@@ -204,7 +201,7 @@ class StudentListView(generics.ListAPIView):
         department_id = request.query_params.get('department')
         academic_year_id = request.query_params.get('academic_year')
         level_id = request.query_params.get('level')
-        level_name = request.query_params.get('level_name')  # Filter by level name (e.g., FOURTH)
+        level_name = request.query_params.get('level_name')
 
         if department_id:
             queryset = queryset.filter(department_id=department_id)
@@ -235,8 +232,8 @@ class StudentListView(generics.ListAPIView):
 
 
 class ResetStudentPasswordView(APIView):
-    """Admin endpoint to reset a student's password to their national_id"""
-    permission_classes = [IsStaffRole]
+    """Reset a student's password to their national_id"""
+    permission_classes = [IsStudentAffairsRole]
 
     def post(self, request, student_id):
         try:
@@ -252,15 +249,6 @@ class ResetStudentPasswordView(APIView):
             student.user.first_login_required = True
             student.user.save()
 
-            # Create audit log
-            AuditLog.objects.create(
-                action=AuditLog.ActionType.PASSWORD_RESET,
-                performed_by=request.user,
-                entity_type='STUDENT',
-                entity_id=student.id,
-                details={'student_national_id': student.national_id}
-            )
-
             return Response({'message': 'Password reset successfully'})
 
         except Student.DoesNotExist:
@@ -272,7 +260,7 @@ class ResetStudentPasswordView(APIView):
 
 class FourthYearStudentsView(APIView):
     """Get all fourth year students for certificate upload"""
-    permission_classes = [IsStaffRole]
+    permission_classes = [IsStudentAffairsRole]
 
     def get(self, request):
         queryset = Student.objects.select_related(
@@ -292,60 +280,3 @@ class FourthYearStudentsView(APIView):
             })
 
         return Response(students)
-
-
-class StudentProfileView(APIView):
-    """Get current student's academic profile"""
-    permission_classes = [permissions.IsAuthenticated]
-
-    def get(self, request):
-        user = request.user
-        
-        # Check if user is a student
-        if user.role != 'STUDENT':
-            return Response(
-                {'error': 'Not a student account'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-        try:
-            student = Student.objects.select_related(
-                'level', 'academic_year', 'department'
-            ).get(user=user)
-
-            level_display_map = {
-                'PREPARATORY': 'السنة التحضيرية',
-                'FIRST': 'السنة الأولى',
-                'SECOND': 'السنة الثانية',
-                'THIRD': 'السنة الثالثة',
-                'FOURTH': 'السنة الرابعة',
-            }
-
-            return Response({
-                'id': student.id,
-                'national_id': student.national_id,
-                'full_name': student.full_name,
-                'level': student.level.name,
-                'level_display': level_display_map.get(student.level.name, student.level.name),
-                'department': student.department.name if student.department else None,
-                'department_code': student.department.code if student.department else None,
-                'academic_year': student.academic_year.name,
-                'graduation_status': user.graduation_status,
-                'first_login_required': user.first_login_required,
-            })
-
-        except Student.DoesNotExist:
-            # Student profile not yet created - return default
-            return Response({
-                'id': None,
-                'national_id': user.national_id,
-                'full_name': f"{user.first_name} {user.last_name}",
-                'level': None,
-                'level_display': 'غير محدد',
-                'department': None,
-                'department_code': None,
-                'academic_year': None,
-                'graduation_status': user.graduation_status,
-                'first_login_required': user.first_login_required,
-            })
-
