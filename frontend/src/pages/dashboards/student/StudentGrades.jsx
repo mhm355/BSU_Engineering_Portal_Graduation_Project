@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Container, Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Alert, CircularProgress } from '@mui/material';
+import { Box, Container, Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Alert, CircularProgress, IconButton } from '@mui/material';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 export default function StudentGrades() {
+    const navigate = useNavigate();
     const [grades, setGrades] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -13,24 +16,7 @@ export default function StudentGrades() {
 
     const fetchGrades = async () => {
         try {
-            // Assuming the user is authenticated and the token/session is handled (e.g. via cookies or interceptor)
-            // Since we are using basic auth or session in this demo, we rely on the browser session if logged in.
-            // However, axios needs credentials if using session.
-            // For this demo, we might need to attach the user info or rely on the backend session.
-            // Let's assume we are using the session from the login.
-
-            // Note: In a real app, we'd attach the token. Here we rely on the backend session or mock it.
-            // Actually, we stored 'user' in localStorage but didn't set up an interceptor.
-            // For this demo, we will just call the endpoint. If it returns 403, we know auth is missing.
-            // But wait, we are using Django Session Auth by default with DRF if logged in via admin or session.
-            // Since we logged in via API but didn't set a cookie, we might have an issue.
-            // Let's check Login.jsx again. We just stored the user in localStorage. We didn't set a cookie or token.
-            // DRF TokenAuth or JWT is usually used.
-            // For this demo, let's assume we are using Basic Auth or we need to pass the username/password again? No, that's bad.
-            // Let's assume we are using SessionAuthentication and the login endpoint set the session cookie.
-            // We need to ensure axios sends credentials.
-
-            const response = await axios.get('/api/academic/grades/', { withCredentials: true });
+            const response = await axios.get('/api/academic/exam-grades/my-grades/', { withCredentials: true });
             setGrades(response.data);
         } catch (err) {
             console.error('Error fetching grades:', err);
@@ -40,47 +26,70 @@ export default function StudentGrades() {
         }
     };
 
+    const getGradeColor = (grade) => {
+        if (grade === null || grade === undefined) return '#9e9e9e';
+        if (grade >= 90) return '#4caf50';
+        if (grade >= 75) return '#2196f3';
+        if (grade >= 60) return '#ff9800';
+        return '#f44336';
+    };
+
     if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}><CircularProgress /></Box>;
 
     return (
         <Container maxWidth="lg" sx={{ py: 4 }}>
-            <Typography variant="h4" gutterBottom sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342', mb: 4 }}>
-                نتائج الامتحانات
-            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
+                <IconButton onClick={() => navigate('/student/dashboard')}>
+                    <ArrowBackIcon />
+                </IconButton>
+                <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342' }}>
+                    نتائج الامتحانات
+                </Typography>
+            </Box>
 
             {error && <Alert severity="error" sx={{ mb: 3, fontFamily: 'Cairo' }}>{error}</Alert>}
 
             <TableContainer component={Paper}>
                 <Table>
-                    <TableHead sx={{ bgcolor: '#f5f5f5' }}>
+                    <TableHead sx={{ bgcolor: '#1976d2' }}>
                         <TableRow>
-                            <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold', textAlign: 'right' }}>المادة</TableCell>
-                            <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold', textAlign: 'right' }}>الدرجة</TableCell>
-                            <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold', textAlign: 'right' }}>التقدير</TableCell>
+                            <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: 'white' }}>المادة</TableCell>
+                            <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: 'white', textAlign: 'center' }}>درجة منتصف الترم</TableCell>
+                            <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: 'white', textAlign: 'center' }}>درجة النهائي</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
                         {grades.length > 0 ? (
-                            grades.map((grade) => (
-                                <TableRow key={grade.id}>
-                                    <TableCell sx={{ fontFamily: 'Cairo', textAlign: 'right' }}>{grade.course_name}</TableCell>
-                                    <TableCell sx={{ fontFamily: 'Cairo', textAlign: 'right' }}>{grade.score}</TableCell>
-                                    <TableCell sx={{ fontFamily: 'Cairo', textAlign: 'right' }}>
-                                        <span style={{
+                            grades.map((grade, idx) => (
+                                <TableRow key={idx} hover>
+                                    <TableCell sx={{ fontFamily: 'Cairo' }}>
+                                        <strong>{grade.course_name}</strong>
+                                        <Typography variant="body2" color="textSecondary">{grade.course_code}</Typography>
+                                    </TableCell>
+                                    <TableCell sx={{ textAlign: 'center' }}>
+                                        <Typography sx={{
                                             fontWeight: 'bold',
-                                            color: grade.grade_letter.startsWith('A') ? 'green' :
-                                                grade.grade_letter.startsWith('B') ? 'blue' :
-                                                    grade.grade_letter.startsWith('C') ? 'orange' : 'red'
+                                            fontSize: '1.2rem',
+                                            color: getGradeColor(grade.midterm_grade)
                                         }}>
-                                            {grade.grade_letter}
-                                        </span>
+                                            {grade.midterm_grade !== null ? grade.midterm_grade : '--'}
+                                        </Typography>
+                                    </TableCell>
+                                    <TableCell sx={{ textAlign: 'center' }}>
+                                        <Typography sx={{
+                                            fontWeight: 'bold',
+                                            fontSize: '1.2rem',
+                                            color: getGradeColor(grade.final_grade)
+                                        }}>
+                                            {grade.final_grade !== null ? grade.final_grade : '--'}
+                                        </Typography>
                                     </TableCell>
                                 </TableRow>
                             ))
                         ) : (
                             <TableRow>
-                                <TableCell colSpan={3} sx={{ textAlign: 'center', fontFamily: 'Cairo', py: 3 }}>
-                                    لا توجد نتائج متاحة حالياً.
+                                <TableCell colSpan={3} sx={{ textAlign: 'center', fontFamily: 'Cairo', py: 4 }}>
+                                    <Typography sx={{ fontFamily: 'Cairo' }}>لا توجد درجات متاحة حالياً</Typography>
                                 </TableCell>
                             </TableRow>
                         )}
