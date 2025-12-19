@@ -13,6 +13,7 @@ import {
     People as PeopleIcon,
     Assignment as AssignmentIcon,
     School as SchoolIcon,
+    ManageAccounts as ManageAccountsIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 
@@ -27,6 +28,13 @@ const StaffAffairsDashboard = () => {
             icon: <DoctorIcon sx={{ fontSize: 60 }} />,
             color: '#1976d2',
             path: '/staff-affairs/upload-doctors',
+        },
+        {
+            title: 'إدارة الأعضاء',
+            description: 'تعديل، حذف، إعادة تعيين كلمة المرور',
+            icon: <ManageAccountsIcon sx={{ fontSize: 60 }} />,
+            color: '#d32f2f',
+            path: '/staff-affairs/manage-doctors',
         },
         {
             title: 'تعيين الدكاترة',

@@ -16,6 +16,8 @@ export default function UploadStudents() {
     const [selectedDepartment, setSelectedDepartment] = useState('');
     const [selectedYear, setSelectedYear] = useState('');
     const [selectedLevel, setSelectedLevel] = useState('');
+    const [specializations, setSpecializations] = useState([]);
+    const [selectedSpecialization, setSelectedSpecialization] = useState('');
 
     // Upload state
     const [file, setFile] = useState(null);
@@ -34,6 +36,14 @@ export default function UploadStudents() {
     useEffect(() => {
         if (selectedDepartment && selectedYear) {
             fetchLevels();
+            // Fetch specializations for Electrical department
+            const dept = departments.find(d => d.id === selectedDepartment);
+            if (dept && dept.name.includes('كهرب')) {
+                fetchSpecializations();
+            } else {
+                setSpecializations([]);
+                setSelectedSpecialization('');
+            }
         }
     }, [selectedDepartment, selectedYear]);
 
@@ -60,15 +70,32 @@ export default function UploadStudents() {
 
     const fetchLevels = async () => {
         try {
-            const res = await axios.get(
-                `/api/academic/levels/?department=${selectedDepartment}&academic_year=${selectedYear}`,
-                config
-            );
+            const url = `/api/academic/levels/?department=${selectedDepartment}&academic_year=${selectedYear}`;
+            const res = await axios.get(url, config);
             setLevels(res.data);
+
+            // Auto-select if only one level (e.g., Prep department)
+            if (res.data.length === 1) {
+                setSelectedLevel(res.data[0].id);
+            }
         } catch (err) {
-            console.error(err);
+            console.error('Error fetching levels:', err);
         }
     };
+
+    const fetchSpecializations = async () => {
+        try {
+            const res = await axios.get(`/api/academic/specializations/?department=${selectedDepartment}`, config);
+            setSpecializations(res.data);
+        } catch (err) {
+            console.error('Error fetching specializations:', err);
+        }
+    };
+
+    // Check if specialization is needed (Electrical + level > FIRST)
+    const selectedLevelData = levels.find(l => l.id === selectedLevel);
+    const needsSpecialization = specializations.length > 0 &&
+        selectedLevelData && selectedLevelData.name !== 'FIRST';
 
     const handleFileChange = (e) => {
         setFile(e.target.files[0]);
@@ -81,6 +108,10 @@ export default function UploadStudents() {
             setError('يرجى اختيار القسم والعام الدراسي والفرقة أولاً');
             return;
         }
+        if (needsSpecialization && !selectedSpecialization) {
+            setError('يرجى اختيار التخصص (اتصالات/قوى)');
+            return;
+        }
         if (!file) {
             setError('يرجى اختيار ملف أولاً.');
             return;
@@ -91,6 +122,9 @@ export default function UploadStudents() {
         formData.append('department_id', selectedDepartment);
         formData.append('academic_year_id', selectedYear);
         formData.append('level_id', selectedLevel);
+        if (needsSpecialization && selectedSpecialization) {
+            formData.append('specialization_id', selectedSpecialization);
+        }
 
         setUploading(true);
         setError('');
@@ -118,7 +152,11 @@ export default function UploadStudents() {
         { national_id: '23456789012345', full_name: 'محمد سعيد أحمد', email: '' },
     ];
 
-    const isSelectionComplete = selectedDepartment && selectedYear && selectedLevel;
+    // Check if this is Prep department (only 1 level)
+    const isPrepDepartment = levels.length === 1;
+    // Selection complete when: dept + year + level selected, and specialization if needed
+    const isSelectionComplete = selectedDepartment && selectedYear && selectedLevel &&
+        (!needsSpecialization || selectedSpecialization);
 
     return (
         <Container maxWidth="lg" sx={{ py: 4 }}>
@@ -169,26 +207,49 @@ export default function UploadStudents() {
                         </Select>
                     </FormControl>
 
-                    <FormControl sx={{ minWidth: 200 }}>
-                        <InputLabel>الفرقة</InputLabel>
-                        <Select
-                            value={selectedLevel}
-                            onChange={(e) => setSelectedLevel(e.target.value)}
-                            label="الفرقة"
-                            disabled={!selectedDepartment || !selectedYear}
-                        >
-                            {levels.map((level) => (
-                                <MenuItem key={level.id} value={level.id}>{level.name_display}</MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
+                    {/* Level dropdown - hide if only 1 level (Prep) */}
+                    {!isPrepDepartment && (
+                        <FormControl sx={{ minWidth: 200 }}>
+                            <InputLabel>الفرقة</InputLabel>
+                            <Select
+                                value={selectedLevel}
+                                onChange={(e) => {
+                                    setSelectedLevel(e.target.value);
+                                    setSelectedSpecialization(''); // Reset specialization when level changes
+                                }}
+                                label="الفرقة"
+                                disabled={!selectedDepartment || !selectedYear || levels.length === 0}
+                            >
+                                {levels.map((level) => (
+                                    <MenuItem key={level.id} value={level.id}>{level.display_name}</MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                    )}
+
+                    {/* Specialization dropdown - for Electrical dept levels 2-4 */}
+                    {needsSpecialization && (
+                        <FormControl sx={{ minWidth: 200 }}>
+                            <InputLabel>التخصص</InputLabel>
+                            <Select
+                                value={selectedSpecialization}
+                                onChange={(e) => setSelectedSpecialization(e.target.value)}
+                                label="التخصص"
+                            >
+                                {specializations.map((spec) => (
+                                    <MenuItem key={spec.id} value={spec.id}>{spec.name}</MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                    )}
                 </Box>
 
                 {isSelectionComplete && (
                     <Alert severity="success" sx={{ mt: 2, fontFamily: 'Cairo' }}>
                         ✓ تم اختيار: {departments.find(d => d.id === selectedDepartment)?.name} -
-                        {academicYears.find(y => y.id === selectedYear)?.name} -
-                        {levels.find(l => l.id === selectedLevel)?.name_display}
+                        {academicYears.find(y => y.id === selectedYear)?.name}
+                        {!isPrepDepartment && ` - ${levels.find(l => l.id === selectedLevel)?.display_name}`}
+                        {needsSpecialization && ` - ${specializations.find(s => s.id === selectedSpecialization)?.name}`}
                     </Alert>
                 )}
             </Paper>

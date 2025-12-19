@@ -41,11 +41,12 @@ const AssignDoctors = () => {
     const [assignments, setAssignments] = useState([]);
     const [gradingTemplates, setGradingTemplates] = useState([]);
 
-    // Selection
     const [selectedDepartment, setSelectedDepartment] = useState('');
     const [selectedYear, setSelectedYear] = useState('');
     const [selectedTerm, setSelectedTerm] = useState('');
     const [selectedLevel, setSelectedLevel] = useState('');
+    const [specializations, setSpecializations] = useState([]);
+    const [selectedSpecialization, setSelectedSpecialization] = useState('');
     const [selectedSubject, setSelectedSubject] = useState(null);
     const [selectedDoctor, setSelectedDoctor] = useState(null);
     const [selectedTemplate, setSelectedTemplate] = useState('');
@@ -72,11 +73,23 @@ const AssignDoctors = () => {
     // Only fetch subjects when BOTH level AND term are selected
     useEffect(() => {
         if (selectedLevel && selectedTerm && terms.length > 0) {
-            fetchSubjects();
+            // Check if specialization needed (Electrical + level > FIRST)
+            const level = levels.find(l => l.id === parseInt(selectedLevel));
+            const dept = departments.find(d => d.id === selectedDepartment);
+            const isElectrical = dept && dept.name.includes('كهرب');
+            const needsSpec = isElectrical && level && level.name !== 'FIRST';
+
+            if (needsSpec && !selectedSpecialization) {
+                // Fetch specializations first
+                fetchSpecializations();
+                setSubjects([]);
+            } else {
+                fetchSubjects();
+            }
         } else {
-            setSubjects([]); // Clear subjects if no term selected
+            setSubjects([]);
         }
-    }, [selectedLevel, selectedTerm, terms]);
+    }, [selectedLevel, selectedTerm, terms, selectedSpecialization]);
 
     const fetchInitialData = async () => {
         setLoading(true);
@@ -142,7 +155,7 @@ const AssignDoctors = () => {
             console.log(`Fetching subjects: level=${level.name}, semester=${semester}, term=${term.name}`);
 
             const res = await axios.get(
-                `/api/academic/subjects/?department=${selectedDepartment}&level=${level.name}&semester=${semester}`,
+                `/api/academic/subjects/?department=${selectedDepartment}&level=${level.name}&semester=${semester}${selectedSpecialization ? `&specialization=${selectedSpecialization}` : ''}`,
                 config
             );
             setSubjects(res.data);
@@ -150,6 +163,21 @@ const AssignDoctors = () => {
             console.error(err);
         }
     };
+
+    const fetchSpecializations = async () => {
+        try {
+            const res = await axios.get(`/api/academic/specializations/?department=${selectedDepartment}`, config);
+            setSpecializations(res.data);
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    // Check if specialization is needed
+    const selectedLevelData = levels.find(l => l.id === parseInt(selectedLevel));
+    const selectedDeptData = departments.find(d => d.id === selectedDepartment);
+    const isElectricalDept = selectedDeptData && selectedDeptData.name.includes('كهرب');
+    const needsSpecialization = isElectricalDept && selectedLevelData && selectedLevelData.name !== 'FIRST';
 
     const handleAssign = async () => {
         if (!selectedDoctor || !selectedSubject || !selectedLevel || !selectedTerm) {
@@ -277,7 +305,11 @@ const AssignDoctors = () => {
                         <InputLabel>الفرقة</InputLabel>
                         <Select
                             value={selectedLevel}
-                            onChange={(e) => setSelectedLevel(e.target.value)}
+                            onChange={(e) => {
+                                setSelectedLevel(e.target.value);
+                                setSelectedSpecialization(''); // Reset specialization
+                                setSubjects([]);
+                            }}
                             label="الفرقة"
                             disabled={!selectedDepartment || !selectedYear}
                         >
@@ -288,6 +320,22 @@ const AssignDoctors = () => {
                             ))}
                         </Select>
                     </FormControl>
+
+                    {/* Specialization dropdown - for Electrical dept levels 2-4 */}
+                    {needsSpecialization && (
+                        <FormControl sx={{ minWidth: 200 }}>
+                            <InputLabel>التخصص</InputLabel>
+                            <Select
+                                value={selectedSpecialization}
+                                onChange={(e) => setSelectedSpecialization(e.target.value)}
+                                label="التخصص"
+                            >
+                                {specializations.map((spec) => (
+                                    <MenuItem key={spec.id} value={spec.id}>{spec.name}</MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                    )}
                 </Box>
 
                 {/* Row 2: Subject, Doctor, Template */}

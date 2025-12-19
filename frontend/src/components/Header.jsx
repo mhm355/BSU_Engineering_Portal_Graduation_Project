@@ -45,6 +45,7 @@ export default function Header() {
       { text: 'كلمة عميد الكلية', link: '/dean-word' },
       { text: 'الرؤية والرسالة', link: '/vision-mission' },
       { text: 'اللائحة الداخلية', link: '/regulations' },
+      { text: 'الميثاق الأخلاقي', link: '/ethics' },
       { text: 'أعضاء هيئة التدريس', link: '/staff' },
     ],
     departments: [
@@ -53,20 +54,11 @@ export default function Header() {
       { text: 'هندسة معمارية', link: '/departments/arch' },
       { text: 'هندسة كهربية', link: '/departments/electrical' },
     ],
-    programs: [
-      { text: 'برنامج الهندسة الإنشائية', link: '/programs/structural' },
-    ],
     students: [
       { text: 'البريد الإلكتروني', link: 'http://www.email.bsu.edu.eg/_BSU_Std.aspx', external: true },
       { text: 'المدن الجامعية', link: 'https://www.bsu.edu.eg/Sector_Home.aspx?cat_id=286', external: true },
       { text: 'نتائج الكليات', link: 'http://www.results.bsu.edu.eg/', external: true },
       { text: 'الدفع الإلكتروني', link: 'http://www.payment.bsu.edu.eg/services/', external: true },
-    ],
-    services: [
-      { text: 'الجداول الدراسية', link: '/services/schedules' },
-      { text: 'المحاضرات', link: '/services/lectures' },
-      { text: 'الشهادات', link: '/services/certificates' },
-      { text: 'الشكاوى', link: '/services/complaints' },
     ]
   };
 
@@ -93,9 +85,7 @@ export default function Header() {
 
             <Button color="inherit" onClick={(e) => handleMenuOpen(e, 'about')} endIcon={<ExpandMore />} sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>عن الكلية</Button>
             <Button color="inherit" onClick={(e) => handleMenuOpen(e, 'departments')} endIcon={<ExpandMore />} sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>الأقسام</Button>
-            <Button color="inherit" onClick={(e) => handleMenuOpen(e, 'programs')} endIcon={<ExpandMore />} sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>البرامج</Button>
             <Button color="inherit" onClick={(e) => handleMenuOpen(e, 'students')} endIcon={<ExpandMore />} sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>الطلاب</Button>
-            <Button color="inherit" onClick={(e) => handleMenuOpen(e, 'services')} endIcon={<ExpandMore />} sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>الخدمات</Button>
 
             <Button component={Link} to="/contact" color="inherit" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>اتصل بنا</Button>
             {user ? (

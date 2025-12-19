@@ -9,6 +9,9 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import AddIcon from '@mui/icons-material/Add';
+import DeleteIcon from '@mui/icons-material/Delete';
+import LockResetIcon from '@mui/icons-material/LockReset';
+import Tooltip from '@mui/material/Tooltip';
 import FolderIcon from '@mui/icons-material/Folder';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import ClassIcon from '@mui/icons-material/Class';
@@ -205,6 +208,29 @@ export default function ManageUsers() {
         }
     };
 
+    // Reset password to national ID
+    const handleResetPassword = async (user) => {
+        if (!window.confirm(`هل أنت متأكد من إعادة تعيين كلمة مرور ${user.first_name} ${user.last_name} إلى الرقم القومي؟`)) return;
+        try {
+            await axios.post(`/api/auth/users/${user.id}/reset-password/`, {}, { withCredentials: true });
+            setSuccess('تم إعادة تعيين كلمة المرور بنجاح');
+        } catch (err) {
+            setError('فشل في إعادة تعيين كلمة المرور');
+        }
+    };
+
+    // Delete user
+    const handleDeleteUser = async (user) => {
+        if (!window.confirm(`هل أنت متأكد من حذف المستخدم ${user.first_name} ${user.last_name}؟ هذا الإجراء لا يمكن التراجع عنه!`)) return;
+        try {
+            await axios.delete(`/api/auth/users/${user.id}/`, { withCredentials: true });
+            setSuccess('تم حذف المستخدم بنجاح');
+            fetchAllUsers();
+        } catch (err) {
+            setError('فشل في حذف المستخدم');
+        }
+    };
+
     const renderStudentsHierarchy = () => {
         if (loading) return <Box sx={{ textAlign: 'center', py: 4 }}><CircularProgress /></Box>;
 
@@ -374,7 +400,17 @@ export default function ManageUsers() {
                                     <TableCell>{user.national_id || '-'}</TableCell>
                                     <TableCell>{user.email || '-'}</TableCell>
                                     <TableCell>
-                                        <IconButton color="primary" onClick={() => handleOpen(user, role)}><EditIcon /></IconButton>
+                                        <Box sx={{ display: 'flex', gap: 0.5 }}>
+                                            <Tooltip title="تعديل">
+                                                <IconButton color="primary" size="small" onClick={() => handleOpen(user, role)}><EditIcon /></IconButton>
+                                            </Tooltip>
+                                            <Tooltip title="إعادة تعيين كلمة المرور">
+                                                <IconButton color="warning" size="small" onClick={() => handleResetPassword(user)}><LockResetIcon /></IconButton>
+                                            </Tooltip>
+                                            <Tooltip title="حذف">
+                                                <IconButton color="error" size="small" onClick={() => handleDeleteUser(user)}><DeleteIcon /></IconButton>
+                                            </Tooltip>
+                                        </Box>
                                     </TableCell>
                                 </TableRow>
                             ))}
@@ -413,7 +449,7 @@ export default function ManageUsers() {
                     {renderEditableTable(staffAffairsUsers, 'STAFF_AFFAIRS')}
                 </TabPanel>
                 <TabPanel value={tabValue} index={3}>
-                    {renderDoctorsTable()}
+                    {renderEditableTable(doctorUsers, 'DOCTOR')}
                 </TabPanel>
             </Paper>
 

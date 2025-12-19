@@ -152,7 +152,7 @@ export default function UploadCertificates() {
                                 SelectProps={{ style: { fontFamily: 'Cairo' } }}
                             >
                                 <MenuItem value="" sx={{ fontFamily: 'Cairo' }}>-- اختر القسم --</MenuItem>
-                                {departments.map((dept) => (
+                                {departments.filter(d => d.code !== 'PREP').map((dept) => (
                                     <MenuItem key={dept.id} value={dept.id} sx={{ fontFamily: 'Cairo' }}>
                                         {dept.name} ({dept.code})
                                     </MenuItem>

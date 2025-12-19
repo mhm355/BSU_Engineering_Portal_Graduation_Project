@@ -2,6 +2,15 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Layout from './layouts/Layout';
 import Home from './pages/Home';
 import About from './pages/About';
+import AboutPage from './pages/AboutPage';
+import DeanWordPage from './pages/DeanWordPage';
+import VisionMissionPage from './pages/VisionMissionPage';
+import RegulationsPage from './pages/RegulationsPage';
+import EthicsPage from './pages/EthicsPage';
+import DepartmentsPage from './pages/DepartmentsPage';
+import CivilDepartmentPage from './pages/CivilDepartmentPage';
+import ArchDepartmentPage from './pages/ArchDepartmentPage';
+import ElectricalDepartmentPage from './pages/ElectricalDepartmentPage';
 import StaffDirectory from './pages/dashboards/student_affairs/public/StaffDirectory';
 import Departments from './pages/dashboards/student_affairs/public/Departments';
 import ManageNews from './pages/dashboards/admin/ManageNews';
@@ -38,13 +47,14 @@ import ManageYears from './pages/dashboards/admin/ManageYears';
 import ManageLevels from './pages/dashboards/admin/ManageLevels';
 import UserProfile from './pages/UserProfile';
 
-// Staff Affairs imports
 import StaffAffairsDashboard from './pages/dashboards/StaffAffairsDashboard';
 import UploadDoctors from './pages/dashboards/staff_affairs/UploadDoctors';
 import UploadStaffAffairs from './pages/dashboards/staff_affairs/UploadStaffAffairs';
 import AssignDoctors from './pages/dashboards/staff_affairs/AssignDoctors';
 import ViewUsers from './pages/dashboards/staff_affairs/ViewUsers';
 import StaffAcademicStructure from './pages/dashboards/staff_affairs/AcademicStructure';
+import ManageDoctors from './pages/dashboards/staff_affairs/ManageDoctors';
+import DeletionRequests from './pages/dashboards/admin/DeletionRequests';
 
 import ManageAcademicYears from './pages/dashboards/admin/ManageAcademicYears';
 import ManageGradingTemplates from './pages/dashboards/admin/ManageGradingTemplates';
@@ -62,11 +72,23 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/change-password" element={<ChangePassword />} />
             <Route path="/staff" element={<StaffDirectory />} />
-            <Route path="/departments" element={<Departments />} />
-            <Route path="departments" element={<Departments />} />
             <Route path="contact" element={<Contact />} />
             <Route path="login" element={<Login />} />
-            <Route path="about" element={<About />} />
+
+            {/* Content Pages */}
+            <Route path="about" element={<AboutPage />} />
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/dean-word" element={<DeanWordPage />} />
+            <Route path="/vision-mission" element={<VisionMissionPage />} />
+            <Route path="/regulations" element={<RegulationsPage />} />
+            <Route path="/ethics" element={<EthicsPage />} />
+
+            {/* Department Pages */}
+            <Route path="/departments" element={<DepartmentsPage />} />
+            <Route path="departments" element={<DepartmentsPage />} />
+            <Route path="/departments/civil" element={<CivilDepartmentPage />} />
+            <Route path="/departments/arch" element={<ArchDepartmentPage />} />
+            <Route path="/departments/electrical" element={<ElectricalDepartmentPage />} />
 
             {/* Protected Dashboard Routes */}
             <Route path="student/dashboard" element={<StudentDashboard />} />
@@ -104,6 +126,7 @@ function App() {
             <Route path="staff-affairs/assign-doctors" element={<AssignDoctors />} />
             <Route path="staff-affairs/view-users" element={<ViewUsers />} />
             <Route path="staff-affairs/academic-structure" element={<StaffAcademicStructure />} />
+            <Route path="staff-affairs/manage-doctors" element={<ManageDoctors />} />
 
             {/* Admin Routes */}
             <Route path="admin/dashboard" element={<AdminDashboard />} />
@@ -117,6 +140,7 @@ function App() {
             <Route path="admin/approvals" element={<ApprovalCenter />} />
             <Route path="admin/pending-approvals" element={<PendingApprovals />} />
             <Route path="admin/news" element={<ManageNews />} />
+            <Route path="admin/deletion-requests" element={<DeletionRequests />} />
           </Route>
         </Routes>
       </BrowserRouter>
