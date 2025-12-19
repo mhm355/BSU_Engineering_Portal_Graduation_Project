@@ -151,10 +151,49 @@ class LevelViewSet(viewsets.ModelViewSet):
         queryset = Level.objects.all()
         department = self.request.query_params.get('department')
         academic_year = self.request.query_params.get('academic_year')
-        if department:
-            queryset = queryset.filter(department_id=department)
-        if academic_year:
-            queryset = queryset.filter(academic_year_id=academic_year)
+        
+        if department and academic_year:
+            # Check if levels exist for this department + year
+            existing_levels = Level.objects.filter(
+                department_id=department, 
+                academic_year_id=academic_year
+            )
+            
+            # Auto-create levels if none exist
+            if not existing_levels.exists():
+                try:
+                    from .models import Department
+                    dept = Department.objects.get(id=department)
+                    
+                    if dept.code == 'PREP':
+                        # Preparatory only has one level
+                        Level.objects.get_or_create(
+                            name=Level.LevelName.PREPARATORY,
+                            department_id=department,
+                            academic_year_id=academic_year
+                        )
+                    else:
+                        # Regular departments have 4 levels
+                        for level_name in [Level.LevelName.FIRST, Level.LevelName.SECOND,
+                                           Level.LevelName.THIRD, Level.LevelName.FOURTH]:
+                            Level.objects.get_or_create(
+                                name=level_name,
+                                department_id=department,
+                                academic_year_id=academic_year
+                            )
+                except Department.DoesNotExist:
+                    pass
+            
+            queryset = Level.objects.filter(
+                department_id=department,
+                academic_year_id=academic_year
+            )
+        else:
+            if department:
+                queryset = queryset.filter(department_id=department)
+            if academic_year:
+                queryset = queryset.filter(academic_year_id=academic_year)
+        
         return queryset
 
     @action(detail=True, methods=['get'])

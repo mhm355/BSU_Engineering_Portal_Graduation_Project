@@ -14,7 +14,8 @@ from .student_affairs_views import (
 from .staff_affairs_views import (
     UploadDoctorsView, UploadStaffAffairsUsersView, DoctorListView,
     StudentAffairsUserListView, AssignDoctorToSubjectView, DoctorAssignmentsView,
-    TermListView, GradingTemplateListView
+    TermListView, GradingTemplateListView, DoctorDetailView, DoctorResetPasswordView,
+    DoctorDeletionRequestView, AdminDeletionRequestsView
 )
 from .exam_grades_views import (
     UploadExamGradesView, PendingExamGradesView, ApproveExamGradesView,
@@ -58,6 +59,14 @@ urlpatterns = [
     path('staff-affairs/assignments/', DoctorAssignmentsView.as_view(), name='doctor-assignments'),
     path('staff-affairs/terms/', TermListView.as_view(), name='term-list'),
     path('staff-affairs/grading-templates/', GradingTemplateListView.as_view(), name='grading-template-list'),
+    path('staff-affairs/doctors/<int:pk>/', DoctorDetailView.as_view(), name='doctor-detail'),
+    path('staff-affairs/doctors/<int:pk>/reset-password/', DoctorResetPasswordView.as_view(), name='doctor-reset-password'),
+    path('staff-affairs/doctors/<int:pk>/delete-request/', DoctorDeletionRequestView.as_view(), name='doctor-delete-request'),
+    path('staff-affairs/deletion-requests/', DoctorDeletionRequestView.as_view(), name='my-deletion-requests'),
+    
+    # Admin endpoints
+    path('admin/deletion-requests/', AdminDeletionRequestsView.as_view(), name='admin-deletion-requests'),
+    path('admin/deletion-requests/<int:pk>/', AdminDeletionRequestsView.as_view(), name='admin-deletion-request-action'),
 
     # Student profile endpoint
     path('student/profile/', StudentProfileView.as_view(), name='student-profile'),

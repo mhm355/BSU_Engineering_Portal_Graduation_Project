@@ -61,3 +61,13 @@ frontend/Dockerfile
 
 # Pdf files
 *.pdf
+
+# exel , cvs files
+*.xlsx
+*.csv
+
+# txt files
+*.txt
+
+Logo
+screenshots

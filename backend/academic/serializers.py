@@ -56,6 +56,9 @@ class SubjectSerializer(serializers.ModelSerializer):
     specialization_name = serializers.CharField(source='specialization.name', read_only=True)
     level_display = serializers.SerializerMethodField()
     semester_display = serializers.SerializerMethodField()
+    default_grading_template_name = serializers.CharField(
+        source='default_grading_template.name', read_only=True
+    )
 
     class Meta:
         model = Subject

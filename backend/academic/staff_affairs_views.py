@@ -298,9 +298,12 @@ class GradingTemplateListView(APIView):
                 'attendance_weight': t.attendance_weight,
                 'quizzes_weight': t.quizzes_weight,
                 'coursework_weight': t.coursework_weight,
+                'written_weight': t.written_weight,
+                'practical_weight': t.practical_weight,
                 'midterm_weight': t.midterm_weight,
                 'final_weight': t.final_weight,
                 'is_default': t.is_default,
+                'total_weight': t.total_weight(),
             })
         
         return Response(result)
@@ -343,7 +346,7 @@ class AssignDoctorToSubjectView(APIView):
         except Term.DoesNotExist:
             return Response({'error': 'الترم غير موجود'}, status=status.HTTP_404_NOT_FOUND)
 
-        # Get grading template (use default if not specified)
+        # Get grading template (priority: specified > subject default > global default)
         grading_template = None
         if grading_template_id:
             try:
@@ -351,6 +354,11 @@ class AssignDoctorToSubjectView(APIView):
             except GradingTemplate.DoesNotExist:
                 pass
         
+        # Use subject's default template if not specified
+        if not grading_template and subject.default_grading_template:
+            grading_template = subject.default_grading_template
+        
+        # Fall back to global default
         if not grading_template:
             grading_template = GradingTemplate.objects.filter(is_default=True).first()
 
@@ -416,3 +424,204 @@ class DoctorAssignmentsView(APIView):
 
         return Response(result)
 
+
+class DoctorDetailView(APIView):
+    """Manage individual doctor: edit, reset password"""
+    permission_classes = [IsStaffAffairsRole]
+
+    def get(self, request, pk):
+        """Get doctor details"""
+        try:
+            doctor = User.objects.get(id=pk, role='DOCTOR')
+            return Response({
+                'id': doctor.id,
+                'national_id': doctor.national_id,
+                'full_name': f"{doctor.first_name} {doctor.last_name}".strip(),
+                'first_name': doctor.first_name,
+                'last_name': doctor.last_name,
+                'email': doctor.email,
+                'first_login_required': doctor.first_login_required,
+            })
+        except User.DoesNotExist:
+            return Response({'error': 'Doctor not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    def put(self, request, pk):
+        """Update doctor info"""
+        try:
+            doctor = User.objects.get(id=pk, role='DOCTOR')
+            
+            # Update fields
+            if 'first_name' in request.data:
+                doctor.first_name = request.data['first_name']
+            if 'last_name' in request.data:
+                doctor.last_name = request.data['last_name']
+            if 'email' in request.data:
+                doctor.email = request.data['email']
+            if 'national_id' in request.data:
+                doctor.national_id = request.data['national_id']
+            
+            doctor.save()
+            
+            return Response({
+                'id': doctor.id,
+                'full_name': f"{doctor.first_name} {doctor.last_name}".strip(),
+                'message': 'تم التحديث بنجاح'
+            })
+        except User.DoesNotExist:
+            return Response({'error': 'Doctor not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+class DoctorResetPasswordView(APIView):
+    """Reset doctor password to national_id"""
+    permission_classes = [IsStaffAffairsRole]
+
+    def post(self, request, pk):
+        try:
+            doctor = User.objects.get(id=pk, role='DOCTOR')
+            # Reset password to national_id
+            doctor.set_password(doctor.national_id)
+            doctor.first_login_required = True
+            doctor.save()
+            
+            return Response({
+                'message': 'تم إعادة تعيين كلمة المرور بنجاح',
+                'new_password': 'الرقم القومي'
+            })
+        except User.DoesNotExist:
+            return Response({'error': 'Doctor not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+class DoctorDeletionRequestView(APIView):
+    """Create deletion request for doctor (requires admin approval)"""
+    permission_classes = [IsStaffAffairsRole]
+
+    def get(self, request):
+        """List deletion requests made by this user"""
+        from .models import DoctorDeletionRequest
+        
+        requests = DoctorDeletionRequest.objects.filter(
+            requested_by=request.user
+        ).select_related('doctor', 'reviewed_by')
+        
+        result = []
+        for req in requests:
+            result.append({
+                'id': req.id,
+                'doctor_id': req.doctor.id,
+                'doctor_name': f"{req.doctor.first_name} {req.doctor.last_name}".strip(),
+                'reason': req.reason,
+                'status': req.status,
+                'status_display': req.get_status_display(),
+                'created_at': req.created_at.isoformat(),
+                'reviewed_at': req.reviewed_at.isoformat() if req.reviewed_at else None,
+                'reviewed_by': f"{req.reviewed_by.first_name} {req.reviewed_by.last_name}".strip() if req.reviewed_by else None,
+            })
+        
+        return Response(result)
+
+    def post(self, request, pk):
+        """Create deletion request for a doctor"""
+        from .models import DoctorDeletionRequest
+        
+        try:
+            doctor = User.objects.get(id=pk, role='DOCTOR')
+            
+            # Check for existing pending request
+            existing = DoctorDeletionRequest.objects.filter(
+                doctor=doctor,
+                status=DoctorDeletionRequest.Status.PENDING
+            ).exists()
+            
+            if existing:
+                return Response({
+                    'error': 'يوجد طلب حذف معلق لهذا الدكتور'
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Create new request
+            deletion_request = DoctorDeletionRequest.objects.create(
+                doctor=doctor,
+                requested_by=request.user,
+                reason=request.data.get('reason', '')
+            )
+            
+            return Response({
+                'id': deletion_request.id,
+                'message': 'تم إرسال طلب الحذف للمراجعة من قبل الأدمن',
+                'status': deletion_request.get_status_display()
+            }, status=status.HTTP_201_CREATED)
+            
+        except User.DoesNotExist:
+            return Response({'error': 'Doctor not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+class AdminDeletionRequestsView(APIView):
+    """Admin view for approving/rejecting doctor deletion requests"""
+    from users.permissions import IsAdminRole
+    permission_classes = [IsAdminRole]
+
+    def get(self, request):
+        """List all pending deletion requests"""
+        from .models import DoctorDeletionRequest
+        from django.utils import timezone
+        
+        status_filter = request.query_params.get('status', 'PENDING')
+        
+        requests = DoctorDeletionRequest.objects.filter(
+            status=status_filter
+        ).select_related('doctor', 'requested_by')
+        
+        result = []
+        for req in requests:
+            result.append({
+                'id': req.id,
+                'doctor_id': req.doctor.id,
+                'doctor_name': f"{req.doctor.first_name} {req.doctor.last_name}".strip(),
+                'doctor_national_id': req.doctor.national_id,
+                'requested_by_name': f"{req.requested_by.first_name} {req.requested_by.last_name}".strip(),
+                'reason': req.reason,
+                'status': req.status,
+                'status_display': req.get_status_display(),
+                'created_at': req.created_at.isoformat(),
+            })
+        
+        return Response(result)
+
+    def post(self, request, pk):
+        """Approve or reject a deletion request"""
+        from .models import DoctorDeletionRequest
+        from django.utils import timezone
+        
+        try:
+            deletion_request = DoctorDeletionRequest.objects.get(id=pk)
+            action = request.data.get('action')  # 'approve' or 'reject'
+            
+            if action == 'approve':
+                # Delete the doctor
+                doctor = deletion_request.doctor
+                deletion_request.status = DoctorDeletionRequest.Status.APPROVED
+                deletion_request.reviewed_at = timezone.now()
+                deletion_request.reviewed_by = request.user
+                deletion_request.save()
+                
+                # Actually delete the doctor user
+                doctor.delete()
+                
+                return Response({
+                    'message': 'تمت الموافقة على الحذف وتم حذف الدكتور',
+                })
+            elif action == 'reject':
+                deletion_request.status = DoctorDeletionRequest.Status.REJECTED
+                deletion_request.reviewed_at = timezone.now()
+                deletion_request.reviewed_by = request.user
+                deletion_request.save()
+                
+                return Response({
+                    'message': 'تم رفض طلب الحذف',
+                })
+            else:
+                return Response({
+                    'error': 'Invalid action. Use "approve" or "reject"'
+                }, status=status.HTTP_400_BAD_REQUEST)
+                
+        except DoctorDeletionRequest.DoesNotExist:
+            return Response({'error': 'Request not found'}, status=status.HTTP_404_NOT_FOUND)

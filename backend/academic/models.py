@@ -119,30 +119,51 @@ class Subject(models.Model):
     max_grade = models.IntegerField(default=100)
     is_elective = models.BooleanField(default=False)
     elective_group = models.CharField(max_length=10, null=True, blank=True)
+    default_grading_template = models.ForeignKey(
+        'GradingTemplate',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='subjects',
+        help_text="Default grading template for this subject"
+    )
 
     def __str__(self):
         return f"{self.code} - {self.name}"
 
 
 class GradingTemplate(models.Model):
-    """Grading template defining how courses are graded"""
+    """Grading template defining how courses are graded
+    
+    Supports both legacy (attendance/quizzes/coursework/midterm/final) and
+    new format from reference tables (اعمال فصلية/تحريري/عملي-شفوي)
+    """
     name = models.CharField(max_length=100)
-    attendance_weight = models.IntegerField(default=10, help_text="Weight for attendance (e.g., 10)")
+    
+    # Legacy format fields (kept for backward compatibility)
+    attendance_weight = models.IntegerField(default=0, help_text="Weight for attendance")
     attendance_slots = models.IntegerField(default=14, help_text="Number of attendance sessions")
-    quizzes_weight = models.IntegerField(default=10, help_text="Weight for quizzes")
+    quizzes_weight = models.IntegerField(default=0, help_text="Weight for quizzes")
     quiz_count = models.IntegerField(default=2, help_text="Number of quizzes")
-    coursework_weight = models.IntegerField(default=10, help_text="Weight for coursework/assignments")
-    midterm_weight = models.IntegerField(default=20, help_text="Weight for midterm exam")
-    final_weight = models.IntegerField(default=50, help_text="Weight for final exam")
+    
+    # New format matching reference tables
+    coursework_weight = models.IntegerField(default=40, help_text="اعمال فصلية - Coursework weight")
+    written_weight = models.IntegerField(default=50, help_text="تحريري - Written exam weight")
+    practical_weight = models.IntegerField(default=10, help_text="عملي/شفوي - Practical/Oral weight")
+    
+    # Legacy (can map to new format)
+    midterm_weight = models.IntegerField(default=0, help_text="Weight for midterm exam (legacy)")
+    final_weight = models.IntegerField(default=0, help_text="Weight for final exam (legacy)")
+    
     is_default = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
 
     def total_weight(self):
-        return (self.attendance_weight + self.quizzes_weight + 
-                self.coursework_weight + self.midterm_weight + self.final_weight)
+        """Calculate total weight from new format fields"""
+        return self.coursework_weight + self.written_weight + self.practical_weight
 
     def __str__(self):
-        return f"{self.name} (A:{self.attendance_weight} Q:{self.quizzes_weight} C:{self.coursework_weight} M:{self.midterm_weight} F:{self.final_weight})"
+        return f"{self.name} (اعمال:{self.coursework_weight} تحريري:{self.written_weight} عملي:{self.practical_weight})"
 
 
 class Student(models.Model):
@@ -457,3 +478,35 @@ class StudentQuizAnswer(models.Model):
     class Meta:
         unique_together = ['attempt', 'question']
 
+
+class DoctorDeletionRequest(models.Model):
+    """Track doctor deletion requests requiring admin approval"""
+    class Status(models.TextChoices):
+        PENDING = 'PENDING', 'قيد الانتظار'
+        APPROVED = 'APPROVED', 'تمت الموافقة'
+        REJECTED = 'REJECTED', 'مرفوض'
+    
+    doctor = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='deletion_requests'
+    )
+    requested_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='doctor_deletion_requests_made'
+    )
+    reason = models.TextField(blank=True)
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
+    created_at = models.DateTimeField(auto_now_add=True)
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+    reviewed_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='doctor_deletion_requests_reviewed'
+    )
+    
+    def __str__(self):
+        return f"Delete {self.doctor.get_full_name()} - {self.get_status_display()}"
