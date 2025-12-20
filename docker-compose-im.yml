@@ -19,7 +19,7 @@ services:
       retries: 5
 
   backend:
-    image: mhmdocker1/bsu_backend:v1.4
+    image: mhmdocker1/bsu_backend:v2.1
     container_name: bsu_backend_1
     ports:
       - "8001:8000"
@@ -31,7 +31,7 @@ services:
       - DATABASE_URL=mysql://bsu_user:bsu_password@db:3306/bsu_db
 
   frontend:
-    image: mhmdocker1/bsu_frontend:v1.4
+    image: mhmdocker1/bsu_frontend:v2.1
     container_name: bsu_frontend_1
     ports:
       - "8081:80"
@@ -39,19 +39,19 @@ services:
       - backend
     restart: always 
 
-  phpmyadmin:
-    image: phpmyadmin:latest
-    container_name: bsu_phpmyadmin_1
-    restart: always
-    ports:
-      - "8082:80"
-    environment:
-      PMA_HOST: db
-      PMA_PORT: 3306
-      MYSQL_ROOT_PASSWORD: root
-    depends_on:
-      db:
-        condition: service_healthy
+ # phpmyadmin:
+    #    image: phpmyadmin:latest
+#    container_name: bsu_phpmyadmin_1
+#    restart: always
+#    ports:
+#      - "8082:80"
+#    environment:
+#      PMA_HOST: db
+#      PMA_PORT: 3306
+#      MYSQL_ROOT_PASSWORD: root
+#    depends_on:
+#      db:
+#        condition: service_healthy
 
 volumes:
   db_data_1:
