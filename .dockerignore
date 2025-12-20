@@ -1,4 +1,13 @@
-# Root .dockerignore - For production builds using backend-dockerfile and frontend-dockerfile
+# ============================================
+# ROOT .dockerignore
+# Used for PRODUCTION builds with:
+#   - backend-dockerfile
+#   - frontend-dockerfile
+#
+# NOTE: docker-compose.yml uses local Dockerfiles
+# in backend/ and frontend/ directories, which have
+# their own .dockerignore files
+# ============================================
 
 # Git
 .git/
@@ -7,27 +16,40 @@
 # IDE
 .idea/
 .vscode/
+*.swp
 
-# Documentation
+# OS
+.DS_Store
+Thumbs.db
+
+# Documentation (not needed in production)
 *.md
 *.pdf
 docs/
-
-# Screenshots and exports
+features/
 screenshots/
-pdf-forge-exports/
 
-# Sample files not needed in production
+# Test data (not needed in production)
+student_sheets/
+doctor_sheets/
+subject_tables/
 sample_*.xlsx
 
-# Development docker compose
+# Test scripts (not needed in production)
+generate_student_sheets.py
+verify_system.sh
+tm.sh
+
+# Development docker compose (production uses docker-compose-im.yml)
 docker-compose.yml
 
-# macOS
-.DS_Store
+# Local development Dockerfiles
+backend/Dockerfile
+frontend/Dockerfile
 
-# Node modules (frontend will install fresh)
-frontend/node_modules/
+# ============================================
+# BACKEND EXCLUSIONS
+# ============================================
 
 # Python cache
 **/__pycache__/
@@ -38,7 +60,7 @@ frontend/node_modules/
 **/venv/
 **/.venv/
 
-# Media (should be volume mounted)
+# Media (should be volume mounted in production)
 backend/media/
 
 # Temporary files
@@ -46,28 +68,29 @@ backend/media/
 **/temp/
 backend/tmp_exel/
 
-# Testing scripts
-verify_system.sh
+# Seed scripts (dev only, not production)
+# NOTE: seed_production.py and seed_subjects.py ARE included in the image
+backend/seed_academic*.py
+backend/seed_faculty*.py
+backend/seed_grading*.py
+backend/seed_users.py
 
-# Seed scripts (not needed in production)
-backend/seed_*.py
+# Sample files
+backend/sample_*.xlsx
 
-# Local Dockerfiles (for development)
-backend/Dockerfile
-frontend/Dockerfile
+# ============================================
+# FRONTEND EXCLUSIONS
+# ============================================
 
-# Markdown files
-*.md
+# Node modules (fresh install during build)
+frontend/node_modules/
 
-# Pdf files
-*.pdf
+# Build output (regenerated during build)
+frontend/dist/
 
-# exel , cvs files
-*.xlsx
-*.csv
+# ============================================
+# OTHER EXCLUSIONS
+# ============================================
 
-# txt files
-*.txt
-
-Logo
-screenshots
+# Logo and static assets (not used in app)
+Logo/

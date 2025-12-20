@@ -1,7 +1,48 @@
-bsu_project
-legacy_php
-cookies.txt
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.eggs/
+venv/
+.venv/
+env/
+.env
+
+# Node.js
+node_modules/
+dist/
+.npm/
+*.log
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project-specific 
 backend/media/
 backend/news_images/
 backend/tmp_exel/
+cookies.txt
+
+# Test data sheets 
+#student_sheets/
+#doctor_sheets/
+
+# Legacy/Removed
+bsu_project
+legacy_php
 newfeature*
+
+# Local testing
+*.sqlite3
+.coverage
+htmlcov/
