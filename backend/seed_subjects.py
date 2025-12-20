@@ -21,12 +21,12 @@ prep_dept, _ = Department.objects.get_or_create(
 )
 
 civil_dept, _ = Department.objects.get_or_create(
-    code='CVE',
+    code='CIVIL',
     defaults={'name': 'الهندسة المدنية', 'has_specializations': False}
 )
 
 arch_dept, _ = Department.objects.get_or_create(
-    code='ARC',
+    code='ARCH',
     defaults={'name': 'الهندسة المعمارية', 'has_specializations': False}
 )
 
