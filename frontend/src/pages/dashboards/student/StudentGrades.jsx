@@ -1,11 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Container, Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Alert, CircularProgress } from '@mui/material';
+import {
+    Box, Container, Typography, Paper, Table, TableBody, TableCell,
+    TableContainer, TableHead, TableRow, Alert, CircularProgress,
+    IconButton, Chip, LinearProgress, Card, CardContent
+} from '@mui/material';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 export default function StudentGrades() {
+    const navigate = useNavigate();
     const [grades, setGrades] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+
+    const token = localStorage.getItem('access_token');
+    const config = { headers: { Authorization: `Bearer ${token}` }, withCredentials: true };
 
     useEffect(() => {
         fetchGrades();
@@ -13,24 +23,8 @@ export default function StudentGrades() {
 
     const fetchGrades = async () => {
         try {
-            // Assuming the user is authenticated and the token/session is handled (e.g. via cookies or interceptor)
-            // Since we are using basic auth or session in this demo, we rely on the browser session if logged in.
-            // However, axios needs credentials if using session.
-            // For this demo, we might need to attach the user info or rely on the backend session.
-            // Let's assume we are using the session from the login.
-
-            // Note: In a real app, we'd attach the token. Here we rely on the backend session or mock it.
-            // Actually, we stored 'user' in localStorage but didn't set up an interceptor.
-            // For this demo, we will just call the endpoint. If it returns 403, we know auth is missing.
-            // But wait, we are using Django Session Auth by default with DRF if logged in via admin or session.
-            // Since we logged in via API but didn't set a cookie, we might have an issue.
-            // Let's check Login.jsx again. We just stored the user in localStorage. We didn't set a cookie or token.
-            // DRF TokenAuth or JWT is usually used.
-            // For this demo, let's assume we are using Basic Auth or we need to pass the username/password again? No, that's bad.
-            // Let's assume we are using SessionAuthentication and the login endpoint set the session cookie.
-            // We need to ensure axios sends credentials.
-
-            const response = await axios.get('/api/academic/grades/', { withCredentials: true });
+            // Try new StudentGrade endpoint first, fallback to exam-grades
+            const response = await axios.get('/api/academic/exam-grades/my-grades/', config);
             setGrades(response.data);
         } catch (err) {
             console.error('Error fetching grades:', err);
@@ -40,53 +34,169 @@ export default function StudentGrades() {
         }
     };
 
+    const getGradeColor = (percentage) => {
+        if (percentage === null || percentage === undefined) return '#9e9e9e';
+        if (percentage >= 90) return '#4caf50';
+        if (percentage >= 75) return '#2196f3';
+        if (percentage >= 60) return '#ff9800';
+        return '#f44336';
+    };
+
+    const getGradeLabel = (percentage) => {
+        if (percentage === null || percentage === undefined) return '-';
+        if (percentage >= 90) return 'ممتاز';
+        if (percentage >= 80) return 'جيد جداً';
+        if (percentage >= 70) return 'جيد';
+        if (percentage >= 60) return 'مقبول';
+        return 'راسب';
+    };
+
+    const calculateTotal = (grade) => {
+        const attendance = grade.attendance_grade || 0;
+        const quizzes = grade.quizzes_grade || 0;
+        const coursework = grade.coursework_grade || 0;
+        const midterm = grade.midterm_grade || 0;
+        const final = grade.final_grade || 0;
+        return attendance + quizzes + coursework + midterm + final;
+    };
+
     if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}><CircularProgress /></Box>;
 
     return (
         <Container maxWidth="lg" sx={{ py: 4 }}>
-            <Typography variant="h4" gutterBottom sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342', mb: 4 }}>
-                نتائج الامتحانات
-            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
+                <IconButton onClick={() => navigate('/student/dashboard')}>
+                    <ArrowBackIcon />
+                </IconButton>
+                <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342' }}>
+                    نتائج الامتحانات والدرجات
+                </Typography>
+            </Box>
 
-            {error && <Alert severity="error" sx={{ mb: 3, fontFamily: 'Cairo' }}>{error}</Alert>}
+            {error && <Alert severity="error" sx={{ mb: 3, fontFamily: 'Cairo' }} onClose={() => setError('')}>{error}</Alert>}
 
-            <TableContainer component={Paper}>
-                <Table>
-                    <TableHead sx={{ bgcolor: '#f5f5f5' }}>
-                        <TableRow>
-                            <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold', textAlign: 'right' }}>المادة</TableCell>
-                            <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold', textAlign: 'right' }}>الدرجة</TableCell>
-                            <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold', textAlign: 'right' }}>التقدير</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {grades.length > 0 ? (
-                            grades.map((grade) => (
-                                <TableRow key={grade.id}>
-                                    <TableCell sx={{ fontFamily: 'Cairo', textAlign: 'right' }}>{grade.course_name}</TableCell>
-                                    <TableCell sx={{ fontFamily: 'Cairo', textAlign: 'right' }}>{grade.score}</TableCell>
-                                    <TableCell sx={{ fontFamily: 'Cairo', textAlign: 'right' }}>
-                                        <span style={{
+            {grades.length > 0 ? (
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                    {grades.map((grade, idx) => (
+                        <Card key={idx} sx={{ overflow: 'visible' }}>
+                            <CardContent>
+                                {/* Course Header */}
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                                    <Box>
+                                        <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
+                                            {grade.course_name || grade.subject_name}
+                                        </Typography>
+                                        <Typography variant="body2" color="textSecondary">
+                                            {grade.course_code || grade.subject_code}
+                                        </Typography>
+                                    </Box>
+                                    <Chip
+                                        label={`${calculateTotal(grade)}%`}
+                                        sx={{
+                                            bgcolor: getGradeColor(calculateTotal(grade)),
+                                            color: 'white',
                                             fontWeight: 'bold',
-                                            color: grade.grade_letter.startsWith('A') ? 'green' :
-                                                grade.grade_letter.startsWith('B') ? 'blue' :
-                                                    grade.grade_letter.startsWith('C') ? 'orange' : 'red'
-                                        }}>
-                                            {grade.grade_letter}
-                                        </span>
-                                    </TableCell>
-                                </TableRow>
-                            ))
-                        ) : (
-                            <TableRow>
-                                <TableCell colSpan={3} sx={{ textAlign: 'center', fontFamily: 'Cairo', py: 3 }}>
-                                    لا توجد نتائج متاحة حالياً.
-                                </TableCell>
-                            </TableRow>
-                        )}
-                    </TableBody>
-                </Table>
-            </TableContainer>
+                                            fontSize: '1.1rem',
+                                            px: 2
+                                        }}
+                                    />
+                                </Box>
+
+                                {/* Grade Progress Bar */}
+                                <Box sx={{ mb: 2 }}>
+                                    <LinearProgress
+                                        variant="determinate"
+                                        value={calculateTotal(grade)}
+                                        sx={{
+                                            height: 10,
+                                            borderRadius: 5,
+                                            bgcolor: '#e0e0e0',
+                                            '& .MuiLinearProgress-bar': {
+                                                bgcolor: getGradeColor(calculateTotal(grade)),
+                                                borderRadius: 5
+                                            }
+                                        }}
+                                    />
+                                </Box>
+
+                                {/* Grade Components */}
+                                <TableContainer>
+                                    <Table size="small">
+                                        <TableHead sx={{ bgcolor: '#f5f5f5' }}>
+                                            <TableRow>
+                                                <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>العنصر</TableCell>
+                                                <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold', textAlign: 'center' }}>الدرجة</TableCell>
+                                                <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold', textAlign: 'center' }}>من</TableCell>
+                                            </TableRow>
+                                        </TableHead>
+                                        <TableBody>
+                                            {grade.attendance_weight > 0 && (
+                                                <TableRow>
+                                                    <TableCell sx={{ fontFamily: 'Cairo' }}>الحضور</TableCell>
+                                                    <TableCell sx={{ textAlign: 'center', fontWeight: 'bold' }}>
+                                                        {grade.attendance_grade ?? '--'}
+                                                    </TableCell>
+                                                    <TableCell sx={{ textAlign: 'center' }}>{grade.attendance_weight}</TableCell>
+                                                </TableRow>
+                                            )}
+                                            {grade.quizzes_weight > 0 && (
+                                                <TableRow>
+                                                    <TableCell sx={{ fontFamily: 'Cairo' }}>الكويزات</TableCell>
+                                                    <TableCell sx={{ textAlign: 'center', fontWeight: 'bold' }}>
+                                                        {grade.quizzes_grade ?? '--'}
+                                                    </TableCell>
+                                                    <TableCell sx={{ textAlign: 'center' }}>{grade.quizzes_weight}</TableCell>
+                                                </TableRow>
+                                            )}
+                                            {grade.coursework_weight > 0 && (
+                                                <TableRow>
+                                                    <TableCell sx={{ fontFamily: 'Cairo' }}>أعمال السنة</TableCell>
+                                                    <TableCell sx={{ textAlign: 'center', fontWeight: 'bold' }}>
+                                                        {grade.coursework_grade ?? '--'}
+                                                    </TableCell>
+                                                    <TableCell sx={{ textAlign: 'center' }}>{grade.coursework_weight}</TableCell>
+                                                </TableRow>
+                                            )}
+                                            <TableRow>
+                                                <TableCell sx={{ fontFamily: 'Cairo' }}>منتصف الترم</TableCell>
+                                                <TableCell sx={{ textAlign: 'center', fontWeight: 'bold', color: getGradeColor(grade.midterm_grade) }}>
+                                                    {grade.midterm_grade ?? '--'}
+                                                </TableCell>
+                                                <TableCell sx={{ textAlign: 'center' }}>{grade.midterm_weight || 20}</TableCell>
+                                            </TableRow>
+                                            <TableRow>
+                                                <TableCell sx={{ fontFamily: 'Cairo' }}>النهائي</TableCell>
+                                                <TableCell sx={{ textAlign: 'center', fontWeight: 'bold', color: getGradeColor(grade.final_grade) }}>
+                                                    {grade.final_grade ?? '--'}
+                                                </TableCell>
+                                                <TableCell sx={{ textAlign: 'center' }}>{grade.final_weight || 50}</TableCell>
+                                            </TableRow>
+                                        </TableBody>
+                                    </Table>
+                                </TableContainer>
+
+                                {/* Grade Label */}
+                                <Box sx={{ mt: 2, textAlign: 'center' }}>
+                                    <Chip
+                                        label={getGradeLabel(calculateTotal(grade))}
+                                        color={calculateTotal(grade) >= 60 ? 'success' : 'error'}
+                                        variant="outlined"
+                                    />
+                                </Box>
+                            </CardContent>
+                        </Card>
+                    ))}
+                </Box>
+            ) : (
+                <Paper sx={{ p: 4, textAlign: 'center' }}>
+                    <Typography variant="h6" sx={{ fontFamily: 'Cairo', color: '#666' }}>
+                        لا توجد درجات متاحة حالياً
+                    </Typography>
+                    <Typography variant="body2" color="textSecondary" sx={{ fontFamily: 'Cairo', mt: 1 }}>
+                        ستظهر درجاتك هنا بعد أن يقوم الأساتذة برصدها
+                    </Typography>
+                </Paper>
+            )}
         </Container>
     );
 }

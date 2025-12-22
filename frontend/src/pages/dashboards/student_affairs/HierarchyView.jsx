@@ -16,6 +16,8 @@ export default function HierarchyView() {
     const [selectedDept, setSelectedDept] = useState(null);
     const [selectedYear, setSelectedYear] = useState(null);
     const [selectedLevel, setSelectedLevel] = useState(null);
+    const [specializations, setSpecializations] = useState([]);
+    const [selectedSpecialization, setSelectedSpecialization] = useState(null);
 
     const [loading, setLoading] = useState(true);
     const [resetDialog, setResetDialog] = useState({ open: false, student: null });
@@ -64,7 +66,7 @@ export default function HierarchyView() {
         }
     };
 
-    const fetchStudents = async (levelId, deptId, yearId) => {
+    const fetchStudents = async (levelId, deptId, yearId, specializationId = null) => {
         setLoading(true);
         try {
             let url = '/api/academic/student-affairs/students/';
@@ -72,6 +74,7 @@ export default function HierarchyView() {
             if (levelId) params.append('level', levelId);
             if (deptId) params.append('department', deptId);
             if (yearId) params.append('academic_year', yearId);
+            if (specializationId) params.append('specialization', specializationId);
 
             const response = await axios.get(`${url}?${params.toString()}`, { withCredentials: true });
             setStudents(response.data);
@@ -93,14 +96,72 @@ export default function HierarchyView() {
 
     const handleYearClick = (year) => {
         setSelectedYear(year);
-        fetchLevels(selectedDept.id, year.id);
-        setSelectedLevel(null);
-        setStudents([]);
+
+        // Special handling for Preparatory - skip level selection, fetch prep students directly
+        if (selectedDept?.isPreparatory) {
+            // Create a virtual "PREPARATORY" level
+            const prepLevel = { id: 'PREP', name: 'PREPARATORY' };
+            setSelectedLevel(prepLevel);
+            // Fetch students with level name = PREPARATORY
+            fetchPrepStudents(year.id);
+        } else {
+            fetchLevels(selectedDept.id, year.id);
+            setSelectedLevel(null);
+            setStudents([]);
+        }
     };
+
+    const fetchPrepStudents = async (yearId) => {
+        setLoading(true);
+        try {
+            // Fetch students with PREPARATORY level (no specific department)
+            const response = await axios.get(
+                `/api/academic/student-affairs/students/?level_name=PREPARATORY&academic_year=${yearId}`,
+                { withCredentials: true }
+            );
+            setStudents(response.data);
+            setLoading(false);
+        } catch (err) {
+            console.error('Error fetching prep students:', err);
+            setStudents([]);
+            setLoading(false);
+        }
+    };
+
 
     const handleLevelClick = (level) => {
         setSelectedLevel(level);
-        fetchStudents(level.id, selectedDept?.id, selectedYear?.id);
+
+        // For Electrical department levels > FIRST, show specializations first
+        const isElectrical = selectedDept?.name?.includes('كهرب');
+        const needsSpecialization = isElectrical && level.name !== 'FIRST';
+
+        if (needsSpecialization) {
+            // Fetch specializations for Electrical
+            fetchSpecializations(selectedDept.id);
+            setSelectedSpecialization(null);
+            setStudents([]);
+        } else {
+            fetchStudents(level.id, selectedDept?.id, selectedYear?.id);
+        }
+    };
+
+    const fetchSpecializations = async (deptId) => {
+        setLoading(true);
+        try {
+            const response = await axios.get(`/api/academic/specializations/?department=${deptId}`, { withCredentials: true });
+            setSpecializations(response.data);
+            setLoading(false);
+        } catch (err) {
+            console.error('Error fetching specializations:', err);
+            setLoading(false);
+        }
+    };
+
+    const handleSpecializationClick = (spec) => {
+        setSelectedSpecialization(spec);
+        // Fetch students with specialization filter
+        fetchStudents(selectedLevel?.id, selectedDept?.id, selectedYear?.id, spec.id);
     };
 
     const handleResetPassword = async () => {
@@ -176,10 +237,25 @@ export default function HierarchyView() {
 
             {loading && <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}><CircularProgress /></Box>}
 
-            {/* Step 1: Departments */}
+            {/* Step 1: Departments + Preparatory */}
             {!loading && !selectedDept && (
                 <Grid container spacing={3}>
-                    {departments.map((dept) => (
+                    {/* Special: Preparatory Year Card */}
+                    <Grid item xs={12} md={4}>
+                        <Card
+                            sx={{ cursor: 'pointer', '&:hover': { bgcolor: '#fff3e0' }, border: '2px solid #ff9800' }}
+                            onClick={() => handleDeptClick({ id: null, name: 'الفرقة الإعدادية', code: 'PREP', isPreparatory: true })}
+                        >
+                            <CardContent sx={{ textAlign: 'center' }}>
+                                <SchoolIcon sx={{ fontSize: 50, color: '#ff9800', mb: 2 }} />
+                                <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>الفرقة الإعدادية</Typography>
+                                <Typography variant="body2" color="textSecondary" sx={{ fontFamily: 'Cairo' }}>جميع طلاب الإعدادية</Typography>
+                            </CardContent>
+                        </Card>
+                    </Grid>
+
+                    {/* Regular Departments - exclude PREP as it's shown above */}
+                    {departments.filter(dept => dept.code !== 'PREP').map((dept) => (
                         <Grid item xs={12} md={4} key={dept.id}>
                             <Card sx={{ cursor: 'pointer', '&:hover': { bgcolor: '#f5f5f5' } }} onClick={() => handleDeptClick(dept)}>
                                 <CardContent sx={{ textAlign: 'center' }}>
@@ -235,8 +311,27 @@ export default function HierarchyView() {
                 </Grid>
             )}
 
+            {/* Step 3b: Specializations (for Electrical levels > FIRST) */}
+            {!loading && selectedLevel && specializations.length > 0 && !selectedSpecialization && (
+                <Grid container spacing={3}>
+                    {specializations.map((spec) => (
+                        <Grid item xs={12} md={4} key={spec.id}>
+                            <Card
+                                sx={{ cursor: 'pointer', '&:hover': { bgcolor: '#e3f2fd' }, border: '2px solid #1976d2' }}
+                                onClick={() => handleSpecializationClick(spec)}
+                            >
+                                <CardContent sx={{ textAlign: 'center' }}>
+                                    <SchoolIcon sx={{ fontSize: 50, color: '#1976d2', mb: 2 }} />
+                                    <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>{spec.name}</Typography>
+                                </CardContent>
+                            </Card>
+                        </Grid>
+                    ))}
+                </Grid>
+            )}
+
             {/* Step 4: Students */}
-            {!loading && selectedLevel && (
+            {!loading && selectedLevel && (specializations.length === 0 || selectedSpecialization) && (
                 <Paper sx={{ p: 3 }}>
                     <Typography variant="h6" gutterBottom sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
                         الطلاب المسجلين ({students.length})

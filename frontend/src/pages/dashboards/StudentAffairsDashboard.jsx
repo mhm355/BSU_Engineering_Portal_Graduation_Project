@@ -4,6 +4,8 @@ import PeopleIcon from '@mui/icons-material/People';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import CardMembershipIcon from '@mui/icons-material/CardMembership';
 import NewspaperIcon from '@mui/icons-material/Newspaper';
+
+import GradingIcon from '@mui/icons-material/Grading';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
@@ -14,7 +16,7 @@ export default function StudentAffairsDashboard() {
     useEffect(() => {
         if (!user) {
             navigate('/login');
-        } else if (user.role !== 'STAFF' && user.role !== 'ADMIN') {
+        } else if (user.role !== 'STUDENT_AFFAIRS' && user.role !== 'ADMIN') {
             navigate('/');
         }
     }, [user, navigate]);
@@ -70,6 +72,18 @@ export default function StudentAffairsDashboard() {
                             <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>الأخبار والإعلانات</Typography>
                             <Typography variant="body2" color="textSecondary" sx={{ mb: 2, fontFamily: 'Cairo' }}>نشر أخبار للطلاب</Typography>
                             <Button variant="contained" color="secondary" sx={{ mt: 2, fontFamily: 'Cairo' }} onClick={() => navigate('/student-affairs/news')}>إدارة الأخبار</Button>
+                        </CardContent>
+                    </Card>
+                </Grid>
+
+
+                <Grid item xs={12} md={3}>
+                    <Card sx={{ height: '100%', bgcolor: '#e0f7fa' }}>
+                        <CardContent sx={{ textAlign: 'center' }}>
+                            <PeopleIcon sx={{ fontSize: 60, color: '#00838f', mb: 2 }} />
+                            <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>عرض درجات الطلاب</Typography>
+                            <Typography variant="body2" color="textSecondary" sx={{ mb: 2, fontFamily: 'Cairo' }}>عرض درجات كل فرقة (للقراءة فقط)</Typography>
+                            <Button variant="contained" sx={{ mt: 2, fontFamily: 'Cairo', bgcolor: '#00838f' }} onClick={() => navigate('/student-affairs/grades')}>عرض الدرجات</Button>
                         </CardContent>
                     </Card>
                 </Grid>

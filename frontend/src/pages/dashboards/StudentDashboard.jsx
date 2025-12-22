@@ -220,6 +220,17 @@ export default function StudentDashboard() {
                     </Card>
                 </Grid>
 
+                <Grid item xs={12} md={3}>
+                    <Card sx={{ height: '100%', bgcolor: '#f3e5f5' }}>
+                        <CardContent sx={{ textAlign: 'center' }}>
+                            <AssignmentIcon sx={{ fontSize: 60, color: '#7b1fa2', mb: 2 }} />
+                            <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>الكويزات</Typography>
+                            <Button variant="contained" sx={{ mt: 2, fontFamily: 'Cairo', bgcolor: '#7b1fa2' }} onClick={() => navigate('/student/quizzes')}>عرض الكويزات</Button>
+                        </CardContent>
+                    </Card>
+                </Grid>
+
+
                 {/* Recent Activity / Notifications */}
                 <Grid item xs={12}>
                     <Paper sx={{ p: 3 }}>

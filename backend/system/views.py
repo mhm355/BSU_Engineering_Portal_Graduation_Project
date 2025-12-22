@@ -3,7 +3,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from .models import DeleteRequest
 from .serializers import DeleteRequestSerializer
-from academic.models import Department, AcademicYear, Level, Course
+from academic.models import Department, AcademicYear, Level, Subject
 from users.models import User
 from users.permissions import IsAdminRole
 
@@ -32,7 +32,7 @@ class DeleteRequestViewSet(viewsets.ModelViewSet):
                 'DEPARTMENT': Department,
                 'YEAR': AcademicYear,
                 'LEVEL': Level,
-                'COURSE': Course,
+                'SUBJECT': Subject,
                 'STUDENT': User,
             }
             # The model uses uppercase choices: STUDENT, LEVEL, etc.

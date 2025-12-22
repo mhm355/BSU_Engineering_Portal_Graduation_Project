@@ -1,14 +1,101 @@
-import React, { useState } from 'react';
-import { Box, Container, Typography, Paper, Button, Alert, LinearProgress, List, ListItem, ListItemText, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import {
+    Box, Container, Typography, Paper, Button, Alert, LinearProgress,
+    List, ListItem, ListItemText, Table, TableBody, TableCell, TableContainer,
+    TableHead, TableRow, Chip, FormControl, InputLabel, Select, MenuItem
+} from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import DownloadIcon from '@mui/icons-material/Download';
 import axios from 'axios';
 
 export default function UploadStudents() {
+    // Selection state
+    const [departments, setDepartments] = useState([]);
+    const [academicYears, setAcademicYears] = useState([]);
+    const [levels, setLevels] = useState([]);
+
+    const [selectedDepartment, setSelectedDepartment] = useState('');
+    const [selectedYear, setSelectedYear] = useState('');
+    const [selectedLevel, setSelectedLevel] = useState('');
+    const [specializations, setSpecializations] = useState([]);
+    const [selectedSpecialization, setSelectedSpecialization] = useState('');
+
+    // Upload state
     const [file, setFile] = useState(null);
     const [uploading, setUploading] = useState(false);
     const [result, setResult] = useState(null);
     const [error, setError] = useState('');
+    const [loadingData, setLoadingData] = useState(true);
+
+    const token = localStorage.getItem('access_token');
+    const config = { headers: { Authorization: `Bearer ${token}` }, withCredentials: true };
+
+    useEffect(() => {
+        fetchInitialData();
+    }, []);
+
+    useEffect(() => {
+        if (selectedDepartment && selectedYear) {
+            fetchLevels();
+            // Fetch specializations for Electrical department
+            const dept = departments.find(d => d.id === selectedDepartment);
+            if (dept && dept.name.includes('كهرب')) {
+                fetchSpecializations();
+            } else {
+                setSpecializations([]);
+                setSelectedSpecialization('');
+            }
+        }
+    }, [selectedDepartment, selectedYear]);
+
+    const fetchInitialData = async () => {
+        try {
+            const [deptRes, yearRes] = await Promise.all([
+                axios.get('/api/academic/departments/', config),
+                axios.get('/api/academic/years/', config)
+            ]);
+            setDepartments(deptRes.data);
+            setAcademicYears(yearRes.data);
+
+            // Auto-select current year
+            const currentYear = yearRes.data.find(y => y.is_current);
+            if (currentYear) {
+                setSelectedYear(currentYear.id);
+            }
+        } catch (err) {
+            setError('فشل في تحميل البيانات');
+        } finally {
+            setLoadingData(false);
+        }
+    };
+
+    const fetchLevels = async () => {
+        try {
+            const url = `/api/academic/levels/?department=${selectedDepartment}&academic_year=${selectedYear}`;
+            const res = await axios.get(url, config);
+            setLevels(res.data);
+
+            // Auto-select if only one level (e.g., Prep department)
+            if (res.data.length === 1) {
+                setSelectedLevel(res.data[0].id);
+            }
+        } catch (err) {
+            console.error('Error fetching levels:', err);
+        }
+    };
+
+    const fetchSpecializations = async () => {
+        try {
+            const res = await axios.get(`/api/academic/specializations/?department=${selectedDepartment}`, config);
+            setSpecializations(res.data);
+        } catch (err) {
+            console.error('Error fetching specializations:', err);
+        }
+    };
+
+    // Check if specialization is needed (Electrical + level > FIRST)
+    const selectedLevelData = levels.find(l => l.id === selectedLevel);
+    const needsSpecialization = specializations.length > 0 &&
+        selectedLevelData && selectedLevelData.name !== 'FIRST';
 
     const handleFileChange = (e) => {
         setFile(e.target.files[0]);
@@ -17,6 +104,14 @@ export default function UploadStudents() {
     };
 
     const handleUpload = async () => {
+        if (!selectedDepartment || !selectedYear || !selectedLevel) {
+            setError('يرجى اختيار القسم والعام الدراسي والفرقة أولاً');
+            return;
+        }
+        if (needsSpecialization && !selectedSpecialization) {
+            setError('يرجى اختيار التخصص (اتصالات/قوى)');
+            return;
+        }
         if (!file) {
             setError('يرجى اختيار ملف أولاً.');
             return;
@@ -24,6 +119,12 @@ export default function UploadStudents() {
 
         const formData = new FormData();
         formData.append('file', file);
+        formData.append('department_id', selectedDepartment);
+        formData.append('academic_year_id', selectedYear);
+        formData.append('level_id', selectedLevel);
+        if (needsSpecialization && selectedSpecialization) {
+            formData.append('specialization_id', selectedSpecialization);
+        }
 
         setUploading(true);
         setError('');
@@ -31,12 +132,11 @@ export default function UploadStudents() {
 
         try {
             const response = await axios.post('/api/academic/student-affairs/upload/', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-                withCredentials: true,
+                ...config,
+                headers: { ...config.headers, 'Content-Type': 'multipart/form-data' }
             });
             setResult(response.data);
+            setFile(null);
         } catch (err) {
             console.error('Error uploading file:', err);
             const errorMsg = err.response?.data?.error || 'فشل رفع الملف. تأكد من صحة البيانات.';
@@ -48,9 +148,15 @@ export default function UploadStudents() {
 
     // Sample data for file format example
     const sampleData = [
-        { national_id: '12345678901234', full_name: 'أحمد محمد علي', academic_year: '2024-2025', level: 'FIRST', department_code: 'CS' },
-        { national_id: '23456789012345', full_name: 'محمد سعيد أحمد', academic_year: '2024-2025', level: 'PREPARATORY', department_code: '' },
+        { national_id: '12345678901234', full_name: 'أحمد محمد علي', email: 'ahmed@example.com' },
+        { national_id: '23456789012345', full_name: 'محمد سعيد أحمد', email: '' },
     ];
+
+    // Check if this is Prep department (only 1 level)
+    const isPrepDepartment = levels.length === 1;
+    // Selection complete when: dept + year + level selected, and specialization if needed
+    const isSelectionComplete = selectedDepartment && selectedYear && selectedLevel &&
+        (!needsSpecialization || selectedSpecialization);
 
     return (
         <Container maxWidth="lg" sx={{ py: 4 }}>
@@ -59,23 +165,111 @@ export default function UploadStudents() {
                 رفع بيانات الطلاب
             </Typography>
 
-            {/* File Format Info */}
+            {/* Step 1: Selection */}
             <Paper sx={{ p: 3, mb: 3 }}>
                 <Typography variant="h6" gutterBottom sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
-                    تنسيق الملف المطلوب
+                    الخطوة 1: اختر القسم والعام والفرقة
+                </Typography>
+
+                <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', mt: 2 }}>
+                    <FormControl sx={{ minWidth: 200 }}>
+                        <InputLabel>القسم</InputLabel>
+                        <Select
+                            value={selectedDepartment}
+                            onChange={(e) => {
+                                setSelectedDepartment(e.target.value);
+                                setSelectedLevel('');
+                            }}
+                            label="القسم"
+                        >
+                            {departments.map((dept) => (
+                                <MenuItem key={dept.id} value={dept.id}>{dept.name}</MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+
+                    <FormControl sx={{ minWidth: 200 }}>
+                        <InputLabel>العام الدراسي</InputLabel>
+                        <Select
+                            value={selectedYear}
+                            onChange={(e) => {
+                                setSelectedYear(e.target.value);
+                                setSelectedLevel('');
+                            }}
+                            label="العام الدراسي"
+                        >
+                            {academicYears.map((year) => (
+                                <MenuItem key={year.id} value={year.id}>
+                                    {year.name}
+                                    {year.is_current && <Chip label="الحالي" size="small" color="success" sx={{ ml: 1 }} />}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+
+                    {/* Level dropdown - hide if only 1 level (Prep) */}
+                    {!isPrepDepartment && (
+                        <FormControl sx={{ minWidth: 200 }}>
+                            <InputLabel>الفرقة</InputLabel>
+                            <Select
+                                value={selectedLevel}
+                                onChange={(e) => {
+                                    setSelectedLevel(e.target.value);
+                                    setSelectedSpecialization(''); // Reset specialization when level changes
+                                }}
+                                label="الفرقة"
+                                disabled={!selectedDepartment || !selectedYear || levels.length === 0}
+                            >
+                                {levels.map((level) => (
+                                    <MenuItem key={level.id} value={level.id}>{level.display_name}</MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                    )}
+
+                    {/* Specialization dropdown - for Electrical dept levels 2-4 */}
+                    {needsSpecialization && (
+                        <FormControl sx={{ minWidth: 200 }}>
+                            <InputLabel>التخصص</InputLabel>
+                            <Select
+                                value={selectedSpecialization}
+                                onChange={(e) => setSelectedSpecialization(e.target.value)}
+                                label="التخصص"
+                            >
+                                {specializations.map((spec) => (
+                                    <MenuItem key={spec.id} value={spec.id}>{spec.name}</MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                    )}
+                </Box>
+
+                {isSelectionComplete && (
+                    <Alert severity="success" sx={{ mt: 2, fontFamily: 'Cairo' }}>
+                        ✓ تم اختيار: {departments.find(d => d.id === selectedDepartment)?.name} -
+                        {academicYears.find(y => y.id === selectedYear)?.name}
+                        {!isPrepDepartment && ` - ${levels.find(l => l.id === selectedLevel)?.display_name}`}
+                        {needsSpecialization && ` - ${specializations.find(s => s.id === selectedSpecialization)?.name}`}
+                    </Alert>
+                )}
+            </Paper>
+
+            {/* Step 2: File Format Info */}
+            <Paper sx={{ p: 3, mb: 3 }}>
+                <Typography variant="h6" gutterBottom sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
+                    الخطوة 2: تنسيق الملف المطلوب
                 </Typography>
                 <Typography variant="body2" sx={{ fontFamily: 'Cairo', mb: 2 }}>
                     يجب أن يحتوي الملف على الأعمدة التالية:
                 </Typography>
                 <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 2 }}>
-                    <Chip label="national_id" color="primary" size="small" />
-                    <Chip label="full_name" color="primary" size="small" />
-                    <Chip label="academic_year" color="primary" size="small" />
-                    <Chip label="level" color="primary" size="small" />
-                    <Chip label="department_code" color="secondary" size="small" />
+                    <Chip label="الرقم القومي (national_id)" color="primary" size="small" />
+                    <Chip label="الاسم بالكامل (full_name)" color="primary" size="small" />
+                    <Chip label="البريد الإلكتروني (email) - اختياري" color="secondary" size="small" variant="outlined" />
                 </Box>
+
                 <Alert severity="info" sx={{ mb: 2, fontFamily: 'Cairo' }}>
-                    <strong>ملاحظة:</strong> عمود department_code مطلوب فقط للمستويات من الأولى إلى الرابعة. السنة التحضيرية لا تحتاج قسم.
+                    <strong>ملاحظة:</strong> القسم والعام الدراسي والفرقة يتم تحديدهم من القائمة أعلاه، وليس من الملف.
                 </Alert>
 
                 {/* Sample Table */}
@@ -88,9 +282,7 @@ export default function UploadStudents() {
                             <TableRow>
                                 <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>national_id</TableCell>
                                 <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>full_name</TableCell>
-                                <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>academic_year</TableCell>
-                                <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>level</TableCell>
-                                <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>department_code</TableCell>
+                                <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>email (اختياري)</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -98,33 +290,25 @@ export default function UploadStudents() {
                                 <TableRow key={index}>
                                     <TableCell sx={{ fontFamily: 'monospace' }}>{row.national_id}</TableCell>
                                     <TableCell sx={{ fontFamily: 'Cairo' }}>{row.full_name}</TableCell>
-                                    <TableCell>{row.academic_year}</TableCell>
-                                    <TableCell>
-                                        <Chip
-                                            label={row.level}
-                                            size="small"
-                                            color={row.level === 'PREPARATORY' ? 'default' : 'primary'}
-                                        />
-                                    </TableCell>
-                                    <TableCell>{row.department_code || '-'}</TableCell>
+                                    <TableCell>{row.email || '-'}</TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>
                     </Table>
                 </TableContainer>
-                <Typography variant="caption" sx={{ fontFamily: 'Cairo', display: 'block', mt: 1 }}>
-                    القيم المسموحة للمستوى (level): PREPARATORY, FIRST, SECOND, THIRD, FOURTH
-                </Typography>
             </Paper>
 
-            {/* Upload Section */}
+            {/* Step 3: Upload Section */}
             <Paper sx={{ p: 4, textAlign: 'center' }}>
                 <Typography variant="h6" gutterBottom sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
-                    رفع الملف
+                    الخطوة 3: رفع الملف
                 </Typography>
-                <Typography variant="body1" paragraph sx={{ fontFamily: 'Cairo' }}>
-                    يرجى رفع ملف Excel (.xlsx) أو CSV يحتوي على بيانات الطلاب.
-                </Typography>
+
+                {!isSelectionComplete && (
+                    <Alert severity="warning" sx={{ mb: 3, fontFamily: 'Cairo' }}>
+                        يرجى إكمال الخطوة 1 أولاً (اختيار القسم والعام والفرقة)
+                    </Alert>
+                )}
 
                 <Box sx={{ my: 3 }}>
                     <input
@@ -133,9 +317,16 @@ export default function UploadStudents() {
                         id="raised-button-file"
                         type="file"
                         onChange={handleFileChange}
+                        disabled={!isSelectionComplete}
                     />
                     <label htmlFor="raised-button-file">
-                        <Button variant="outlined" component="span" startIcon={<CloudUploadIcon />} sx={{ fontFamily: 'Cairo' }}>
+                        <Button
+                            variant="outlined"
+                            component="span"
+                            startIcon={<CloudUploadIcon />}
+                            sx={{ fontFamily: 'Cairo' }}
+                            disabled={!isSelectionComplete}
+                        >
                             اختيار ملف
                         </Button>
                     </label>
@@ -146,7 +337,7 @@ export default function UploadStudents() {
                     variant="contained"
                     color="primary"
                     onClick={handleUpload}
-                    disabled={!file || uploading}
+                    disabled={!file || uploading || !isSelectionComplete}
                     sx={{ fontFamily: 'Cairo', px: 4 }}
                 >
                     {uploading ? 'جاري الرفع...' : 'رفع البيانات'}
@@ -185,4 +376,3 @@ export default function UploadStudents() {
         </Container>
     );
 }
-

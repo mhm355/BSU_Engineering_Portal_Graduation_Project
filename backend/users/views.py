@@ -40,12 +40,33 @@ class GetCSRFToken(APIView):
     def get(self, request):
         return Response({'success': 'CSRF cookie set'})
 
-class PublicStaffView(generics.ListAPIView):
-    serializer_class = UserSerializer
+class PublicStaffView(APIView):
+    """Public endpoint to list staff with department info"""
     permission_classes = [permissions.AllowAny]
 
-    def get_queryset(self):
-        return User.objects.filter(role__in=['DOCTOR', 'STAFF'])
+    def get(self, request):
+        from academic.models import CourseOffering
+        
+        users = User.objects.filter(role__in=['DOCTOR', 'STAFF'])
+        result = []
+        
+        for user in users:
+            # Get department from first course offering
+            dept_name = None
+            offering = CourseOffering.objects.filter(doctor=user).select_related('level__department').first()
+            if offering and offering.level and offering.level.department:
+                dept_name = offering.level.department.name
+            
+            result.append({
+                'id': user.id,
+                'first_name': user.first_name,
+                'last_name': user.last_name,
+                'email': user.email,
+                'role': user.role,
+                'department': dept_name,
+            })
+        
+        return Response(result)
 
 class UserProfileView(generics.RetrieveUpdateAPIView):
     serializer_class = UserSerializer
@@ -112,6 +133,7 @@ class ChangePasswordView(APIView):
         return Response({'message': 'Password changed successfully'})
 
 from rest_framework import viewsets
+from rest_framework.decorators import action
 from .serializers import UserManagementSerializer
 from django.contrib.auth import get_user_model
 from .permissions import IsAdminRole
@@ -123,3 +145,14 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserManagementSerializer
     permission_classes = [IsAdminRole]
 
+    @action(detail=True, methods=['post'])
+    def reset_password(self, request, pk=None):
+        """Reset user password to their national ID"""
+        user = self.get_object()
+        if hasattr(user, 'national_id') and user.national_id:
+            user.set_password(user.national_id)
+            user.first_login_required = True
+            user.save()
+            return Response({'message': 'تم إعادة تعيين كلمة المرور بنجاح'})
+        return Response({'error': 'لا يمكن إعادة تعيين كلمة المرور - الرقم القومي غير موجود'}, 
+                        status=status.HTTP_400_BAD_REQUEST)

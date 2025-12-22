@@ -11,7 +11,7 @@ import pandas as pd
 import io
 
 from .models import Student, Level, AcademicYear, Department, AuditLog
-from users.permissions import IsStaffRole, IsStudentRole
+from users.permissions import IsStudentAffairsRole, IsStudentRole
 
 User = get_user_model()
 
@@ -19,105 +19,97 @@ User = get_user_model()
 class UploadStudentsView(APIView):
     """
     Upload students via Excel/CSV file.
-    Expected columns: national_id, full_name, academic_year, level, department_code
+    Requires: department_id, academic_year_id, level_id from request
+    Excel columns: national_id, full_name, email (optional)
     """
     parser_classes = (MultiPartParser, FormParser)
-    permission_classes = [IsStaffRole]
+    permission_classes = [IsStudentAffairsRole]
 
     def post(self, request):
         file = request.FILES.get('file')
+        department_id = request.data.get('department_id')
+        academic_year_id = request.data.get('academic_year_id')
+        level_id = request.data.get('level_id')
+
+        # Validate required params
         if not file:
+            return Response({'error': 'لم يتم تحديد ملف'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if not department_id or not academic_year_id or not level_id:
             return Response(
-                {'error': 'No file provided'}, 
+                {'error': 'يجب اختيار القسم والعام الدراسي والفرقة'}, 
                 status=status.HTTP_400_BAD_REQUEST
             )
 
+        # Validate department, year, level exist
         try:
-            # Read file based on extension
+            department = Department.objects.get(id=department_id)
+        except Department.DoesNotExist:
+            return Response({'error': 'القسم غير موجود'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            academic_year = AcademicYear.objects.get(id=academic_year_id)
+        except AcademicYear.DoesNotExist:
+            return Response({'error': 'العام الدراسي غير موجود'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            level = Level.objects.get(id=level_id)
+        except Level.DoesNotExist:
+            return Response({'error': 'الفرقة غير موجودة'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            # Read file
             if file.name.endswith('.csv'):
                 df = pd.read_csv(io.BytesIO(file.read()))
             elif file.name.endswith(('.xlsx', '.xls')):
                 df = pd.read_excel(io.BytesIO(file.read()))
             else:
                 return Response(
-                    {'error': 'Unsupported file format. Use CSV or Excel.'}, 
+                    {'error': 'صيغة الملف غير مدعومة. استخدم CSV أو Excel.'}, 
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
             # Validate required columns
-            required_columns = ['national_id', 'full_name', 'academic_year', 'level']
+            required_columns = ['national_id', 'full_name']
             missing_columns = [col for col in required_columns if col not in df.columns]
             if missing_columns:
                 return Response(
-                    {'error': f'Missing required columns: {missing_columns}'}, 
+                    {'error': f'أعمدة مفقودة: {missing_columns}'}, 
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
-            # Process students in a transaction
-            results = self._process_students(df, request.user)
+            # Process students
+            results = self._process_students(df, department, academic_year, level, request.user)
             return Response(results, status=status.HTTP_201_CREATED)
 
         except Exception as e:
-            return Response(
-                {'error': str(e)}, 
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    def _process_students(self, df, performed_by):
+    def _process_students(self, df, department, academic_year, level, performed_by):
         """Process student data and create accounts"""
         created_count = 0
         updated_count = 0
         errors = []
 
         for index, row in df.iterrows():
-            # Use a savepoint for each row so errors don't break the whole batch
             try:
                 with transaction.atomic():
                     national_id = str(row['national_id']).strip()
                     full_name = str(row['full_name']).strip()
-                    academic_year_name = str(row['academic_year']).strip()
-                    level_name = str(row['level']).strip().upper()
-                    department_code = row.get('department_code', '')
-                    
-                    if pd.notna(department_code):
-                        department_code = str(department_code).strip()
+                    email = row.get('email', '')
+                    if pd.notna(email):
+                        email = str(email).strip()
                     else:
-                        department_code = None
+                        email = ''
 
-                    # Validate level
-                    valid_levels = ['PREPARATORY', 'FIRST', 'SECOND', 'THIRD', 'FOURTH']
-                    if level_name not in valid_levels:
-                        raise ValueError(f"Invalid level '{level_name}'")
+                    # Validate national_id
+                    if not national_id or len(national_id) < 10:
+                        raise ValueError('الرقم القومي غير صالح')
 
-                    # For non-preparatory levels, department is required
-                    if level_name != 'PREPARATORY' and not department_code:
-                        raise ValueError(f"Department is required for {level_name} level")
-
-                    # Get or create academic year
-                    academic_year, _ = AcademicYear.objects.get_or_create(
-                        name=academic_year_name
-                    )
-
-                    # Get department if provided
-                    department = None
-                    if department_code:
-                        try:
-                            department = Department.objects.get(code=department_code)
-                        except Department.DoesNotExist:
-                            raise ValueError(f"Department '{department_code}' not found")
-
-                    # Get or create level
-                    level, _ = Level.objects.get_or_create(
-                        name=level_name,
-                        department=department,
-                        academic_year=academic_year
-                    )
-
-                    # Check if student record exists
+                    # Check if student exists
                     student_exists = Student.objects.filter(national_id=national_id).exists()
-                    # Check if user account exists (might exist if Student was cascade-deleted)
                     user_exists = User.objects.filter(username=national_id).exists()
-                    
+
                     if student_exists:
                         # Update existing student
                         student = Student.objects.get(national_id=national_id)
@@ -126,16 +118,24 @@ class UploadStudentsView(APIView):
                         student.academic_year = academic_year
                         student.department = department
                         student.save()
+                        
+                        # Update user email if provided
+                        if email and student.user:
+                            student.user.email = email
+                            student.user.save()
+                        
                         updated_count += 1
                     elif user_exists:
-                        # User exists but Student record was deleted (e.g., Level was deleted)
-                        # Recreate the Student record linked to existing user
+                        # User exists but Student record was deleted
                         user = User.objects.get(username=national_id)
                         user.first_name = full_name.split()[0] if full_name else ''
                         user.last_name = ' '.join(full_name.split()[1:]) if len(full_name.split()) > 1 else ''
+                        if email:
+                            user.email = email
+                        user.first_login_required = True
                         user.save()
-                        
-                        student = Student.objects.create(
+
+                        Student.objects.create(
                             national_id=national_id,
                             full_name=full_name,
                             user=user,
@@ -143,12 +143,13 @@ class UploadStudentsView(APIView):
                             academic_year=academic_year,
                             department=department
                         )
-                        updated_count += 1  # Count as update since user existed
+                        updated_count += 1
                     else:
-                        # Create new student and user account
+                        # Create new user and student
                         user = User.objects.create_user(
                             username=national_id,
                             password=national_id,
+                            email=email or None,
                             first_name=full_name.split()[0] if full_name else '',
                             last_name=' '.join(full_name.split()[1:]) if len(full_name.split()) > 1 else '',
                             national_id=national_id,
@@ -156,7 +157,7 @@ class UploadStudentsView(APIView):
                             first_login_required=True
                         )
 
-                        student = Student.objects.create(
+                        Student.objects.create(
                             national_id=national_id,
                             full_name=full_name,
                             user=user,
@@ -167,22 +168,25 @@ class UploadStudentsView(APIView):
                         created_count += 1
 
             except Exception as e:
-                errors.append(f"Row {index + 2}: {str(e)}")
+                errors.append(f"صف {index + 2}: {str(e)}")
 
-        # Create audit log outside of any transaction issues
+        # Audit log
         try:
             AuditLog.objects.create(
                 action=AuditLog.ActionType.STUDENT_BATCH_UPLOAD,
                 performed_by=performed_by,
                 entity_type='BATCH_UPLOAD',
                 details={
+                    'department': department.name,
+                    'academic_year': academic_year.name,
+                    'level': level.name,
                     'created': created_count,
                     'updated': updated_count,
                     'errors': len(errors)
                 }
             )
         except Exception as e:
-            errors.append(f"Audit log error: {str(e)}")
+            errors.append(f"خطأ في سجل العمليات: {str(e)}")
 
         return {
             'created': created_count,
@@ -191,9 +195,11 @@ class UploadStudentsView(APIView):
         }
 
 
+
+
 class StudentListView(generics.ListAPIView):
     """List students with filtering by department, academic year, and level"""
-    permission_classes = [IsStaffRole]
+    permission_classes = [IsStudentAffairsRole]
 
     def get(self, request):
         queryset = Student.objects.select_related(
@@ -204,7 +210,7 @@ class StudentListView(generics.ListAPIView):
         department_id = request.query_params.get('department')
         academic_year_id = request.query_params.get('academic_year')
         level_id = request.query_params.get('level')
-        level_name = request.query_params.get('level_name')  # Filter by level name (e.g., FOURTH)
+        level_name = request.query_params.get('level_name')
 
         if department_id:
             queryset = queryset.filter(department_id=department_id)
@@ -235,15 +241,15 @@ class StudentListView(generics.ListAPIView):
 
 
 class ResetStudentPasswordView(APIView):
-    """Admin endpoint to reset a student's password to their national_id"""
-    permission_classes = [IsStaffRole]
+    """Reset a student's password to their national_id"""
+    permission_classes = [IsStudentAffairsRole]
 
     def post(self, request, student_id):
         try:
             student = Student.objects.get(id=student_id)
             if not student.user:
                 return Response(
-                    {'error': 'Student has no associated user account'},
+                    {'error': 'الطالب ليس لديه حساب مستخدم'},
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
@@ -253,26 +259,33 @@ class ResetStudentPasswordView(APIView):
             student.user.save()
 
             # Create audit log
-            AuditLog.objects.create(
-                action=AuditLog.ActionType.PASSWORD_RESET,
-                performed_by=request.user,
-                entity_type='STUDENT',
-                entity_id=student.id,
-                details={'student_national_id': student.national_id}
-            )
+            try:
+                AuditLog.objects.create(
+                    action=AuditLog.ActionType.STUDENT_PASSWORD_RESET,
+                    performed_by=request.user,
+                    entity_type='STUDENT',
+                    entity_id=student.id,
+                    details={
+                        'student_name': student.full_name,
+                        'national_id': student.national_id,
+                    }
+                )
+            except Exception:
+                pass  # Don't fail if audit log fails
 
-            return Response({'message': 'Password reset successfully'})
+            return Response({'message': 'تم إعادة تعيين كلمة المرور بنجاح'})
 
         except Student.DoesNotExist:
             return Response(
-                {'error': 'Student not found'},
+                {'error': 'الطالب غير موجود'},
                 status=status.HTTP_404_NOT_FOUND
             )
 
 
+
 class FourthYearStudentsView(APIView):
     """Get all fourth year students for certificate upload"""
-    permission_classes = [IsStaffRole]
+    permission_classes = [IsStudentAffairsRole]
 
     def get(self, request):
         queryset = Student.objects.select_related(
@@ -294,58 +307,99 @@ class FourthYearStudentsView(APIView):
         return Response(students)
 
 
-class StudentProfileView(APIView):
-    """Get current student's academic profile"""
-    permission_classes = [permissions.IsAuthenticated]
+class StudentAffairsGradesView(APIView):
+    """
+    Read-only grades view for Student Affairs.
+    Shows students with their subjects and grades (Midterm, Coursework, Final).
+    """
+    permission_classes = [IsStudentAffairsRole]
 
     def get(self, request):
-        user = request.user
-        
-        # Check if user is a student
-        if user.role != 'STUDENT':
+        department_id = request.query_params.get('department')
+        academic_year_id = request.query_params.get('academic_year')
+        level_id = request.query_params.get('level')
+
+        if not all([department_id, academic_year_id, level_id]):
             return Response(
-                {'error': 'Not a student account'},
+                {'error': 'يجب تحديد القسم والعام الدراسي والفرقة'},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
+        # Import models here to avoid circular imports
+        from .models import Subject, StudentGrade, CourseOffering
+
         try:
-            student = Student.objects.select_related(
-                'level', 'academic_year', 'department'
-            ).get(user=user)
+            level = Level.objects.get(id=level_id)
+        except Level.DoesNotExist:
+            return Response({'error': 'الفرقة غير موجودة'}, status=status.HTTP_404_NOT_FOUND)
 
-            level_display_map = {
-                'PREPARATORY': 'السنة التحضيرية',
-                'FIRST': 'السنة الأولى',
-                'SECOND': 'السنة الثانية',
-                'THIRD': 'السنة الثالثة',
-                'FOURTH': 'السنة الرابعة',
-            }
+        # Get students in this level
+        students = Student.objects.filter(
+            level_id=level_id,
+            department_id=department_id,
+            academic_year_id=academic_year_id
+        ).select_related('user')
 
-            return Response({
+        # Get subjects for this level
+        subjects = Subject.objects.filter(
+            level=level.name,
+            department_id=department_id
+        )
+
+        # Get grades for each student
+        result = []
+        for student in students:
+            student_data = {
                 'id': student.id,
                 'national_id': student.national_id,
                 'full_name': student.full_name,
-                'level': student.level.name,
-                'level_display': level_display_map.get(student.level.name, student.level.name),
-                'department': student.department.name if student.department else None,
-                'department_code': student.department.code if student.department else None,
-                'academic_year': student.academic_year.name,
-                'graduation_status': user.graduation_status,
-                'first_login_required': user.first_login_required,
-            })
+                'subjects': []
+            }
 
-        except Student.DoesNotExist:
-            # Student profile not yet created - return default
-            return Response({
-                'id': None,
-                'national_id': user.national_id,
-                'full_name': f"{user.first_name} {user.last_name}",
-                'level': None,
-                'level_display': 'غير محدد',
-                'department': None,
-                'department_code': None,
-                'academic_year': None,
-                'graduation_status': user.graduation_status,
-                'first_login_required': user.first_login_required,
-            })
+            for subject in subjects:
+                # Find grade for this student and subject
+                grade_data = {
+                    'subject_id': subject.id,
+                    'subject_name': subject.name,
+                    'subject_code': subject.code,
+                    'midterm': None,
+                    'coursework': None,
+                    'final': None,
+                    'attendance': None,
+                    'quizzes': None,
+                }
+
+                # Look for StudentGrade through CourseOffering
+                course_offerings = CourseOffering.objects.filter(
+                    subject=subject,
+                    level=level,
+                    academic_year_id=academic_year_id
+                )
+
+                for co in course_offerings:
+                    try:
+                        sg = StudentGrade.objects.get(
+                            student=student,
+                            course_offering=co
+                        )
+                        grade_data['midterm'] = float(sg.midterm_grade) if sg.midterm_grade else None
+                        grade_data['coursework'] = float(sg.coursework_grade) if sg.coursework_grade else None
+                        grade_data['final'] = float(sg.final_grade) if sg.final_grade else None
+                        grade_data['attendance'] = float(sg.attendance_grade) if sg.attendance_grade else None
+                        grade_data['quizzes'] = float(sg.quizzes_grade) if sg.quizzes_grade else None
+                        break
+                    except StudentGrade.DoesNotExist:
+                        continue
+
+                student_data['subjects'].append(grade_data)
+
+            result.append(student_data)
+
+        # Also return subjects list for table headers
+        subjects_list = [{'id': s.id, 'name': s.name, 'code': s.code} for s in subjects]
+
+        return Response({
+            'students': result,
+            'subjects': subjects_list
+        })
 

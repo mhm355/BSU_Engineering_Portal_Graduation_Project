@@ -41,6 +41,22 @@ else:
         print('Admin user already exists.')
 "
 
+# Run production seed script (idempotent - safe to run multiple times)
+echo "Running production seed..."
+if [ -f "seed_production.py" ]; then
+    python seed_production.py
+else
+    echo "Warning: seed_production.py not found, skipping."
+fi
+
+# Run subjects seed script (idempotent - safe to run multiple times)
+echo "Running subjects seed..."
+if [ -f "seed_subjects.py" ]; then
+    python seed_subjects.py
+else
+    echo "Warning: seed_subjects.py not found, skipping."
+fi
+
 # Start the server
 echo "Starting server..."
 exec python manage.py runserver 0.0.0.0:8000
