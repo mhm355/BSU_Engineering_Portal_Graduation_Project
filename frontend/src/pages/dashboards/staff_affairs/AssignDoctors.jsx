@@ -185,6 +185,12 @@ const AssignDoctors = () => {
             return;
         }
 
+        // Require specialization for Electrical level 2+
+        if (needsSpecialization && !selectedSpecialization) {
+            setError('يرجى اختيار التخصص (ECE/EPM)');
+            return;
+        }
+
         setSubmitting(true);
         setError(null);
         setSuccess(null);
@@ -198,6 +204,7 @@ const AssignDoctors = () => {
                     level_id: selectedLevel,
                     term_id: selectedTerm,
                     grading_template_id: selectedTemplate || null,
+                    specialization_id: needsSpecialization ? selectedSpecialization : null,
                 },
                 config
             );
@@ -208,6 +215,7 @@ const AssignDoctors = () => {
             // Reset selection
             setSelectedSubject(null);
             setSelectedDoctor(null);
+            setSelectedSpecialization('');
         } catch (err) {
             setError(err.response?.data?.error || 'حدث خطأ');
         } finally {

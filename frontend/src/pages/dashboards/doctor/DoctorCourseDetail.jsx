@@ -62,11 +62,13 @@ export default function DoctorCourseDetail() {
             setLectures(lecturesRes.data);
 
             // Fetch students for this level
+            // For ECE/EPM courses, filter by specialization
             if (courseRes.data.level) {
-                const studentsRes = await axios.get(
-                    `/api/academic/students/?level=${courseRes.data.level}`,
-                    config
-                );
+                let studentUrl = `/api/academic/students/?level=${courseRes.data.level}`;
+                if (courseRes.data.specialization) {
+                    studentUrl += `&specialization=${courseRes.data.specialization}`;
+                }
+                const studentsRes = await axios.get(studentUrl, config);
                 setStudents(studentsRes.data);
 
                 // Initialize attendance and grades
