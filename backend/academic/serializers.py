@@ -105,9 +105,12 @@ class CourseOfferingSerializer(serializers.ModelSerializer):
     doctor_name = serializers.SerializerMethodField()
     level_name = serializers.CharField(source='level.get_name_display', read_only=True)
     department_name = serializers.SerializerMethodField()
+    department_code = serializers.CharField(source='level.department.code', read_only=True)
     term_name = serializers.CharField(source='term.get_name_display', read_only=True)
     academic_year_name = serializers.CharField(source='academic_year.name', read_only=True)
     grading_template_name = serializers.CharField(source='grading_template.name', read_only=True)
+    specialization_name = serializers.CharField(source='specialization.name', read_only=True)
+    specialization_code = serializers.CharField(source='specialization.code', read_only=True)
 
     class Meta:
         model = CourseOffering

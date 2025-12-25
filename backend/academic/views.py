@@ -253,6 +253,7 @@ class StudentViewSet(viewsets.ModelViewSet):
         level = self.request.query_params.get('level')
         department = self.request.query_params.get('department')
         academic_year = self.request.query_params.get('academic_year')
+        specialization = self.request.query_params.get('specialization')
 
         if level:
             queryset = queryset.filter(level_id=level)
@@ -260,6 +261,8 @@ class StudentViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(department_id=department)
         if academic_year:
             queryset = queryset.filter(academic_year_id=academic_year)
+        if specialization:
+            queryset = queryset.filter(specialization_id=specialization)
         return queryset
 
 
@@ -312,14 +315,20 @@ class CourseOfferingViewSet(viewsets.ModelViewSet):
         result = []
         for o in offerings:
             # Count students in this level
-            student_count = Student.objects.filter(level=o.level).count()
+            # For Electrical dept level 2+, filter by specialization
+            students_qs = Student.objects.filter(level=o.level)
+            if o.specialization:
+                students_qs = students_qs.filter(specialization=o.specialization)
+            student_count = students_qs.count()
             
             result.append({
                 'id': o.id,
                 'subject_name': o.subject.name,
                 'subject_code': o.subject.code,
                 'level_name': o.level.get_name_display(),
+                'level_id': o.level.id,
                 'department_name': o.level.department.name if o.level.department else 'الفرقة الإعدادية',
+                'department_code': o.level.department.code if o.level.department else 'PREP',
                 'term': o.term.get_name_display(),
                 'term_name': o.term.name,
                 'academic_year': o.academic_year.name,
@@ -327,6 +336,9 @@ class CourseOfferingViewSet(viewsets.ModelViewSet):
                 'year_status': o.academic_year.status,
                 'grading_template': o.grading_template.name if o.grading_template else None,
                 'grading_template_id': o.grading_template.id if o.grading_template else None,
+                'specialization_name': o.specialization.name if o.specialization else None,
+                'specialization_code': o.specialization.code if o.specialization else None,
+                'specialization_id': o.specialization.id if o.specialization else None,
                 'student_count': student_count,
             })
         

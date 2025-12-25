@@ -319,6 +319,7 @@ class AssignDoctorToSubjectView(APIView):
         level_id = request.data.get('level_id')
         term_id = request.data.get('term_id')
         grading_template_id = request.data.get('grading_template_id')
+        specialization_id = request.data.get('specialization_id')
 
         if not all([doctor_id, subject_id, level_id, term_id]):
             return Response(
@@ -345,6 +346,14 @@ class AssignDoctorToSubjectView(APIView):
             term = Term.objects.get(id=term_id)
         except Term.DoesNotExist:
             return Response({'error': 'الترم غير موجود'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Get specialization (for Electrical dept level 2+)
+        specialization = None
+        if specialization_id:
+            try:
+                specialization = Specialization.objects.get(id=specialization_id)
+            except Specialization.DoesNotExist:
+                pass
 
         # Get grading template (priority: specified > subject default > global default)
         grading_template = None
@@ -377,7 +386,8 @@ class AssignDoctorToSubjectView(APIView):
             academic_year=term.academic_year,
             defaults={
                 'doctor': doctor,
-                'grading_template': grading_template
+                'grading_template': grading_template,
+                'specialization': specialization
             }
         )
 

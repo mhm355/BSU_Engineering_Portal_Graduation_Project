@@ -212,6 +212,14 @@ class CourseOffering(models.Model):
         limit_choices_to={'role': 'DOCTOR'},
         related_name='course_offerings'
     )
+    specialization = models.ForeignKey(
+        Specialization,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='course_offerings',
+        help_text='Specialization for Electrical dept level 2+. Null for other depts/levels.'
+    )
     grading_template = models.ForeignKey(
         GradingTemplate,
         on_delete=models.SET_NULL,
