@@ -19,7 +19,7 @@ services:
       retries: 5
 
   backend:
-    image: mhmdocker1/bsu_backend:v2.1
+    image: mhmdocker1/bsu_backend:v2.2
     container_name: bsu_backend_1
     ports:
       - "8001:8000"
@@ -31,7 +31,7 @@ services:
       - DATABASE_URL=mysql://bsu_user:bsu_password@db:3306/bsu_db
 
   frontend:
-    image: mhmdocker1/bsu_frontend:v2.1
+    image: mhmdocker1/bsu_frontend:v2.2
     container_name: bsu_frontend_1
     ports:
       - "8081:80"
