@@ -1,12 +1,22 @@
 import React from 'react';
-import { Box, Container, Typography, Grid, Card, CardContent, CardMedia, Button, Paper } from '@mui/material';
+import { Box, Container, Typography, Grid, Card, CardContent, CardMedia, Button, Paper, Dialog, DialogTitle, DialogContent, DialogActions, IconButton } from '@mui/material';
 import { Link } from 'react-router-dom';
 import NewspaperIcon from '@mui/icons-material/Newspaper';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import CloseIcon from '@mui/icons-material/Close';
 
 export default function Home() {
     // Dummy news data for now
     const [newsList, setNewsList] = React.useState([]);
+    const [selectedNews, setSelectedNews] = React.useState(null);
+
+    const getImageUrl = (image) => {
+        if (!image) return null;
+        if (image.includes('http://backend:8000')) {
+            return image.replace('http://backend:8000', '');
+        }
+        return image;
+    };
 
     React.useEffect(() => {
         fetchNews();
@@ -99,7 +109,7 @@ export default function Home() {
                                     <CardMedia
                                         component="img"
                                         height="200"
-                                        image={news.image}
+                                        image={getImageUrl(news.image)}
                                         alt={news.title}
                                         sx={{ objectFit: 'cover' }}
                                     />
@@ -124,17 +134,75 @@ export default function Home() {
                                             size="small"
                                             href={news.attachment}
                                             target="_blank"
-                                            sx={{ fontFamily: 'Cairo', color: '#3b82f6', mb: 1 }}
+                                            sx={{ fontFamily: 'Cairo', color: '#3b82f6', mb: 1, display: 'block' }}
                                         >
                                             تحميل المرفق
                                         </Button>
                                     )}
+                                    <Button
+                                        size="small"
+                                        onClick={() => setSelectedNews(news)}
+                                        sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}
+                                    >
+                                        اقرأ المزيد
+                                    </Button>
                                 </CardContent>
                             </Card>
                         </Grid>
                     ))}
                 </Grid>
             </Container>
-        </Box>
+
+            {/* News Details Dialog */}
+            <Dialog
+                open={!!selectedNews}
+                onClose={() => setSelectedNews(null)}
+                maxWidth="md"
+                fullWidth
+                PaperProps={{ sx: { borderRadius: 3 } }}
+            >
+                {selectedNews && (
+                    <>
+                        <DialogTitle sx={{ fontFamily: 'Cairo', fontWeight: 'bold', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            {selectedNews.title}
+                            <IconButton onClick={() => setSelectedNews(null)}>
+                                <CloseIcon />
+                            </IconButton>
+                        </DialogTitle>
+                        <DialogContent dividers>
+                            {selectedNews.image && (
+                                <Box sx={{ mb: 3, borderRadius: 2, overflow: 'hidden' }}>
+                                    <img
+                                        src={getImageUrl(selectedNews.image)}
+                                        alt={selectedNews.title}
+                                        style={{ width: '100%', maxHeight: 400, objectFit: 'contain', backgroundColor: '#f5f5f5' }}
+                                    />
+                                </Box>
+                            )}
+                            <Typography variant="body1" sx={{ fontFamily: 'Cairo', lineHeight: 1.8, fontSize: '1.1rem', whiteSpace: 'pre-line' }}>
+                                {selectedNews.content}
+                            </Typography>
+                            {selectedNews.attachment && (
+                                <Box sx={{ mt: 3 }}>
+                                    <Button
+                                        variant="outlined"
+                                        href={selectedNews.attachment}
+                                        target="_blank"
+                                        sx={{ fontFamily: 'Cairo' }}
+                                    >
+                                        تحميل المرفق
+                                    </Button>
+                                </Box>
+                            )}
+                        </DialogContent>
+                        <DialogActions sx={{ p: 2 }}>
+                            <Button onClick={() => setSelectedNews(null)} sx={{ fontFamily: 'Cairo' }}>
+                                إغلاق
+                            </Button>
+                        </DialogActions>
+                    </>
+                )}
+            </Dialog>
+        </Box >
     );
 }

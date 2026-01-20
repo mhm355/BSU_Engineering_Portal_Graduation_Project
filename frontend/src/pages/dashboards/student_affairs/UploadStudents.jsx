@@ -2,12 +2,39 @@ import React, { useState, useEffect } from 'react';
 import {
     Box, Container, Typography, Paper, Button, Alert, LinearProgress,
     List, ListItem, ListItemText, Table, TableBody, TableCell, TableContainer,
-    TableHead, TableRow, Chip, FormControl, InputLabel, Select, MenuItem
+    TableHead, TableRow, Chip, FormControl, InputLabel, Select, MenuItem,
+    Avatar, Fade, Grow, Grid
 } from '@mui/material';
+import { keyframes } from '@mui/system';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
+import DescriptionIcon from '@mui/icons-material/Description';
+import FolderIcon from '@mui/icons-material/Folder';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import SchoolIcon from '@mui/icons-material/School';
+import CategoryIcon from '@mui/icons-material/Category';
+import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
+// Animations
+const float = keyframes`
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+`;
+
+const pulse = keyframes`
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+`;
+
 export default function UploadStudents() {
+    const navigate = useNavigate();
+
     // Selection state
     const [departments, setDepartments] = useState([]);
     const [academicYears, setAcademicYears] = useState([]);
@@ -36,7 +63,6 @@ export default function UploadStudents() {
     useEffect(() => {
         if (selectedDepartment && selectedYear) {
             fetchLevels();
-            // Fetch specializations for Electrical department
             const dept = departments.find(d => d.id === selectedDepartment);
             if (dept && dept.name.includes('كهرب')) {
                 fetchSpecializations();
@@ -56,7 +82,6 @@ export default function UploadStudents() {
             setDepartments(deptRes.data);
             setAcademicYears(yearRes.data);
 
-            // Auto-select current year
             const currentYear = yearRes.data.find(y => y.is_current);
             if (currentYear) {
                 setSelectedYear(currentYear.id);
@@ -74,7 +99,6 @@ export default function UploadStudents() {
             const res = await axios.get(url, config);
             setLevels(res.data);
 
-            // Auto-select if only one level (e.g., Prep department)
             if (res.data.length === 1) {
                 setSelectedLevel(res.data[0].id);
             }
@@ -92,7 +116,6 @@ export default function UploadStudents() {
         }
     };
 
-    // Check if specialization is needed (Electrical + level > FIRST)
     const selectedLevelData = levels.find(l => l.id === selectedLevel);
     const needsSpecialization = specializations.length > 0 &&
         selectedLevelData && selectedLevelData.name !== 'FIRST';
@@ -146,233 +169,383 @@ export default function UploadStudents() {
         }
     };
 
-    // Sample data for file format example
     const sampleData = [
         { national_id: '12345678901234', full_name: 'أحمد محمد علي', email: 'ahmed@example.com' },
         { national_id: '23456789012345', full_name: 'محمد سعيد أحمد', email: '' },
     ];
 
-    // Check if this is Prep department (only 1 level)
     const isPrepDepartment = levels.length === 1;
-    // Selection complete when: dept + year + level selected, and specialization if needed
     const isSelectionComplete = selectedDepartment && selectedYear && selectedLevel &&
         (!needsSpecialization || selectedSpecialization);
 
+    const getActiveStep = () => {
+        if (result) return 3;
+        if (file) return 2;
+        if (isSelectionComplete) return 1;
+        return 0;
+    };
+
     return (
-        <Container maxWidth="lg" sx={{ py: 4 }}>
-            <Button onClick={() => window.history.back()} sx={{ mb: 2, fontFamily: 'Cairo' }}>← عودة</Button>
-            <Typography variant="h4" gutterBottom sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342', mb: 4 }}>
-                رفع بيانات الطلاب
-            </Typography>
+        <Box sx={{ minHeight: '100vh', background: 'linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%)', pb: 6 }}>
+            {/* Hero Header */}
+            <Box
+                sx={{
+                    background: 'linear-gradient(135deg, #FF9800 0%, #FFB74D 100%)',
+                    pt: 4,
+                    pb: 6,
+                    mb: 4,
+                    position: 'relative',
+                    overflow: 'hidden',
+                }}
+            >
+                <Box sx={{ position: 'absolute', top: -50, right: -50, width: 200, height: 200, borderRadius: '50%', background: 'rgba(255,255,255,0.15)', animation: `${float} 6s ease-in-out infinite` }} />
+                <Box sx={{ position: 'absolute', bottom: -80, left: -80, width: 300, height: 300, borderRadius: '50%', background: 'rgba(255,255,255,0.1)', animation: `${float} 8s ease-in-out infinite`, animationDelay: '2s' }} />
 
-            {/* Step 1: Selection */}
-            <Paper sx={{ p: 3, mb: 3 }}>
-                <Typography variant="h6" gutterBottom sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
-                    الخطوة 1: اختر القسم والعام والفرقة
-                </Typography>
-
-                <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', mt: 2 }}>
-                    <FormControl sx={{ minWidth: 200 }}>
-                        <InputLabel>القسم</InputLabel>
-                        <Select
-                            value={selectedDepartment}
-                            onChange={(e) => {
-                                setSelectedDepartment(e.target.value);
-                                setSelectedLevel('');
-                            }}
-                            label="القسم"
-                        >
-                            {departments.map((dept) => (
-                                <MenuItem key={dept.id} value={dept.id}>{dept.name}</MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
-
-                    <FormControl sx={{ minWidth: 200 }}>
-                        <InputLabel>العام الدراسي</InputLabel>
-                        <Select
-                            value={selectedYear}
-                            onChange={(e) => {
-                                setSelectedYear(e.target.value);
-                                setSelectedLevel('');
-                            }}
-                            label="العام الدراسي"
-                        >
-                            {academicYears.map((year) => (
-                                <MenuItem key={year.id} value={year.id}>
-                                    {year.name}
-                                    {year.is_current && <Chip label="الحالي" size="small" color="success" sx={{ ml: 1 }} />}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
-
-                    {/* Level dropdown - hide if only 1 level (Prep) */}
-                    {!isPrepDepartment && (
-                        <FormControl sx={{ minWidth: 200 }}>
-                            <InputLabel>الفرقة</InputLabel>
-                            <Select
-                                value={selectedLevel}
-                                onChange={(e) => {
-                                    setSelectedLevel(e.target.value);
-                                    setSelectedSpecialization(''); // Reset specialization when level changes
-                                }}
-                                label="الفرقة"
-                                disabled={!selectedDepartment || !selectedYear || levels.length === 0}
-                            >
-                                {levels.map((level) => (
-                                    <MenuItem key={level.id} value={level.id}>{level.display_name}</MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-                    )}
-
-                    {/* Specialization dropdown - for Electrical dept levels 2-4 */}
-                    {needsSpecialization && (
-                        <FormControl sx={{ minWidth: 200 }}>
-                            <InputLabel>التخصص</InputLabel>
-                            <Select
-                                value={selectedSpecialization}
-                                onChange={(e) => setSelectedSpecialization(e.target.value)}
-                                label="التخصص"
-                            >
-                                {specializations.map((spec) => (
-                                    <MenuItem key={spec.id} value={spec.id}>{spec.name}</MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-                    )}
-                </Box>
-
-                {isSelectionComplete && (
-                    <Alert severity="success" sx={{ mt: 2, fontFamily: 'Cairo' }}>
-                        ✓ تم اختيار: {departments.find(d => d.id === selectedDepartment)?.name} -
-                        {academicYears.find(y => y.id === selectedYear)?.name}
-                        {!isPrepDepartment && ` - ${levels.find(l => l.id === selectedLevel)?.display_name}`}
-                        {needsSpecialization && ` - ${specializations.find(s => s.id === selectedSpecialization)?.name}`}
-                    </Alert>
-                )}
-            </Paper>
-
-            {/* Step 2: File Format Info */}
-            <Paper sx={{ p: 3, mb: 3 }}>
-                <Typography variant="h6" gutterBottom sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
-                    الخطوة 2: تنسيق الملف المطلوب
-                </Typography>
-                <Typography variant="body2" sx={{ fontFamily: 'Cairo', mb: 2 }}>
-                    يجب أن يحتوي الملف على الأعمدة التالية:
-                </Typography>
-                <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 2 }}>
-                    <Chip label="الرقم القومي (national_id)" color="primary" size="small" />
-                    <Chip label="الاسم بالكامل (full_name)" color="primary" size="small" />
-                    <Chip label="البريد الإلكتروني (email) - اختياري" color="secondary" size="small" variant="outlined" />
-                </Box>
-
-                <Alert severity="info" sx={{ mb: 2, fontFamily: 'Cairo' }}>
-                    <strong>ملاحظة:</strong> القسم والعام الدراسي والفرقة يتم تحديدهم من القائمة أعلاه، وليس من الملف.
-                </Alert>
-
-                {/* Sample Table */}
-                <Typography variant="body2" sx={{ fontFamily: 'Cairo', mb: 1, fontWeight: 'bold' }}>
-                    مثال على الملف:
-                </Typography>
-                <TableContainer sx={{ maxHeight: 200 }}>
-                    <Table size="small" stickyHeader>
-                        <TableHead>
-                            <TableRow>
-                                <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>national_id</TableCell>
-                                <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>full_name</TableCell>
-                                <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>email (اختياري)</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {sampleData.map((row, index) => (
-                                <TableRow key={index}>
-                                    <TableCell sx={{ fontFamily: 'monospace' }}>{row.national_id}</TableCell>
-                                    <TableCell sx={{ fontFamily: 'Cairo' }}>{row.full_name}</TableCell>
-                                    <TableCell>{row.email || '-'}</TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
-            </Paper>
-
-            {/* Step 3: Upload Section */}
-            <Paper sx={{ p: 4, textAlign: 'center' }}>
-                <Typography variant="h6" gutterBottom sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
-                    الخطوة 3: رفع الملف
-                </Typography>
-
-                {!isSelectionComplete && (
-                    <Alert severity="warning" sx={{ mb: 3, fontFamily: 'Cairo' }}>
-                        يرجى إكمال الخطوة 1 أولاً (اختيار القسم والعام والفرقة)
-                    </Alert>
-                )}
-
-                <Box sx={{ my: 3 }}>
-                    <input
-                        accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
-                        style={{ display: 'none' }}
-                        id="raised-button-file"
-                        type="file"
-                        onChange={handleFileChange}
-                        disabled={!isSelectionComplete}
-                    />
-                    <label htmlFor="raised-button-file">
-                        <Button
-                            variant="outlined"
-                            component="span"
-                            startIcon={<CloudUploadIcon />}
-                            sx={{ fontFamily: 'Cairo' }}
-                            disabled={!isSelectionComplete}
-                        >
-                            اختيار ملف
-                        </Button>
-                    </label>
-                    {file && <Typography sx={{ mt: 1, fontFamily: 'Cairo' }}>{file.name}</Typography>}
-                </Box>
-
-                <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={handleUpload}
-                    disabled={!file || uploading || !isSelectionComplete}
-                    sx={{ fontFamily: 'Cairo', px: 4 }}
-                >
-                    {uploading ? 'جاري الرفع...' : 'رفع البيانات'}
-                </Button>
-
-                {uploading && <LinearProgress sx={{ mt: 3 }} />}
-
-                {error && <Alert severity="error" sx={{ mt: 3, fontFamily: 'Cairo' }}>{error}</Alert>}
-
-                {result && (
-                    <Box sx={{ mt: 3, textAlign: 'right' }}>
-                        <Alert severity="success" sx={{ fontFamily: 'Cairo', mb: 2 }}>
-                            تمت العملية!
-                            <br />
-                            • تم إنشاء {result.created} حساب جديد
-                            <br />
-                            • تم تحديث {result.updated} حساب موجود
-                        </Alert>
-                        {result.errors && result.errors.length > 0 && (
-                            <Box sx={{ mt: 2 }}>
-                                <Alert severity="warning" sx={{ fontFamily: 'Cairo', textAlign: 'right' }}>
-                                    <Typography sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>بعض الأخطاء ({result.errors.length}):</Typography>
-                                </Alert>
-                                <List dense sx={{ maxHeight: 200, overflow: 'auto' }}>
-                                    {result.errors.map((err, index) => (
-                                        <ListItem key={index}>
-                                            <ListItemText primary={err} primaryTypographyProps={{ fontFamily: 'Cairo', color: 'error' }} />
-                                        </ListItem>
-                                    ))}
-                                </List>
+                <Container maxWidth="xl">
+                    <Fade in={true} timeout={800}>
+                        <Box>
+                            <Button startIcon={<ArrowBackIcon />} onClick={() => navigate('/student-affairs/dashboard')} sx={{ color: '#fff', mb: 2, fontFamily: 'Cairo', '&:hover': { bgcolor: 'rgba(255,255,255,0.1)' } }}>
+                                العودة للوحة التحكم
+                            </Button>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                                <Avatar sx={{ width: 80, height: 80, bgcolor: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(10px)' }}>
+                                    <UploadFileIcon sx={{ fontSize: 45, color: '#fff' }} />
+                                </Avatar>
+                                <Box>
+                                    <Typography variant="h3" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff', textShadow: '0 4px 20px rgba(0,0,0,0.2)' }}>
+                                        رفع بيانات الطلاب
+                                    </Typography>
+                                    <Typography variant="h6" sx={{ fontFamily: 'Cairo', color: 'rgba(255,255,255,0.9)' }}>
+                                        رفع ملفات Excel/CSV لإضافة بيانات الطلاب
+                                    </Typography>
+                                </Box>
                             </Box>
+                        </Box>
+                    </Fade>
+                </Container>
+            </Box>
+
+            <Container maxWidth="lg">
+                {/* Step 1: Selection - Full Width */}
+                <Grow in={true} timeout={600}>
+                    <Paper elevation={0} sx={{ p: 4, mb: 4, borderRadius: 4, boxShadow: '0 4px 25px rgba(0,0,0,0.1)', border: isSelectionComplete ? '3px solid #4CAF50' : '2px solid #2196F3' }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, mb: 4 }}>
+                            <Avatar sx={{ width: 70, height: 70, background: isSelectionComplete ? 'linear-gradient(135deg, #4CAF50, #8BC34A)' : 'linear-gradient(135deg, #2196F3, #21CBF3)', fontSize: 28, fontWeight: 'bold' }}>
+                                {isSelectionComplete ? <CheckCircleIcon sx={{ fontSize: 35 }} /> : '1'}
+                            </Avatar>
+                            <Box>
+                                <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>
+                                    الخطوة 1: اختر القسم والعام والفرقة
+                                </Typography>
+                                <Typography variant="body1" sx={{ fontFamily: 'Cairo', color: '#666' }}>
+                                    حدد القسم والسنة الدراسية والفرقة لرفع بيانات الطلاب
+                                </Typography>
+                            </Box>
+                        </Box>
+
+                        <Grid container spacing={4}>
+                            <Grid item xs={12}>
+                                <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', mb: 1.5, color: '#1a2744' }}>
+                                    القسم
+                                </Typography>
+                                <FormControl fullWidth variant="outlined">
+                                    <Select
+                                        value={selectedDepartment}
+                                        onChange={(e) => { setSelectedDepartment(e.target.value); setSelectedLevel(''); }}
+                                        displayEmpty
+                                        sx={{
+                                            borderRadius: 2,
+                                            fontSize: '1.3rem',
+                                            minHeight: 60,
+                                            bgcolor: '#fafafa',
+                                            '& .MuiSelect-select': { py: 2 }
+                                        }}
+                                    >
+                                        <MenuItem value="" disabled sx={{ fontSize: '1.2rem' }}>اختر القسم</MenuItem>
+                                        {departments.map((dept) => (
+                                            <MenuItem key={dept.id} value={dept.id} sx={{ fontSize: '1.2rem', py: 1.5 }}>{dept.name}</MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+                            </Grid>
+                            <Grid item xs={12}>
+                                <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', mb: 1.5, color: '#1a2744' }}>
+                                    العام الدراسي
+                                </Typography>
+                                <FormControl fullWidth variant="outlined">
+                                    <Select
+                                        value={selectedYear}
+                                        onChange={(e) => { setSelectedYear(e.target.value); setSelectedLevel(''); }}
+                                        displayEmpty
+                                        sx={{
+                                            borderRadius: 2,
+                                            fontSize: '1.3rem',
+                                            minHeight: 60,
+                                            bgcolor: '#fafafa',
+                                            '& .MuiSelect-select': { py: 2 }
+                                        }}
+                                    >
+                                        <MenuItem value="" disabled sx={{ fontSize: '1.2rem' }}>اختر العام الدراسي</MenuItem>
+                                        {academicYears.map((year) => (
+                                            <MenuItem key={year.id} value={year.id} sx={{ fontSize: '1.2rem', py: 1.5 }}>
+                                                {year.name}
+                                                {year.is_current && <Chip label="الحالي" size="medium" color="success" sx={{ ml: 2, fontSize: '1rem' }} />}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+                            </Grid>
+                            {!isPrepDepartment && (
+                                <Grid item xs={12}>
+                                    <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', mb: 1.5, color: '#1a2744' }}>
+                                        الفرقة
+                                    </Typography>
+                                    <FormControl fullWidth variant="outlined">
+                                        <Select
+                                            value={selectedLevel}
+                                            onChange={(e) => { setSelectedLevel(e.target.value); setSelectedSpecialization(''); }}
+                                            displayEmpty
+                                            disabled={!selectedDepartment || !selectedYear || levels.length === 0}
+                                            sx={{
+                                                borderRadius: 2,
+                                                fontSize: '1.3rem',
+                                                minHeight: 60,
+                                                bgcolor: '#fafafa',
+                                                '& .MuiSelect-select': { py: 2 }
+                                            }}
+                                        >
+                                            <MenuItem value="" disabled sx={{ fontSize: '1.2rem' }}>اختر الفرقة</MenuItem>
+                                            {levels.map((level) => (
+                                                <MenuItem key={level.id} value={level.id} sx={{ fontSize: '1.2rem', py: 1.5 }}>{level.display_name}</MenuItem>
+                                            ))}
+                                        </Select>
+                                    </FormControl>
+                                </Grid>
+                            )}
+                            {needsSpecialization && (
+                                <Grid item xs={12}>
+                                    <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', mb: 1.5, color: '#1a2744' }}>
+                                        التخصص
+                                    </Typography>
+                                    <FormControl fullWidth variant="outlined">
+                                        <Select
+                                            value={selectedSpecialization}
+                                            onChange={(e) => setSelectedSpecialization(e.target.value)}
+                                            displayEmpty
+                                            sx={{
+                                                borderRadius: 2,
+                                                fontSize: '1.3rem',
+                                                minHeight: 60,
+                                                bgcolor: '#fafafa',
+                                                '& .MuiSelect-select': { py: 2 }
+                                            }}
+                                        >
+                                            <MenuItem value="" disabled sx={{ fontSize: '1.2rem' }}>اختر التخصص</MenuItem>
+                                            {specializations.map((spec) => (
+                                                <MenuItem key={spec.id} value={spec.id} sx={{ fontSize: '1.2rem', py: 1.5 }}>{spec.name}</MenuItem>
+                                            ))}
+                                        </Select>
+                                    </FormControl>
+                                </Grid>
+                            )}
+                        </Grid>
+
+                        {isSelectionComplete && (
+                            <Alert icon={<CheckCircleIcon sx={{ fontSize: 28 }} />} severity="success" sx={{ mt: 4, fontFamily: 'Cairo', borderRadius: 3, fontSize: '1.1rem', py: 2 }}>
+                                <strong>تم اختيار:</strong> {departments.find(d => d.id === selectedDepartment)?.name} - {academicYears.find(y => y.id === selectedYear)?.name}
+                                {!isPrepDepartment && ` - ${levels.find(l => l.id === selectedLevel)?.display_name}`}
+                                {needsSpecialization && ` - ${specializations.find(s => s.id === selectedSpecialization)?.name}`}
+                            </Alert>
                         )}
-                    </Box>
-                )}
-            </Paper>
-        </Container>
+                    </Paper>
+                </Grow>
+
+                {/* Step 2: File Format - Full Width */}
+                <Grow in={true} timeout={800}>
+                    <Paper elevation={0} sx={{ p: 4, mb: 4, borderRadius: 4, boxShadow: '0 4px 25px rgba(0,0,0,0.1)', border: '2px solid #9C27B0', opacity: isSelectionComplete ? 1 : 0.6 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, mb: 4 }}>
+                            <Avatar sx={{ width: 70, height: 70, background: 'linear-gradient(135deg, #9C27B0, #E040FB)', fontSize: 28, fontWeight: 'bold' }}>
+                                2
+                            </Avatar>
+                            <Box>
+                                <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>
+                                    الخطوة 2: تنسيق الملف المطلوب
+                                </Typography>
+                                <Typography variant="body1" sx={{ fontFamily: 'Cairo', color: '#666' }}>
+                                    تأكد من أن الملف يحتوي على الأعمدة المطلوبة
+                                </Typography>
+                            </Box>
+                        </Box>
+
+                        <Grid container spacing={4}>
+                            <Grid item xs={12} md={6}>
+                                <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', mb: 2, color: '#1a2744' }}>
+                                    الأعمدة المطلوبة:
+                                </Typography>
+                                <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', mb: 3 }}>
+                                    <Chip label="national_id (الرقم القومي)" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', bgcolor: '#e3f2fd', color: '#1976d2', fontSize: '1rem', py: 2.5, px: 1 }} />
+                                    <Chip label="full_name (الاسم بالكامل)" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', bgcolor: '#e3f2fd', color: '#1976d2', fontSize: '1rem', py: 2.5, px: 1 }} />
+                                    <Chip label="email (اختياري)" variant="outlined" sx={{ fontFamily: 'Cairo', borderColor: '#9C27B0', color: '#9C27B0', fontSize: '1rem', py: 2.5, px: 1 }} />
+                                </Box>
+
+                                <Alert severity="info" sx={{ fontFamily: 'Cairo', borderRadius: 3, fontSize: '1rem' }}>
+                                    <strong>ملاحظة:</strong> القسم والعام الدراسي والفرقة يتم تحديدهم من القائمة أعلاه، وليس من الملف.
+                                </Alert>
+
+                                <Box sx={{ mt: 3, p: 2.5, bgcolor: '#fff3e0', borderRadius: 3 }}>
+                                    <Typography variant="body1" sx={{ fontFamily: 'Cairo', color: '#e65100' }}>
+                                        <strong>تلميح:</strong> تأكد من أن الرقم القومي مكون من 14 رقماً بالضبط
+                                    </Typography>
+                                </Box>
+                            </Grid>
+                            <Grid item xs={12} md={6}>
+                                <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', mb: 2, color: '#1a2744' }}>
+                                    مثال على الملف:
+                                </Typography>
+                                <TableContainer sx={{ borderRadius: 3, overflow: 'hidden', border: '2px solid #eee' }}>
+                                    <Table>
+                                        <TableHead>
+                                            <TableRow sx={{ bgcolor: '#f5f5f5' }}>
+                                                <TableCell sx={{ fontFamily: 'monospace', fontWeight: 'bold', color: '#1976d2', fontSize: '1rem' }}>national_id</TableCell>
+                                                <TableCell sx={{ fontFamily: 'monospace', fontWeight: 'bold', color: '#1976d2', fontSize: '1rem' }}>full_name</TableCell>
+                                                <TableCell sx={{ fontFamily: 'monospace', fontWeight: 'bold', color: '#9C27B0', fontSize: '1rem' }}>email</TableCell>
+                                            </TableRow>
+                                        </TableHead>
+                                        <TableBody>
+                                            {sampleData.map((row, index) => (
+                                                <TableRow key={index} sx={{ '&:nth-of-type(odd)': { bgcolor: '#fafafa' } }}>
+                                                    <TableCell sx={{ fontFamily: 'monospace', fontSize: '1rem' }}>{row.national_id}</TableCell>
+                                                    <TableCell sx={{ fontFamily: 'Cairo', fontSize: '1rem' }}>{row.full_name}</TableCell>
+                                                    <TableCell sx={{ color: row.email ? 'inherit' : '#ccc', fontSize: '1rem' }}>{row.email || '-'}</TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                </TableContainer>
+                            </Grid>
+                        </Grid>
+                    </Paper>
+                </Grow>
+
+                {/* Step 3: Upload - Full Width */}
+                <Grow in={true} timeout={1000}>
+                    <Paper elevation={0} sx={{ p: 4, borderRadius: 4, boxShadow: '0 4px 25px rgba(0,0,0,0.1)', border: result ? '3px solid #4CAF50' : '2px solid #FF9800', opacity: isSelectionComplete ? 1 : 0.6 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, mb: 4 }}>
+                            <Avatar sx={{ width: 70, height: 70, background: result ? 'linear-gradient(135deg, #4CAF50, #8BC34A)' : 'linear-gradient(135deg, #FF9800, #FFB74D)', fontSize: 28, fontWeight: 'bold' }}>
+                                {result ? <CheckCircleIcon sx={{ fontSize: 35 }} /> : '3'}
+                            </Avatar>
+                            <Box>
+                                <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>
+                                    الخطوة 3: رفع الملف
+                                </Typography>
+                                <Typography variant="body1" sx={{ fontFamily: 'Cairo', color: '#666' }}>
+                                    اختر ملف Excel أو CSV وارفعه للنظام
+                                </Typography>
+                            </Box>
+                        </Box>
+
+                        {!isSelectionComplete && (
+                            <Alert severity="warning" sx={{ mb: 4, fontFamily: 'Cairo', borderRadius: 3, fontSize: '1.1rem' }}>
+                                يرجى إكمال الخطوة 1 أولاً (اختيار القسم والعام والفرقة)
+                            </Alert>
+                        )}
+
+                        {/* Drag & Drop Zone */}
+                        <Box
+                            sx={{
+                                border: '3px dashed',
+                                borderColor: file ? '#4CAF50' : '#ddd',
+                                borderRadius: 4,
+                                p: 6,
+                                mb: 4,
+                                bgcolor: file ? '#e8f5e9' : '#fafafa',
+                                transition: 'all 0.3s ease',
+                                cursor: isSelectionComplete ? 'pointer' : 'not-allowed',
+                                opacity: isSelectionComplete ? 1 : 0.5,
+                                textAlign: 'center',
+                            }}
+                        >
+                            <input
+                                accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
+                                style={{ display: 'none' }}
+                                id="raised-button-file"
+                                type="file"
+                                onChange={handleFileChange}
+                                disabled={!isSelectionComplete}
+                            />
+                            <label htmlFor="raised-button-file" style={{ cursor: isSelectionComplete ? 'pointer' : 'not-allowed' }}>
+                                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                    {file ? (
+                                        <>
+                                            <InsertDriveFileIcon sx={{ fontSize: 80, color: '#4CAF50', mb: 2 }} />
+                                            <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#4CAF50' }}>{file.name}</Typography>
+                                            <Typography variant="body1" sx={{ fontFamily: 'Cairo', color: '#666', mt: 1 }}>انقر لتغيير الملف</Typography>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <CloudUploadIcon sx={{ fontSize: 80, color: '#bbb', mb: 2 }} />
+                                            <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#666' }}>اسحب الملف هنا أو انقر للاختيار</Typography>
+                                            <Typography variant="body1" sx={{ fontFamily: 'Cairo', color: '#999', mt: 1 }}>Excel أو CSV</Typography>
+                                        </>
+                                    )}
+                                </Box>
+                            </label>
+                        </Box>
+
+                        <Box sx={{ textAlign: 'center' }}>
+                            <Button
+                                variant="contained"
+                                size="large"
+                                onClick={handleUpload}
+                                disabled={!file || uploading || !isSelectionComplete}
+                                sx={{
+                                    fontFamily: 'Cairo',
+                                    fontWeight: 'bold',
+                                    px: 8,
+                                    py: 2,
+                                    fontSize: '1.2rem',
+                                    borderRadius: 4,
+                                    background: 'linear-gradient(135deg, #FF9800, #FFB74D)',
+                                    boxShadow: '0 10px 30px rgba(255, 152, 0, 0.4)',
+                                    '&:hover': { background: 'linear-gradient(135deg, #F57C00, #FF9800)' },
+                                    '&:disabled': { background: '#ccc' }
+                                }}
+                            >
+                                {uploading ? 'جاري الرفع...' : 'رفع البيانات'}
+                            </Button>
+                        </Box>
+
+                        {uploading && <LinearProgress sx={{ mt: 4, borderRadius: 3, height: 8 }} />}
+                        {error && <Alert severity="error" sx={{ mt: 4, fontFamily: 'Cairo', borderRadius: 3, fontSize: '1.1rem' }}>{error}</Alert>}
+
+                        {result && (
+                            <Fade in={true}>
+                                <Box sx={{ mt: 4 }}>
+                                    <Alert icon={<CheckCircleIcon sx={{ fontSize: 30 }} />} severity="success" sx={{ fontFamily: 'Cairo', borderRadius: 3, fontSize: '1.1rem', py: 2 }}>
+                                        <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>تمت العملية بنجاح!</Typography>
+                                        • تم إنشاء {result.created} حساب جديد<br />
+                                        • تم تحديث {result.updated} حساب موجود
+                                    </Alert>
+                                    {result.errors && result.errors.length > 0 && (
+                                        <Box sx={{ mt: 3 }}>
+                                            <Alert icon={<ErrorOutlineIcon />} severity="warning" sx={{ fontFamily: 'Cairo', borderRadius: 3 }}>
+                                                <Typography sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>بعض الأخطاء ({result.errors.length}):</Typography>
+                                            </Alert>
+                                            <List dense sx={{ maxHeight: 200, overflow: 'auto', bgcolor: '#fff3e0', borderRadius: 3, mt: 1 }}>
+                                                {result.errors.map((err, index) => (
+                                                    <ListItem key={index}>
+                                                        <ListItemText primary={err} primaryTypographyProps={{ fontFamily: 'Cairo', color: 'error' }} />
+                                                    </ListItem>
+                                                ))}
+                                            </List>
+                                        </Box>
+                                    )}
+                                </Box>
+                            </Fade>
+                        )}
+                    </Paper>
+                </Grow>
+            </Container>
+        </Box>
     );
 }

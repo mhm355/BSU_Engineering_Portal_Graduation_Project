@@ -2,7 +2,8 @@ from rest_framework import serializers
 from .models import (
     Department, Specialization, AcademicYear, Level, Subject,
     Student, TeachingAssignment, ExamGrade, Certificate,
-    Term, GradingTemplate, CourseOffering, Lecture, Attendance, StudentGrade
+    Term, GradingTemplate, CourseOffering, Lecture, Attendance, StudentGrade,
+    Quiz
 )
 
 
@@ -137,6 +138,7 @@ class AttendanceSerializer(serializers.ModelSerializer):
     student_name = serializers.CharField(source='student.full_name', read_only=True)
     student_national_id = serializers.CharField(source='student.national_id', read_only=True)
     status_display = serializers.CharField(source='get_status_display', read_only=True)
+    course_name = serializers.CharField(source='course_offering.subject.name', read_only=True)
 
     class Meta:
         model = Attendance
@@ -193,3 +195,10 @@ class CertificateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Certificate
         fields = '__all__'
+
+
+class QuizSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Quiz
+        fields = ['id', 'title', 'description', 'quiz_type', 'total_points', 'is_active', 'time_limit_minutes', 'created_at']
+

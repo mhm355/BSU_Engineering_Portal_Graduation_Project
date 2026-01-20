@@ -12,7 +12,7 @@ import io
 
 from .models import (
     AuditLog, TeachingAssignment, Subject, Level, AcademicYear,
-    Term, GradingTemplate, CourseOffering
+    Term, GradingTemplate, CourseOffering, Specialization
 )
 from users.permissions import IsStaffAffairsRole
 

@@ -5,7 +5,8 @@ from .views import (
     LevelViewSet, SubjectViewSet, StudentViewSet, TeachingAssignmentViewSet,
     CertificateViewSet, StudentProfileView,
     TermViewSet, GradingTemplateViewSet, CourseOfferingViewSet, LectureViewSet,
-    BulkAttendanceView, BulkStudentGradeView
+    BulkAttendanceView, BulkStudentGradeView, AttendanceViewSet,
+    StudentExamsView
 )
 from .student_affairs_views import (
     UploadStudentsView, StudentListView, ResetStudentPasswordView,
@@ -39,8 +40,13 @@ router.register(r'course-offerings', CourseOfferingViewSet)
 router.register(r'lectures', LectureViewSet)
 router.register(r'certificates', CertificateViewSet)
 router.register(r'quizzes', QuizViewSet)
+router.register(r'attendance', AttendanceViewSet)
 
 urlpatterns = [
+    # Bulk operations MUST come before router to avoid being intercepted
+    path('attendance/bulk/', BulkAttendanceView.as_view(), name='bulk-attendance'),
+    path('student-grades/bulk/', BulkStudentGradeView.as_view(), name='bulk-student-grades'),
+    
     path('', include(router.urls)),
 
     # Student Affairs endpoints
@@ -78,12 +84,10 @@ urlpatterns = [
     path('exam-grades/pending-count/', PendingExamGradesCountView.as_view(), name='pending-exam-grades-count'),
     path('exam-grades/my-grades/', StudentExamGradesView.as_view(), name='student-exam-grades'),
 
-    # Doctor bulk operations
-    path('attendance/bulk/', BulkAttendanceView.as_view(), name='bulk-attendance'),
-    path('student-grades/bulk/', BulkStudentGradeView.as_view(), name='bulk-student-grades'),
-
     # Quiz endpoints
     path('student/quizzes/', StudentQuizListView.as_view(), name='student-quizzes'),
     path('student/quizzes/<int:quiz_id>/attempt/', StudentQuizAttemptView.as_view(), name='quiz-attempt'),
+    path('student/quizzes/<int:quiz_id>/results/', QuizResultsView.as_view(), name='student-quiz-results'),
     path('quizzes/<int:quiz_id>/results/', QuizResultsView.as_view(), name='quiz-results'),
+    path('exams/', StudentExamsView.as_view(), name='student-exams'),
 ]

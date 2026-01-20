@@ -28,6 +28,7 @@ import StudentMaterials from './pages/dashboards/student/StudentMaterials';
 import StudentExams from './pages/dashboards/student/StudentExams';
 import StudentQuizzes from './pages/dashboards/student/StudentQuizzes';
 import TakeQuiz from './pages/dashboards/student/TakeQuiz';
+import StudentQuizResults from './pages/dashboards/student/StudentQuizResults';
 import DoctorCourses from './pages/dashboards/doctor/DoctorCourses';
 import StudentAffairsDashboard from './pages/dashboards/StudentAffairsDashboard';
 import HierarchyView from './pages/dashboards/student_affairs/HierarchyView';
@@ -40,6 +41,7 @@ import DoctorCourseManager from './pages/dashboards/doctor/DoctorCourseManager';
 import DoctorCourseDetail from './pages/dashboards/doctor/DoctorCourseDetail';
 import UploadGrades from './pages/dashboards/doctor/UploadGrades';
 import CreateQuiz from './pages/dashboards/doctor/CreateQuiz';
+import QuizResults from './pages/dashboards/doctor/QuizResults';
 import ApprovalCenter from './pages/dashboards/admin/ApprovalCenter';
 import PendingApprovals from './pages/dashboards/admin/PendingApprovals';
 import AdminAcademicStructure from './pages/dashboards/admin/AdminAcademicStructure';
@@ -98,6 +100,7 @@ function App() {
             <Route path="student/exams" element={<StudentExams />} />
             <Route path="student/quizzes" element={<StudentQuizzes />} />
             <Route path="student/quiz/:quizId" element={<TakeQuiz />} />
+            <Route path="student/quiz/:quizId/results" element={<StudentQuizResults />} />
             <Route path="profile" element={<UserProfile />} />
 
             {/* Doctor Routes */}
@@ -107,6 +110,7 @@ function App() {
             <Route path="doctor/courses/:courseId/manage" element={<DoctorCourseManager />} />
             <Route path="doctor/courses/:courseId/upload-grades" element={<UploadGrades />} />
             <Route path="doctor/courses/:courseId/quiz" element={<CreateQuiz />} />
+            <Route path="doctor/courses/:courseId/quiz/:quizId/results" element={<QuizResults />} />
 
             {/* Student Affairs Routes */}
             <Route path="staff/dashboard" element={<StudentAffairsDashboard />} />

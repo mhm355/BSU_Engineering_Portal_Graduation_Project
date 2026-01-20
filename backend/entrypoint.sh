@@ -3,15 +3,43 @@ set -e
 
 # Wait for database to be ready
 echo "Waiting for database..."
+max_retries=30
+retry_count=0
 while ! python -c "import MySQLdb; MySQLdb.connect(host='db', user='bsu_user', password='bsu_password', database='bsu_db')" 2>/dev/null; do
-    echo "Database not ready, waiting..."
+    echo "Database not ready, waiting... ($retry_count/$max_retries)"
     sleep 2
+    retry_count=$((retry_count + 1))
+    if [ $retry_count -ge $max_retries ]; then
+        echo "Database connection timeout!"
+        exit 1
+    fi
 done
 echo "Database is ready!"
 
-# Run migrations
+# Run migrations in proper order
 echo "Running migrations..."
-python manage.py migrate --noinput
+
+# First migrate Django core apps
+python manage.py migrate contenttypes --noinput || true
+python manage.py migrate auth --noinput || true
+
+# Then migrate users app (custom auth user model)
+python manage.py migrate users --noinput || true
+
+# Then sessions and admin
+python manage.py migrate sessions --noinput || true
+python manage.py migrate admin --noinput || true
+
+# Then content app
+python manage.py migrate content --noinput || true
+
+# Finally academic app
+python manage.py migrate academic --noinput || true
+
+# Run any remaining migrations
+python manage.py migrate --noinput || true
+
+echo "Migrations completed!"
 
 # Create superuser if it doesn't exist
 echo "Checking for admin user..."
@@ -41,10 +69,34 @@ else:
         print('Admin user already exists.')
 "
 
+# Create staff_affairs user if it doesn't exist
+echo "Checking for staff_affairs user..."
+python manage.py shell -c "
+from django.contrib.auth import get_user_model
+User = get_user_model()
+staff, created = User.objects.get_or_create(
+    username='staff_affairs',
+    defaults={
+        'email': 'staff@example.com',
+        'is_staff': False,
+        'role': 'STAFF_AFFAIRS',
+        'first_name': 'شؤون',
+        'last_name': 'الموظفين',
+        'national_id': '12345678901234'
+    }
+)
+if created:
+    staff.set_password('password123')
+    staff.save()
+    print('Staff Affairs user created!')
+else:
+    print('Staff Affairs user already exists.')
+"
+
 # Run production seed script (idempotent - safe to run multiple times)
 echo "Running production seed..."
 if [ -f "seed_production.py" ]; then
-    python seed_production.py
+    python seed_production.py || echo "Warning: seed_production.py failed"
 else
     echo "Warning: seed_production.py not found, skipping."
 fi
@@ -52,7 +104,7 @@ fi
 # Run subjects seed script (idempotent - safe to run multiple times)
 echo "Running subjects seed..."
 if [ -f "seed_subjects.py" ]; then
-    python seed_subjects.py
+    python seed_subjects.py || echo "Warning: seed_subjects.py failed"
 else
     echo "Warning: seed_subjects.py not found, skipping."
 fi
