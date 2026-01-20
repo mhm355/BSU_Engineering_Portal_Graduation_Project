@@ -2,11 +2,14 @@ import React, { useState, useEffect } from 'react';
 import {
     Box, Container, Typography, Paper, Button, TextField, FormControl,
     InputLabel, Select, MenuItem, IconButton, Alert, Chip, Divider,
-    FormControlLabel, Checkbox, CircularProgress
+    FormControlLabel, Checkbox, CircularProgress, Card, CardMedia
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
+import ImageIcon from '@mui/icons-material/Image';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import CloseIcon from '@mui/icons-material/Close';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
 
@@ -52,6 +55,8 @@ export default function CreateQuiz() {
             ...prev,
             questions: [...prev.questions, {
                 question_text: '',
+                question_image: null,
+                question_image_preview: null,
                 question_type: 'MCQ',
                 points: 1,
                 choices: [
@@ -76,6 +81,38 @@ export default function CreateQuiz() {
             ...prev,
             questions: prev.questions.map((q, i) =>
                 i === index ? { ...q, [field]: value } : q
+            )
+        }));
+    };
+
+    const handleQuestionImageChange = (index, file) => {
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setQuizData(prev => ({
+                    ...prev,
+                    questions: prev.questions.map((q, i) =>
+                        i === index ? {
+                            ...q,
+                            question_image: file,
+                            question_image_preview: reader.result
+                        } : q
+                    )
+                }));
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const removeQuestionImage = (index) => {
+        setQuizData(prev => ({
+            ...prev,
+            questions: prev.questions.map((q, i) =>
+                i === index ? {
+                    ...q,
+                    question_image: null,
+                    question_image_preview: null
+                } : q
             )
         }));
     };
@@ -112,15 +149,56 @@ export default function CreateQuiz() {
             return;
         }
 
+        // Validate each question has text or image
+        for (let i = 0; i < quizData.questions.length; i++) {
+            const q = quizData.questions[i];
+            if (!q.question_text && !q.question_image) {
+                setError(`السؤال ${i + 1}: يرجى إدخال نص السؤال أو رفع صورة`);
+                return;
+            }
+        }
+
         setSaving(true);
         setError('');
         setSuccess('');
 
         try {
-            await axios.post('/api/academic/quizzes/', {
-                ...quizData,
-                course_offering_id: courseId
-            }, config);
+            // Use FormData to support file uploads
+            const formData = new FormData();
+            formData.append('course_offering_id', courseId);
+            formData.append('title', quizData.title);
+            formData.append('description', quizData.description);
+            formData.append('quiz_type', quizData.quiz_type);
+            formData.append('total_points', quizData.total_points);
+            if (quizData.time_limit_minutes) {
+                formData.append('time_limit_minutes', quizData.time_limit_minutes);
+            }
+            formData.append('is_active', quizData.is_active);
+
+            // Prepare questions data (without image files)
+            const questionsData = quizData.questions.map((q, i) => ({
+                question_text: q.question_text,
+                question_type: q.question_type,
+                points: q.points,
+                choices: q.choices,
+                has_image: !!q.question_image
+            }));
+            formData.append('questions', JSON.stringify(questionsData));
+
+            // Append question images
+            quizData.questions.forEach((q, i) => {
+                if (q.question_image) {
+                    formData.append(`question_image_${i}`, q.question_image);
+                }
+            });
+
+            await axios.post('/api/academic/quizzes/', formData, {
+                ...config,
+                headers: {
+                    ...config.headers,
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
 
             setSuccess('تم إنشاء الكويز بنجاح!');
             setTimeout(() => navigate(`/doctor/courses/${courseId}`), 1500);
@@ -248,7 +326,64 @@ export default function CreateQuiz() {
                             multiline
                             rows={2}
                             sx={{ mb: 2 }}
+                            placeholder="أدخل نص السؤال أو ارفع صورة أدناه"
                         />
+
+                        {/* Question Image Upload */}
+                        <Box sx={{ mb: 2 }}>
+                            {question.question_image_preview ? (
+                                <Box sx={{ position: 'relative', display: 'inline-block' }}>
+                                    <Card sx={{ maxWidth: 400, borderRadius: 2 }}>
+                                        <CardMedia
+                                            component="img"
+                                            image={question.question_image_preview}
+                                            alt="صورة السؤال"
+                                            sx={{ maxHeight: 250, objectFit: 'contain', bgcolor: '#fff' }}
+                                        />
+                                    </Card>
+                                    <IconButton
+                                        onClick={() => removeQuestionImage(qIndex)}
+                                        sx={{
+                                            position: 'absolute',
+                                            top: -10,
+                                            right: -10,
+                                            bgcolor: '#f44336',
+                                            color: '#fff',
+                                            '&:hover': { bgcolor: '#d32f2f' }
+                                        }}
+                                        size="small"
+                                    >
+                                        <CloseIcon fontSize="small" />
+                                    </IconButton>
+                                </Box>
+                            ) : (
+                                <Button
+                                    variant="outlined"
+                                    component="label"
+                                    startIcon={<CloudUploadIcon />}
+                                    sx={{
+                                        fontFamily: 'Cairo',
+                                        borderStyle: 'dashed',
+                                        py: 1.5,
+                                        px: 3,
+                                        borderColor: '#9c27b0',
+                                        color: '#9c27b0',
+                                        '&:hover': {
+                                            borderColor: '#7b1fa2',
+                                            bgcolor: 'rgba(156, 39, 176, 0.04)'
+                                        }
+                                    }}
+                                >
+                                    رفع صورة للسؤال
+                                    <input
+                                        type="file"
+                                        hidden
+                                        accept="image/*"
+                                        onChange={(e) => handleQuestionImageChange(qIndex, e.target.files[0])}
+                                    />
+                                </Button>
+                            )}
+                        </Box>
 
                         <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
                             <FormControl sx={{ minWidth: 150 }}>

@@ -243,10 +243,17 @@ class SubjectViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class StudentViewSet(viewsets.ModelViewSet):
-    """Students - Student Affairs can manage"""
+    """Students - Student Affairs can manage, Doctors can read"""
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
-    permission_classes = [IsStudentAffairsRole]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_permissions(self):
+        # Only Student Affairs can create/update/delete students
+        if self.action in ['create', 'update', 'partial_update', 'destroy']:
+            return [IsStudentAffairsRole()]
+        # Doctors and Student Affairs can list/retrieve students
+        return [permissions.IsAuthenticated()]
 
     def get_queryset(self):
         queryset = Student.objects.all()
@@ -448,6 +455,37 @@ class StudentProfileView(APIView):
             })
 
 
+# ========== Attendance List API ==========
+class AttendanceViewSet(viewsets.ReadOnlyModelViewSet):
+    """List attendance records - Doctors can view their course attendances, Students view their own"""
+    queryset = Attendance.objects.all()
+    serializer_class = AttendanceSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        queryset = Attendance.objects.select_related('student', 'course_offering__subject')
+        user = self.request.user
+        
+        # If student, only see own attendance
+        if hasattr(user, 'role') and user.role == 'STUDENT':
+             queryset = queryset.filter(student__user=user)
+        
+        # If Doctor, only see attendance for their courses (optional, but good for privacy)
+        # elif user.role == 'DOCTOR':
+        #      queryset = queryset.filter(course_offering__doctor=user)
+        
+        course_offering_id = self.request.query_params.get('course_offering')
+        student_id = self.request.query_params.get('student')
+        
+        if course_offering_id:
+            queryset = queryset.filter(course_offering_id=course_offering_id)
+        if student_id:
+            queryset = queryset.filter(student_id=student_id)
+        
+        return queryset.order_by('-date')
+
+
+
 # ========== Bulk Attendance API ==========
 class BulkAttendanceView(APIView):
     """Doctor saves attendance for multiple students at once"""
@@ -470,8 +508,8 @@ class BulkAttendanceView(APIView):
                 student = Student.objects.get(id=student_id)
                 course_offering = CourseOffering.objects.get(id=course_offering_id)
 
-                # Verify doctor owns this course
-                if course_offering.doctor != request.user:
+                # Verify doctor owns this course (skip check for admin)
+                if request.user.role != 'ADMIN' and course_offering.doctor != request.user:
                     continue
 
                 obj, is_created = Attendance.objects.update_or_create(
@@ -520,16 +558,16 @@ class BulkStudentGradeView(APIView):
                     continue
 
                 defaults = {}
-                if item.get('attendance_grade') is not None:
-                    defaults['attendance_grade'] = item['attendance_grade']
-                if item.get('quizzes_grade') is not None:
-                    defaults['quizzes_grade'] = item['quizzes_grade']
                 if item.get('coursework_grade') is not None:
-                    defaults['coursework_grade'] = item['coursework_grade']
+                    defaults['coursework'] = item['coursework_grade']
                 if item.get('midterm_grade') is not None:
-                    defaults['midterm_grade'] = item['midterm_grade']
+                    defaults['midterm'] = item['midterm_grade']
                 if item.get('final_grade') is not None:
-                    defaults['final_grade'] = item['final_grade']
+                    defaults['final'] = item['final_grade']
+                
+                # Note: attendance_grade is calculated, not stored.
+                # Note: quiz_grades is JSON, standard bulk API might need update if supporting quizzes.
+
 
                 if defaults:
                     obj, is_created = StudentGrade.objects.update_or_create(
@@ -547,3 +585,45 @@ class BulkStudentGradeView(APIView):
 
         return Response({'created': created, 'updated': updated})
 
+
+class StudentExamsView(APIView):
+    """Get exam schedule for logged in student"""
+    permission_classes = [IsStudentRole]
+
+    def get(self, request):
+        student = Student.objects.get(user=request.user)
+        # Get courses student is enrolled in (via Grades or just Level?)
+        # For now, using StudentGrade as enrollment proof, or just filter by level if simpler scheme?
+        # Better: Students have 'academic_year' and 'level' and 'department'.
+        # We should show exams for ALL subjects in their level/term.
+        
+        # Or checking registered courses?
+        # Let's assume courses they have StudentGrade entries for OR matching their Level/Dept.
+        # Simplest: Matching Level + Term + Dept.
+        
+        offerings = CourseOffering.objects.filter(
+            academic_year__status='OPEN', # Or current
+            level=student.level,
+            # department? If specialization exists?
+            # kept simple for now:
+        ).select_related('subject')
+        
+        # If student has specialization, filter.
+        if student.specialization:
+             offerings = offerings.filter(models.Q(specialization=student.specialization) | models.Q(specialization__isnull=True))
+        elif student.department:
+             # If student has dept, filter offerings that match dept (via level)
+             pass 
+
+        data = []
+        for course in offerings:
+            if course.final_exam_date:
+                data.append({
+                    'id': course.id,
+                    'course_name': course.subject.name,
+                    'date': course.final_exam_date, # Date object
+                    'time': course.final_exam_time,
+                    'location': course.final_exam_location,
+                })
+        
+        return Response(data)

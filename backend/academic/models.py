@@ -227,6 +227,9 @@ class CourseOffering(models.Model):
         blank=True,
         related_name='course_offerings'
     )
+    final_exam_date = models.DateField(null=True, blank=True)
+    final_exam_time = models.TimeField(null=True, blank=True)
+    final_exam_location = models.CharField(max_length=100, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
 
     class Meta:
@@ -249,23 +252,57 @@ class Lecture(models.Model):
         return f"{self.title} - {self.course_offering.subject.name}"
 
 
+class LectureSchedule(models.Model):
+    """Weekly schedule for lectures/labs/tutorials"""
+    class DayOfWeek(models.TextChoices):
+        SATURDAY = 'SAT', 'السبت'
+        SUNDAY = 'SUN', 'الأحد'
+        MONDAY = 'MON', 'الاثنين'
+        TUESDAY = 'TUE', 'الثلاثاء'
+        WEDNESDAY = 'WED', 'الأربعاء'
+        THURSDAY = 'THU', 'الخميس'
+        FRIDAY = 'FRI', 'الجمعة'
+        
+    class ScheduleType(models.TextChoices):
+        LECTURE = 'LECTURE', 'محاضرة'
+        TUTORIAL = 'TUTORIAL', 'سكشن'
+        LAB = 'LAB', 'معمل'
+
+    course_offering = models.ForeignKey(CourseOffering, on_delete=models.CASCADE, related_name='schedules')
+    day = models.CharField(max_length=3, choices=DayOfWeek.choices)
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    location = models.CharField(max_length=100, help_text="Hall or Lab name")
+    schedule_type = models.CharField(max_length=10, choices=ScheduleType.choices, default=ScheduleType.LECTURE)
+    
+    def __str__(self):
+        return f"{self.course_offering.subject.name} - {self.get_day_display()} {self.start_time}"
+
+
 class Attendance(models.Model):
     """Student attendance per session"""
     class AttendanceStatus(models.TextChoices):
         PRESENT = 'PRESENT', 'حاضر'
         ABSENT = 'ABSENT', 'غائب'
+        EXCUSED = 'EXCUSED', 'بعذر'
 
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='attendance_records')
     course_offering = models.ForeignKey(CourseOffering, on_delete=models.CASCADE, related_name='attendance_records')
-    session_number = models.IntegerField()
+    lecture_schedule = models.ForeignKey(LectureSchedule, on_delete=models.SET_NULL, null=True, blank=True, related_name='attendance_records')
+    date = models.DateField()
     status = models.CharField(max_length=10, choices=AttendanceStatus.choices, default=AttendanceStatus.ABSENT)
     recorded_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        unique_together = ('student', 'course_offering', 'session_number')
+        unique_together = ('student', 'course_offering', 'date')
 
     def __str__(self):
-        return f"{self.student.full_name} - Session {self.session_number}: {self.get_status_display()}"
+        return f"{self.student.full_name} - {self.date}: {self.get_status_display()}"
+
+
+# ... (skipping StudentGrade and others until StudentQuizAttempt) ...
+
+
 
 
 class StudentGrade(models.Model):
@@ -293,7 +330,7 @@ class StudentGrade(models.Model):
         ).count()
         if total_sessions == 0:
             return 0
-        weight = self.course_offering.grading_template.attendance_weight
+        weight = float(self.course_offering.grading_template.attendance_weight)
         return (present_count / total_sessions) * weight
 
     def total_grade(self):
@@ -430,13 +467,14 @@ class QuizQuestion(models.Model):
         ESSAY = "ESSAY", "Essay"
 
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='questions')
-    question_text = models.TextField()
+    question_text = models.TextField(blank=True)
+    question_image = models.ImageField(upload_to='quiz_questions/', null=True, blank=True)
     question_type = models.CharField(max_length=20, choices=QuestionType.choices, default=QuestionType.MCQ)
     points = models.DecimalField(max_digits=5, decimal_places=2, default=1)
     order = models.IntegerField(default=0)
 
     def __str__(self):
-        return f"Q{self.order}: {self.question_text[:50]}"
+        return f"Q{self.order}: {self.question_text[:50] if self.question_text else 'Image Question'}"
 
     class Meta:
         ordering = ['order']
@@ -458,15 +496,22 @@ class QuizChoice(models.Model):
 
 class StudentQuizAttempt(models.Model):
     """Student's attempt at a quiz"""
+    class AttemptStatus(models.TextChoices):
+        IN_PROGRESS = 'IN_PROGRESS', 'جاري الحل'
+        SUBMITTED = 'SUBMITTED', 'تم التسليم'
+        TIMEOUT = 'TIMEOUT', 'انتهى الوقت'
+        GRADED = 'GRADED', 'تم التصحيح'
+
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='quiz_attempts')
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='attempts')
     score = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    status = models.CharField(max_length=20, choices=AttemptStatus.choices, default=AttemptStatus.IN_PROGRESS)
     started_at = models.DateTimeField(auto_now_add=True)
     submitted_at = models.DateTimeField(null=True, blank=True)
     is_graded = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"{self.student.full_name} - {self.quiz.title}"
+        return f"{self.student.full_name} - {self.quiz.title} ({self.get_status_display()})"
 
     class Meta:
         unique_together = ['student', 'quiz']  # One attempt per quiz

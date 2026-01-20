@@ -7,8 +7,11 @@ class IsAdminRole(permissions.BasePermission):
 
 
 class IsDoctorRole(permissions.BasePermission):
+    """Doctor role - manages courses, attendance, grades"""
     def has_permission(self, request, view):
-        return request.user and request.user.is_authenticated and request.user.role == 'DOCTOR'
+        if not request.user or not request.user.is_authenticated:
+            return False
+        return request.user.role in ['DOCTOR', 'ADMIN']
 
 
 class IsStudentRole(permissions.BasePermission):

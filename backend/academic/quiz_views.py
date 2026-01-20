@@ -7,17 +7,20 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.utils import timezone
+from django.utils import timezone
 
 from .models import (
     Quiz, QuizQuestion, QuizChoice, StudentQuizAttempt, StudentQuizAnswer,
     CourseOffering, Student
 )
+from .serializers import QuizSerializer
 from users.permissions import IsDoctorRole, IsStudentRole
 
 
 class QuizViewSet(viewsets.ModelViewSet):
     """ViewSet for Quiz CRUD operations - Doctor only for CUD, Students can list"""
     queryset = Quiz.objects.all()
+    serializer_class = QuizSerializer
 
     def get_permissions(self):
         if self.action in ['create', 'update', 'partial_update', 'destroy']:
@@ -38,6 +41,11 @@ class QuizViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(course_offering__doctor=user)
         
         return queryset.order_by('-created_at')
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response({'message': 'تم حذف الكويز بنجاح'}, status=status.HTTP_200_OK)
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
@@ -70,6 +78,7 @@ class QuizViewSet(viewsets.ModelViewSet):
             question_data = {
                 'id': q.id,
                 'question_text': q.question_text,
+                'question_image': q.question_image.url if q.question_image else None,
                 'question_type': q.question_type,
                 'points': float(q.points),
                 'order': q.order,
@@ -104,6 +113,7 @@ class QuizViewSet(viewsets.ModelViewSet):
 
     def create(self, request):
         """Create a new quiz with questions and choices"""
+        import json
         data = request.data
         course_offering_id = data.get('course_offering_id')
         
@@ -119,6 +129,11 @@ class QuizViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
         
+        # Parse is_active properly (could be string "true"/"false" from FormData)
+        is_active = data.get('is_active', True)
+        if isinstance(is_active, str):
+            is_active = is_active.lower() == 'true'
+        
         # Create quiz
         quiz = Quiz.objects.create(
             course_offering=course_offering,
@@ -126,8 +141,8 @@ class QuizViewSet(viewsets.ModelViewSet):
             description=data.get('description', ''),
             quiz_type=data.get('quiz_type', 'MCQ'),
             total_points=data.get('total_points', 10),
-            time_limit_minutes=data.get('time_limit_minutes'),
-            is_active=data.get('is_active', True),
+            time_limit_minutes=data.get('time_limit_minutes') or None,
+            is_active=is_active,
         )
         
         # Handle image for IMAGE type
@@ -135,8 +150,14 @@ class QuizViewSet(viewsets.ModelViewSet):
             quiz.image = request.FILES['image']
             quiz.save()
         
-        # Create questions
+        # Create questions - parse JSON string if needed
         questions_data = data.get('questions', [])
+        if isinstance(questions_data, str):
+            try:
+                questions_data = json.loads(questions_data)
+            except json.JSONDecodeError:
+                questions_data = []
+        
         for i, q_data in enumerate(questions_data):
             question = QuizQuestion.objects.create(
                 quiz=quiz,
@@ -145,6 +166,12 @@ class QuizViewSet(viewsets.ModelViewSet):
                 points=q_data.get('points', 1),
                 order=i + 1
             )
+            
+            # Handle question image
+            image_key = f'question_image_{i}'
+            if image_key in request.FILES:
+                question.question_image = request.FILES[image_key]
+                question.save()
             
             # Create choices for MCQ
             if question.question_type == 'MCQ':
@@ -268,6 +295,16 @@ class StudentQuizAttemptView(APIView):
             return Response({'error': 'غير موجود'}, status=status.HTTP_404_NOT_FOUND)
         
         if attempt.submitted_at:
+            # Self-healing: If submitted but status is IN_PROGRESS (from previous bug), fix it
+            if attempt.status == StudentQuizAttempt.AttemptStatus.IN_PROGRESS:
+                attempt.status = StudentQuizAttempt.AttemptStatus.GRADED if attempt.is_graded else StudentQuizAttempt.AttemptStatus.SUBMITTED
+                attempt.save()
+                return Response({
+                    'message': 'تم تحديث الحالة بنجاح',
+                    'status': attempt.status,
+                    'score': attempt.score if attempt.is_graded else None,
+                    'total_points': float(quiz.total_points),
+                })
             return Response({'error': 'لقد قمت بحل هذا الكويز مسبقاً'}, status=status.HTTP_400_BAD_REQUEST)
         
         answers = request.data.get('answers', [])
@@ -307,11 +344,20 @@ class StudentQuizAttemptView(APIView):
         # Mark attempt as submitted
         attempt.submitted_at = timezone.now()
         attempt.score = total_score
-        attempt.is_graded = quiz.quiz_type == 'MCQ'  # Auto-graded for MCQ only
+        is_mcq = quiz.quiz_type == 'MCQ'
+        attempt.is_graded = is_mcq  # Auto-graded for MCQ only
+        
+        # Set status
+        if attempt.is_graded:
+            attempt.status = StudentQuizAttempt.AttemptStatus.GRADED
+        else:
+            attempt.status = StudentQuizAttempt.AttemptStatus.SUBMITTED
+            
         attempt.save()
         
         return Response({
             'message': 'تم تسليم الكويز بنجاح',
+            'status': attempt.status,
             'score': total_score if attempt.is_graded else None,
             'total_points': float(quiz.total_points),
         })
@@ -344,18 +390,78 @@ class QuizResultsView(APIView):
             return Response(data)
         
         elif hasattr(user, 'role') and user.role == 'STUDENT':
-            # Student sees their own result
+            # Student sees their own result with details
             try:
                 student = Student.objects.get(user=user)
                 attempt = StudentQuizAttempt.objects.get(student=student, quiz=quiz)
             except (Student.DoesNotExist, StudentQuizAttempt.DoesNotExist):
                 return Response({'error': 'لم تقم بحل هذا الكويز'}, status=status.HTTP_404_NOT_FOUND)
             
+            # Build detailed response
+            questions_data = []
+            for question in quiz.questions.all().order_by('order'):
+                q_data = {
+                    'id': question.id,
+                    'question_text': question.question_text,
+                    'question_image': question.question_image.url if question.question_image else None,
+                    'question_type': question.question_type,
+                    'points': float(question.points),
+                    'user_answer': None,
+                    'is_correct': False,
+                    'earned_points': 0,
+                    'choices': []
+                }
+                
+                # Get user's answer for this question
+                try:
+                    user_ans_obj = StudentQuizAnswer.objects.get(attempt=attempt, question=question)
+                    q_data['earned_points'] = float(user_ans_obj.points_earned)
+                    q_data['is_correct'] = user_ans_obj.points_earned == question.points
+                    
+                    if question.question_type == 'MCQ':
+                        q_data['user_answer'] = {
+                            'choice_id': user_ans_obj.selected_choice.id if user_ans_obj.selected_choice else None
+                        }
+                    else:
+                        q_data['user_answer'] = {
+                            'essay_answer': user_ans_obj.essay_answer
+                        }
+                        # For essay, check if graded
+                        if not attempt.is_graded:
+                            q_data['pending_review'] = True
+                except StudentQuizAnswer.DoesNotExist:
+                    pass
+
+                # Add choices if MCQ
+                if question.question_type == 'MCQ':
+                    for choice in question.choices.all().order_by('order'):
+                        q_data['choices'].append({
+                            'id': choice.id,
+                            'choice_text': choice.choice_text,
+                            'is_correct': choice.is_correct
+                        })
+                
+                questions_data.append(q_data)
+
+            # Calculate counts in python to be safe
+            correct_count = 0
+            wrong_count = 0
+            for ans in attempt.answers.all().select_related('question'):
+                if ans.points_earned == ans.question.points:
+                    correct_count += 1
+                elif ans.points_earned == 0:
+                    wrong_count += 1
+
             return Response({
-                'score': float(attempt.score) if attempt.score else None,
+                'id': quiz.id,
+                'title': quiz.title,
+                'score': float(attempt.score) if attempt.score is not None else None,
                 'total_points': float(quiz.total_points),
                 'submitted_at': attempt.submitted_at,
                 'is_graded': attempt.is_graded,
+                'correct_count': correct_count,
+                'wrong_count': wrong_count,
+                'questions': questions_data
             })
         
         return Response({'error': 'غير مصرح'}, status=status.HTTP_403_FORBIDDEN)

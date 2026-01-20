@@ -7,7 +7,7 @@ class IsAdminOrStaff(permissions.BasePermission):
     def has_permission(self, request, view):
         if not request.user or not request.user.is_authenticated:
             return False
-        return request.user.role in ['ADMIN', 'STAFF']
+        return request.user.role in ['ADMIN', 'STAFF', 'STUDENT_AFFAIRS', 'STAFF_AFFAIRS']
 
 class NewsViewSet(viewsets.ModelViewSet):
     queryset = News.objects.all().order_by('-created_at')

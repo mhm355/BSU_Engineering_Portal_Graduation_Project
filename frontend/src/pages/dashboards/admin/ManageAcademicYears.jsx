@@ -2,16 +2,210 @@ import React, { useState, useEffect } from 'react';
 import {
     Container, Paper, Typography, Box, Button, Table, TableBody, TableCell,
     TableContainer, TableHead, TableRow, IconButton, Dialog, DialogTitle,
-    DialogContent, DialogActions, TextField, Alert, Chip, Switch, FormControlLabel
+    DialogContent, DialogActions, TextField, Alert, Chip, Switch, FormControlLabel,
+    Grid, Card, CardContent, Avatar, Tooltip, Fade, Grow, Skeleton
 } from '@mui/material';
+import { keyframes } from '@mui/system';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import LockIcon from '@mui/icons-material/Lock';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import StarIcon from '@mui/icons-material/Star';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CancelIcon from '@mui/icons-material/Cancel';
+import EventIcon from '@mui/icons-material/Event';
+import TodayIcon from '@mui/icons-material/Today';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+
+// Animations
+const pulse = keyframes`
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+`;
+
+const float = keyframes`
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+`;
+
+// Stats Card Component
+const StatCard = ({ icon: Icon, value, label, color, delay = 0 }) => (
+    <Grow in={true} timeout={800 + delay}>
+        <Paper
+            elevation={0}
+            sx={{
+                p: 3,
+                borderRadius: 4,
+                background: '#fff',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                border: '1px solid rgba(0,0,0,0.06)',
+                transition: 'all 0.3s ease',
+                '&:hover': {
+                    transform: 'translateY(-5px)',
+                    boxShadow: `0 20px 40px ${color}25`,
+                }
+            }}
+        >
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Box
+                    sx={{
+                        width: 56,
+                        height: 56,
+                        borderRadius: 3,
+                        background: `linear-gradient(135deg, ${color}, ${color}cc)`,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        boxShadow: `0 8px 24px ${color}40`,
+                    }}
+                >
+                    <Icon sx={{ fontSize: 28, color: '#fff' }} />
+                </Box>
+                <Box>
+                    <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#1a2744', fontFamily: 'Cairo', lineHeight: 1 }}>
+                        {value}
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: '#666', fontFamily: 'Cairo' }}>
+                        {label}
+                    </Typography>
+                </Box>
+            </Box>
+        </Paper>
+    </Grow>
+);
+
+// Year Card Component (for card view)
+const YearCard = ({ year, idx, onEdit, onToggleStatus, onSetCurrent, delay = 0 }) => (
+    <Grow in={true} timeout={800 + delay}>
+        <Card
+            sx={{
+                borderRadius: 4,
+                background: year.is_current
+                    ? 'linear-gradient(135deg, #11998e15, #38ef7d15)'
+                    : '#fff',
+                boxShadow: year.is_current
+                    ? '0 8px 32px rgba(17, 153, 142, 0.15)'
+                    : '0 4px 20px rgba(0,0,0,0.08)',
+                border: year.is_current
+                    ? '2px solid #11998e'
+                    : '1px solid rgba(0,0,0,0.06)',
+                transition: 'all 0.3s ease',
+                position: 'relative',
+                overflow: 'visible',
+                '&:hover': {
+                    transform: 'translateY(-5px)',
+                    boxShadow: '0 20px 40px rgba(0,0,0,0.12)',
+                }
+            }}
+        >
+            {/* Current Badge */}
+            {year.is_current && (
+                <Chip
+                    icon={<StarIcon sx={{ color: '#fff !important', fontSize: 16 }} />}
+                    label="العام الحالي"
+                    size="small"
+                    sx={{
+                        position: 'absolute',
+                        top: -12,
+                        right: 16,
+                        bgcolor: 'linear-gradient(135deg, #11998e, #38ef7d)',
+                        background: 'linear-gradient(135deg, #11998e, #38ef7d)',
+                        color: '#fff',
+                        fontFamily: 'Cairo',
+                        fontWeight: 'bold',
+                        px: 1,
+                        animation: `${pulse} 2s infinite`,
+                    }}
+                />
+            )}
+
+            <CardContent sx={{ p: 3 }}>
+                <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 2 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                        <Avatar
+                            sx={{
+                                width: 56,
+                                height: 56,
+                                bgcolor: year.status === 'OPEN' ? '#11998e' : '#9e9e9e',
+                                fontSize: 24,
+                            }}
+                        >
+                            <CalendarMonthIcon sx={{ fontSize: 28 }} />
+                        </Avatar>
+                        <Box>
+                            <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>
+                                {year.name}
+                            </Typography>
+                            <Chip
+                                icon={year.status === 'OPEN' ? <LockOpenIcon sx={{ fontSize: 16 }} /> : <LockIcon sx={{ fontSize: 16 }} />}
+                                label={year.status === 'OPEN' ? 'مفتوح' : 'مغلق'}
+                                size="small"
+                                sx={{
+                                    mt: 0.5,
+                                    bgcolor: year.status === 'OPEN' ? '#e8f5e9' : '#ffebee',
+                                    color: year.status === 'OPEN' ? '#2e7d32' : '#c62828',
+                                    fontFamily: 'Cairo',
+                                    fontWeight: 'bold',
+                                }}
+                            />
+                        </Box>
+                    </Box>
+                    <Typography variant="body2" sx={{ color: '#999', fontFamily: 'Cairo' }}>
+                        #{idx + 1}
+                    </Typography>
+                </Box>
+
+                {/* Actions */}
+                <Box sx={{ display: 'flex', gap: 1, mt: 2, pt: 2, borderTop: '1px solid rgba(0,0,0,0.08)' }}>
+                    <Tooltip title="تعديل">
+                        <IconButton
+                            onClick={() => onEdit(year)}
+                            sx={{
+                                bgcolor: '#e3f2fd',
+                                color: '#1976d2',
+                                '&:hover': { bgcolor: '#bbdefb' }
+                            }}
+                        >
+                            <EditIcon />
+                        </IconButton>
+                    </Tooltip>
+                    <Tooltip title={year.status === 'OPEN' ? 'إغلاق العام' : 'فتح العام'}>
+                        <IconButton
+                            onClick={() => onToggleStatus(year)}
+                            sx={{
+                                bgcolor: year.status === 'OPEN' ? '#ffebee' : '#e8f5e9',
+                                color: year.status === 'OPEN' ? '#c62828' : '#2e7d32',
+                                '&:hover': {
+                                    bgcolor: year.status === 'OPEN' ? '#ffcdd2' : '#c8e6c9'
+                                }
+                            }}
+                        >
+                            {year.status === 'OPEN' ? <LockIcon /> : <LockOpenIcon />}
+                        </IconButton>
+                    </Tooltip>
+                    {!year.is_current && (
+                        <Tooltip title="تعيين كالعام الحالي">
+                            <IconButton
+                                onClick={() => onSetCurrent(year)}
+                                sx={{
+                                    bgcolor: '#fff8e1',
+                                    color: '#f9a825',
+                                    '&:hover': { bgcolor: '#ffecb3' }
+                                }}
+                            >
+                                <StarIcon />
+                            </IconButton>
+                        </Tooltip>
+                    )}
+                </Box>
+            </CardContent>
+        </Card>
+    </Grow>
+);
 
 export default function ManageAcademicYears() {
     const navigate = useNavigate();
@@ -107,119 +301,276 @@ export default function ManageAcademicYears() {
         }
     };
 
+    // Statistics
+    const openYears = years.filter(y => y.status === 'OPEN').length;
+    const closedYears = years.filter(y => y.status === 'CLOSED').length;
+    const currentAcademicYear = years.find(y => y.is_current);
+
     return (
-        <Container maxWidth="lg" sx={{ py: 4 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
-                <IconButton onClick={() => navigate('/admin/dashboard')}>
-                    <ArrowBackIcon />
-                </IconButton>
-                <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
-                    إدارة الأعوام الدراسية
-                </Typography>
+        <Box sx={{ minHeight: '100vh', background: 'linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%)', pb: 6 }}>
+            {/* Hero Header */}
+            <Box
+                sx={{
+                    background: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)',
+                    pt: 4,
+                    pb: 6,
+                    mb: 4,
+                    position: 'relative',
+                    overflow: 'hidden',
+                }}
+            >
+                {/* Floating Elements */}
+                <Box
+                    sx={{
+                        position: 'absolute',
+                        top: -50,
+                        right: -50,
+                        width: 200,
+                        height: 200,
+                        borderRadius: '50%',
+                        background: 'rgba(255,255,255,0.1)',
+                        animation: `${float} 6s ease-in-out infinite`,
+                    }}
+                />
+                <Box
+                    sx={{
+                        position: 'absolute',
+                        bottom: -80,
+                        left: -80,
+                        width: 300,
+                        height: 300,
+                        borderRadius: '50%',
+                        background: 'rgba(255,255,255,0.08)',
+                        animation: `${float} 8s ease-in-out infinite`,
+                        animationDelay: '2s',
+                    }}
+                />
+
+                <Container maxWidth="xl">
+                    <Fade in={true} timeout={800}>
+                        <Box>
+                            <Button
+                                startIcon={<ArrowBackIcon />}
+                                onClick={() => navigate('/admin/dashboard')}
+                                sx={{
+                                    color: '#fff',
+                                    mb: 2,
+                                    fontFamily: 'Cairo',
+                                    '&:hover': { bgcolor: 'rgba(255,255,255,0.1)' }
+                                }}
+                            >
+                                العودة للوحة التحكم
+                            </Button>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                                <Avatar
+                                    sx={{
+                                        width: 80,
+                                        height: 80,
+                                        bgcolor: 'rgba(255,255,255,0.2)',
+                                        backdropFilter: 'blur(10px)',
+                                    }}
+                                >
+                                    <CalendarMonthIcon sx={{ fontSize: 45, color: '#fff' }} />
+                                </Avatar>
+                                <Box>
+                                    <Typography variant="h3" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff', textShadow: '0 4px 20px rgba(0,0,0,0.2)' }}>
+                                        إدارة الأعوام الدراسية
+                                    </Typography>
+                                    <Typography variant="h6" sx={{ fontFamily: 'Cairo', color: 'rgba(255,255,255,0.9)' }}>
+                                        إضافة وتعديل وإدارة الأعوام الأكاديمية
+                                    </Typography>
+                                </Box>
+                            </Box>
+                        </Box>
+                    </Fade>
+                </Container>
             </Box>
 
-            {error && <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError('')}>{error}</Alert>}
-            {success && <Alert severity="success" sx={{ mb: 2 }} onClose={() => setSuccess('')}>{success}</Alert>}
+            <Container maxWidth="xl">
+                {/* Alerts */}
+                {error && (
+                    <Fade in={true}>
+                        <Alert
+                            severity="error"
+                            sx={{ mb: 3, borderRadius: 3, fontFamily: 'Cairo' }}
+                            onClose={() => setError('')}
+                        >
+                            {error}
+                        </Alert>
+                    </Fade>
+                )}
+                {success && (
+                    <Fade in={true}>
+                        <Alert
+                            severity="success"
+                            sx={{ mb: 3, borderRadius: 3, fontFamily: 'Cairo' }}
+                            onClose={() => setSuccess('')}
+                        >
+                            {success}
+                        </Alert>
+                    </Fade>
+                )}
 
-            <Paper sx={{ p: 3 }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-                    <Typography variant="h6" sx={{ fontFamily: 'Cairo' }}>
+                {/* Stats Row */}
+                <Grid container spacing={3} sx={{ mb: 4 }}>
+                    <Grid item xs={12} sm={6} md={3}>
+                        <StatCard
+                            icon={EventIcon}
+                            value={years.length}
+                            label="إجمالي الأعوام"
+                            color="#2196F3"
+                            delay={0}
+                        />
+                    </Grid>
+                    <Grid item xs={12} sm={6} md={3}>
+                        <StatCard
+                            icon={CheckCircleIcon}
+                            value={openYears}
+                            label="أعوام مفتوحة"
+                            color="#11998e"
+                            delay={100}
+                        />
+                    </Grid>
+                    <Grid item xs={12} sm={6} md={3}>
+                        <StatCard
+                            icon={CancelIcon}
+                            value={closedYears}
+                            label="أعوام مغلقة"
+                            color="#e53935"
+                            delay={200}
+                        />
+                    </Grid>
+                    <Grid item xs={12} sm={6} md={3}>
+                        <StatCard
+                            icon={TodayIcon}
+                            value={currentAcademicYear?.name || '-'}
+                            label="العام الحالي"
+                            color="#9c27b0"
+                            delay={300}
+                        />
+                    </Grid>
+                </Grid>
+
+                {/* Action Bar */}
+                <Paper
+                    elevation={0}
+                    sx={{
+                        p: 3,
+                        mb: 4,
+                        borderRadius: 4,
+                        background: '#fff',
+                        boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        flexWrap: 'wrap',
+                        gap: 2,
+                    }}
+                >
+                    <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>
                         الأعوام الدراسية ({years.length})
                     </Typography>
                     <Button
                         variant="contained"
                         startIcon={<AddIcon />}
                         onClick={() => handleOpen()}
-                        sx={{ fontFamily: 'Cairo' }}
+                        sx={{
+                            fontFamily: 'Cairo',
+                            fontWeight: 'bold',
+                            px: 4,
+                            py: 1.5,
+                            borderRadius: 3,
+                            background: 'linear-gradient(135deg, #11998e, #38ef7d)',
+                            boxShadow: '0 8px 24px rgba(17, 153, 142, 0.35)',
+                            '&:hover': {
+                                background: 'linear-gradient(135deg, #0f8a7f, #32d971)',
+                                boxShadow: '0 12px 32px rgba(17, 153, 142, 0.45)',
+                            }
+                        }}
                     >
-                        إضافة عام دراسي
+                        إضافة عام دراسي جديد
                     </Button>
-                </Box>
+                </Paper>
 
-                <TableContainer>
-                    <Table>
-                        <TableHead sx={{ bgcolor: '#f5f5f5' }}>
-                            <TableRow>
-                                <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>#</TableCell>
-                                <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>العام الدراسي</TableCell>
-                                <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>الحالة</TableCell>
-                                <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>الحالي</TableCell>
-                                <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>الإجراءات</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {years.map((year, idx) => (
-                                <TableRow key={year.id}>
-                                    <TableCell>{idx + 1}</TableCell>
-                                    <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
-                                        {year.name}
-                                    </TableCell>
-                                    <TableCell>
-                                        <Chip
-                                            label={year.status === 'OPEN' ? 'مفتوح' : 'مغلق'}
-                                            color={year.status === 'OPEN' ? 'success' : 'error'}
-                                            size="small"
-                                            icon={year.status === 'OPEN' ? <LockOpenIcon /> : <LockIcon />}
-                                        />
-                                    </TableCell>
-                                    <TableCell>
-                                        {year.is_current && (
-                                            <Chip
-                                                label="العام الحالي"
-                                                color="primary"
-                                                size="small"
-                                                icon={<StarIcon />}
-                                            />
-                                        )}
-                                    </TableCell>
-                                    <TableCell>
-                                        <IconButton
-                                            color="primary"
-                                            onClick={() => handleOpen(year)}
-                                            title="تعديل"
-                                        >
-                                            <EditIcon />
-                                        </IconButton>
-                                        <IconButton
-                                            color={year.status === 'OPEN' ? 'error' : 'success'}
-                                            onClick={() => handleToggleStatus(year)}
-                                            title={year.status === 'OPEN' ? 'إغلاق' : 'فتح'}
-                                        >
-                                            {year.status === 'OPEN' ? <LockIcon /> : <LockOpenIcon />}
-                                        </IconButton>
-                                        {!year.is_current && (
-                                            <IconButton
-                                                color="warning"
-                                                onClick={() => handleSetCurrent(year)}
-                                                title="تعيين كحالي"
-                                            >
-                                                <StarIcon />
-                                            </IconButton>
-                                        )}
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                            {years.length === 0 && (
-                                <TableRow>
-                                    <TableCell colSpan={5} align="center" sx={{ py: 4 }}>
-                                        <Typography sx={{ fontFamily: 'Cairo', color: 'text.secondary' }}>
-                                            لا توجد أعوام دراسية - قم بإضافة عام جديد
-                                        </Typography>
-                                    </TableCell>
-                                </TableRow>
-                            )}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
-            </Paper>
+                {/* Years Grid */}
+                {loading ? (
+                    <Grid container spacing={3}>
+                        {[1, 2, 3].map((i) => (
+                            <Grid item xs={12} sm={6} lg={4} key={i}>
+                                <Skeleton variant="rounded" height={200} sx={{ borderRadius: 4 }} />
+                            </Grid>
+                        ))}
+                    </Grid>
+                ) : years.length === 0 ? (
+                    <Paper
+                        elevation={0}
+                        sx={{
+                            p: 8,
+                            borderRadius: 4,
+                            background: '#fff',
+                            boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                            textAlign: 'center',
+                        }}
+                    >
+                        <CalendarMonthIcon sx={{ fontSize: 80, color: '#ddd', mb: 2 }} />
+                        <Typography variant="h5" sx={{ fontFamily: 'Cairo', color: '#999', mb: 1 }}>
+                            لا توجد أعوام دراسية
+                        </Typography>
+                        <Typography variant="body1" sx={{ fontFamily: 'Cairo', color: '#bbb', mb: 3 }}>
+                            قم بإضافة عام دراسي جديد للبدء
+                        </Typography>
+                        <Button
+                            variant="contained"
+                            startIcon={<AddIcon />}
+                            onClick={() => handleOpen()}
+                            sx={{
+                                fontFamily: 'Cairo',
+                                fontWeight: 'bold',
+                                px: 4,
+                                py: 1.5,
+                                borderRadius: 3,
+                                background: 'linear-gradient(135deg, #11998e, #38ef7d)',
+                            }}
+                        >
+                            إضافة عام دراسي
+                        </Button>
+                    </Paper>
+                ) : (
+                    <Grid container spacing={3}>
+                        {years.map((year, idx) => (
+                            <Grid item xs={12} sm={6} lg={4} key={year.id}>
+                                <YearCard
+                                    year={year}
+                                    idx={idx}
+                                    onEdit={handleOpen}
+                                    onToggleStatus={handleToggleStatus}
+                                    onSetCurrent={handleSetCurrent}
+                                    delay={idx * 100}
+                                />
+                            </Grid>
+                        ))}
+                    </Grid>
+                )}
+            </Container>
 
             {/* Add/Edit Dialog */}
-            <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-                <DialogTitle sx={{ fontFamily: 'Cairo' }}>
+            <Dialog
+                open={open}
+                onClose={handleClose}
+                maxWidth="sm"
+                fullWidth
+                PaperProps={{
+                    sx: {
+                        borderRadius: 4,
+                        p: 1,
+                    }
+                }}
+            >
+                <DialogTitle sx={{ fontFamily: 'Cairo', fontWeight: 'bold', fontSize: '1.5rem' }}>
                     {isEdit ? 'تعديل العام الدراسي' : 'إضافة عام دراسي جديد'}
                 </DialogTitle>
                 <DialogContent>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, mt: 2 }}>
                         <TextField
                             label="اسم العام الدراسي"
                             placeholder="مثال: 2024-2025"
@@ -228,12 +579,14 @@ export default function ManageAcademicYears() {
                             value={currentYear.name}
                             onChange={(e) => setCurrentYear({ ...currentYear, name: e.target.value })}
                             InputLabelProps={{ sx: { fontFamily: 'Cairo' } }}
+                            InputProps={{ sx: { borderRadius: 2 } }}
                         />
                         <FormControlLabel
                             control={
                                 <Switch
                                     checked={currentYear.is_current}
                                     onChange={(e) => setCurrentYear({ ...currentYear, is_current: e.target.checked })}
+                                    color="success"
                                 />
                             }
                             label="تعيين كالعام الحالي"
@@ -241,13 +594,30 @@ export default function ManageAcademicYears() {
                         />
                     </Box>
                 </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleClose} sx={{ fontFamily: 'Cairo' }}>إلغاء</Button>
-                    <Button onClick={handleSave} variant="contained" sx={{ fontFamily: 'Cairo' }}>
+                <DialogActions sx={{ p: 3, pt: 1 }}>
+                    <Button
+                        onClick={handleClose}
+                        sx={{ fontFamily: 'Cairo', px: 3, borderRadius: 2 }}
+                    >
+                        إلغاء
+                    </Button>
+                    <Button
+                        onClick={handleSave}
+                        variant="contained"
+                        sx={{
+                            fontFamily: 'Cairo',
+                            px: 4,
+                            borderRadius: 2,
+                            background: 'linear-gradient(135deg, #11998e, #38ef7d)',
+                            '&:hover': {
+                                background: 'linear-gradient(135deg, #0f8a7f, #32d971)',
+                            }
+                        }}
+                    >
                         حفظ
                     </Button>
                 </DialogActions>
             </Dialog>
-        </Container>
+        </Box>
     );
 }
