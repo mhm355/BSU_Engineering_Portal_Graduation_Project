@@ -3,12 +3,10 @@ import {
     Box, Container, Typography, Paper, Table, TableBody, TableCell, TableContainer,
     TableHead, TableRow, Button, IconButton, Dialog, DialogTitle, DialogContent,
     TextField, DialogActions, Alert, Tabs, Tab, Breadcrumbs, Link,
-    List, ListItem, ListItemButton, ListItemText, ListItemIcon, Chip, CircularProgress,
-    Grid, Card, CardContent, Avatar, Tooltip, Fade, Grow
+    Chip, CircularProgress, Grid, Card, CardContent, Avatar, Tooltip, Fade, Grow
 } from '@mui/material';
 import { keyframes } from '@mui/system';
 import EditIcon from '@mui/icons-material/Edit';
-import VisibilityIcon from '@mui/icons-material/Visibility';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import LockResetIcon from '@mui/icons-material/LockReset';
@@ -28,7 +26,6 @@ import HomeIcon from '@mui/icons-material/Home';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-// Animations
 const float = keyframes`
   0%, 100% { transform: translateY(0px); }
   50% { transform: translateY(-10px); }
@@ -38,69 +35,41 @@ function TabPanel({ children, value, index }) {
     return value === index ? <Box sx={{ pt: 3 }}>{children}</Box> : null;
 }
 
-// Stats Card Component
 const StatCard = ({ icon: Icon, value, label, color, delay = 0 }) => (
     <Grow in={true} timeout={800 + delay}>
         <Paper
             elevation={0}
             sx={{
-                p: 3,
-                borderRadius: 4,
-                background: '#fff',
+                p: 3, borderRadius: 4, background: '#fff',
                 boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
                 border: '1px solid rgba(0,0,0,0.06)',
                 transition: 'all 0.3s ease',
-                '&:hover': {
-                    transform: 'translateY(-5px)',
-                    boxShadow: `0 20px 40px ${color}25`,
-                }
+                '&:hover': { transform: 'translateY(-5px)', boxShadow: `0 20px 40px ${color}25` }
             }}
         >
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                <Box
-                    sx={{
-                        width: 56,
-                        height: 56,
-                        borderRadius: 3,
-                        background: `linear-gradient(135deg, ${color}, ${color}cc)`,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        boxShadow: `0 8px 24px ${color}40`,
-                    }}
-                >
+                <Box sx={{ width: 56, height: 56, borderRadius: 3, background: `linear-gradient(135deg, ${color}, ${color}cc)`, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: `0 8px 24px ${color}40` }}>
                     <Icon sx={{ fontSize: 28, color: '#fff' }} />
                 </Box>
                 <Box>
-                    <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#1a2744', fontFamily: 'Cairo', lineHeight: 1 }}>
-                        {value}
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: '#666', fontFamily: 'Cairo' }}>
-                        {label}
-                    </Typography>
+                    <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#1a2744', fontFamily: 'Cairo', lineHeight: 1 }}>{value}</Typography>
+                    <Typography variant="body2" sx={{ color: '#666', fontFamily: 'Cairo' }}>{label}</Typography>
                 </Box>
             </Box>
         </Paper>
     </Grow>
 );
 
-// Navigation Item Card
 const NavItemCard = ({ icon: Icon, title, subtitle, chip, chipColor, onClick, color, delay = 0 }) => (
     <Grow in={true} timeout={600 + delay}>
         <Card
             onClick={onClick}
             sx={{
-                borderRadius: 3,
-                background: '#fff',
+                borderRadius: 3, background: '#fff',
                 boxShadow: '0 4px 15px rgba(0,0,0,0.08)',
                 border: '1px solid rgba(0,0,0,0.06)',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                '&:hover': {
-                    transform: 'translateX(-8px)',
-                    boxShadow: '0 10px 30px rgba(0,0,0,0.12)',
-                    borderColor: color,
-                }
+                cursor: 'pointer', transition: 'all 0.3s ease',
+                '&:hover': { transform: 'translateX(-8px)', boxShadow: '0 10px 30px rgba(0,0,0,0.12)', borderColor: color }
             }}
         >
             <CardContent sx={{ p: 2.5, display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -108,9 +77,7 @@ const NavItemCard = ({ icon: Icon, title, subtitle, chip, chipColor, onClick, co
                     <Icon sx={{ fontSize: 26 }} />
                 </Avatar>
                 <Box sx={{ flexGrow: 1 }}>
-                    <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744', lineHeight: 1.2 }}>
-                        {title}
-                    </Typography>
+                    <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744', lineHeight: 1.2 }}>{title}</Typography>
                     {subtitle && <Typography variant="body2" sx={{ fontFamily: 'Cairo', color: '#666' }}>{subtitle}</Typography>}
                 </Box>
                 {chip && <Chip label={chip} size="small" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', bgcolor: `${chipColor}20`, color: chipColor }} />}
@@ -120,6 +87,21 @@ const NavItemCard = ({ icon: Icon, title, subtitle, chip, chipColor, onClick, co
     </Grow>
 );
 
+const getLevelDisplayName = (name) => {
+    const map = { 'FIRST': 'الفرقة الأولى', 'SECOND': 'الفرقة الثانية', 'THIRD': 'الفرقة الثالثة', 'FOURTH': 'الفرقة الرابعة' };
+    return map[name] || name;
+};
+
+const getLevelColor = (name) => {
+    const map = { 'FIRST': '#4CAF50', 'SECOND': '#2196F3', 'THIRD': '#FF9800', 'FOURTH': '#9C27B0' };
+    return map[name] || '#607D8B';
+};
+
+const getRoleLabel = (role) => {
+    const map = { 'STUDENT_AFFAIRS': 'شئون الطلاب', 'STAFF_AFFAIRS': 'شئون العاملين', 'DOCTOR': 'دكتور' };
+    return map[role] || role;
+};
+
 export default function ManageUsers() {
     const navigate = useNavigate();
     const [tabValue, setTabValue] = useState(0);
@@ -127,22 +109,21 @@ export default function ManageUsers() {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
 
-    // User types
     const [studentAffairsUsers, setStudentAffairsUsers] = useState([]);
     const [staffAffairsUsers, setStaffAffairsUsers] = useState([]);
     const [doctorUsers, setDoctorUsers] = useState([]);
 
-    // Students hierarchy
     const [departments, setDepartments] = useState([]);
     const [years, setYears] = useState([]);
     const [levels, setLevels] = useState([]);
+    const [specializations, setSpecializations] = useState([]);
     const [students, setStudents] = useState([]);
     const [currentView, setCurrentView] = useState('departments');
     const [selectedDept, setSelectedDept] = useState(null);
     const [selectedYear, setSelectedYear] = useState(null);
     const [selectedLevel, setSelectedLevel] = useState(null);
+    const [selectedSpecialization, setSelectedSpecialization] = useState(null);
 
-    // Dialog for user creation
     const [open, setOpen] = useState(false);
     const [currentUser, setCurrentUser] = useState({ first_name: '', last_name: '', email: '', role: 'STUDENT_AFFAIRS', national_id: '' });
     const [isEdit, setIsEdit] = useState(false);
@@ -155,9 +136,10 @@ export default function ManageUsers() {
     const fetchAllUsers = async () => {
         try {
             const response = await axios.get('/api/auth/users/', { withCredentials: true });
-            setStudentAffairsUsers(response.data.filter(u => u.role === 'STUDENT_AFFAIRS'));
-            setStaffAffairsUsers(response.data.filter(u => u.role === 'STAFF_AFFAIRS'));
-            setDoctorUsers(response.data.filter(u => u.role === 'DOCTOR'));
+            const users = Array.isArray(response.data) ? response.data : (response.data?.results || []);
+            setStudentAffairsUsers(users.filter(u => u.role === 'STUDENT_AFFAIRS'));
+            setStaffAffairsUsers(users.filter(u => u.role === 'STAFF_AFFAIRS'));
+            setDoctorUsers(users.filter(u => u.role === 'DOCTOR'));
         } catch (err) {
             console.error('Error fetching users:', err);
         }
@@ -166,9 +148,9 @@ export default function ManageUsers() {
     const fetchDepartments = async () => {
         try {
             const response = await axios.get('/api/academic/departments/', { withCredentials: true });
-            setDepartments(response.data);
+            setDepartments(Array.isArray(response.data) ? response.data : (response.data?.results || []));
         } catch (err) {
-            console.error(err);
+            console.error('Error fetching departments:', err);
         }
     };
 
@@ -177,8 +159,10 @@ export default function ManageUsers() {
         try {
             const levelsRes = await axios.get(`/api/academic/levels/?department=${deptId}`, { withCredentials: true });
             const yearsRes = await axios.get('/api/academic/years/', { withCredentials: true });
-            const yearIds = [...new Set(levelsRes.data.map(l => l.academic_year))];
-            setYears(yearsRes.data.filter(y => yearIds.includes(y.id)));
+            const levelsData = Array.isArray(levelsRes.data) ? levelsRes.data : (levelsRes.data?.results || []);
+            const yearsData = Array.isArray(yearsRes.data) ? yearsRes.data : (yearsRes.data?.results || []);
+            const yearIds = [...new Set(levelsData.map(l => l.academic_year))];
+            setYears(yearsData.filter(y => yearIds.includes(y.id)));
         } catch (err) {
             setError('فشل تحميل السنوات');
         }
@@ -189,18 +173,30 @@ export default function ManageUsers() {
         setLoading(true);
         try {
             const response = await axios.get(`/api/academic/levels/?department=${deptId}&academic_year=${yearId}`, { withCredentials: true });
-            setLevels(response.data);
+            setLevels(Array.isArray(response.data) ? response.data : (response.data?.results || []));
         } catch (err) {
             setError('فشل تحميل الفرق');
         }
         setLoading(false);
     };
 
-    const fetchStudents = async (levelId) => {
+    const fetchSpecializations = async (deptId) => {
+        try {
+            const response = await axios.get(`/api/academic/specializations/?department=${deptId}`, { withCredentials: true });
+            return Array.isArray(response.data) ? response.data : (response.data?.results || []);
+        } catch (err) {
+            console.error('Error fetching specializations:', err);
+            return [];
+        }
+    };
+
+    const fetchStudents = async (levelId, specializationId = null) => {
         setLoading(true);
         try {
-            const response = await axios.get(`/api/academic/student-affairs/students/?level=${levelId}`, { withCredentials: true });
-            setStudents(response.data);
+            let url = `/api/academic/student-affairs/students/?level=${levelId}`;
+            if (specializationId) url += `&specialization=${specializationId}`;
+            const response = await axios.get(url, { withCredentials: true });
+            setStudents(Array.isArray(response.data) ? response.data : (response.data?.results || []));
         } catch (err) {
             setError('فشل تحميل الطلاب');
         }
@@ -219,16 +215,39 @@ export default function ManageUsers() {
         fetchLevels(selectedDept.id, year.id);
     };
 
-    const handleSelectLevel = (level) => {
+    const handleSelectLevel = async (level) => {
         setSelectedLevel(level);
+        const specs = await fetchSpecializations(selectedDept.id);
+        if (specs && specs.length > 0) {
+            setSpecializations(specs);
+            setCurrentView('specializations');
+        } else {
+            setCurrentView('students');
+            fetchStudents(level.id);
+        }
+    };
+
+    const handleSelectSpecialization = (spec) => {
+        setSelectedSpecialization(spec);
         setCurrentView('students');
-        fetchStudents(level.id);
+        fetchStudents(selectedLevel.id, spec.id);
     };
 
     const handleBackInHierarchy = () => {
         if (currentView === 'students') {
+            if (selectedSpecialization) {
+                setCurrentView('specializations');
+                setSelectedSpecialization(null);
+            } else if (specializations.length > 0) {
+                setCurrentView('specializations');
+            } else {
+                setCurrentView('levels');
+                setSelectedLevel(null);
+            }
+        } else if (currentView === 'specializations') {
             setCurrentView('levels');
             setSelectedLevel(null);
+            setSpecializations([]);
         } else if (currentView === 'levels') {
             setCurrentView('years');
             setSelectedYear(null);
@@ -238,87 +257,60 @@ export default function ManageUsers() {
         }
     };
 
-    const getLevelDisplayName = (name) => {
-        const names = {
-            'PREPARATORY': 'الفرقة الإعدادية',
-            'FIRST': 'الفرقة الأولى',
-            'SECOND': 'الفرقة الثانية',
-            'THIRD': 'الفرقة الثالثة',
-            'FOURTH': 'الفرقة الرابعة',
-        };
-        return names[name] || name;
-    };
-
-    const getLevelColor = (name) => {
-        const colors = { 'PREPARATORY': '#9C27B0', 'FIRST': '#2196F3', 'SECOND': '#00BCD4', 'THIRD': '#FF9800', 'FOURTH': '#4CAF50' };
-        return colors[name] || '#607D8B';
-    };
-
-    const getRoleLabel = (role) => {
-        const labels = { 'STUDENT_AFFAIRS': 'شئون الطلاب', 'STAFF_AFFAIRS': 'شئون العاملين', 'DOCTOR': 'دكتور' };
-        return labels[role] || role;
-    };
-
-    const handleOpen = (user = null, role = 'STUDENT_AFFAIRS') => {
-        if (user && user.id) {
-            setCurrentUser(user);
+    const handleOpen = (user, role) => {
+        if (user) {
+            setCurrentUser({ ...user, role });
             setIsEdit(true);
         } else {
             setCurrentUser({ first_name: '', last_name: '', email: '', role, national_id: '' });
             setIsEdit(false);
         }
         setOpen(true);
-        setError('');
     };
 
-    const handleClose = () => setOpen(false);
-
-    const validateNationalId = (id) => /^\d{14}$/.test(id);
+    const handleClose = () => {
+        setOpen(false);
+        setCurrentUser({ first_name: '', last_name: '', email: '', role: 'STUDENT_AFFAIRS', national_id: '' });
+        setIsEdit(false);
+    };
 
     const handleSave = async () => {
-        if (!isEdit && !validateNationalId(currentUser.national_id)) {
-            setError('الرقم القومي يجب أن يكون 14 رقم فقط');
-            return;
-        }
         try {
+            const token = localStorage.getItem('token');
+            const headers = { Authorization: `Bearer ${token}` };
             if (isEdit) {
-                const updateData = { ...currentUser };
-                if (!updateData.password) delete updateData.password;
-                await axios.put(`/api/auth/users/${currentUser.id}/`, updateData, { withCredentials: true });
+                await axios.patch(`/api/auth/users/${currentUser.id}/`, currentUser, { headers, withCredentials: true });
                 setSuccess('تم تحديث البيانات بنجاح');
             } else {
-                await axios.post('/api/auth/users/', {
-                    ...currentUser,
-                    username: currentUser.national_id,
-                    password: currentUser.national_id
-                }, { withCredentials: true });
-                setSuccess('تم إنشاء الحساب بنجاح');
+                await axios.post('/api/auth/users/', { ...currentUser, username: currentUser.national_id, password: currentUser.national_id }, { headers, withCredentials: true });
+                setSuccess('تم إضافة المستخدم بنجاح');
             }
-            fetchAllUsers();
             handleClose();
+            fetchAllUsers();
         } catch (err) {
-            setError(err.response?.data?.detail || err.response?.data?.national_id?.[0] || 'حدث خطأ أثناء الحفظ');
+            setError(err.response?.data?.detail || 'حدث خطأ');
         }
     };
 
     const handleResetPassword = async (user) => {
-        if (!window.confirm(`هل أنت متأكد من إعادة تعيين كلمة مرور ${user.first_name} ${user.last_name} إلى الرقم القومي؟`)) return;
         try {
-            await axios.post(`/api/auth/users/${user.id}/reset-password/`, {}, { withCredentials: true });
-            setSuccess('تم إعادة تعيين كلمة المرور بنجاح');
+            const token = localStorage.getItem('token');
+            await axios.post(`/api/auth/users/${user.id}/reset-password/`, {}, { headers: { Authorization: `Bearer ${token}` }, withCredentials: true });
+            setSuccess('تم إعادة تعيين كلمة المرور');
         } catch (err) {
-            setError('فشل في إعادة تعيين كلمة المرور');
+            setError('فشل إعادة تعيين كلمة المرور');
         }
     };
 
     const handleDeleteUser = async (user) => {
-        if (!window.confirm(`هل أنت متأكد من حذف المستخدم ${user.first_name} ${user.last_name}؟ هذا الإجراء لا يمكن التراجع عنه!`)) return;
+        if (!window.confirm(`هل تريد حذف ${user.first_name} ${user.last_name}؟`)) return;
         try {
-            await axios.delete(`/api/auth/users/${user.id}/`, { withCredentials: true });
+            const token = localStorage.getItem('token');
+            await axios.delete(`/api/auth/users/${user.id}/`, { headers: { Authorization: `Bearer ${token}` }, withCredentials: true });
             setSuccess('تم حذف المستخدم بنجاح');
             fetchAllUsers();
         } catch (err) {
-            setError('فشل في حذف المستخدم');
+            setError(err.response?.data?.detail || 'فشل حذف المستخدم');
         }
     };
 
@@ -327,15 +319,15 @@ export default function ManageUsers() {
 
         return (
             <Box>
-                {/* Breadcrumbs */}
                 <Paper elevation={0} sx={{ p: 2, mb: 3, borderRadius: 3, background: '#fff', boxShadow: '0 2px 10px rgba(0,0,0,0.06)' }}>
                     <Breadcrumbs separator={<NavigateNextIcon fontSize="small" sx={{ color: '#ccc' }} />}>
-                        <Link component="button" onClick={() => { setCurrentView('departments'); setSelectedDept(null); setSelectedYear(null); setSelectedLevel(null); }} sx={{ display: 'flex', alignItems: 'center', fontFamily: 'Cairo', fontWeight: currentView === 'departments' ? 'bold' : 'normal', color: currentView === 'departments' ? 'primary.main' : 'inherit' }}>
+                        <Link component="button" onClick={() => { setCurrentView('departments'); setSelectedDept(null); setSelectedYear(null); setSelectedLevel(null); setSelectedSpecialization(null); }} sx={{ display: 'flex', alignItems: 'center', fontFamily: 'Cairo', fontWeight: currentView === 'departments' ? 'bold' : 'normal', color: currentView === 'departments' ? 'primary.main' : 'inherit' }}>
                             <HomeIcon sx={{ mr: 0.5, fontSize: 20 }} /> الأقسام
                         </Link>
-                        {selectedDept && <Link component="button" onClick={() => { setCurrentView('years'); setSelectedYear(null); setSelectedLevel(null); }} sx={{ fontFamily: 'Cairo', fontWeight: currentView === 'years' ? 'bold' : 'normal', color: currentView === 'years' ? 'primary.main' : 'inherit' }}>{selectedDept.name}</Link>}
-                        {selectedYear && <Link component="button" onClick={() => { setCurrentView('levels'); setSelectedLevel(null); }} sx={{ fontFamily: 'Cairo', fontWeight: currentView === 'levels' ? 'bold' : 'normal', color: currentView === 'levels' ? 'primary.main' : 'inherit' }}>{selectedYear.name}</Link>}
-                        {selectedLevel && <Typography sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: 'primary.main' }}>{getLevelDisplayName(selectedLevel.name)}</Typography>}
+                        {selectedDept && <Link component="button" onClick={() => { setCurrentView('years'); setSelectedYear(null); setSelectedLevel(null); setSelectedSpecialization(null); }} sx={{ fontFamily: 'Cairo', fontWeight: currentView === 'years' ? 'bold' : 'normal', color: currentView === 'years' ? 'primary.main' : 'inherit' }}>{selectedDept.name}</Link>}
+                        {selectedYear && <Link component="button" onClick={() => { setCurrentView('levels'); setSelectedLevel(null); setSelectedSpecialization(null); }} sx={{ fontFamily: 'Cairo', fontWeight: currentView === 'levels' ? 'bold' : 'normal', color: currentView === 'levels' ? 'primary.main' : 'inherit' }}>{selectedYear.name}</Link>}
+                        {selectedLevel && <Typography sx={{ fontFamily: 'Cairo', color: 'text.secondary' }}>{getLevelDisplayName(selectedLevel.name)}</Typography>}
+                        {selectedSpecialization && <Typography sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: 'primary.main' }}>{selectedSpecialization.name}</Typography>}
                     </Breadcrumbs>
                 </Paper>
 
@@ -382,6 +374,19 @@ export default function ManageUsers() {
                     </Box>
                 )}
 
+                {currentView === 'specializations' && (
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                        {specializations.length === 0 ? (
+                            <Paper elevation={0} sx={{ p: 6, textAlign: 'center', borderRadius: 3, bgcolor: '#fafafa' }}>
+                                <ClassIcon sx={{ fontSize: 60, color: '#ddd', mb: 2 }} />
+                                <Typography sx={{ fontFamily: 'Cairo', color: '#999' }}>لا توجد تخصصات</Typography>
+                            </Paper>
+                        ) : specializations.map((spec, idx) => (
+                            <NavItemCard key={spec.id} icon={ClassIcon} title={spec.name} subtitle={spec.code} onClick={() => handleSelectSpecialization(spec)} color="#FF9800" delay={idx * 50} />
+                        ))}
+                    </Box>
+                )}
+
                 {currentView === 'students' && (
                     <Fade in={true} timeout={600}>
                         <Paper elevation={0} sx={{ borderRadius: 3, overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}>
@@ -420,21 +425,7 @@ export default function ManageUsers() {
     const renderEditableTable = (users, role, gradient) => (
         <Box>
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 3 }}>
-                <Button
-                    variant="contained"
-                    startIcon={<AddIcon />}
-                    onClick={() => handleOpen(null, role)}
-                    sx={{
-                        fontFamily: 'Cairo',
-                        fontWeight: 'bold',
-                        px: 4,
-                        py: 1.5,
-                        borderRadius: 3,
-                        background: gradient,
-                        boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
-                        '&:hover': { background: gradient, boxShadow: '0 12px 32px rgba(0,0,0,0.2)' }
-                    }}
-                >
+                <Button variant="contained" startIcon={<AddIcon />} onClick={() => handleOpen(null, role)} sx={{ fontFamily: 'Cairo', fontWeight: 'bold', px: 4, py: 1.5, borderRadius: 3, background: gradient, boxShadow: '0 8px 24px rgba(0,0,0,0.15)', '&:hover': { background: gradient, boxShadow: '0 12px 32px rgba(0,0,0,0.2)' } }}>
                     إضافة موظف {getRoleLabel(role)}
                 </Button>
             </Box>
@@ -486,11 +477,9 @@ export default function ManageUsers() {
 
     return (
         <Box sx={{ minHeight: '100vh', background: 'linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%)', pb: 6 }}>
-            {/* Hero Header */}
             <Box sx={{ background: 'linear-gradient(135deg, #FF6B35 0%, #F7931E 100%)', pt: 4, pb: 6, mb: 4, position: 'relative', overflow: 'hidden' }}>
                 <Box sx={{ position: 'absolute', top: -50, right: -50, width: 200, height: 200, borderRadius: '50%', background: 'rgba(255,255,255,0.1)', animation: `${float} 6s ease-in-out infinite` }} />
                 <Box sx={{ position: 'absolute', bottom: -80, left: -80, width: 300, height: 300, borderRadius: '50%', background: 'rgba(255,255,255,0.08)', animation: `${float} 8s ease-in-out infinite`, animationDelay: '2s' }} />
-
                 <Container maxWidth="xl">
                     <Fade in={true} timeout={800}>
                         <Box>
@@ -511,7 +500,6 @@ export default function ManageUsers() {
                 {error && <Fade in={true}><Alert severity="error" sx={{ mb: 3, borderRadius: 3, fontFamily: 'Cairo' }} onClose={() => setError('')}>{error}</Alert></Fade>}
                 {success && <Fade in={true}><Alert severity="success" sx={{ mb: 3, borderRadius: 3, fontFamily: 'Cairo' }} onClose={() => setSuccess('')}>{success}</Alert></Fade>}
 
-                {/* Stats Row */}
                 <Grid container spacing={3} sx={{ mb: 4 }}>
                     <Grid item xs={12} sm={6} md={3}><StatCard icon={SchoolIcon} value={students.length || '-'} label="الطلاب" color="#FF6B35" delay={0} /></Grid>
                     <Grid item xs={12} sm={6} md={3}><StatCard icon={BadgeIcon} value={studentAffairsUsers.length} label="شئون الطلاب" color="#2196F3" delay={100} /></Grid>
@@ -519,7 +507,6 @@ export default function ManageUsers() {
                     <Grid item xs={12} sm={6} md={3}><StatCard icon={PersonIcon} value={doctorUsers.length} label="الدكاترة" color="#4CAF50" delay={300} /></Grid>
                 </Grid>
 
-                {/* Tabs */}
                 <Paper elevation={0} sx={{ borderRadius: 4, background: '#fff', boxShadow: '0 4px 20px rgba(0,0,0,0.08)', overflow: 'hidden' }}>
                     <Box sx={{ borderBottom: 1, borderColor: 'divider', px: 2, pt: 2 }}>
                         <Tabs value={tabValue} onChange={(e, v) => setTabValue(v)} sx={{ '& .MuiTab-root': { fontFamily: 'Cairo', fontWeight: 'bold', fontSize: '1rem', minHeight: 56 } }}>
@@ -529,7 +516,6 @@ export default function ManageUsers() {
                             <Tab icon={<PersonIcon />} iconPosition="start" label={`الدكاترة (${doctorUsers.length})`} />
                         </Tabs>
                     </Box>
-
                     <Box sx={{ p: 3 }}>
                         <TabPanel value={tabValue} index={0}>{renderStudentsHierarchy()}</TabPanel>
                         <TabPanel value={tabValue} index={1}>{renderEditableTable(studentAffairsUsers, 'STUDENT_AFFAIRS', tabColors[1])}</TabPanel>
@@ -539,7 +525,6 @@ export default function ManageUsers() {
                 </Paper>
             </Container>
 
-            {/* Add/Edit Dialog */}
             <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth PaperProps={{ sx: { borderRadius: 4, p: 1 } }}>
                 <DialogTitle sx={{ fontFamily: 'Cairo', fontWeight: 'bold', fontSize: '1.5rem' }}>{isEdit ? 'تعديل بيانات' : 'إضافة'} موظف {getRoleLabel(currentUser.role)}</DialogTitle>
                 <DialogContent>
