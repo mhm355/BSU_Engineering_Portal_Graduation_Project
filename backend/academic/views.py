@@ -440,18 +440,29 @@ class StudentProfileView(APIView):
                 'national_id': student.national_id,
                 'full_name': student.full_name,
                 'level': student.level.name,
+                'level_name': student.level.name,  # For filtering (e.g., "SECOND")
                 'level_display': student.level.get_name_display(),
                 'department': student.department.name if student.department else None,
+                'department_id': student.department.id if student.department else None,
+                'department_name': student.department.name if student.department else None,
                 'department_code': student.department.code if student.department else None,
                 'academic_year': student.academic_year.name,
                 'specialization': student.specialization.name if student.specialization else None,
+                'specialization_id': student.specialization.id if student.specialization else None,
+                'specialization_name': student.specialization.name if student.specialization else None,
             })
         except Student.DoesNotExist:
             return Response({
                 'level': None,
+                'level_name': None,
                 'level_display': 'غير محدد',
                 'department': None,
+                'department_id': None,
+                'department_name': None,
                 'academic_year': None,
+                'specialization': None,
+                'specialization_id': None,
+                'specialization_name': None,
             })
 
 
@@ -627,3 +638,70 @@ class StudentExamsView(APIView):
                 })
         
         return Response(data)
+
+
+class StudentCoursesView(APIView):
+    """Get all courses for logged in student (with or without lectures)"""
+    permission_classes = [IsStudentRole]
+
+    def get(self, request):
+        try:
+            student = Student.objects.get(user=request.user)
+        except Student.DoesNotExist:
+            return Response({'error': 'Student profile not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+        try:
+            # Get all course offerings for student's level
+            offerings = CourseOffering.objects.filter(
+                level=student.level
+            ).select_related('subject', 'doctor').prefetch_related('lectures')
+            
+            # If student has specialization, filter by it (or include general subjects)
+            if student.specialization:
+                offerings = offerings.filter(
+                    models.Q(specialization=student.specialization) | 
+                    models.Q(specialization__isnull=True)
+                )
+            
+            data = []
+            for course in offerings:
+                lectures_list = []
+                for lecture in course.lectures.all():
+                    # Derive file type from extension
+                    file_type = 'OTHER'
+                    if lecture.file:
+                        file_url = lecture.file.url.lower()
+                        if file_url.endswith('.pdf'):
+                            file_type = 'PDF'
+                        elif file_url.endswith('.ppt') or file_url.endswith('.pptx'):
+                            file_type = 'SLIDES'
+                        elif any(file_url.endswith(ext) for ext in ['.mp4', '.avi', '.mov', '.mkv']):
+                            file_type = 'VIDEO'
+                    
+                    lectures_list.append({
+                        'id': lecture.id,
+                        'title': lecture.title,
+                        'description': lecture.description,
+                        'file': lecture.file.url if lecture.file else None,
+                        'file_type': file_type,
+                        'uploaded_at': lecture.uploaded_at,
+                    })
+                
+                # Handle case where doctor might not be assigned
+                doctor_name = ''
+                if course.doctor:
+                    doctor_name = f"{course.doctor.first_name} {course.doctor.last_name}".strip() or course.doctor.username
+                
+                data.append({
+                    'id': course.id,
+                    'subject_name': course.subject.name,
+                    'subject_code': course.subject.code,
+                    'doctor_name': doctor_name,
+                    'lecture_count': len(lectures_list),
+                    'lectures': lectures_list,
+                })
+            
+            return Response(data)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+

@@ -128,6 +128,8 @@ class CourseOfferingSerializer(serializers.ModelSerializer):
 
 class LectureSerializer(serializers.ModelSerializer):
     course_name = serializers.CharField(source='course_offering.subject.name', read_only=True)
+    subject_name = serializers.CharField(source='course_offering.subject.name', read_only=True)
+    subject_code = serializers.CharField(source='course_offering.subject.code', read_only=True)
 
     class Meta:
         model = Lecture
