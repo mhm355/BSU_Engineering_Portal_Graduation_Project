@@ -145,7 +145,20 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserManagementSerializer
     permission_classes = [IsAdminRole]
 
-    @action(detail=True, methods=['post'])
+    def perform_destroy(self, instance):
+        try:
+            instance.delete()
+        except Exception as e:
+            # Check for ProtectedError (cannot import easily inside method without overhead, so strict checking is tricky, 
+            # but usually it's raised as ProtectedError)
+            if 'ProtectedError' in str(type(e)):
+                 from rest_framework.exceptions import ValidationError
+                 raise ValidationError({'error': 'لا يمكن حذف هذا المستخدم لأنه مرتبط ببيانات أخرى (مثل جداول محاضرات أو درجات).'})
+            
+            from rest_framework.exceptions import APIException
+            raise APIException(f"Deletion failed: {str(e)}")
+
+    @action(detail=True, methods=['post'], url_path='reset-password')
     def reset_password(self, request, pk=None):
         """Reset user password to their national ID"""
         user = self.get_object()
