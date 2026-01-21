@@ -265,7 +265,7 @@ export default function AdminDashboard() {
     const [stats, setStats] = useState({
         users: 0,
         departments: 5,
-        academicYear: '2024-2025',
+        academicYear: 'جاري التحميل...',
     });
     const [currentTime, setCurrentTime] = useState(new Date());
     const navigate = useNavigate();
@@ -278,6 +278,21 @@ export default function AdminDashboard() {
             axios.get('/api/academic/approval/count/', { withCredentials: true })
                 .then(res => setPendingCount(res.data.pending_count || 0))
                 .catch(() => { });
+
+            // Fetch current academic year
+            axios.get('/api/academic/years/', { withCredentials: true })
+                .then(res => {
+                    const years = Array.isArray(res.data) ? res.data : (res.data?.results || []);
+                    const currentYear = years.find(y => y.is_current);
+                    if (currentYear) {
+                        setStats(prev => ({ ...prev, academicYear: currentYear.name }));
+                    } else if (years.length > 0) {
+                        setStats(prev => ({ ...prev, academicYear: years[0].name }));
+                    } else {
+                        setStats(prev => ({ ...prev, academicYear: '-' }));
+                    }
+                })
+                .catch(() => setStats(prev => ({ ...prev, academicYear: '-' })));
         } else {
             navigate('/login');
         }
