@@ -155,11 +155,13 @@ export default function AdminAcademicStructure() {
     const [selectedDept, setSelectedDept] = useState(null);
     const [selectedYear, setSelectedYear] = useState(null);
     const [selectedLevel, setSelectedLevel] = useState(null);
+    const [selectedSpecialization, setSelectedSpecialization] = useState(null);
 
     // Data
     const [departments, setDepartments] = useState([]);
     const [years, setYears] = useState([]);
     const [levels, setLevels] = useState([]);
+    const [specializations, setSpecializations] = useState([]);
     const [students, setStudents] = useState([]);
 
     useEffect(() => {
@@ -202,15 +204,30 @@ export default function AdminAcademicStructure() {
         setLoading(false);
     };
 
-    const fetchStudents = async (levelId) => {
+    const fetchStudents = async (levelId, specializationId = null) => {
         setLoading(true);
         try {
-            const response = await axios.get(`/api/academic/student-affairs/students/?level=${levelId}`, { withCredentials: true });
-            setStudents(response.data);
+            let url = `/api/academic/student-affairs/students/?level=${levelId}`;
+            if (specializationId) {
+                url += `&specialization=${specializationId}`;
+            }
+            const response = await axios.get(url, { withCredentials: true });
+            const data = Array.isArray(response.data) ? response.data : (response.data?.results || []);
+            setStudents(data);
         } catch (err) {
             setError('فشل تحميل الطلاب');
         }
         setLoading(false);
+    };
+
+    const fetchSpecializations = async (deptId) => {
+        try {
+            const response = await axios.get(`/api/academic/specializations/?department=${deptId}`, { withCredentials: true });
+            return Array.isArray(response.data) ? response.data : (response.data?.results || []);
+        } catch (err) {
+            console.error('Error fetching specializations:', err);
+            return [];
+        }
     };
 
     const handleSelectDept = (dept) => {
@@ -225,16 +242,40 @@ export default function AdminAcademicStructure() {
         fetchLevels(selectedDept.id, year.id);
     };
 
-    const handleSelectLevel = (level) => {
+    const handleSelectLevel = async (level) => {
         setSelectedLevel(level);
+        // Check if department has specializations
+        const specs = await fetchSpecializations(selectedDept.id);
+        if (specs && specs.length > 0) {
+            setSpecializations(specs);
+            setCurrentView('specializations');
+        } else {
+            setCurrentView('students');
+            fetchStudents(level.id);
+        }
+    };
+
+    const handleSelectSpecialization = (spec) => {
+        setSelectedSpecialization(spec);
         setCurrentView('students');
-        fetchStudents(level.id);
+        fetchStudents(selectedLevel.id, spec.id);
     };
 
     const handleBack = () => {
         if (currentView === 'students') {
+            if (selectedSpecialization) {
+                setCurrentView('specializations');
+                setSelectedSpecialization(null);
+            } else if (specializations.length > 0) {
+                setCurrentView('specializations');
+            } else {
+                setCurrentView('levels');
+                setSelectedLevel(null);
+            }
+        } else if (currentView === 'specializations') {
             setCurrentView('levels');
             setSelectedLevel(null);
+            setSpecializations([]);
         } else if (currentView === 'levels') {
             setCurrentView('years');
             setSelectedYear(null);
@@ -271,7 +312,8 @@ export default function AdminAcademicStructure() {
             case 'departments': return 'الأقسام الأكاديمية';
             case 'years': return `السنوات الدراسية - ${selectedDept?.name}`;
             case 'levels': return `الفرق الدراسية - ${selectedYear?.name}`;
-            case 'students': return `الطلاب - ${getLevelDisplayName(selectedLevel?.name)}`;
+            case 'specializations': return `التخصصات - ${getLevelDisplayName(selectedLevel?.name)}`;
+            case 'students': return `الطلاب - ${selectedSpecialization ? selectedSpecialization.name : getLevelDisplayName(selectedLevel?.name)}`;
             default: return 'الهيكل الأكاديمي';
         }
     };
@@ -295,7 +337,7 @@ export default function AdminAcademicStructure() {
                     component="button"
                     underline="hover"
                     color={currentView === 'departments' ? 'primary' : 'inherit'}
-                    onClick={() => { setCurrentView('departments'); setSelectedDept(null); setSelectedYear(null); setSelectedLevel(null); }}
+                    onClick={() => { setCurrentView('departments'); setSelectedDept(null); setSelectedYear(null); setSelectedLevel(null); setSelectedSpecialization(null); setSpecializations([]); }}
                     sx={{ display: 'flex', alignItems: 'center', fontFamily: 'Cairo', fontWeight: currentView === 'departments' ? 'bold' : 'normal' }}
                 >
                     <HomeIcon sx={{ mr: 0.5, fontSize: 20 }} />
@@ -306,7 +348,7 @@ export default function AdminAcademicStructure() {
                         component="button"
                         underline="hover"
                         color={currentView === 'years' ? 'primary' : 'inherit'}
-                        onClick={() => { setCurrentView('years'); setSelectedYear(null); setSelectedLevel(null); fetchYears(selectedDept.id); }}
+                        onClick={() => { setCurrentView('years'); setSelectedYear(null); setSelectedLevel(null); setSelectedSpecialization(null); setSpecializations([]); fetchYears(selectedDept.id); }}
                         sx={{ fontFamily: 'Cairo', fontWeight: currentView === 'years' ? 'bold' : 'normal' }}
                     >
                         {selectedDept.name}
@@ -317,15 +359,26 @@ export default function AdminAcademicStructure() {
                         component="button"
                         underline="hover"
                         color={currentView === 'levels' ? 'primary' : 'inherit'}
-                        onClick={() => { setCurrentView('levels'); setSelectedLevel(null); fetchLevels(selectedDept.id, selectedYear.id); }}
+                        onClick={() => { setCurrentView('levels'); setSelectedLevel(null); setSelectedSpecialization(null); setSpecializations([]); fetchLevels(selectedDept.id, selectedYear.id); }}
                         sx={{ fontFamily: 'Cairo', fontWeight: currentView === 'levels' ? 'bold' : 'normal' }}
                     >
                         {selectedYear.name}
                     </Link>
                 )}
                 {selectedLevel && (
-                    <Typography color="primary" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
+                    <Link
+                        component="button"
+                        underline="hover"
+                        color={currentView === 'specializations' ? 'primary' : 'inherit'}
+                        onClick={() => { if (specializations.length > 0) { setCurrentView('specializations'); setSelectedSpecialization(null); } }}
+                        sx={{ fontFamily: 'Cairo', fontWeight: (currentView === 'specializations' || currentView === 'levels') ? 'bold' : 'normal' }}
+                    >
                         {getLevelDisplayName(selectedLevel.name)}
+                    </Link>
+                )}
+                {selectedSpecialization && (
+                    <Typography color="primary" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
+                        {selectedSpecialization.name}
                     </Typography>
                 )}
             </Breadcrumbs>
@@ -405,6 +458,28 @@ export default function AdminAcademicStructure() {
                                 title={getLevelDisplayName(level.name)}
                                 onClick={() => handleSelectLevel(level)}
                                 color={getLevelColor(level.name)}
+                                delay={idx * 50}
+                            />
+                        ))}
+                    </Box>
+                );
+
+            case 'specializations':
+                return (
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                        {specializations.length === 0 ? (
+                            <Paper elevation={0} sx={{ p: 6, textAlign: 'center', borderRadius: 3, bgcolor: '#fafafa' }}>
+                                <AccountTreeIcon sx={{ fontSize: 60, color: '#ddd', mb: 2 }} />
+                                <Typography sx={{ fontFamily: 'Cairo', color: '#999' }}>لا توجد تخصصات</Typography>
+                            </Paper>
+                        ) : specializations.map((spec, idx) => (
+                            <NavItemCard
+                                key={spec.id}
+                                icon={AccountTreeIcon}
+                                title={spec.name}
+                                subtitle={spec.code}
+                                onClick={() => handleSelectSpecialization(spec)}
+                                color="#FF9800"
                                 delay={idx * 50}
                             />
                         ))}
