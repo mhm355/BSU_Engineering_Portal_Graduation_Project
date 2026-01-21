@@ -69,30 +69,6 @@ else:
         print('Admin user already exists.')
 "
 
-# Create staff_affairs user if it doesn't exist
-echo "Checking for staff_affairs user..."
-python manage.py shell -c "
-from django.contrib.auth import get_user_model
-User = get_user_model()
-staff, created = User.objects.get_or_create(
-    username='staff_affairs',
-    defaults={
-        'email': 'staff@example.com',
-        'is_staff': False,
-        'role': 'STAFF_AFFAIRS',
-        'first_name': 'شؤون',
-        'last_name': 'الموظفين',
-        'national_id': '12345678901234'
-    }
-)
-if created:
-    staff.set_password('password123')
-    staff.save()
-    print('Staff Affairs user created!')
-else:
-    print('Staff Affairs user already exists.')
-"
-
 # Run production seed script (idempotent - safe to run multiple times)
 echo "Running production seed..."
 if [ -f "seed_production.py" ]; then

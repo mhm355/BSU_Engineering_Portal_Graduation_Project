@@ -10,25 +10,25 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         const storedUser = localStorage.getItem('user');
         const token = localStorage.getItem('access_token');
-        
+
         if (storedUser && token) {
             // Validate session with backend
-            axios.get('/api/users/me/', { 
+            axios.get('/api/users/profile/', {
                 withCredentials: true,
                 headers: { 'Authorization': `Bearer ${token}` }
             })
-            .then(res => {
-                setUser(res.data);
-                // Update localStorage with fresh data
-                localStorage.setItem('user', JSON.stringify(res.data));
-            })
-            .catch(() => {
-                // Session invalid - clear localStorage
-                localStorage.removeItem('user');
-                localStorage.removeItem('access_token');
-                setUser(null);
-            })
-            .finally(() => setLoading(false));
+                .then(res => {
+                    setUser(res.data);
+                    // Update localStorage with fresh data
+                    localStorage.setItem('user', JSON.stringify(res.data));
+                })
+                .catch(() => {
+                    // Session invalid - clear localStorage
+                    localStorage.removeItem('user');
+                    localStorage.removeItem('access_token');
+                    setUser(null);
+                })
+                .finally(() => setLoading(false));
         } else {
             // No stored credentials - clear any partial data
             localStorage.removeItem('user');

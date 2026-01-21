@@ -1,149 +1,156 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-    Box, Container, Typography, Paper, Card, CardContent, CardActions,
-    Button, Alert, CircularProgress, Chip, Tabs, Tab, Avatar, Grid, Fade, Grow, IconButton
+    Container, Paper, Typography, Box, Grid, List, ListItem, ListItemText,
+    ListItemIcon, CircularProgress, Alert, Button, Chip, Accordion,
+    AccordionSummary, AccordionDetails, Avatar, Fade, Grow, IconButton, Collapse
 } from '@mui/material';
 import { keyframes } from '@mui/system';
-import DownloadIcon from '@mui/icons-material/Download';
-import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
-import SlideshowIcon from '@mui/icons-material/Slideshow';
-import DescriptionIcon from '@mui/icons-material/Description';
-import VideoLibraryIcon from '@mui/icons-material/VideoLibrary';
-import MenuBookIcon from '@mui/icons-material/MenuBook';
-import FolderIcon from '@mui/icons-material/Folder';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import PlayCircleIcon from '@mui/icons-material/PlayCircle';
-import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import {
+    School as DeptIcon,
+    ExpandMore as ExpandIcon,
+    Book as SubjectIcon,
+    Folder as FolderIcon,
+    FolderOpen as FolderOpenIcon,
+    ArrowBack as ArrowBackIcon,
+    MenuBook as MenuBookIcon,
+    Download as DownloadIcon,
+    PictureAsPdf as PdfIcon,
+    Slideshow as SlidesIcon,
+    PlayCircle as VideoIcon,
+    InsertDriveFile as FileIcon,
+    ExpandLess as ExpandLessIcon,
+    VideoLibrary as VideoLibraryIcon,
+} from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-const shimmer = keyframes`
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+// Animations
+const float = keyframes`
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-5px); }
 `;
 
 export default function StudentMaterials() {
     const navigate = useNavigate();
-    const [lectures, setLectures] = useState([]);
-    const [courseOfferings, setCourseOfferings] = useState([]);
-    const [selectedCourse, setSelectedCourse] = useState(0);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState('');
+    const [error, setError] = useState(null);
+    const [subjects, setSubjects] = useState([]);
+    const [studentInfo, setStudentInfo] = useState(null);
+    const [expandedSubject, setExpandedSubject] = useState(null);
+    const [lectures, setLectures] = useState({});
 
     const token = localStorage.getItem('access_token');
     const config = { headers: { Authorization: `Bearer ${token}` }, withCredentials: true };
 
     useEffect(() => {
-        fetchStudentCourses();
+        fetchStudentSubjects();
     }, []);
 
-    useEffect(() => {
-        if (courseOfferings.length > 0) {
-            fetchLectures(courseOfferings[selectedCourse]?.id);
-        }
-    }, [selectedCourse, courseOfferings]);
-
-    const fetchStudentCourses = async () => {
+    const fetchStudentSubjects = async () => {
+        setLoading(true);
         try {
-            const response = await axios.get('/api/academic/lectures/', config);
+            // First get student profile to know their department/level/specialization
+            const profileRes = await axios.get('/api/academic/student/profile/', config);
+            const student = profileRes.data;
+            setStudentInfo(student);
 
-            const groupedByCourse = {};
-            response.data.forEach(lecture => {
-                const courseId = lecture.course_offering;
-                if (!groupedByCourse[courseId]) {
-                    groupedByCourse[courseId] = {
-                        id: courseId,
-                        subject_name: lecture.subject_name || 'مقرر',
-                        lectures: []
-                    };
-                }
-                groupedByCourse[courseId].lectures.push(lecture);
-            });
+            // Fetch subjects for the student's level and department
+            let url = `/api/academic/subjects/?level=${student.level_name}`;
 
-            const courses = Object.values(groupedByCourse);
-            setCourseOfferings(courses);
-            setLectures(courses[0]?.lectures || []);
+            if (student.department_id) {
+                url += `&department=${student.department_id}`;
+            }
+            if (student.specialization_id) {
+                url += `&specialization=${student.specialization_id}`;
+            }
+
+            const subjectsRes = await axios.get(url, config);
+            setSubjects(subjectsRes.data);
         } catch (err) {
-            console.error('Error fetching materials:', err);
-            setError('فشل تحميل المحاضرات. يرجى المحاولة مرة أخرى.');
+            console.error('Error fetching subjects:', err);
+            setError('خطأ في تحميل المقررات. يرجى المحاولة مرة أخرى.');
         } finally {
             setLoading(false);
         }
     };
 
-    const fetchLectures = (courseOfferingId) => {
-        if (!courseOfferingId) return;
-        const course = courseOfferings.find(c => c.id === courseOfferingId);
-        if (course) {
-            setLectures(course.lectures);
+    const fetchLecturesForSubject = async (subjectId) => {
+        if (lectures[subjectId]) return;
+
+        try {
+            // Fetch lectures from course offerings that match this subject
+            const res = await axios.get(`/api/academic/lectures/?subject=${subjectId}`, config);
+            setLectures((prev) => ({ ...prev, [subjectId]: res.data }));
+        } catch (err) {
+            console.error('Error fetching lectures:', err);
+            setLectures((prev) => ({ ...prev, [subjectId]: [] }));
         }
     };
 
-    const getFileIcon = (fileType) => {
-        const iconStyle = { fontSize: 40 };
-        switch (fileType) {
-            case 'PDF': return <PictureAsPdfIcon sx={{ ...iconStyle, color: '#d32f2f' }} />;
-            case 'SLIDES': return <SlideshowIcon sx={{ ...iconStyle, color: '#ff9800' }} />;
-            case 'VIDEO': return <PlayCircleIcon sx={{ ...iconStyle, color: '#1976d2' }} />;
-            default: return <InsertDriveFileIcon sx={{ ...iconStyle, color: '#666' }} />;
+    const handleExpandSubject = (subjectId) => {
+        if (expandedSubject === subjectId) {
+            setExpandedSubject(null);
+        } else {
+            setExpandedSubject(subjectId);
+            fetchLecturesForSubject(subjectId);
         }
     };
 
-    const getFileTypeLabel = (fileType) => {
-        switch (fileType) {
-            case 'PDF': return 'PDF';
-            case 'SLIDES': return 'عرض تقديمي';
-            case 'VIDEO': return 'فيديو';
-            default: return 'ملف';
-        }
+    const groupSubjectsBySemester = (subjectList) => {
+        const sem1 = subjectList.filter(s => s.semester === 1);
+        const sem2 = subjectList.filter(s => s.semester === 2);
+        return { sem1, sem2 };
     };
 
-    const getFileTypeColor = (fileType) => {
-        switch (fileType) {
-            case 'PDF': return '#d32f2f';
-            case 'SLIDES': return '#ff9800';
-            case 'VIDEO': return '#1976d2';
-            default: return '#666';
-        }
+    const getFileIcon = (fileUrl) => {
+        if (!fileUrl) return <FileIcon sx={{ fontSize: 28, color: '#666' }} />;
+        const url = fileUrl.toLowerCase();
+        if (url.endsWith('.pdf')) return <PdfIcon sx={{ fontSize: 28, color: '#d32f2f' }} />;
+        if (url.endsWith('.ppt') || url.endsWith('.pptx')) return <SlidesIcon sx={{ fontSize: 28, color: '#ff9800' }} />;
+        if (['.mp4', '.avi', '.mov', '.mkv'].some(ext => url.endsWith(ext))) return <VideoIcon sx={{ fontSize: 28, color: '#1976d2' }} />;
+        return <FileIcon sx={{ fontSize: 28, color: '#666' }} />;
     };
 
-    const totalLectures = courseOfferings.reduce((acc, c) => acc + c.lectures.length, 0);
+    const getFolderColor = (index) => {
+        const colors = ['#2196F3', '#4CAF50', '#FF9800', '#9C27B0', '#E91E63', '#00BCD4'];
+        return colors[index % colors.length];
+    };
 
-    if (loading) return (
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
-            <CircularProgress size={60} />
-        </Box>
-    );
+    const { sem1, sem2 } = groupSubjectsBySemester(subjects);
+    const totalSubjects = subjects.length;
+
+    if (loading) {
+        return (
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+                <CircularProgress size={60} />
+            </Box>
+        );
+    }
 
     return (
-        <Box sx={{ minHeight: '100vh', bgcolor: '#f8fafc' }}>
+        <Box sx={{ minHeight: '100vh', background: 'linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%)', pb: 6 }}>
             {/* Hero Header */}
-            <Box sx={{
-                background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-                backgroundSize: '200% 200%',
-                animation: `${shimmer} 15s ease infinite`,
-                color: '#fff',
-                py: 5,
-                px: 3,
-                borderRadius: { xs: 0, md: '0 0 40px 40px' },
-            }}>
+            <Box sx={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', pt: 4, pb: 6, mb: 4, position: 'relative', overflow: 'hidden' }}>
+                <Box sx={{ position: 'absolute', top: -50, right: -50, width: 200, height: 200, borderRadius: '50%', background: 'rgba(255,255,255,0.15)', animation: `${float} 6s ease-in-out infinite` }} />
+                <Box sx={{ position: 'absolute', bottom: -80, left: -80, width: 300, height: 300, borderRadius: '50%', background: 'rgba(255,255,255,0.1)', animation: `${float} 8s ease-in-out infinite`, animationDelay: '2s' }} />
+
                 <Container maxWidth="lg">
-                    <Fade in={true} timeout={600}>
+                    <Fade in={true} timeout={800}>
                         <Box>
-                            <IconButton onClick={() => navigate('/student/dashboard')} sx={{ color: '#fff', mb: 2 }}>
-                                <ArrowBackIcon />
-                            </IconButton>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                <Avatar sx={{ width: 60, height: 60, bgcolor: 'rgba(255,255,255,0.2)' }}>
-                                    <MenuBookIcon sx={{ fontSize: 35 }} />
+                            <Button startIcon={<ArrowBackIcon />} onClick={() => navigate('/student/dashboard')} sx={{ color: '#fff', mb: 2, fontFamily: 'Cairo', '&:hover': { bgcolor: 'rgba(255,255,255,0.1)' } }}>
+                                العودة للوحة التحكم
+                            </Button>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                                <Avatar sx={{ width: 80, height: 80, bgcolor: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(10px)' }}>
+                                    <FolderIcon sx={{ fontSize: 45, color: '#fff' }} />
                                 </Avatar>
                                 <Box>
-                                    <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
+                                    <Typography variant="h3" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff', textShadow: '0 4px 20px rgba(0,0,0,0.2)' }}>
                                         المحاضرات والمواد الدراسية
                                     </Typography>
-                                    <Typography variant="body1" sx={{ fontFamily: 'Cairo', opacity: 0.9 }}>
-                                        تصفح وتحميل محاضرات المقررات الدراسية
+                                    <Typography variant="h6" sx={{ fontFamily: 'Cairo', color: 'rgba(255,255,255,0.9)' }}>
+                                        {studentInfo?.department_name || ''} - {studentInfo?.level_display || ''}
+                                        {studentInfo?.specialization_name ? ` - ${studentInfo.specialization_name}` : ''}
                                     </Typography>
                                 </Box>
                             </Box>
@@ -152,194 +159,225 @@ export default function StudentMaterials() {
                 </Container>
             </Box>
 
-            <Container maxWidth="lg" sx={{ mt: -3, pb: 6 }}>
+            <Container maxWidth="lg">
+                {error && <Alert severity="error" sx={{ mb: 3, fontFamily: 'Cairo', borderRadius: 3, fontSize: '1.1rem' }} onClose={() => setError(null)}>{error}</Alert>}
+
                 {/* Stats Row */}
                 <Grid container spacing={3} sx={{ mb: 4 }}>
                     <Grid item xs={6} md={4}>
                         <Grow in={true} timeout={400}>
-                            <Paper elevation={0} sx={{ p: 3, borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.08)', textAlign: 'center' }}>
-                                <Avatar sx={{ width: 50, height: 50, bgcolor: '#e3f2fd', mx: 'auto', mb: 1 }}>
-                                    <FolderIcon sx={{ color: '#1976d2' }} />
+                            <Paper elevation={0} sx={{ p: 3, borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.08)', display: 'flex', alignItems: 'center', gap: 2 }}>
+                                <Avatar sx={{ width: 55, height: 55, background: 'linear-gradient(135deg, #667eea, #764ba2)' }}>
+                                    <MenuBookIcon sx={{ fontSize: 28 }} />
                                 </Avatar>
-                                <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>{courseOfferings.length}</Typography>
-                                <Typography variant="body2" sx={{ fontFamily: 'Cairo', color: '#666' }}>المقررات</Typography>
+                                <Box>
+                                    <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>{totalSubjects}</Typography>
+                                    <Typography variant="body1" sx={{ fontFamily: 'Cairo', color: '#666' }}>المقررات</Typography>
+                                </Box>
                             </Paper>
                         </Grow>
                     </Grid>
                     <Grid item xs={6} md={4}>
-                        <Grow in={true} timeout={600}>
-                            <Paper elevation={0} sx={{ p: 3, borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.08)', textAlign: 'center' }}>
-                                <Avatar sx={{ width: 50, height: 50, bgcolor: '#fff3e0', mx: 'auto', mb: 1 }}>
-                                    <VideoLibraryIcon sx={{ color: '#FF9800' }} />
+                        <Grow in={true} timeout={500}>
+                            <Paper elevation={0} sx={{ p: 3, borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.08)', display: 'flex', alignItems: 'center', gap: 2 }}>
+                                <Avatar sx={{ width: 55, height: 55, background: 'linear-gradient(135deg, #2196F3, #21CBF3)' }}>
+                                    <SubjectIcon sx={{ fontSize: 28 }} />
                                 </Avatar>
-                                <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>{totalLectures}</Typography>
-                                <Typography variant="body2" sx={{ fontFamily: 'Cairo', color: '#666' }}>إجمالي المحاضرات</Typography>
+                                <Box>
+                                    <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>{sem1.length}</Typography>
+                                    <Typography variant="body1" sx={{ fontFamily: 'Cairo', color: '#666' }}>الفصل الأول</Typography>
+                                </Box>
                             </Paper>
                         </Grow>
                     </Grid>
                     <Grid item xs={12} md={4}>
-                        <Grow in={true} timeout={800}>
-                            <Paper elevation={0} sx={{ p: 3, borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.08)', textAlign: 'center' }}>
-                                <Avatar sx={{ width: 50, height: 50, bgcolor: '#e8f5e9', mx: 'auto', mb: 1 }}>
-                                    <DownloadIcon sx={{ color: '#4CAF50' }} />
+                        <Grow in={true} timeout={600}>
+                            <Paper elevation={0} sx={{ p: 3, borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.08)', display: 'flex', alignItems: 'center', gap: 2 }}>
+                                <Avatar sx={{ width: 55, height: 55, background: 'linear-gradient(135deg, #4CAF50, #8BC34A)' }}>
+                                    <SubjectIcon sx={{ fontSize: 28 }} />
                                 </Avatar>
-                                <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>{lectures.length}</Typography>
-                                <Typography variant="body2" sx={{ fontFamily: 'Cairo', color: '#666' }}>محاضرات المقرر الحالي</Typography>
+                                <Box>
+                                    <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>{sem2.length}</Typography>
+                                    <Typography variant="body1" sx={{ fontFamily: 'Cairo', color: '#666' }}>الفصل الثاني</Typography>
+                                </Box>
                             </Paper>
                         </Grow>
                     </Grid>
                 </Grid>
 
-                {error && <Alert severity="error" sx={{ mb: 3, fontFamily: 'Cairo', borderRadius: 3 }} onClose={() => setError('')}>{error}</Alert>}
-
-                {courseOfferings.length > 0 ? (
-                    <>
-                        {/* Course Tabs */}
-                        <Paper elevation={0} sx={{ mb: 4, borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.08)', overflow: 'hidden' }}>
-                            <Tabs
-                                value={selectedCourse}
-                                onChange={(_, newValue) => setSelectedCourse(newValue)}
-                                variant="scrollable"
-                                scrollButtons="auto"
-                                sx={{
-                                    bgcolor: '#fff',
-                                    '& .MuiTab-root': {
-                                        fontFamily: 'Cairo',
-                                        fontWeight: 'bold',
-                                        fontSize: '1rem',
-                                        py: 2,
-                                        px: 3,
-                                    },
-                                    '& .Mui-selected': {
-                                        color: '#f5576c !important',
-                                    },
-                                    '& .MuiTabs-indicator': {
-                                        bgcolor: '#f5576c',
-                                        height: 3,
-                                    }
-                                }}
-                            >
-                                {courseOfferings.map((course, index) => (
-                                    <Tab
-                                        key={course.id}
-                                        label={
-                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                <FolderIcon sx={{ fontSize: 20 }} />
-                                                {course.subject_name}
-                                                <Chip label={course.lectures.length} size="small" sx={{ ml: 1, height: 20, fontSize: '0.75rem' }} />
-                                            </Box>
-                                        }
-                                    />
-                                ))}
-                            </Tabs>
-                        </Paper>
-
-                        {/* Lectures Grid */}
-                        <Grid container spacing={3}>
-                            {lectures.length > 0 ? (
-                                lectures.map((lecture, idx) => (
-                                    <Grid item xs={12} sm={6} md={4} key={lecture.id}>
-                                        <Grow in={true} timeout={300 + idx * 100}>
-                                            <Card sx={{
-                                                height: '100%',
-                                                display: 'flex',
-                                                flexDirection: 'column',
-                                                borderRadius: 4,
-                                                boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-                                                transition: 'all 0.3s',
-                                                border: `2px solid ${getFileTypeColor(lecture.file_type)}20`,
-                                                '&:hover': {
-                                                    transform: 'translateY(-5px)',
-                                                    boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
-                                                }
-                                            }}>
-                                                {/* File Type Header */}
-                                                <Box sx={{
-                                                    p: 2,
-                                                    background: `linear-gradient(135deg, ${getFileTypeColor(lecture.file_type)}15, ${getFileTypeColor(lecture.file_type)}05)`,
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    gap: 2
-                                                }}>
-                                                    {getFileIcon(lecture.file_type)}
-                                                    <Chip
-                                                        label={getFileTypeLabel(lecture.file_type)}
-                                                        size="small"
-                                                        sx={{
-                                                            bgcolor: `${getFileTypeColor(lecture.file_type)}20`,
-                                                            color: getFileTypeColor(lecture.file_type),
-                                                            fontFamily: 'Cairo',
-                                                            fontWeight: 'bold'
-                                                        }}
-                                                    />
-                                                </Box>
-
-                                                <CardContent sx={{ flexGrow: 1, p: 3 }}>
-                                                    <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744', mb: 1 }}>
-                                                        {lecture.title}
-                                                    </Typography>
-                                                    {lecture.description && (
-                                                        <Typography variant="body2" sx={{ fontFamily: 'Cairo', color: '#666', mb: 2, lineHeight: 1.6 }}>
-                                                            {lecture.description}
-                                                        </Typography>
-                                                    )}
-                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, color: '#999' }}>
-                                                        <CalendarTodayIcon sx={{ fontSize: 16 }} />
-                                                        <Typography variant="caption" sx={{ fontFamily: 'Cairo' }}>
-                                                            {new Date(lecture.uploaded_at).toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' })}
-                                                        </Typography>
-                                                    </Box>
-                                                </CardContent>
-
-                                                <CardActions sx={{ p: 2, pt: 0 }}>
-                                                    <Button
-                                                        variant="contained"
-                                                        fullWidth
-                                                        startIcon={<DownloadIcon />}
-                                                        href={lecture.file ? lecture.file.replace('http://backend:8000', window.location.protocol + '//' + window.location.hostname + ':8000') : '#'}
-                                                        target="_blank"
-                                                        sx={{
-                                                            fontFamily: 'Cairo',
-                                                            fontWeight: 'bold',
-                                                            borderRadius: 3,
-                                                            py: 1.5,
-                                                            background: `linear-gradient(135deg, ${getFileTypeColor(lecture.file_type)}, ${getFileTypeColor(lecture.file_type)}CC)`,
-                                                            '&:hover': {
-                                                                background: getFileTypeColor(lecture.file_type),
-                                                            }
-                                                        }}
-                                                    >
-                                                        تحميل المحاضرة
-                                                    </Button>
-                                                </CardActions>
-                                            </Card>
-                                        </Grow>
-                                    </Grid>
-                                ))
-                            ) : (
-                                <Grid item xs={12}>
-                                    <Paper sx={{ p: 6, textAlign: 'center', borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}>
-                                        <VideoLibraryIcon sx={{ fontSize: 80, color: '#ddd', mb: 2 }} />
-                                        <Typography variant="h6" sx={{ fontFamily: 'Cairo', color: '#666' }}>
-                                            لا توجد محاضرات لهذا المقرر حتى الآن
-                                        </Typography>
-                                    </Paper>
-                                </Grid>
-                            )}
-                        </Grid>
-                    </>
-                ) : (
+                {subjects.length === 0 ? (
                     <Paper sx={{ p: 6, textAlign: 'center', borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}>
-                        <VideoLibraryIcon sx={{ fontSize: 80, color: '#ddd', mb: 2 }} />
+                        <FolderIcon sx={{ fontSize: 80, color: '#ddd', mb: 2 }} />
                         <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#666', mb: 1 }}>
-                            لا توجد محاضرات متاحة حالياً
+                            لا توجد مقررات متاحة حالياً
                         </Typography>
                         <Typography variant="body1" sx={{ fontFamily: 'Cairo', color: '#999' }}>
-                            سيقوم الأساتذة برفع المحاضرات قريباً
+                            سيتم إضافة المقررات قريباً
                         </Typography>
                     </Paper>
+                ) : (
+                    <Grid container spacing={4}>
+                        {/* Semester 1 */}
+                        <Grid item xs={12} md={6}>
+                            <Paper elevation={0} sx={{ p: 3, borderRadius: 4, border: '2px solid #e3f2fd', bgcolor: '#fff', boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
+                                    <Avatar sx={{ width: 45, height: 45, bgcolor: '#2196F3' }}>1</Avatar>
+                                    <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1976d2' }}>
+                                        الفصل الدراسي الأول ({sem1.length} مادة)
+                                    </Typography>
+                                </Box>
+                                {sem1.length === 0 ? (
+                                    <Typography color="text.secondary" sx={{ fontFamily: 'Cairo', py: 2, textAlign: 'center' }}>لا توجد مواد</Typography>
+                                ) : (
+                                    sem1.map((subject, index) => (
+                                        <SubjectFolder
+                                            key={subject.id}
+                                            subject={subject}
+                                            index={index}
+                                            expanded={expandedSubject === subject.id}
+                                            onToggle={() => handleExpandSubject(subject.id)}
+                                            lectures={lectures[subject.id]}
+                                            getFileIcon={getFileIcon}
+                                            getFolderColor={getFolderColor}
+                                        />
+                                    ))
+                                )}
+                            </Paper>
+                        </Grid>
+
+                        {/* Semester 2 */}
+                        <Grid item xs={12} md={6}>
+                            <Paper elevation={0} sx={{ p: 3, borderRadius: 4, border: '2px solid #e8f5e9', bgcolor: '#fff', boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
+                                    <Avatar sx={{ width: 45, height: 45, bgcolor: '#4CAF50' }}>2</Avatar>
+                                    <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#388e3c' }}>
+                                        الفصل الدراسي الثاني ({sem2.length} مادة)
+                                    </Typography>
+                                </Box>
+                                {sem2.length === 0 ? (
+                                    <Typography color="text.secondary" sx={{ fontFamily: 'Cairo', py: 2, textAlign: 'center' }}>لا توجد مواد</Typography>
+                                ) : (
+                                    sem2.map((subject, index) => (
+                                        <SubjectFolder
+                                            key={subject.id}
+                                            subject={subject}
+                                            index={index + 10}
+                                            expanded={expandedSubject === subject.id}
+                                            onToggle={() => handleExpandSubject(subject.id)}
+                                            lectures={lectures[subject.id]}
+                                            getFileIcon={getFileIcon}
+                                            getFolderColor={getFolderColor}
+                                        />
+                                    ))
+                                )}
+                            </Paper>
+                        </Grid>
+                    </Grid>
                 )}
             </Container>
         </Box>
+    );
+}
+
+// Sub-component for a subject folder
+function SubjectFolder({ subject, index, expanded, onToggle, lectures, getFileIcon, getFolderColor }) {
+    const color = getFolderColor(index);
+
+    return (
+        <Paper
+            elevation={0}
+            sx={{
+                mb: 2,
+                borderRadius: 3,
+                overflow: 'hidden',
+                border: expanded ? `2px solid ${color}` : '2px solid #eee',
+                transition: 'all 0.3s',
+                '&:hover': { borderColor: color }
+            }}
+        >
+            <Box
+                onClick={onToggle}
+                sx={{
+                    p: 2,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 2,
+                    bgcolor: expanded ? `${color}10` : 'transparent',
+                    '&:hover': { bgcolor: `${color}15` }
+                }}
+            >
+                <Avatar sx={{ width: 45, height: 45, bgcolor: color, animation: expanded ? `${float} 2s ease-in-out infinite` : 'none' }}>
+                    {expanded ? <FolderOpenIcon /> : <FolderIcon />}
+                </Avatar>
+                <Box sx={{ flex: 1 }}>
+                    <Typography variant="subtitle1" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>
+                        {subject.name}
+                    </Typography>
+                    <Box sx={{ display: 'flex', gap: 1 }}>
+                        <Chip label={subject.code} size="small" sx={{ height: 22, fontSize: '0.75rem' }} />
+                        {subject.is_elective && <Chip label="اختياري" size="small" color="info" sx={{ height: 22, fontSize: '0.75rem' }} />}
+                    </Box>
+                </Box>
+                <IconButton size="small">
+                    {expanded ? <ExpandLessIcon sx={{ color }} /> : <ExpandIcon sx={{ color: '#999' }} />}
+                </IconButton>
+            </Box>
+
+            <Collapse in={expanded}>
+                <Box sx={{ p: 2, bgcolor: '#fafafa' }}>
+                    {!lectures ? (
+                        <Box sx={{ display: 'flex', justifyContent: 'center', py: 2 }}><CircularProgress size={24} /></Box>
+                    ) : lectures.length === 0 ? (
+                        <Box sx={{ textAlign: 'center', py: 2, color: '#999' }}>
+                            <VideoLibraryIcon sx={{ fontSize: 40, mb: 1, opacity: 0.5 }} />
+                            <Typography variant="body2" sx={{ fontFamily: 'Cairo' }}>
+                                لا توجد محاضرات حتى الآن
+                            </Typography>
+                        </Box>
+                    ) : (
+                        lectures.map((lecture) => (
+                            <Paper
+                                key={lecture.id}
+                                elevation={0}
+                                sx={{
+                                    p: 2,
+                                    mb: 1,
+                                    borderRadius: 2,
+                                    bgcolor: '#fff',
+                                    border: '1px solid #eee',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 2,
+                                    '&:hover': { borderColor: color }
+                                }}
+                            >
+                                {getFileIcon(lecture.file)}
+                                <Box sx={{ flex: 1 }}>
+                                    <Typography variant="body1" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
+                                        {lecture.title}
+                                    </Typography>
+                                    {lecture.description && (
+                                        <Typography variant="caption" sx={{ fontFamily: 'Cairo', color: '#666' }}>
+                                            {lecture.description}
+                                        </Typography>
+                                    )}
+                                </Box>
+                                <Button
+                                    variant="contained"
+                                    size="small"
+                                    startIcon={<DownloadIcon />}
+                                    href={lecture.file ? lecture.file.replace('http://backend:8000', '') : '#'}
+                                    target="_blank"
+                                    sx={{ fontFamily: 'Cairo', borderRadius: 2, bgcolor: color, '&:hover': { bgcolor: color } }}
+                                >
+                                    تحميل
+                                </Button>
+                            </Paper>
+                        ))
+                    )}
+                </Box>
+            </Collapse>
+        </Paper>
     );
 }

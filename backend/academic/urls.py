@@ -6,7 +6,7 @@ from .views import (
     CertificateViewSet, StudentProfileView,
     TermViewSet, GradingTemplateViewSet, CourseOfferingViewSet, LectureViewSet,
     BulkAttendanceView, BulkStudentGradeView, AttendanceViewSet,
-    StudentExamsView
+    StudentExamsView, StudentCoursesView
 )
 from .student_affairs_views import (
     UploadStudentsView, StudentListView, ResetStudentPasswordView,
@@ -90,4 +90,5 @@ urlpatterns = [
     path('student/quizzes/<int:quiz_id>/results/', QuizResultsView.as_view(), name='student-quiz-results'),
     path('quizzes/<int:quiz_id>/results/', QuizResultsView.as_view(), name='quiz-results'),
     path('exams/', StudentExamsView.as_view(), name='student-exams'),
+    path('student/courses/', StudentCoursesView.as_view(), name='student-courses'),
 ]

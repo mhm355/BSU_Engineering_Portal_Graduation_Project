@@ -10,7 +10,7 @@ from django.contrib.auth import get_user_model
 import pandas as pd
 import io
 
-from .models import Student, Level, AcademicYear, Department, AuditLog
+from .models import Student, Level, AcademicYear, Department, Specialization, AuditLog
 from users.permissions import IsStudentAffairsRole, IsStudentRole
 
 User = get_user_model()
@@ -30,6 +30,7 @@ class UploadStudentsView(APIView):
         department_id = request.data.get('department_id')
         academic_year_id = request.data.get('academic_year_id')
         level_id = request.data.get('level_id')
+        specialization_id = request.data.get('specialization_id')
 
         # Validate required params
         if not file:
@@ -57,6 +58,13 @@ class UploadStudentsView(APIView):
         except Level.DoesNotExist:
             return Response({'error': 'الفرقة غير موجودة'}, status=status.HTTP_400_BAD_REQUEST)
 
+        specialization = None
+        if specialization_id:
+            try:
+                specialization = Specialization.objects.get(id=specialization_id)
+            except Specialization.DoesNotExist:
+                return Response({'error': 'التخصص غير موجود'}, status=status.HTTP_400_BAD_REQUEST)
+
         try:
             # Read file
             if file.name.endswith('.csv'):
@@ -79,13 +87,13 @@ class UploadStudentsView(APIView):
                 )
 
             # Process students
-            results = self._process_students(df, department, academic_year, level, request.user)
+            results = self._process_students(df, department, academic_year, level, specialization, request.user)
             return Response(results, status=status.HTTP_201_CREATED)
 
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    def _process_students(self, df, department, academic_year, level, performed_by):
+    def _process_students(self, df, department, academic_year, level, specialization, performed_by):
         """Process student data and create accounts"""
         created_count = 0
         updated_count = 0
@@ -117,6 +125,8 @@ class UploadStudentsView(APIView):
                         student.level = level
                         student.academic_year = academic_year
                         student.department = department
+                        if specialization:
+                            student.specialization = specialization
                         student.save()
                         
                         # Update user email if provided
@@ -141,7 +151,8 @@ class UploadStudentsView(APIView):
                             user=user,
                             level=level,
                             academic_year=academic_year,
-                            department=department
+                            department=department,
+                            specialization=specialization
                         )
                         updated_count += 1
                     else:
@@ -163,7 +174,8 @@ class UploadStudentsView(APIView):
                             user=user,
                             level=level,
                             academic_year=academic_year,
-                            department=department
+                            department=department,
+                            specialization=specialization
                         )
                         created_count += 1
 
@@ -203,7 +215,7 @@ class StudentListView(generics.ListAPIView):
 
     def get(self, request):
         queryset = Student.objects.select_related(
-            'user', 'level', 'academic_year', 'department'
+            'user', 'level', 'academic_year', 'department', 'specialization'
         ).all()
 
         # Filter by query params
@@ -211,6 +223,7 @@ class StudentListView(generics.ListAPIView):
         academic_year_id = request.query_params.get('academic_year')
         level_id = request.query_params.get('level')
         level_name = request.query_params.get('level_name')
+        specialization_id = request.query_params.get('specialization')
 
         if department_id:
             queryset = queryset.filter(department_id=department_id)
@@ -220,6 +233,8 @@ class StudentListView(generics.ListAPIView):
             queryset = queryset.filter(level_id=level_id)
         if level_name:
             queryset = queryset.filter(level__name=level_name.upper())
+        if specialization_id:
+            queryset = queryset.filter(specialization_id=specialization_id)
 
         students = []
         for student in queryset:
@@ -230,6 +245,8 @@ class StudentListView(generics.ListAPIView):
                 'username': student.user.username if student.user else None,
                 'department': student.department.name if student.department else None,
                 'department_code': student.department.code if student.department else None,
+                'specialization': student.specialization.name if student.specialization else None,
+                'specialization_id': student.specialization.id if student.specialization else None,
                 'academic_year': student.academic_year.name,
                 'level': student.level.get_name_display(),
                 'level_name': student.level.name,
