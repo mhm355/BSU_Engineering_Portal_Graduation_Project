@@ -16,27 +16,8 @@ while ! python -c "import MySQLdb; MySQLdb.connect(host='db', user='bsu_user', p
 done
 echo "Database is ready!"
 
-# Run migrations in proper order
+# Run all migrations at once
 echo "Running migrations..."
-
-# First migrate Django core apps
-python manage.py migrate contenttypes --noinput || true
-python manage.py migrate auth --noinput || true
-
-# Then migrate users app (custom auth user model)
-python manage.py migrate users --noinput || true
-
-# Then sessions and admin
-python manage.py migrate sessions --noinput || true
-python manage.py migrate admin --noinput || true
-
-# Then content app
-python manage.py migrate content --noinput || true
-
-# Finally academic app
-python manage.py migrate academic --noinput || true
-
-# Run any remaining migrations
 python manage.py migrate --noinput || true
 
 echo "Migrations completed!"
