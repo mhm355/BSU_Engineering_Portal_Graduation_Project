@@ -13,6 +13,7 @@ import PeopleIcon from '@mui/icons-material/People';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import AssessmentIcon from '@mui/icons-material/Assessment';
+import CategoryIcon from '@mui/icons-material/Category';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
@@ -27,10 +28,12 @@ export default function StudentGradesView() {
     const [departments, setDepartments] = useState([]);
     const [academicYears, setAcademicYears] = useState([]);
     const [levels, setLevels] = useState([]);
+    const [specializations, setSpecializations] = useState([]);
 
     const [selectedDepartment, setSelectedDepartment] = useState('');
     const [selectedYear, setSelectedYear] = useState('');
     const [selectedLevel, setSelectedLevel] = useState('');
+    const [selectedSpecialization, setSelectedSpecialization] = useState('');
 
     const [loading, setLoading] = useState(false);
     const [loadingData, setLoadingData] = useState(true);
@@ -47,8 +50,18 @@ export default function StudentGradesView() {
     useEffect(() => {
         if (selectedDepartment && selectedYear) {
             fetchLevels();
+            fetchSpecializations();
         }
     }, [selectedDepartment, selectedYear]);
+
+    // Check if specialization is needed (Electrical Engineering, level 2-4)
+    const selectedDeptData = departments.find(d => d.id === selectedDepartment);
+    const selectedLevelData = levels.find(l => l.id === selectedLevel);
+    const isElectrical = selectedDeptData?.name?.includes('كهرب') || selectedDeptData?.code === 'ELEC';
+    const needsSpecialization = isElectrical &&
+        selectedLevelData &&
+        selectedLevelData.name !== 'FIRST' &&
+        selectedLevelData.name !== 'PREPARATORY';
 
     const fetchInitialData = async () => {
         try {
@@ -80,9 +93,27 @@ export default function StudentGradesView() {
         }
     };
 
+    const fetchSpecializations = async () => {
+        try {
+            const res = await axios.get(
+                `/api/academic/specializations/?department=${selectedDepartment}`,
+                config
+            );
+            setSpecializations(res.data);
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
     const fetchGrades = async () => {
         if (!selectedDepartment || !selectedYear || !selectedLevel) {
             setError('يرجى اختيار جميع الخيارات');
+            return;
+        }
+
+        // Check if specialization is required but not selected
+        if (needsSpecialization && !selectedSpecialization) {
+            setError('يرجى اختيار التخصص');
             return;
         }
 
@@ -91,10 +122,14 @@ export default function StudentGradesView() {
         setGradesData(null);
 
         try {
-            const res = await axios.get(
-                `/api/academic/student-affairs/grades/?department=${selectedDepartment}&academic_year=${selectedYear}&level=${selectedLevel}`,
-                config
-            );
+            let url = `/api/academic/student-affairs/grades/?department=${selectedDepartment}&academic_year=${selectedYear}&level=${selectedLevel}`;
+
+            // Add specialization parameter if needed
+            if (needsSpecialization && selectedSpecialization) {
+                url += `&specialization=${selectedSpecialization}`;
+            }
+
+            const res = await axios.get(url, config);
             setGradesData(res.data);
         } catch (err) {
             setError(err.response?.data?.error || 'فشل في تحميل الدرجات');
@@ -103,7 +138,21 @@ export default function StudentGradesView() {
         }
     };
 
-    const isSelectionComplete = selectedDepartment && selectedYear && selectedLevel;
+    const handleDepartmentChange = (e) => {
+        setSelectedDepartment(e.target.value);
+        setSelectedLevel('');
+        setSelectedSpecialization('');
+        setGradesData(null);
+    };
+
+    const handleLevelChange = (e) => {
+        setSelectedLevel(e.target.value);
+        setSelectedSpecialization('');
+        setGradesData(null);
+    };
+
+    const isSelectionComplete = selectedDepartment && selectedYear && selectedLevel &&
+        (!needsSpecialization || selectedSpecialization);
 
     return (
         <Box sx={{ minHeight: '100vh', background: 'linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%)', pb: 6 }}>
@@ -166,14 +215,14 @@ export default function StudentGradesView() {
                         </Box>
 
                         <Grid container spacing={3} alignItems="flex-end">
-                            <Grid item xs={12} md={3}>
+                            <Grid item xs={12} md={needsSpecialization ? 2.4 : 3}>
                                 <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', mb: 1.5, color: '#1a2744' }}>
                                     القسم
                                 </Typography>
                                 <FormControl fullWidth variant="outlined">
                                     <Select
                                         value={selectedDepartment}
-                                        onChange={(e) => { setSelectedDepartment(e.target.value); setSelectedLevel(''); setGradesData(null); }}
+                                        onChange={handleDepartmentChange}
                                         displayEmpty
                                         sx={{ borderRadius: 2, fontSize: '1.2rem', minHeight: 55, bgcolor: '#fafafa', '& .MuiSelect-select': { py: 1.5 } }}
                                     >
@@ -184,14 +233,14 @@ export default function StudentGradesView() {
                                     </Select>
                                 </FormControl>
                             </Grid>
-                            <Grid item xs={12} md={3}>
+                            <Grid item xs={12} md={needsSpecialization ? 2.4 : 3}>
                                 <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', mb: 1.5, color: '#1a2744' }}>
                                     العام الدراسي
                                 </Typography>
                                 <FormControl fullWidth variant="outlined">
                                     <Select
                                         value={selectedYear}
-                                        onChange={(e) => { setSelectedYear(e.target.value); setSelectedLevel(''); setGradesData(null); }}
+                                        onChange={(e) => { setSelectedYear(e.target.value); setSelectedLevel(''); setSelectedSpecialization(''); setGradesData(null); }}
                                         displayEmpty
                                         sx={{ borderRadius: 2, fontSize: '1.2rem', minHeight: 55, bgcolor: '#fafafa', '& .MuiSelect-select': { py: 1.5 } }}
                                     >
@@ -204,14 +253,14 @@ export default function StudentGradesView() {
                                     </Select>
                                 </FormControl>
                             </Grid>
-                            <Grid item xs={12} md={3}>
+                            <Grid item xs={12} md={needsSpecialization ? 2.4 : 3}>
                                 <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', mb: 1.5, color: '#1a2744' }}>
                                     الفرقة
                                 </Typography>
                                 <FormControl fullWidth variant="outlined" disabled={!selectedDepartment || !selectedYear}>
                                     <Select
                                         value={selectedLevel}
-                                        onChange={(e) => { setSelectedLevel(e.target.value); setGradesData(null); }}
+                                        onChange={handleLevelChange}
                                         displayEmpty
                                         sx={{ borderRadius: 2, fontSize: '1.2rem', minHeight: 55, bgcolor: '#fafafa', '& .MuiSelect-select': { py: 1.5 } }}
                                     >
@@ -222,7 +271,40 @@ export default function StudentGradesView() {
                                     </Select>
                                 </FormControl>
                             </Grid>
-                            <Grid item xs={12} md={3}>
+
+                            {/* Specialization Dropdown - Only for Electrical Engineering Years 2-4 */}
+                            {needsSpecialization && (
+                                <Grid item xs={12} md={2.4}>
+                                    <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', mb: 1.5, color: '#9C27B0' }}>
+                                        <CategoryIcon sx={{ mr: 1, verticalAlign: 'middle', fontSize: 22 }} />
+                                        التخصص
+                                    </Typography>
+                                    <FormControl fullWidth variant="outlined">
+                                        <Select
+                                            value={selectedSpecialization}
+                                            onChange={(e) => { setSelectedSpecialization(e.target.value); setGradesData(null); }}
+                                            displayEmpty
+                                            sx={{
+                                                borderRadius: 2,
+                                                fontSize: '1.2rem',
+                                                minHeight: 55,
+                                                bgcolor: '#f3e5f5',
+                                                border: '2px solid #9C27B0',
+                                                '& .MuiSelect-select': { py: 1.5 }
+                                            }}
+                                        >
+                                            <MenuItem value="" disabled sx={{ fontSize: '1.1rem' }}>اختر التخصص</MenuItem>
+                                            {specializations.map((spec) => (
+                                                <MenuItem key={spec.id} value={spec.id} sx={{ fontSize: '1.1rem', py: 1.5 }}>
+                                                    {spec.name}
+                                                </MenuItem>
+                                            ))}
+                                        </Select>
+                                    </FormControl>
+                                </Grid>
+                            )}
+
+                            <Grid item xs={12} md={needsSpecialization ? 2.4 : 3}>
                                 <Button
                                     variant="contained"
                                     size="large"
