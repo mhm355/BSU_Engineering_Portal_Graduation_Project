@@ -23,6 +23,8 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import WarningIcon from '@mui/icons-material/Warning';
 import StarIcon from '@mui/icons-material/Star';
+import LogoutIcon from '@mui/icons-material/Logout';
+import SettingsIcon from '@mui/icons-material/Settings';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
@@ -44,7 +46,7 @@ const shimmer = keyframes`
 `;
 
 export default function StudentDashboard() {
-    const { user } = useAuth();
+    const { user, logout } = useAuth();
     const navigate = useNavigate();
     const [studentInfo, setStudentInfo] = useState(null);
     const [certificate, setCertificate] = useState(null);
@@ -257,11 +259,25 @@ export default function StudentDashboard() {
                                     )}
                                 </Box>
                             </Box>
-                            <Box sx={{ textAlign: 'center', display: { xs: 'none', md: 'block' } }}>
-                                <Typography variant="body2" sx={{ fontFamily: 'Cairo', opacity: 0.8 }}>العام الأكاديمي</Typography>
-                                <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
-                                    {studentInfo?.academicYear || '2024/2025'}
-                                </Typography>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                <Box sx={{ textAlign: 'center', display: { xs: 'none', md: 'block' } }}>
+                                    <Typography variant="body2" sx={{ fontFamily: 'Cairo', opacity: 0.8 }}>العام الأكاديمي</Typography>
+                                    <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
+                                        {studentInfo?.academicYear || '2024/2025'}
+                                    </Typography>
+                                </Box>
+                                <IconButton
+                                    onClick={() => { logout(); navigate('/login'); }}
+                                    sx={{
+                                        bgcolor: 'rgba(211,47,47,0.2)',
+                                        color: '#fff',
+                                        width: 50,
+                                        height: 50,
+                                        '&:hover': { bgcolor: 'rgba(211,47,47,0.4)' }
+                                    }}
+                                >
+                                    <LogoutIcon />
+                                </IconButton>
                             </Box>
                         </Box>
                     </Fade>

@@ -29,8 +29,10 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
+import LogoutIcon from '@mui/icons-material/Logout';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { useAuth } from '../../context/AuthContext';
 
 // Animations
 const pulse = keyframes`
@@ -260,6 +262,7 @@ const NavCard = ({ icon: Icon, title, description, buttonText, onClick, gradient
 );
 
 export default function AdminDashboard() {
+    const { logout } = useAuth();
     const [user, setUser] = useState(null);
     const [pendingCount, setPendingCount] = useState(0);
     const [stats, setStats] = useState({
@@ -269,6 +272,11 @@ export default function AdminDashboard() {
     });
     const [currentTime, setCurrentTime] = useState(new Date());
     const navigate = useNavigate();
+
+    const handleLogout = () => {
+        logout();
+        navigate('/login');
+    };
 
     useEffect(() => {
         const storedUser = localStorage.getItem('user');
@@ -487,6 +495,16 @@ export default function AdminDashboard() {
                                     onClick={() => navigate('/profile')}
                                 >
                                     <SettingsIcon />
+                                </IconButton>
+                                <IconButton
+                                    onClick={handleLogout}
+                                    sx={{
+                                        bgcolor: 'rgba(211,47,47,0.2)',
+                                        color: '#fff',
+                                        '&:hover': { bgcolor: 'rgba(211,47,47,0.4)' }
+                                    }}
+                                >
+                                    <LogoutIcon />
                                 </IconButton>
                             </Box>
                         </Box>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
-    Box, Container, Typography, Grid, Card, CardContent, Button, Avatar, Paper, Fade, Grow
+    Box, Container, Typography, Grid, Card, CardContent, Button, Avatar, Paper, Fade, Grow, IconButton
 } from '@mui/material';
 import { keyframes } from '@mui/system';
 import PeopleIcon from '@mui/icons-material/People';
@@ -14,6 +14,7 @@ import AssignmentIcon from '@mui/icons-material/Assignment';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import CampaignIcon from '@mui/icons-material/Campaign';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import LogoutIcon from '@mui/icons-material/Logout';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
@@ -143,8 +144,13 @@ const StatCard = ({ icon: Icon, value, label, color, delay = 0 }) => (
 );
 
 export default function StudentAffairsDashboard() {
-    const { user } = useAuth();
+    const { user, logout } = useAuth();
     const navigate = useNavigate();
+
+    const handleLogout = () => {
+        logout();
+        navigate('/login');
+    };
 
     useEffect(() => {
         if (!user) {
@@ -250,28 +256,42 @@ export default function StudentAffairsDashboard() {
                 <Container maxWidth="xl">
                     <Fade in={true} timeout={800}>
                         <Box>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, mb: 2 }}>
-                                <Avatar
+                            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2, mb: 2 }}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                                    <Avatar
+                                        sx={{
+                                            width: 80,
+                                            height: 80,
+                                            bgcolor: 'rgba(255,255,255,0.2)',
+                                            backdropFilter: 'blur(10px)',
+                                            fontSize: 32,
+                                            fontFamily: 'Cairo',
+                                            fontWeight: 'bold',
+                                        }}
+                                    >
+                                        {user.first_name?.charAt(0)}{user.last_name?.charAt(0)}
+                                    </Avatar>
+                                    <Box>
+                                        <Typography variant="h3" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff', textShadow: '0 4px 20px rgba(0,0,0,0.2)' }}>
+                                            مرحباً، {user.first_name} {user.last_name}
+                                        </Typography>
+                                        <Typography variant="h6" sx={{ fontFamily: 'Cairo', color: 'rgba(255,255,255,0.9)' }}>
+                                            لوحة تحكم شؤون الطلاب
+                                        </Typography>
+                                    </Box>
+                                </Box>
+                                <IconButton
+                                    onClick={handleLogout}
                                     sx={{
-                                        width: 80,
-                                        height: 80,
-                                        bgcolor: 'rgba(255,255,255,0.2)',
-                                        backdropFilter: 'blur(10px)',
-                                        fontSize: 32,
-                                        fontFamily: 'Cairo',
-                                        fontWeight: 'bold',
+                                        bgcolor: 'rgba(211,47,47,0.2)',
+                                        color: '#fff',
+                                        width: 50,
+                                        height: 50,
+                                        '&:hover': { bgcolor: 'rgba(211,47,47,0.4)' }
                                     }}
                                 >
-                                    {user.first_name?.charAt(0)}{user.last_name?.charAt(0)}
-                                </Avatar>
-                                <Box>
-                                    <Typography variant="h3" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff', textShadow: '0 4px 20px rgba(0,0,0,0.2)' }}>
-                                        مرحباً، {user.first_name} {user.last_name}
-                                    </Typography>
-                                    <Typography variant="h6" sx={{ fontFamily: 'Cairo', color: 'rgba(255,255,255,0.9)' }}>
-                                        لوحة تحكم شؤون الطلاب
-                                    </Typography>
-                                </Box>
+                                    <LogoutIcon />
+                                </IconButton>
                             </Box>
                         </Box>
                     </Fade>

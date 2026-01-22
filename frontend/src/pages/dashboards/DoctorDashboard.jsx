@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import {
   Box, Container, Typography, Card, CardContent, Button, Grid, Paper,
   CircularProgress, Alert, Chip, FormControl, Select, MenuItem,
-  Accordion, AccordionSummary, AccordionDetails, Avatar, Fade, Grow
+  Accordion, AccordionSummary, AccordionDetails, Avatar, Fade, Grow, IconButton
 } from '@mui/material';
 import { keyframes } from '@mui/system';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
@@ -14,7 +14,9 @@ import PersonIcon from '@mui/icons-material/Person';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import ClassIcon from '@mui/icons-material/Class';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import LogoutIcon from '@mui/icons-material/Logout';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
 
 // Animations
@@ -24,6 +26,7 @@ const float = keyframes`
 `;
 
 export default function DoctorDashboard() {
+  const { logout } = useAuth();
   const [user, setUser] = useState(null);
   const [courses, setCourses] = useState([]);
   const [academicYears, setAcademicYears] = useState([]);
@@ -31,6 +34,11 @@ export default function DoctorDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   const token = localStorage.getItem('access_token');
   const config = { headers: { Authorization: `Bearer ${token}` }, withCredentials: true };
@@ -264,31 +272,45 @@ export default function DoctorDashboard() {
                 </Box>
 
                 {/* Year Selector */}
-                <Paper elevation={0} sx={{ p: 1.5, borderRadius: 3, bgcolor: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(10px)' }}>
-                  <FormControl sx={{ minWidth: 200 }}>
-                    <Select
-                      value={selectedYear}
-                      onChange={(e) => setSelectedYear(e.target.value)}
-                      displayEmpty
-                      sx={{
-                        color: '#fff',
-                        fontFamily: 'Cairo',
-                        fontSize: '1.1rem',
-                        '.MuiOutlinedInput-notchedOutline': { border: 'none' },
-                        '.MuiSvgIcon-root': { color: '#fff' },
-                        bgcolor: 'rgba(255,255,255,0.1)',
-                        borderRadius: 2
-                      }}
-                    >
-                      {academicYears.map((year) => (
-                        <MenuItem key={year.id} value={year.id} sx={{ fontFamily: 'Cairo', fontSize: '1.1rem' }}>
-                          {year.name}
-                          {year.is_current && <Chip label="الحالي" size="small" color="success" sx={{ ml: 1 }} />}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Paper>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <Paper elevation={0} sx={{ p: 1.5, borderRadius: 3, bgcolor: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(10px)' }}>
+                    <FormControl sx={{ minWidth: 200 }}>
+                      <Select
+                        value={selectedYear}
+                        onChange={(e) => setSelectedYear(e.target.value)}
+                        displayEmpty
+                        sx={{
+                          color: '#fff',
+                          fontFamily: 'Cairo',
+                          fontSize: '1.1rem',
+                          '.MuiOutlinedInput-notchedOutline': { border: 'none' },
+                          '.MuiSvgIcon-root': { color: '#fff' },
+                          bgcolor: 'rgba(255,255,255,0.1)',
+                          borderRadius: 2
+                        }}
+                      >
+                        {academicYears.map((year) => (
+                          <MenuItem key={year.id} value={year.id} sx={{ fontFamily: 'Cairo', fontSize: '1.1rem' }}>
+                            {year.name}
+                            {year.is_current && <Chip label="الحالي" size="small" color="success" sx={{ ml: 1 }} />}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Paper>
+                  <IconButton
+                    onClick={handleLogout}
+                    sx={{
+                      bgcolor: 'rgba(211,47,47,0.2)',
+                      color: '#fff',
+                      width: 50,
+                      height: 50,
+                      '&:hover': { bgcolor: 'rgba(211,47,47,0.4)' }
+                    }}
+                  >
+                    <LogoutIcon />
+                  </IconButton>
+                </Box>
               </Box>
             </Box>
           </Fade>

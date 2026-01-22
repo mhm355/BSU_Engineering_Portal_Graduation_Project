@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
     Container, Paper, Typography, Box, Card, CardContent, CardActionArea,
-    Avatar, Grid, Fade, Grow, CircularProgress
+    Avatar, Grid, Fade, Grow, CircularProgress, IconButton
 } from '@mui/material';
 import { keyframes } from '@mui/system';
 import {
@@ -15,8 +15,10 @@ import {
     TrendingUp as TrendingUpIcon,
     Groups as GroupsIcon,
     Badge as BadgeIcon,
+    Logout as LogoutIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
 
 // Animations
@@ -31,6 +33,7 @@ const pulse = keyframes`
 `;
 
 const StaffAffairsDashboard = () => {
+    const { logout } = useAuth();
     const navigate = useNavigate();
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     const [doctorCount, setDoctorCount] = useState(0);
@@ -116,26 +119,40 @@ const StaffAffairsDashboard = () => {
 
                 <Container maxWidth="lg">
                     <Fade in={true} timeout={800}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-                            <Avatar
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                                <Avatar
+                                    sx={{
+                                        width: 90,
+                                        height: 90,
+                                        bgcolor: 'rgba(255,255,255,0.2)',
+                                        backdropFilter: 'blur(10px)',
+                                        border: '3px solid rgba(255,255,255,0.3)',
+                                    }}
+                                >
+                                    <AccountCircleIcon sx={{ fontSize: 55, color: '#fff' }} />
+                                </Avatar>
+                                <Box>
+                                    <Typography variant="h3" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff', textShadow: '0 4px 20px rgba(0,0,0,0.2)' }}>
+                                        مرحباً، {user.first_name || 'شئون العاملين'}
+                                    </Typography>
+                                    <Typography variant="h6" sx={{ fontFamily: 'Cairo', color: 'rgba(255,255,255,0.9)' }}>
+                                        لوحة تحكم شئون العاملين - إدارة الدكاترة والموظفين
+                                    </Typography>
+                                </Box>
+                            </Box>
+                            <IconButton
+                                onClick={() => { logout(); navigate('/login'); }}
                                 sx={{
-                                    width: 90,
-                                    height: 90,
-                                    bgcolor: 'rgba(255,255,255,0.2)',
-                                    backdropFilter: 'blur(10px)',
-                                    border: '3px solid rgba(255,255,255,0.3)',
+                                    bgcolor: 'rgba(211,47,47,0.2)',
+                                    color: '#fff',
+                                    width: 50,
+                                    height: 50,
+                                    '&:hover': { bgcolor: 'rgba(211,47,47,0.4)' }
                                 }}
                             >
-                                <AccountCircleIcon sx={{ fontSize: 55, color: '#fff' }} />
-                            </Avatar>
-                            <Box>
-                                <Typography variant="h3" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff', textShadow: '0 4px 20px rgba(0,0,0,0.2)' }}>
-                                    مرحباً، {user.first_name || 'شئون العاملين'}
-                                </Typography>
-                                <Typography variant="h6" sx={{ fontFamily: 'Cairo', color: 'rgba(255,255,255,0.9)' }}>
-                                    لوحة تحكم شئون العاملين - إدارة الدكاترة والموظفين
-                                </Typography>
-                            </Box>
+                                <LogoutIcon />
+                            </IconButton>
                         </Box>
                     </Fade>
                 </Container>
