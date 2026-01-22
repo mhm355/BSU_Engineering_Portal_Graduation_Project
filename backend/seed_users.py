@@ -9,14 +9,21 @@ User = get_user_model()
 
 def create_user(username, password, role, first_name, last_name):
     if not User.objects.filter(username=username).exists():
-        User.objects.create_user(
+        user = User.objects.create_user(
             username=username,
             password=password,
             role=role,
             first_name=first_name,
             last_name=last_name
         )
-        print(f"Created {role} user: {username}")
+        # Assign default avatar if exists
+        # Note: We assign the relative path string directly. 
+        # Django will expect this file to exist in MEDIA_ROOT/defaults/default_avatar.png
+        # which is created by seed_defaults.py
+        user.profile_picture.name = 'defaults/default_avatar.png'
+        user.save()
+        
+        print(f"Created {role} user: {username} (with avatar)")
     else:
         print(f"User {username} already exists")
 

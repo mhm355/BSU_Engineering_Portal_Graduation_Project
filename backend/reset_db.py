@@ -35,6 +35,8 @@ def main():
 
     # 3. Create Superuser (Admin) & Basic Users
     print("\n[3/6] creating users...")
+    # First create default media assets
+    run_command("python seed_defaults.py")
     run_command("python seed_users.py")
 
     # 4. Create Production Data (Departments, Specs, Templates)
