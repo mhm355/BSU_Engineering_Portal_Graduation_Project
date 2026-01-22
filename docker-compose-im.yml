@@ -9,17 +9,19 @@ services:
       MYSQL_USER: bsu_user
       MYSQL_PASSWORD: bsu_password
     volumes:
-      - db_data_1:/var/lib/mysql
+      - db_data:/var/lib/mysql
     ports:
       - "3307:3306"
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - bsu_network
 
   backend:
-    image: mhmdocker1/bsu_backend:v2.2
+    image: mohamedessam14/bsu_backend:v2.5
     container_name: bsu_backend_1
     ports:
       - "8001:8000"
@@ -29,29 +31,24 @@ services:
     restart: always
     environment:
       - DATABASE_URL=mysql://bsu_user:bsu_password@db:3306/bsu_db
+    networks:
+      - bsu_network
 
   frontend:
-    image: mhmdocker1/bsu_frontend:v2.2
+    image: mohamedessam14/bsu_frontend:v2.4
     container_name: bsu_frontend_1
     ports:
-      - "8081:80"
+      - "8081:5173"
     depends_on:
       - backend
-    restart: always 
-
- # phpmyadmin:
-    #    image: phpmyadmin:latest
-#    container_name: bsu_phpmyadmin_1
-#    restart: always
-#    ports:
-#      - "8082:80"
-#    environment:
-#      PMA_HOST: db
-#      PMA_PORT: 3306
-#      MYSQL_ROOT_PASSWORD: root
-#    depends_on:
-#      db:
-#        condition: service_healthy
+    restart: always
+    networks:
+      - bsu_network
 
 volumes:
-  db_data_1:
+  db_data:
+
+
+networks:
+  bsu_network:
+    driver: bridge
