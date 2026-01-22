@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import {
     Box, Container, Typography, Grid, Paper, TextField, Button,
     Accordion, AccordionSummary, AccordionDetails, IconButton,
-    MenuItem, Snackbar, Alert, CircularProgress, Chip,
+    MenuItem, Snackbar, Alert, CircularProgress, Chip, Avatar,
     InputAdornment, Fade, Grow, Slide
 } from '@mui/material';
+import { keyframes } from '@mui/system';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import PhoneIcon from '@mui/icons-material/Phone';
 import EmailIcon from '@mui/icons-material/Email';
@@ -20,66 +21,80 @@ import FacebookIcon from '@mui/icons-material/Facebook';
 import TwitterIcon from '@mui/icons-material/Twitter';
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import YouTubeIcon from '@mui/icons-material/YouTube';
+import InstagramIcon from '@mui/icons-material/Instagram';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import SupportAgentIcon from '@mui/icons-material/SupportAgent';
+import MapIcon from '@mui/icons-material/Map';
+import HomeIcon from '@mui/icons-material/Home';
+import { Link } from 'react-router-dom';
 
-// CSS keyframes for animations
-const animationStyles = `
-@keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-10px); }
-}
-@keyframes rotate {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
-@keyframes rotateReverse {
-    from { transform: rotate(360deg); }
-    to { transform: rotate(0deg); }
-}
-@keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(30px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-@keyframes slideInLeft {
-    from { opacity: 0; transform: translateX(-30px); }
-    to { opacity: 1; transform: translateX(0); }
-}
-@keyframes slideInRight {
-    from { opacity: 0; transform: translateX(30px); }
-    to { opacity: 1; transform: translateX(0); }
-}
-@keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-}
+// Keyframe Animations
+const float = keyframes`
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-15px); }
+`;
+
+const pulse = keyframes`
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.9; }
+`;
+
+const shimmer = keyframes`
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+`;
+
+const gradientMove = keyframes`
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+`;
+
+const rotate = keyframes`
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+`;
+
+const rotateReverse = keyframes`
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
+`;
+
+const slideUp = keyframes`
+  0% { opacity: 0; transform: translateY(30px); }
+  100% { opacity: 1; transform: translateY(0); }
 `;
 
 // Contact cards data
 const contactInfo = [
     {
-        icon: <LocationOnIcon sx={{ fontSize: 32 }} />,
+        icon: <LocationOnIcon sx={{ fontSize: 36 }} />,
         title: 'العنوان',
         details: ['شرق النيل، بني سويف، مصر', 'كلية الهندسة - جامعة بني سويف'],
-        color: '#4CAF50'
+        color: '#4CAF50',
+        gradient: 'linear-gradient(135deg, #4CAF50, #81C784)'
     },
     {
-        icon: <PhoneIcon sx={{ fontSize: 32 }} />,
+        icon: <PhoneIcon sx={{ fontSize: 36 }} />,
         title: 'الهاتف',
         details: ['082-2334015', '082-2334016', '082-2334017'],
-        color: '#2196F3'
+        color: '#2196F3',
+        gradient: 'linear-gradient(135deg, #2196F3, #64B5F6)'
     },
     {
-        icon: <EmailIcon sx={{ fontSize: 32 }} />,
+        icon: <EmailIcon sx={{ fontSize: 36 }} />,
         title: 'البريد الإلكتروني',
         details: ['info@eng.bsu.edu.eg', 'dean@eng.bsu.edu.eg', 'support@eng.bsu.edu.eg'],
-        color: '#FF9800'
+        color: '#FF9800',
+        gradient: 'linear-gradient(135deg, #FF9800, #FFB74D)'
     },
     {
-        icon: <AccessTimeIcon sx={{ fontSize: 32 }} />,
+        icon: <AccessTimeIcon sx={{ fontSize: 36 }} />,
         title: 'ساعات العمل',
         details: ['الأحد - الخميس: 8:00ص - 4:00م', 'الجمعة - السبت: مغلق'],
-        color: '#9C27B0'
+        color: '#9C27B0',
+        gradient: 'linear-gradient(135deg, #9C27B0, #BA68C8)'
     }
 ];
 
@@ -132,8 +147,104 @@ const socialLinks = [
     { icon: <FacebookIcon />, url: 'https://facebook.com/bsu.eng', color: '#1877F2', label: 'Facebook' },
     { icon: <TwitterIcon />, url: 'https://twitter.com/bsu_eng', color: '#1DA1F2', label: 'Twitter' },
     { icon: <LinkedInIcon />, url: 'https://linkedin.com/company/bsu-eng', color: '#0A66C2', label: 'LinkedIn' },
-    { icon: <YouTubeIcon />, url: 'https://youtube.com/@bsu_eng', color: '#FF0000', label: 'YouTube' }
+    { icon: <YouTubeIcon />, url: 'https://youtube.com/@bsu_eng', color: '#FF0000', label: 'YouTube' },
+    { icon: <InstagramIcon />, url: 'https://instagram.com/bsu_eng', color: '#E4405F', label: 'Instagram' }
 ];
+
+// Contact Card Component
+const ContactCard = ({ info, index }) => (
+    <Grow in={true} timeout={600 + index * 150}>
+        <Paper
+            elevation={0}
+            sx={{
+                p: 4,
+                height: '100%',
+                textAlign: 'center',
+                borderRadius: 4,
+                background: 'rgba(255,255,255,0.95)',
+                backdropFilter: 'blur(10px)',
+                border: '1px solid rgba(0,0,0,0.06)',
+                transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                position: 'relative',
+                overflow: 'hidden',
+                '&:hover': {
+                    transform: 'translateY(-10px)',
+                    boxShadow: `0 25px 50px ${info.color}30`,
+                    '& .card-icon': {
+                        transform: 'scale(1.1) rotate(5deg)',
+                        background: info.gradient,
+                        color: '#fff',
+                    },
+                    '& .card-glow': {
+                        opacity: 1,
+                    }
+                }
+            }}
+        >
+            {/* Glow Effect */}
+            <Box
+                className="card-glow"
+                sx={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    height: 4,
+                    background: info.gradient,
+                    opacity: 0,
+                    transition: 'opacity 0.4s ease',
+                }}
+            />
+
+            <Box
+                className="card-icon"
+                sx={{
+                    width: 80,
+                    height: 80,
+                    borderRadius: 4,
+                    bgcolor: `${info.color}15`,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    mx: 'auto',
+                    mb: 3,
+                    color: info.color,
+                    transition: 'all 0.4s ease',
+                    animation: `${float} 4s ease-in-out infinite`,
+                    animationDelay: `${index * 0.2}s`,
+                }}
+            >
+                {info.icon}
+            </Box>
+
+            <Typography
+                variant="h5"
+                sx={{
+                    fontFamily: 'Cairo',
+                    fontWeight: 'bold',
+                    color: '#0A2342',
+                    mb: 2
+                }}
+            >
+                {info.title}
+            </Typography>
+
+            {info.details.map((detail, idx) => (
+                <Typography
+                    key={idx}
+                    variant="body1"
+                    sx={{
+                        fontFamily: 'Cairo',
+                        color: '#666',
+                        lineHeight: 2
+                    }}
+                >
+                    {detail}
+                </Typography>
+            ))}
+        </Paper>
+    </Grow>
+);
 
 export default function Contact() {
     // Form state
@@ -152,11 +263,6 @@ export default function Contact() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
     const [expandedFaq, setExpandedFaq] = useState(false);
-    const [mounted, setMounted] = useState(false);
-
-    React.useEffect(() => {
-        setMounted(true);
-    }, []);
 
     // Validation function
     const validateForm = () => {
@@ -230,155 +336,159 @@ export default function Contact() {
         }
     };
 
-    // Styles
-    const glassCardStyle = {
-        background: 'rgba(255, 255, 255, 0.95)',
-        backdropFilter: 'blur(10px)',
-        borderRadius: '16px',
-        border: '1px solid rgba(255, 255, 255, 0.2)',
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-        transition: 'all 0.3s ease',
-        '&:hover': {
-            transform: 'translateY(-5px)',
-            boxShadow: '0 12px 40px rgba(0, 0, 0, 0.15)'
-        }
-    };
-
+    // Input Style
     const inputStyle = {
         '& .MuiOutlinedInput-root': {
             fontFamily: 'Cairo',
-            borderRadius: '16px',
+            borderRadius: 3,
             transition: 'all 0.3s ease',
-            textAlign: 'right',
-            fontSize: '1.1rem',
-            backgroundColor: '#fafbfc',
-            '& input': {
-                padding: '18px 16px',
-                textAlign: 'right'
-            },
-            '& textarea': {
-                padding: '18px 16px',
-                textAlign: 'right'
-            },
+            backgroundColor: 'rgba(250,251,252,0.8)',
             '&:hover': {
-                boxShadow: '0 6px 20px rgba(10, 35, 66, 0.12)',
-                backgroundColor: '#fff'
+                boxShadow: '0 6px 20px rgba(10, 35, 66, 0.1)',
+                backgroundColor: '#fff',
+                '& .MuiOutlinedInput-notchedOutline': {
+                    borderColor: '#FFC107',
+                }
             },
             '&.Mui-focused': {
-                boxShadow: '0 8px 30px rgba(10, 35, 66, 0.18)',
-                backgroundColor: '#fff'
+                boxShadow: '0 8px 30px rgba(10, 35, 66, 0.15)',
+                backgroundColor: '#fff',
+                '& .MuiOutlinedInput-notchedOutline': {
+                    borderColor: '#0A2342',
+                    borderWidth: 2,
+                }
             }
         },
         '& .MuiInputLabel-root': {
             fontFamily: 'Cairo',
-            fontSize: '1rem',
-            right: 28,
-            left: 'auto',
-            transformOrigin: 'right'
-        },
-        '& .MuiInputLabel-shrink': {
-            transformOrigin: 'right',
-            right: 14
-        },
-        '& .MuiOutlinedInput-notchedOutline': {
-            textAlign: 'right',
-            borderWidth: '2px'
         },
         '& .MuiFormHelperText-root': {
             fontFamily: 'Cairo',
-            textAlign: 'right',
-            marginRight: 8
         }
     };
 
     return (
-        <Box sx={{ direction: 'rtl', overflow: 'hidden', textAlign: 'right' }}>
-            {/* Inject CSS animations */}
-            <style>{animationStyles}</style>
-
+        <Box sx={{ bgcolor: '#fafbfc', overflow: 'hidden' }}>
             {/* Hero Section */}
             <Box
                 sx={{
-                    background: 'linear-gradient(135deg, #0A2342 0%, #1a3a5c 50%, #0A2342 100%)',
                     position: 'relative',
-                    py: { xs: 8, md: 12 },
-                    overflow: 'hidden'
+                    minHeight: { xs: '50vh', md: '60vh' },
+                    display: 'flex',
+                    alignItems: 'center',
+                    background: 'linear-gradient(135deg, #0A2342 0%, #1a3a5c 50%, #0A2342 100%)',
+                    backgroundSize: '200% 200%',
+                    animation: `${gradientMove} 15s ease infinite`,
+                    overflow: 'hidden',
                 }}
             >
                 {/* Animated Background Elements */}
+                <Box sx={{ position: 'absolute', top: -100, right: -100, width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,193,7,0.12) 0%, transparent 70%)', animation: `${float} 8s ease-in-out infinite` }} />
+                <Box sx={{ position: 'absolute', bottom: -150, left: -100, width: 600, height: 600, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%)', animation: `${float} 10s ease-in-out infinite`, animationDelay: '2s' }} />
+                <Box sx={{ position: 'absolute', top: '30%', left: '10%', width: 200, height: 200, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,193,7,0.08) 0%, transparent 70%)', animation: `${float} 6s ease-in-out infinite`, animationDelay: '1s' }} />
+
+                {/* Rotating Rings */}
+                <Box sx={{ position: 'absolute', top: '10%', right: '-20%', width: 600, height: 600, borderRadius: '50%', border: '2px dashed rgba(255,193,7,0.15)', animation: `${rotate} 60s linear infinite` }} />
+                <Box sx={{ position: 'absolute', bottom: '-30%', left: '-10%', width: 400, height: 400, borderRadius: '50%', border: '2px dashed rgba(255,255,255,0.1)', animation: `${rotateReverse} 50s linear infinite` }} />
+
+                {/* Grid Pattern */}
                 <Box
                     sx={{
                         position: 'absolute',
-                        top: '-50%',
-                        right: '-20%',
-                        width: '600px',
-                        height: '600px',
-                        borderRadius: '50%',
-                        border: '2px solid rgba(255, 193, 7, 0.1)',
-                        pointerEvents: 'none',
-                        animation: 'rotate 50s linear infinite'
-                    }}
-                />
-                <Box
-                    sx={{
-                        position: 'absolute',
-                        bottom: '-30%',
-                        left: '-10%',
-                        width: '400px',
-                        height: '400px',
-                        borderRadius: '50%',
-                        border: '2px solid rgba(255, 193, 7, 0.15)',
-                        pointerEvents: 'none',
-                        animation: 'rotateReverse 40s linear infinite'
+                        inset: 0,
+                        backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.03) 1px, transparent 0)',
+                        backgroundSize: '40px 40px',
                     }}
                 />
 
-                <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 2 }}>
-                    <Fade in={mounted} timeout={800}>
-                        <Box sx={{ animation: 'fadeInUp 0.8s ease-out' }}>
-                            <Typography
-                                variant="h2"
-                                component="h1"
+                <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 2, textAlign: 'center' }}>
+                    {/* Home Button */}
+                    <Fade in={true} timeout={600}>
+                        <Box sx={{ mb: 4 }}>
+                            <Button
+                                component={Link}
+                                to="/"
+                                startIcon={<HomeIcon />}
                                 sx={{
+                                    color: 'rgba(255,255,255,0.8)',
                                     fontFamily: 'Cairo',
                                     fontWeight: 'bold',
-                                    color: 'white',
-                                    textAlign: 'center',
+                                    borderRadius: 3,
+                                    px: 3,
+                                    py: 1,
+                                    border: '1px solid rgba(255,255,255,0.2)',
+                                    backdropFilter: 'blur(10px)',
+                                    '&:hover': {
+                                        bgcolor: 'rgba(255,255,255,0.1)',
+                                        borderColor: 'rgba(255,255,255,0.4)',
+                                    }
+                                }}
+                            >
+                                الصفحة الرئيسية
+                            </Button>
+                        </Box>
+                    </Fade>
+
+                    <Fade in={true} timeout={800}>
+                        <Box>
+                            <Chip
+                                icon={<SupportAgentIcon sx={{ fontSize: 18 }} />}
+                                label="نحن هنا لمساعدتك"
+                                sx={{
+                                    mb: 3,
+                                    bgcolor: 'rgba(255,193,7,0.15)',
+                                    color: '#FFC107',
+                                    fontFamily: 'Cairo',
+                                    fontWeight: 'bold',
+                                    border: '1px solid rgba(255,193,7,0.3)',
+                                    py: 2.5,
+                                    px: 1,
+                                }}
+                            />
+
+                            <Typography
+                                variant="h2"
+                                sx={{
+                                    fontFamily: 'Cairo',
+                                    fontWeight: 800,
+                                    color: '#fff',
                                     mb: 2,
-                                    fontSize: { xs: '2rem', md: '3rem' }
+                                    textShadow: '0 4px 30px rgba(0,0,0,0.3)',
+                                    fontSize: { xs: '2.5rem', md: '3.5rem' },
                                 }}
                             >
                                 تواصل معنا
                             </Typography>
+
                             <Typography
                                 variant="h6"
                                 sx={{
                                     fontFamily: 'Cairo',
-                                    color: 'rgba(255, 255, 255, 0.8)',
-                                    textAlign: 'center',
-                                    maxWidth: '600px',
+                                    color: 'rgba(255,255,255,0.85)',
+                                    maxWidth: 600,
                                     mx: 'auto',
-                                    lineHeight: 1.8
+                                    lineHeight: 1.8,
+                                    fontWeight: 400,
                                 }}
                             >
-                                نحن هنا لمساعدتك! تواصل معنا للاستفسارات أو الدعم
+                                فريقنا متاح للإجابة على استفساراتكم وتقديم الدعم اللازم
                             </Typography>
 
                             {/* Breadcrumb */}
-                            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3, gap: 1 }}>
+                            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4, gap: 1 }}>
                                 <Chip
                                     label="الرئيسية"
+                                    component={Link}
+                                    to="/"
+                                    clickable
                                     sx={{
                                         fontFamily: 'Cairo',
-                                        bgcolor: 'rgba(255, 255, 255, 0.1)',
+                                        bgcolor: 'rgba(255,255,255,0.1)',
                                         color: 'white',
-                                        '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)' }
+                                        '&:hover': { bgcolor: 'rgba(255,255,255,0.2)' }
                                     }}
-                                    clickable
-                                    component="a"
-                                    href="/"
                                 />
-                                <Typography sx={{ color: 'rgba(255, 255, 255, 0.5)', alignSelf: 'center' }}>/</Typography>
+                                <Typography sx={{ color: 'rgba(255,255,255,0.5)', alignSelf: 'center' }}>/</Typography>
                                 <Chip
                                     label="اتصل بنا"
                                     sx={{
@@ -392,126 +502,102 @@ export default function Contact() {
                         </Box>
                     </Fade>
                 </Container>
+
+                {/* Bottom Wave */}
+                <Box
+                    sx={{
+                        position: 'absolute',
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        height: 100,
+                        background: 'linear-gradient(to top, #fafbfc, transparent)',
+                    }}
+                />
             </Box>
 
             {/* Contact Info Cards */}
-            <Container maxWidth="lg" sx={{ mt: -6, position: 'relative', zIndex: 3 }}>
-                <Grid container spacing={3} direction="row-reverse">
+            <Container maxWidth="lg" sx={{ mt: -8, position: 'relative', zIndex: 3 }}>
+                <Grid container spacing={3}>
                     {contactInfo.map((info, index) => (
                         <Grid item xs={12} sm={6} md={3} key={index}>
-                            <Grow in={mounted} timeout={500 + index * 200}>
-                                <Paper
-                                    elevation={0}
-                                    sx={{
-                                        ...glassCardStyle,
-                                        p: 3,
-                                        textAlign: 'center',
-                                        height: '100%'
-                                    }}
-                                >
-                                    <Box
-                                        sx={{
-                                            width: 64,
-                                            height: 64,
-                                            borderRadius: '50%',
-                                            bgcolor: `${info.color}15`,
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            mx: 'auto',
-                                            mb: 2,
-                                            color: info.color,
-                                            animation: 'float 3s ease-in-out infinite'
-                                        }}
-                                    >
-                                        {info.icon}
-                                    </Box>
-                                    <Typography
-                                        variant="h6"
-                                        sx={{
-                                            fontFamily: 'Cairo',
-                                            fontWeight: 'bold',
-                                            color: '#0A2342',
-                                            mb: 1
-                                        }}
-                                    >
-                                        {info.title}
-                                    </Typography>
-                                    {info.details.map((detail, idx) => (
-                                        <Typography
-                                            key={idx}
-                                            variant="body2"
-                                            sx={{
-                                                fontFamily: 'Cairo',
-                                                color: 'text.secondary',
-                                                lineHeight: 1.8
-                                            }}
-                                        >
-                                            {detail}
-                                        </Typography>
-                                    ))}
-                                </Paper>
-                            </Grow>
+                            <ContactCard info={info} index={index} />
                         </Grid>
                     ))}
                 </Grid>
             </Container>
 
             {/* Main Content */}
-            <Container maxWidth="lg" sx={{ py: 8 }}>
-                <Grid container spacing={6} direction="row-reverse">
+            <Container maxWidth="lg" sx={{ py: 10 }}>
+                <Grid container spacing={6}>
                     {/* Contact Form */}
                     <Grid item xs={12} lg={7}>
-                        <Slide direction="left" in={mounted} timeout={600}>
+                        <Grow in={true} timeout={800}>
                             <Paper
                                 elevation={0}
                                 sx={{
-                                    ...glassCardStyle,
-                                    p: { xs: 3, md: 5 }
+                                    p: { xs: 4, md: 6 },
+                                    borderRadius: 5,
+                                    background: 'rgba(255,255,255,0.98)',
+                                    backdropFilter: 'blur(10px)',
+                                    border: '1px solid rgba(0,0,0,0.06)',
+                                    boxShadow: '0 10px 40px rgba(0,0,0,0.08)',
+                                    position: 'relative',
+                                    overflow: 'hidden',
                                 }}
                             >
-                                <Box sx={{ display: 'flex', alignItems: 'center', mb: 4, justifyContent: 'flex-end' }}>
-                                    <Box sx={{ textAlign: 'right' }}>
+                                {/* Shimmer Bar */}
+                                <Box
+                                    sx={{
+                                        position: 'absolute',
+                                        top: 0,
+                                        left: 0,
+                                        right: 0,
+                                        height: 4,
+                                        background: 'linear-gradient(90deg, transparent, #FFC107, #0A2342, #FFC107, transparent)',
+                                        backgroundSize: '200% 100%',
+                                        animation: `${shimmer} 3s linear infinite`,
+                                    }}
+                                />
+
+                                <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
+                                    <Box
+                                        sx={{
+                                            width: 70,
+                                            height: 70,
+                                            borderRadius: 4,
+                                            background: 'linear-gradient(135deg, #FFC107, #FFD54F)',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            mr: 3,
+                                            boxShadow: '0 10px 30px rgba(255,193,7,0.3)',
+                                        }}
+                                    >
+                                        <SendIcon sx={{ color: '#0A2342', fontSize: 32 }} />
+                                    </Box>
+                                    <Box>
                                         <Typography
                                             variant="h4"
                                             sx={{
                                                 fontFamily: 'Cairo',
                                                 fontWeight: 'bold',
                                                 color: '#0A2342',
-                                                fontSize: { xs: '1.5rem', md: '2rem' }
                                             }}
                                         >
                                             أرسل لنا رسالة
                                         </Typography>
                                         <Typography
                                             variant="body1"
-                                            sx={{
-                                                fontFamily: 'Cairo',
-                                                color: 'text.secondary',
-                                                fontSize: '1rem'
-                                            }}
+                                            sx={{ fontFamily: 'Cairo', color: '#666' }}
                                         >
                                             سنرد عليك في أقرب وقت ممكن
                                         </Typography>
                                     </Box>
-                                    <Box
-                                        sx={{
-                                            width: 56,
-                                            height: 56,
-                                            borderRadius: '16px',
-                                            bgcolor: '#FFC10720',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            ml: 3
-                                        }}
-                                    >
-                                        <SendIcon sx={{ color: '#FFC107', fontSize: 28 }} />
-                                    </Box>
                                 </Box>
 
                                 <form onSubmit={handleSubmit}>
-                                    <Grid container spacing={3} direction="row-reverse">
+                                    <Grid container spacing={3}>
                                         {/* Name */}
                                         <Grid item xs={12} md={6}>
                                             <TextField
@@ -524,9 +610,9 @@ export default function Contact() {
                                                 helperText={errors.name}
                                                 sx={inputStyle}
                                                 InputProps={{
-                                                    endAdornment: (
-                                                        <InputAdornment position="end">
-                                                            <PersonIcon sx={{ color: 'text.secondary' }} />
+                                                    startAdornment: (
+                                                        <InputAdornment position="start">
+                                                            <PersonIcon sx={{ color: '#0A2342' }} />
                                                         </InputAdornment>
                                                     )
                                                 }}
@@ -546,9 +632,28 @@ export default function Contact() {
                                                 helperText={errors.email}
                                                 sx={inputStyle}
                                                 InputProps={{
-                                                    endAdornment: (
-                                                        <InputAdornment position="end">
-                                                            <EmailIcon sx={{ color: 'text.secondary' }} />
+                                                    startAdornment: (
+                                                        <InputAdornment position="start">
+                                                            <EmailIcon sx={{ color: '#0A2342' }} />
+                                                        </InputAdornment>
+                                                    )
+                                                }}
+                                            />
+                                        </Grid>
+
+                                        {/* Phone */}
+                                        <Grid item xs={12} md={6}>
+                                            <TextField
+                                                fullWidth
+                                                name="phone"
+                                                label="رقم الهاتف (اختياري)"
+                                                value={formData.phone}
+                                                onChange={handleChange}
+                                                sx={inputStyle}
+                                                InputProps={{
+                                                    startAdornment: (
+                                                        <InputAdornment position="start">
+                                                            <PhoneIcon sx={{ color: '#0A2342' }} />
                                                         </InputAdornment>
                                                     )
                                                 }}
@@ -568,42 +673,19 @@ export default function Contact() {
                                                 helperText={errors.inquiryType}
                                                 sx={inputStyle}
                                                 InputProps={{
-                                                    endAdornment: (
-                                                        <InputAdornment position="end" sx={{ mr: 3 }}>
-                                                            <CategoryIcon sx={{ color: 'text.secondary' }} />
+                                                    startAdornment: (
+                                                        <InputAdornment position="start">
+                                                            <CategoryIcon sx={{ color: '#0A2342' }} />
                                                         </InputAdornment>
                                                     )
                                                 }}
                                             >
                                                 {inquiryTypes.map((option) => (
-                                                    <MenuItem
-                                                        key={option.value}
-                                                        value={option.value}
-                                                        sx={{ fontFamily: 'Cairo', textAlign: 'right' }}
-                                                    >
+                                                    <MenuItem key={option.value} value={option.value} sx={{ fontFamily: 'Cairo' }}>
                                                         {option.label}
                                                     </MenuItem>
                                                 ))}
                                             </TextField>
-                                        </Grid>
-
-                                        {/* Phone */}
-                                        <Grid item xs={12} md={6}>
-                                            <TextField
-                                                fullWidth
-                                                name="phone"
-                                                label="رقم الهاتف (اختياري)"
-                                                value={formData.phone}
-                                                onChange={handleChange}
-                                                sx={inputStyle}
-                                                InputProps={{
-                                                    endAdornment: (
-                                                        <InputAdornment position="end">
-                                                            <PhoneIcon sx={{ color: 'text.secondary' }} />
-                                                        </InputAdornment>
-                                                    )
-                                                }}
-                                            />
                                         </Grid>
 
                                         {/* Department */}
@@ -617,19 +699,15 @@ export default function Contact() {
                                                 onChange={handleChange}
                                                 sx={inputStyle}
                                                 InputProps={{
-                                                    endAdornment: (
-                                                        <InputAdornment position="end" sx={{ mr: 3 }}>
-                                                            <BusinessIcon sx={{ color: 'text.secondary' }} />
+                                                    startAdornment: (
+                                                        <InputAdornment position="start">
+                                                            <BusinessIcon sx={{ color: '#0A2342' }} />
                                                         </InputAdornment>
                                                     )
                                                 }}
                                             >
                                                 {departments.map((option) => (
-                                                    <MenuItem
-                                                        key={option.value}
-                                                        value={option.value}
-                                                        sx={{ fontFamily: 'Cairo', textAlign: 'right' }}
-                                                    >
+                                                    <MenuItem key={option.value} value={option.value} sx={{ fontFamily: 'Cairo' }}>
                                                         {option.label}
                                                     </MenuItem>
                                                 ))}
@@ -648,9 +726,9 @@ export default function Contact() {
                                                 helperText={errors.subject}
                                                 sx={inputStyle}
                                                 InputProps={{
-                                                    endAdornment: (
-                                                        <InputAdornment position="end">
-                                                            <SubjectIcon sx={{ color: 'text.secondary' }} />
+                                                    startAdornment: (
+                                                        <InputAdornment position="start">
+                                                            <SubjectIcon sx={{ color: '#0A2342' }} />
                                                         </InputAdornment>
                                                     )
                                                 }}
@@ -672,9 +750,9 @@ export default function Contact() {
                                                 inputProps={{ maxLength: 500 }}
                                                 sx={inputStyle}
                                                 InputProps={{
-                                                    endAdornment: (
-                                                        <InputAdornment position="end" sx={{ alignSelf: 'flex-start', mt: 1.5 }}>
-                                                            <MessageIcon sx={{ color: 'text.secondary' }} />
+                                                    startAdornment: (
+                                                        <InputAdornment position="start" sx={{ alignSelf: 'flex-start', mt: 1.5 }}>
+                                                            <MessageIcon sx={{ color: '#0A2342' }} />
                                                         </InputAdornment>
                                                     )
                                                 }}
@@ -693,20 +771,22 @@ export default function Contact() {
                                                     bgcolor: '#0A2342',
                                                     fontFamily: 'Cairo',
                                                     fontWeight: 'bold',
-                                                    py: 1.5,
-                                                    borderRadius: '12px',
+                                                    py: 2,
+                                                    borderRadius: 3,
                                                     fontSize: '1.1rem',
+                                                    boxShadow: '0 10px 30px rgba(10,35,66,0.3)',
                                                     transition: 'all 0.3s ease',
                                                     '&:hover': {
-                                                        bgcolor: '#1a3a5c',
-                                                        transform: 'translateY(-2px)',
-                                                        boxShadow: '0 8px 25px rgba(10, 35, 66, 0.3)'
+                                                        bgcolor: '#1a4a7a',
+                                                        transform: 'translateY(-3px)',
+                                                        boxShadow: '0 15px 40px rgba(10,35,66,0.4)',
                                                     },
                                                     '&:disabled': {
-                                                        bgcolor: '#ccc'
+                                                        bgcolor: 'rgba(10,35,66,0.5)',
+                                                        color: '#fff',
                                                     }
                                                 }}
-                                                startIcon={isSubmitting ? <CircularProgress size={20} color="inherit" /> : <SendIcon />}
+                                                startIcon={isSubmitting ? <CircularProgress size={24} color="inherit" /> : <SendIcon />}
                                             >
                                                 {isSubmitting ? 'جاري الإرسال...' : 'إرسال الرسالة'}
                                             </Button>
@@ -714,57 +794,57 @@ export default function Contact() {
                                     </Grid>
                                 </form>
                             </Paper>
-                        </Slide>
+                        </Grow>
                     </Grid>
 
                     {/* FAQ Section */}
                     <Grid item xs={12} lg={5}>
-                        <Slide direction="right" in={mounted} timeout={800}>
+                        <Grow in={true} timeout={1000}>
                             <Box>
                                 <Paper
                                     elevation={0}
                                     sx={{
-                                        ...glassCardStyle,
-                                        p: { xs: 3, md: 4 }
+                                        p: { xs: 4, md: 5 },
+                                        borderRadius: 5,
+                                        background: 'rgba(255,255,255,0.98)',
+                                        backdropFilter: 'blur(10px)',
+                                        border: '1px solid rgba(0,0,0,0.06)',
+                                        boxShadow: '0 10px 40px rgba(0,0,0,0.08)',
                                     }}
                                 >
-                                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 4, justifyContent: 'flex-end' }}>
-                                        <Box sx={{ textAlign: 'right' }}>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
+                                        <Box
+                                            sx={{
+                                                width: 70,
+                                                height: 70,
+                                                borderRadius: 4,
+                                                background: 'linear-gradient(135deg, #9C27B0, #BA68C8)',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                mr: 3,
+                                                boxShadow: '0 10px 30px rgba(156,39,176,0.3)',
+                                            }}
+                                        >
+                                            <HelpOutlineIcon sx={{ color: '#fff', fontSize: 32 }} />
+                                        </Box>
+                                        <Box>
                                             <Typography
                                                 variant="h4"
                                                 sx={{
                                                     fontFamily: 'Cairo',
                                                     fontWeight: 'bold',
                                                     color: '#0A2342',
-                                                    fontSize: { xs: '1.5rem', md: '2rem' }
                                                 }}
                                             >
                                                 الأسئلة الشائعة
                                             </Typography>
                                             <Typography
                                                 variant="body1"
-                                                sx={{
-                                                    fontFamily: 'Cairo',
-                                                    color: 'text.secondary',
-                                                    fontSize: '1rem'
-                                                }}
+                                                sx={{ fontFamily: 'Cairo', color: '#666' }}
                                             >
                                                 إجابات سريعة لأكثر الأسئلة شيوعًا
                                             </Typography>
-                                        </Box>
-                                        <Box
-                                            sx={{
-                                                width: 56,
-                                                height: 56,
-                                                borderRadius: '16px',
-                                                bgcolor: '#9C27B020',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                ml: 3
-                                            }}
-                                        >
-                                            <HelpOutlineIcon sx={{ color: '#9C27B0', fontSize: 28 }} />
                                         </Box>
                                     </Box>
 
@@ -776,51 +856,41 @@ export default function Contact() {
                                             elevation={0}
                                             sx={{
                                                 mb: 2,
-                                                borderRadius: '12px !important',
+                                                borderRadius: '16px !important',
                                                 border: '1px solid',
-                                                borderColor: expandedFaq === index ? '#FFC107' : 'rgba(0, 0, 0, 0.08)',
+                                                borderColor: expandedFaq === index ? '#FFC107' : 'rgba(0,0,0,0.08)',
                                                 '&::before': { display: 'none' },
                                                 overflow: 'hidden',
                                                 transition: 'all 0.3s ease',
                                                 '&:hover': {
-                                                    borderColor: '#FFC107'
+                                                    borderColor: '#FFC107',
+                                                    boxShadow: '0 5px 20px rgba(255,193,7,0.15)',
                                                 }
                                             }}
                                         >
                                             <AccordionSummary
                                                 expandIcon={<ExpandMoreIcon sx={{ color: '#0A2342' }} />}
                                                 sx={{
-                                                    bgcolor: expandedFaq === index ? '#FFC10710' : 'transparent',
-                                                    flexDirection: 'row-reverse',
-                                                    '& .MuiAccordionSummary-content': {
-                                                        my: 2,
-                                                        justifyContent: 'flex-end'
-                                                    },
-                                                    '& .MuiAccordionSummary-expandIconWrapper': {
-                                                        marginRight: 0,
-                                                        marginLeft: 'auto'
-                                                    }
+                                                    bgcolor: expandedFaq === index ? 'rgba(255,193,7,0.08)' : 'transparent',
+                                                    py: 1,
                                                 }}
                                             >
                                                 <Typography
                                                     sx={{
                                                         fontFamily: 'Cairo',
                                                         fontWeight: 'bold',
-                                                        color: '#0A2342',
-                                                        textAlign: 'right',
-                                                        width: '100%'
+                                                        color: '#0A2342'
                                                     }}
                                                 >
                                                     {faq.question}
                                                 </Typography>
                                             </AccordionSummary>
-                                            <AccordionDetails sx={{ bgcolor: '#f8f9fa', textAlign: 'right' }}>
+                                            <AccordionDetails sx={{ bgcolor: 'rgba(250,251,252,0.8)' }}>
                                                 <Typography
                                                     sx={{
                                                         fontFamily: 'Cairo',
-                                                        color: 'text.secondary',
-                                                        lineHeight: 1.8,
-                                                        textAlign: 'right'
+                                                        color: '#666',
+                                                        lineHeight: 1.9
                                                     }}
                                                 >
                                                     {faq.answer}
@@ -830,14 +900,15 @@ export default function Contact() {
                                     ))}
                                 </Paper>
 
-                                {/* Social Media Links */}
+                                {/* Social Media Card */}
                                 <Paper
                                     elevation={0}
                                     sx={{
-                                        ...glassCardStyle,
-                                        p: 3,
+                                        p: 4,
                                         mt: 3,
-                                        textAlign: 'center'
+                                        borderRadius: 4,
+                                        background: 'linear-gradient(135deg, #0A2342, #1a4a7a)',
+                                        textAlign: 'center',
                                     }}
                                 >
                                     <Typography
@@ -845,13 +916,13 @@ export default function Contact() {
                                         sx={{
                                             fontFamily: 'Cairo',
                                             fontWeight: 'bold',
-                                            color: '#0A2342',
-                                            mb: 2
+                                            color: '#fff',
+                                            mb: 3
                                         }}
                                     >
                                         تابعنا على وسائل التواصل
                                     </Typography>
-                                    <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1 }}>
+                                    <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, flexWrap: 'wrap' }}>
                                         {socialLinks.map((social, index) => (
                                             <IconButton
                                                 key={index}
@@ -861,13 +932,13 @@ export default function Contact() {
                                                 rel="noopener noreferrer"
                                                 aria-label={social.label}
                                                 sx={{
-                                                    bgcolor: `${social.color}15`,
-                                                    color: social.color,
+                                                    bgcolor: 'rgba(255,255,255,0.1)',
+                                                    color: '#fff',
                                                     transition: 'all 0.3s ease',
                                                     '&:hover': {
                                                         bgcolor: social.color,
-                                                        color: 'white',
-                                                        transform: 'translateY(-3px) scale(1.1)'
+                                                        transform: 'translateY(-5px) scale(1.1)',
+                                                        boxShadow: `0 10px 25px ${social.color}50`,
                                                     }
                                                 }}
                                             >
@@ -877,140 +948,177 @@ export default function Contact() {
                                     </Box>
                                 </Paper>
                             </Box>
-                        </Slide>
+                        </Grow>
                     </Grid>
                 </Grid>
             </Container>
 
-            {/* Google Maps */}
-            <Box sx={{ py: 6, bgcolor: '#f8f9fa' }}>
+            {/* Google Maps Section */}
+            <Box sx={{ py: 10, bgcolor: '#fff' }}>
                 <Container maxWidth="lg">
-                    <Fade in={mounted} timeout={1000}>
-                        <Box>
-                            <Box sx={{ textAlign: 'center', mb: 4 }}>
-                                <Typography
-                                    variant="h4"
-                                    sx={{
-                                        fontFamily: 'Cairo',
-                                        fontWeight: 'bold',
-                                        color: '#0A2342',
-                                        mb: 1
-                                    }}
-                                >
-                                    موقعنا على الخريطة
-                                </Typography>
-                                <Typography
-                                    variant="body1"
-                                    sx={{
-                                        fontFamily: 'Cairo',
-                                        color: 'text.secondary'
-                                    }}
-                                >
-                                    كلية الهندسة - جامعة بني سويف - شرق النيل
-                                </Typography>
-                            </Box>
+                    <Box sx={{ textAlign: 'center', mb: 6 }}>
+                        <Chip
+                            icon={<MapIcon />}
+                            label="الموقع"
+                            sx={{
+                                mb: 2,
+                                bgcolor: 'rgba(10,35,66,0.08)',
+                                color: '#0A2342',
+                                fontFamily: 'Cairo',
+                                fontWeight: 'bold',
+                            }}
+                        />
+                        <Typography
+                            variant="h3"
+                            sx={{
+                                fontFamily: 'Cairo',
+                                fontWeight: 'bold',
+                                color: '#0A2342',
+                                mb: 2,
+                            }}
+                        >
+                            موقعنا على الخريطة
+                        </Typography>
+                        <Typography
+                            variant="body1"
+                            sx={{
+                                fontFamily: 'Cairo',
+                                color: '#666',
+                            }}
+                        >
+                            كلية الهندسة - جامعة بني سويف - شرق النيل
+                        </Typography>
+                    </Box>
 
-                            <Paper
-                                elevation={0}
-                                sx={{
-                                    borderRadius: '20px',
-                                    overflow: 'hidden',
-                                    boxShadow: '0 10px 40px rgba(0, 0, 0, 0.1)'
-                                }}
-                            >
-                                <iframe
-                                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3505.5380478!2d31.0920!3d29.0693!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2sBeni%20Suef%20University!5e0!3m2!1sen!2seg!4v1234567890123"
-                                    width="100%"
-                                    height="400"
-                                    style={{ border: 0 }}
-                                    allowFullScreen=""
-                                    loading="lazy"
-                                    referrerPolicy="no-referrer-when-downgrade"
-                                    title="موقع كلية الهندسة - جامعة بني سويف"
-                                />
-                            </Paper>
-                        </Box>
-                    </Fade>
+                    <Paper
+                        elevation={0}
+                        sx={{
+                            borderRadius: 5,
+                            overflow: 'hidden',
+                            boxShadow: '0 20px 60px rgba(0,0,0,0.1)',
+                        }}
+                    >
+                        <iframe
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3505.5380478!2d31.0920!3d29.0693!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2sBeni%20Suef%20University!5e0!3m2!1sen!2seg!4v1234567890123"
+                            width="100%"
+                            height="450"
+                            style={{ border: 0 }}
+                            allowFullScreen=""
+                            loading="lazy"
+                            referrerPolicy="no-referrer-when-downgrade"
+                            title="موقع كلية الهندسة - جامعة بني سويف"
+                        />
+                    </Paper>
                 </Container>
             </Box>
 
             {/* Quick Contact CTA */}
             <Box
                 sx={{
-                    background: 'linear-gradient(135deg, #0A2342 0%, #1a3a5c 100%)',
-                    py: 6
+                    position: 'relative',
+                    py: 10,
+                    background: 'linear-gradient(135deg, #0A2342 0%, #1a3a5c 50%, #0A2342 100%)',
+                    backgroundSize: '200% 200%',
+                    animation: `${gradientMove} 15s ease infinite`,
+                    overflow: 'hidden',
                 }}
             >
-                <Container maxWidth="md">
-                    <Fade in={mounted} timeout={1200}>
-                        <Box sx={{ textAlign: 'center' }}>
-                            <CheckCircleOutlineIcon sx={{ fontSize: 48, color: '#FFC107', mb: 2 }} />
-                            <Typography
-                                variant="h4"
-                                sx={{
-                                    fontFamily: 'Cairo',
-                                    fontWeight: 'bold',
-                                    color: 'white',
-                                    mb: 2
-                                }}
-                            >
-                                هل تحتاج مساعدة فورية؟
-                            </Typography>
-                            <Typography
-                                variant="body1"
-                                sx={{
-                                    fontFamily: 'Cairo',
-                                    color: 'rgba(255, 255, 255, 0.8)',
-                                    mb: 4,
-                                    maxWidth: '500px',
-                                    mx: 'auto'
-                                }}
-                            >
-                                فريق الدعم لدينا متاح من الأحد إلى الخميس من 8 صباحًا حتى 4 مساءً
-                            </Typography>
-                            <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, flexWrap: 'wrap' }}>
-                                <Button
-                                    variant="contained"
-                                    size="large"
-                                    href="tel:082-2334015"
-                                    startIcon={<PhoneIcon />}
-                                    sx={{
-                                        bgcolor: '#FFC107',
-                                        color: '#0A2342',
-                                        fontFamily: 'Cairo',
-                                        fontWeight: 'bold',
-                                        px: 4,
-                                        borderRadius: '12px',
-                                        '&:hover': {
-                                            bgcolor: '#ffca2c'
-                                        }
-                                    }}
-                                >
-                                    اتصل الآن
-                                </Button>
-                                <Button
-                                    variant="outlined"
-                                    size="large"
-                                    href="mailto:info@eng.bsu.edu.eg"
-                                    startIcon={<EmailIcon />}
-                                    sx={{
-                                        borderColor: 'white',
-                                        color: 'white',
-                                        fontFamily: 'Cairo',
-                                        fontWeight: 'bold',
-                                        px: 4,
-                                        borderRadius: '12px',
-                                        '&:hover': {
-                                            borderColor: '#FFC107',
-                                            bgcolor: 'rgba(255, 193, 7, 0.1)'
-                                        }
-                                    }}
-                                >
-                                    راسلنا
-                                </Button>
-                            </Box>
-                        </Box>
-                    </Fade>
+                {/* Background Elements */}
+                <Box sx={{ position: 'absolute', top: -50, right: -50, width: 300, height: 300, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,193,7,0.1) 0%, transparent 70%)' }} />
+                <Box sx={{ position: 'absolute', bottom: -50, left: -50, width: 250, height: 250, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%)' }} />
+
+                <Container maxWidth="md" sx={{ position: 'relative', zIndex: 2, textAlign: 'center' }}>
+                    <Box
+                        sx={{
+                            width: 100,
+                            height: 100,
+                            borderRadius: '50%',
+                            bgcolor: 'rgba(255,193,7,0.15)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            mx: 'auto',
+                            mb: 4,
+                            animation: `${pulse} 2s ease-in-out infinite`,
+                        }}
+                    >
+                        <CheckCircleOutlineIcon sx={{ fontSize: 50, color: '#FFC107' }} />
+                    </Box>
+
+                    <Typography
+                        variant="h3"
+                        sx={{
+                            fontFamily: 'Cairo',
+                            fontWeight: 'bold',
+                            color: '#fff',
+                            mb: 2,
+                        }}
+                    >
+                        هل تحتاج مساعدة فورية؟
+                    </Typography>
+
+                    <Typography
+                        variant="h6"
+                        sx={{
+                            fontFamily: 'Cairo',
+                            color: 'rgba(255,255,255,0.8)',
+                            mb: 5,
+                            maxWidth: 500,
+                            mx: 'auto',
+                            fontWeight: 400,
+                        }}
+                    >
+                        فريق الدعم لدينا متاح من الأحد إلى الخميس من 8 صباحًا حتى 4 مساءً
+                    </Typography>
+
+                    <Box sx={{ display: 'flex', justifyContent: 'center', gap: 3, flexWrap: 'wrap' }}>
+                        <Button
+                            variant="contained"
+                            size="large"
+                            href="tel:082-2334015"
+                            startIcon={<PhoneIcon />}
+                            sx={{
+                                bgcolor: '#FFC107',
+                                color: '#0A2342',
+                                fontFamily: 'Cairo',
+                                fontWeight: 'bold',
+                                px: 5,
+                                py: 2,
+                                borderRadius: 3,
+                                fontSize: '1.1rem',
+                                boxShadow: '0 10px 30px rgba(255,193,7,0.4)',
+                                '&:hover': {
+                                    bgcolor: '#FFD54F',
+                                    transform: 'translateY(-3px)',
+                                    boxShadow: '0 15px 40px rgba(255,193,7,0.5)',
+                                }
+                            }}
+                        >
+                            اتصل الآن
+                        </Button>
+                        <Button
+                            variant="outlined"
+                            size="large"
+                            href="mailto:info@eng.bsu.edu.eg"
+                            startIcon={<EmailIcon />}
+                            sx={{
+                                borderColor: 'rgba(255,255,255,0.4)',
+                                color: '#fff',
+                                fontFamily: 'Cairo',
+                                fontWeight: 'bold',
+                                px: 5,
+                                py: 2,
+                                borderRadius: 3,
+                                fontSize: '1.1rem',
+                                '&:hover': {
+                                    borderColor: '#FFC107',
+                                    bgcolor: 'rgba(255,193,7,0.1)',
+                                }
+                            }}
+                        >
+                            راسلنا
+                        </Button>
+                    </Box>
                 </Container>
             </Box>
 
@@ -1025,7 +1133,11 @@ export default function Contact() {
                     onClose={() => setSnackbar(prev => ({ ...prev, open: false }))}
                     severity={snackbar.severity}
                     variant="filled"
-                    sx={{ fontFamily: 'Cairo', width: '100%' }}
+                    sx={{
+                        fontFamily: 'Cairo',
+                        width: '100%',
+                        borderRadius: 3,
+                    }}
                 >
                     {snackbar.message}
                 </Alert>
