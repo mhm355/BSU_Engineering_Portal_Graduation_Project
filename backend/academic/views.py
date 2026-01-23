@@ -577,10 +577,17 @@ class BulkAttendanceView(APIView):
         
         if saved_attendance_records and course_offering and attendance_date:
             try:
+                # Parse date string to date object for Excel export
+                from datetime import datetime
+                if isinstance(attendance_date, str):
+                    date_obj = datetime.strptime(attendance_date, '%Y-%m-%d').date()
+                else:
+                    date_obj = attendance_date
+                
                 # Export to Excel
                 excel_file_path = export_attendance_to_excel(
                     course_offering, 
-                    attendance_date, 
+                    date_obj,  # Use date object, not string
                     saved_attendance_records
                 )
                 # Generate URL for download
