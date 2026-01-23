@@ -17,7 +17,7 @@ COPY frontend/vite.config.js ./
 RUN npm run build
 
 # Stage 2: Serve - Ultra minimal nginx image
-FROM nginx:alpine-slim
+FROM nginx:alpine
 
 # Remove default nginx config
 RUN rm -rf /usr/share/nginx/html/*
