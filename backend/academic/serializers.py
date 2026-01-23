@@ -140,11 +140,20 @@ class AttendanceSerializer(serializers.ModelSerializer):
     student_name = serializers.CharField(source='student.full_name', read_only=True)
     student_national_id = serializers.CharField(source='student.national_id', read_only=True)
     status_display = serializers.CharField(source='get_status_display', read_only=True)
-    course_name = serializers.CharField(source='course_offering.subject.name', read_only=True)
+    course_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Attendance
         fields = '__all__'
+    
+    def get_course_name(self, obj):
+        """Safely get course name even if relationships are null"""
+        try:
+            if obj.course_offering and obj.course_offering.subject:
+                return obj.course_offering.subject.name
+        except:
+            pass
+        return None
 
 
 class StudentGradeSerializer(serializers.ModelSerializer):
