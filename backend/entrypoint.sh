@@ -6,11 +6,13 @@ export DJANGO_SETTINGS_MODULE=bsu_backend.settings
 echo "Starting BSU Backend..."
 echo "PORT: ${PORT:-8000}"
 
-# Run migrations (will wait for DB if needed)
+# Run migrations in correct order (users first due to custom User model)
 echo "Running migrations..."
-python manage.py migrate --noinput || echo "Warning: migrations failed, continuing..."
-
-echo "Migrations completed!"
+python manage.py migrate users --noinput || echo "Warning: users migrations failed"
+python manage.py migrate academic --noinput || echo "Warning: academic migrations failed"
+python manage.py migrate content --noinput || echo "Warning: content migrations failed"
+python manage.py migrate system --noinput || echo "Warning: system migrations failed"
+python manage.py migrate --noinput || echo "Warning: remaining migrations failed"
 
 # Collect static files for production
 echo "Collecting static files..."
