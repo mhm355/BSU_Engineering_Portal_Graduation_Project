@@ -1,11 +1,24 @@
 #!/bin/bash
 set -e
 
-# Wait for database to be ready
+# Wait for database with flexible host detection
 echo "Waiting for database..."
+
+# Use Django's database configuration for connection check
+export DJANGO_SETTINGS_MODULE=bsu_backend.settings
+
 max_retries=30
 retry_count=0
-while ! python -c "import MySQLdb; MySQLdb.connect(host='db', user='bsu_user', password='bsu_password', database='bsu_db')" 2>/dev/null; do
+while ! python -c "
+import os
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'bsu_backend.settings')
+import django
+django.setup()
+from django.db import connection
+cursor = connection.cursor()
+cursor.execute('SELECT 1')
+print('Database connected!')
+" 2>/dev/null; do
     echo "Database not ready, waiting... ($retry_count/$max_retries)"
     sleep 2
     retry_count=$((retry_count + 1))
@@ -21,6 +34,10 @@ echo "Running migrations..."
 python manage.py migrate --noinput || true
 
 echo "Migrations completed!"
+
+# Collect static files for production
+echo "Collecting static files..."
+python manage.py collectstatic --noinput || true
 
 # Create superuser if it doesn't exist
 echo "Checking for admin user..."
@@ -66,6 +83,12 @@ else
     echo "Warning: seed_subjects.py not found, skipping."
 fi
 
-# Start the server
+# Start the server - use gunicorn for production, runserver for development
 echo "Starting server..."
-exec python manage.py runserver 0.0.0.0:8000
+if [ ! -z "$RAILWAY_ENVIRONMENT" ] || [ ! -z "$DATABASE_URL" ]; then
+    # Production mode (Railway)
+    exec gunicorn bsu_backend.wsgi:application --bind 0.0.0.0:${PORT:-8000} --workers 2 --timeout 120
+else
+    # Development mode
+    exec python manage.py runserver 0.0.0.0:8000
+fi

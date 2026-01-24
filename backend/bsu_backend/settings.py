@@ -52,6 +52,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -84,17 +85,31 @@ WSGI_APPLICATION = 'bsu_backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-# Database - read from environment with fallbacks
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.getenv('DB_NAME', 'bsu_db'),
-        'USER': os.getenv('DB_USER', 'bsu_user'),
-        'PASSWORD': os.getenv('DB_PASSWORD', 'bsu_password'),
-        'HOST': os.getenv('DB_HOST', 'db'),
-        'PORT': os.getenv('DB_PORT', '3306'),
+# Railway support - parse DATABASE_URL if available
+import dj_database_url
+
+DATABASE_URL = os.environ.get('DATABASE_URL')
+if DATABASE_URL:
+    # Railway provides DATABASE_URL
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=DATABASE_URL,
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
     }
-}
+else:
+    # Fallback for local Docker development
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': os.getenv('DB_NAME', 'bsu_db'),
+            'USER': os.getenv('DB_USER', 'bsu_user'),
+            'PASSWORD': os.getenv('DB_PASSWORD', 'bsu_password'),
+            'HOST': os.getenv('DB_HOST', 'db'),
+            'PORT': os.getenv('DB_PORT', '3306'),
+        }
+    }
 
 
 # Password validation
@@ -132,6 +147,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# WhiteNoise for serving static files in production
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Media files (Uploads)
 MEDIA_URL = '/media/'

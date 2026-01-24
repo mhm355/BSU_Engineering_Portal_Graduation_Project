@@ -5,3 +5,6 @@ mysqlclient
 Pillow
 pandas
 openpyxl
+dj-database-url
+gunicorn
+whitenoise

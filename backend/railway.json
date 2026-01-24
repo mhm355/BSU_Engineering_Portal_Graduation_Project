@@ -1,0 +1,9 @@
+{
+    "$schema": "https://railway.app/railway.schema.json",
+    "deploy": {
+        "startCommand": "./entrypoint.sh",
+        "healthcheckPath": "/api/health/",
+        "healthcheckTimeout": 100,
+        "restartPolicyType": "ON_FAILURE"
+    }
+}
