@@ -29,7 +29,10 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-kh+*3msg203*!b345wr9f9e%0h
 DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
 # Read from environment variable (comma-separated list)
+# Include '*' for Railway internal health checks
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,backend').split(',')
+if not DEBUG:
+    ALLOWED_HOSTS.append('*')  # Allow Railway internal health checks
 
 
 # Application definition
