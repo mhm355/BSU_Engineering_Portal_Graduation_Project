@@ -289,7 +289,7 @@ class Attendance(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='attendance_records')
     course_offering = models.ForeignKey(CourseOffering, on_delete=models.CASCADE, related_name='attendance_records')
     lecture_schedule = models.ForeignKey(LectureSchedule, on_delete=models.SET_NULL, null=True, blank=True, related_name='attendance_records')
-    date = models.DateField()
+    date = models.DateField(null=True, blank=True)
     status = models.CharField(max_length=10, choices=AttendanceStatus.choices, default=AttendanceStatus.ABSENT)
     recorded_at = models.DateTimeField(auto_now=True)
 
