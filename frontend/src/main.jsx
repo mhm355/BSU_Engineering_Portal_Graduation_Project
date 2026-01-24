@@ -9,6 +9,7 @@ import { prefixer } from 'stylis';
 import axios from 'axios';
 
 // Configure Axios defaults globally
+axios.defaults.baseURL = import.meta.env.VITE_API_URL || '';
 axios.defaults.withCredentials = true;
 
 // Helper to get cookie
