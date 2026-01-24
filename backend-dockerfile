@@ -30,6 +30,9 @@ RUN find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true \
     && find . -type f -name "*.pyc" -delete 2>/dev/null || true \
     && find . -type f -name "*.pyo" -delete 2>/dev/null || true
 
+# Ensure migrations directories are Python packages (in case __init__.py is gitignored)
+RUN touch users/migrations/__init__.py academic/migrations/__init__.py \
+    content/migrations/__init__.py system/migrations/__init__.py 2>/dev/null || true
 
 # Make entrypoint executable
 RUN chmod +x entrypoint.sh

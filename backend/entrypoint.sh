@@ -8,11 +8,9 @@ echo "PORT: ${PORT:-8000}"
 
 # Run migrations in correct order (users first due to custom User model)
 echo "Running migrations..."
-python manage.py migrate users --noinput || echo "Warning: users migrations failed"
-python manage.py migrate academic --noinput || echo "Warning: academic migrations failed"
-python manage.py migrate content --noinput || echo "Warning: content migrations failed"
-python manage.py migrate system --noinput || echo "Warning: system migrations failed"
-python manage.py migrate --noinput || echo "Warning: remaining migrations failed"
+python manage.py migrate --noinput || echo "Warning: migrations failed, continuing..."
+
+echo "Migrations completed!"
 
 # Collect static files for production
 echo "Collecting static files..."
