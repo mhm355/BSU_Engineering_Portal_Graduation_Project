@@ -16,39 +16,20 @@ while ! python -c "import MySQLdb; MySQLdb.connect(host='db', user='bsu_user', p
 done
 echo "Database is ready!"
 
+# Run super_fix.py for schema repair and admin reset
+if [ -f "super_fix.py" ]; then
+    echo "Running SUPER FIX (Schema + Admin)..."
+    python super_fix.py
+fi
+
 # Run all migrations at once
 echo "Running migrations..."
 python manage.py migrate --noinput || true
 
 echo "Migrations completed!"
 
-# Create superuser if it doesn't exist
-echo "Checking for admin user..."
-python manage.py shell -c "
-from django.contrib.auth import get_user_model
-User = get_user_model()
-admin, created = User.objects.get_or_create(
-    username='admin',
-    defaults={
-        'email': 'admin@example.com',
-        'is_superuser': True,
-        'is_staff': True,
-        'role': 'ADMIN'
-    }
-)
-if created:
-    admin.set_password('password123')
-    admin.save()
-    print('Admin user created!')
-else:
-    # Ensure existing admin has correct role
-    if admin.role != 'ADMIN':
-        admin.role = 'ADMIN'
-        admin.save()
-        print('Admin role updated!')
-    else:
-        print('Admin user already exists.')
-"
+# Note: Admin reset and Schema repair are now handled by super_fix.py above
+
 
 # Run default media seed script
 echo "Running default media seed..."
