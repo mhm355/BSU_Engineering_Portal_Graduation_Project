@@ -12,18 +12,30 @@ class LoginView(APIView):
     permission_classes = [permissions.AllowAny]
 
     def post(self, request):
-        username = request.data.get('username')
-        password = request.data.get('password')
-        print(f"Login attempt: username={username}, password={password}")
-        user = authenticate(username=username, password=password)
-        print(f"Authenticate result: {user}")
-        if user:
-            login(request, user)
-            user_data = UserSerializer(user).data
-            # Include first_login_required flag
-            user_data['first_login_required'] = user.first_login_required
-            return Response(user_data)
-        return Response({'error': 'Invalid Credentials'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            username = request.data.get('username')
+            password = request.data.get('password')
+            print(f"Login attempt: username={username}")
+            
+            user = authenticate(username=username, password=password)
+            print(f"Authenticate result: {user}")
+            
+            if user:
+                login(request, user)
+                user_data = UserSerializer(user).data
+                # Include first_login_required flag
+                user_data['first_login_required'] = user.first_login_required
+                return Response(user_data)
+            return Response({'error': 'Invalid Credentials'}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            import traceback
+            error_details = traceback.format_exc()
+            print(f"LOGIN CRASH: {error_details}")
+            return Response({
+                'error': 'Server Error during login',
+                'details': str(e),
+                'traceback': error_details
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class LogoutView(APIView):
     def post(self, request):

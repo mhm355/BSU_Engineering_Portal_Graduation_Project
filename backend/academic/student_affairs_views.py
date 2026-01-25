@@ -434,9 +434,9 @@ class StudentAffairsGradesView(APIView):
                                 student=student,
                                 course_offering=co
                             )
-                            grade_data['midterm'] = float(sg.midterm) if sg.midterm else None
-                            grade_data['coursework'] = float(sg.coursework) if sg.coursework else None
-                            grade_data['final'] = float(sg.final) if sg.final else None
+                            grade_data['midterm'] = float(sg.midterm) if sg.midterm is not None else None
+                            grade_data['coursework'] = float(sg.coursework) if sg.coursework is not None else None
+                            grade_data['final'] = float(sg.final) if sg.final is not None else None
                             grade_data['attendance'] = sg.attendance_grade()
                             grade_data['quizzes'] = sg.quizzes_grade()
                             break
