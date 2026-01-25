@@ -21,8 +21,10 @@ services:
       - bsu_network
 
   backend:
-    image: mohamedessam14/bsu_backend:v2.5
+    image: mohamedessam14/bsu_backend:v2.6
     container_name: bsu_backend_1
+    volumes:
+      - media_data:/app/media
     ports:
       - "8001:8000"
     depends_on:
@@ -35,7 +37,7 @@ services:
       - bsu_network
 
   frontend:
-    image: mohamedessam14/bsu_frontend:v2.4
+    image: mohamedessam14/bsu_frontend:v2.6
     container_name: bsu_frontend_1
     ports:
       - "8081:5173"
@@ -47,6 +49,7 @@ services:
 
 volumes:
   db_data:
+  media_data:
 
 
 networks:

@@ -50,7 +50,15 @@ else:
         print('Admin user already exists.')
 "
 
-# Run production seed script (idempotent - safe to run multiple times)
+# Run default media seed script
+echo "Running default media seed..."
+if [ -f "seed_defaults.py" ]; then
+    python seed_defaults.py || echo "Warning: seed_defaults.py failed"
+else
+    echo "Warning: seed_defaults.py not found, skipping."
+fi
+
+# Run production seed script (Departments, Specializations, Grading Templates)
 echo "Running production seed..."
 if [ -f "seed_production.py" ]; then
     python seed_production.py || echo "Warning: seed_production.py failed"
@@ -58,7 +66,23 @@ else
     echo "Warning: seed_production.py not found, skipping."
 fi
 
-# Run subjects seed script (idempotent - safe to run multiple times)
+# Run academic structure seed script (Years, Terms, Levels)
+echo "Running academic structure seed..."
+if [ -f "seed_structure.py" ]; then
+    python seed_structure.py || echo "Warning: seed_structure.py failed"
+else
+    echo "Warning: seed_structure.py not found, skipping."
+fi
+
+# Run users seed script (Standard Users)
+echo "Running users seed..."
+if [ -f "seed_users.py" ]; then
+    python seed_users.py || echo "Warning: seed_users.py failed"
+else
+    echo "Warning: seed_users.py not found, skipping."
+fi
+
+# Run subjects seed script
 echo "Running subjects seed..."
 if [ -f "seed_subjects.py" ]; then
     python seed_subjects.py || echo "Warning: seed_subjects.py failed"
@@ -68,4 +92,8 @@ fi
 
 # Start the server
 echo "Starting server..."
+if [ -f "fix_attendance_final.py" ]; then
+    echo "Running FINAL database fix script..."
+    python fix_attendance_final.py
+fi
 exec python manage.py runserver 0.0.0.0:8000
