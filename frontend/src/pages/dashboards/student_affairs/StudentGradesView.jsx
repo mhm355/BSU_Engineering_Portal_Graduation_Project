@@ -132,7 +132,11 @@ export default function StudentGradesView() {
             const res = await axios.get(url, config);
             setGradesData(res.data);
         } catch (err) {
-            setError(err.response?.data?.error || 'فشل في تحميل الدرجات');
+            console.error(err);
+            const data = err.response?.data;
+            const errMsg = data?.error || data?.detail || 'فشل في تحميل الدرجات';
+            const details = data?.details || ''; // In this view, traceback is in 'details' field
+            setError(`${errMsg}${details ? ': ' + details.substring(0, 150) + '...' : ''}`);
         } finally {
             setLoading(false);
         }
