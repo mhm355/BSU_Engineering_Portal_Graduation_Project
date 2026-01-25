@@ -20,6 +20,14 @@ class NewsViewSet(viewsets.ModelViewSet):
         return [permissions.AllowAny()]
 
     def perform_create(self, serializer):
-        """Automatically set created_by to the current user."""
-        serializer.save(created_by=self.request.user)
+        """Automatically set created_by to the current user with error logging."""
+        try:
+            # Safely get user role if possible
+            role = getattr(self.request.user, 'role', 'ADMIN')
+            serializer.save(created_by=self.request.user, creator_role=role)
+        except Exception as e:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Error creating news: {str(e)}")
+            raise e
 
