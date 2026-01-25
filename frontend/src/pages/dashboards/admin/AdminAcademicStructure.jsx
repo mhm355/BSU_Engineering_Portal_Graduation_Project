@@ -244,12 +244,14 @@ export default function AdminAcademicStructure() {
 
     const handleSelectLevel = async (level) => {
         setSelectedLevel(level);
-        // Check if department has specializations
+        // Check if department has specializations AND level is not FIRST (first year is general in Electrical)
         const specs = await fetchSpecializations(selectedDept.id);
-        if (specs && specs.length > 0) {
+        // Skip specializations for FIRST level - first year is general without specializations
+        if (specs && specs.length > 0 && level.name !== 'FIRST') {
             setSpecializations(specs);
             setCurrentView('specializations');
         } else {
+            setSpecializations([]);
             setCurrentView('students');
             fetchStudents(level.id);
         }

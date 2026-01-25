@@ -310,6 +310,8 @@ class StudentGrade(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='course_grades')
     course_offering = models.ForeignKey(CourseOffering, on_delete=models.CASCADE, related_name='grades')
     quiz_grades = models.JSONField(default=dict, blank=True)  # {1: 8.5, 2: 9.0}
+    attendance = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    quizzes = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
     coursework = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
     midterm = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
     final = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
@@ -321,6 +323,9 @@ class StudentGrade(models.Model):
 
     def attendance_grade(self):
         """Calculate attendance grade based on presence"""
+        if self.attendance is not None:
+            return float(self.attendance)
+            
         if not self.course_offering.grading_template:
             return 0
         total_sessions = self.course_offering.grading_template.attendance_slots
@@ -333,6 +338,14 @@ class StudentGrade(models.Model):
         weight = float(self.course_offering.grading_template.attendance_weight)
         return (present_count / total_sessions) * weight
 
+    def quizzes_grade(self):
+        """Calculate quizzes grade"""
+        if self.quizzes is not None:
+            return float(self.quizzes)
+        if self.quiz_grades:
+            return sum(self.quiz_grades.values())
+        return 0
+
     def total_grade(self):
         """Calculate total grade"""
         total = 0
@@ -343,9 +356,7 @@ class StudentGrade(models.Model):
         if self.final:
             total += float(self.final)
         total += self.attendance_grade()
-        # Add quiz grades
-        if self.quiz_grades:
-            total += sum(self.quiz_grades.values())
+        total += self.quizzes_grade()
         return total
 
     def __str__(self):

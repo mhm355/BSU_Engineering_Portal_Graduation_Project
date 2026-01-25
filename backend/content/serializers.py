@@ -5,3 +5,4 @@ class NewsSerializer(serializers.ModelSerializer):
     class Meta:
         model = News
         fields = '__all__'
+        read_only_fields = ['created_by', 'creator_role']

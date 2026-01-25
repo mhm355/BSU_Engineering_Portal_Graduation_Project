@@ -90,8 +90,8 @@ export default function Login() {
             else navigate('/');
 
         } catch (err) {
-            setError('فشل تسجيل الدخول. تأكد من اسم المستخدم وكلمة المرور.');
             console.error(err);
+            setError('فشل تسجيل الدخول. تأكد من اسم المستخدم وكلمة المرور.');
         } finally {
             setLoading(false);
         }

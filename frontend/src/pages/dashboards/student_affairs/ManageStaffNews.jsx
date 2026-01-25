@@ -133,7 +133,8 @@ export default function ManageStaffNews() {
             fetchNews();
         } catch (err) {
             console.error('Error saving news:', err);
-            setError('فشل حفظ الخبر');
+            const errMsg = err.response?.data?.error || err.response?.data?.detail || JSON.stringify(err.response?.data) || 'فشل حفظ الخبر';
+            setError(`فشل حفظ الخبر: ${errMsg}`);
         }
     };
 

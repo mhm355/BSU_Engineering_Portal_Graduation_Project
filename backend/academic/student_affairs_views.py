@@ -6,6 +6,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.db import transaction
+from django.db.models import Q
 from django.contrib.auth import get_user_model
 import pandas as pd
 import io
@@ -332,91 +333,131 @@ class StudentAffairsGradesView(APIView):
     permission_classes = [IsStudentAffairsRole]
 
     def get(self, request):
-        department_id = request.query_params.get('department')
-        academic_year_id = request.query_params.get('academic_year')
-        level_id = request.query_params.get('level')
-
-        if not all([department_id, academic_year_id, level_id]):
-            return Response(
-                {'error': 'يجب تحديد القسم والعام الدراسي والفرقة'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-        # Import models here to avoid circular imports
-        from .models import Subject, StudentGrade, CourseOffering
-
         try:
-            level = Level.objects.get(id=level_id)
-        except Level.DoesNotExist:
-            return Response({'error': 'الفرقة غير موجودة'}, status=status.HTTP_404_NOT_FOUND)
+            department_id = request.query_params.get('department')
+            academic_year_id = request.query_params.get('academic_year')
+            level_id = request.query_params.get('level')
+            specialization_id = request.query_params.get('specialization')  # Optional
 
-        # Get students in this level
-        students = Student.objects.filter(
-            level_id=level_id,
-            department_id=department_id,
-            academic_year_id=academic_year_id
-        ).select_related('user')
-
-        # Get subjects for this level
-        subjects = Subject.objects.filter(
-            level=level.name,
-            department_id=department_id
-        )
-
-        # Get grades for each student
-        result = []
-        for student in students:
-            student_data = {
-                'id': student.id,
-                'national_id': student.national_id,
-                'full_name': student.full_name,
-                'subjects': []
-            }
-
-            for subject in subjects:
-                # Find grade for this student and subject
-                grade_data = {
-                    'subject_id': subject.id,
-                    'subject_name': subject.name,
-                    'subject_code': subject.code,
-                    'midterm': None,
-                    'coursework': None,
-                    'final': None,
-                    'attendance': None,
-                    'quizzes': None,
-                }
-
-                # Look for StudentGrade through CourseOffering
-                course_offerings = CourseOffering.objects.filter(
-                    subject=subject,
-                    level=level,
-                    academic_year_id=academic_year_id
+            if not all([department_id, academic_year_id, level_id]):
+                return Response(
+                    {'error': 'يجب تحديد القسم والعام الدراسي والفرقة'},
+                    status=status.HTTP_400_BAD_REQUEST
                 )
 
-                for co in course_offerings:
-                    try:
-                        sg = StudentGrade.objects.get(
-                            student=student,
-                            course_offering=co
-                        )
-                        grade_data['midterm'] = float(sg.midterm_grade) if sg.midterm_grade else None
-                        grade_data['coursework'] = float(sg.coursework_grade) if sg.coursework_grade else None
-                        grade_data['final'] = float(sg.final_grade) if sg.final_grade else None
-                        grade_data['attendance'] = float(sg.attendance_grade) if sg.attendance_grade else None
-                        grade_data['quizzes'] = float(sg.quizzes_grade) if sg.quizzes_grade else None
-                        break
-                    except StudentGrade.DoesNotExist:
-                        continue
+            # Import models here to avoid circular imports
+            from .models import Subject, StudentGrade, CourseOffering, Department
 
-                student_data['subjects'].append(grade_data)
+            try:
+                level = Level.objects.get(id=level_id)
+            except Level.DoesNotExist:
+                return Response({'error': 'الفرقة غير موجودة'}, status=status.HTTP_404_NOT_FOUND)
 
-            result.append(student_data)
+            # Check if department is preparatory
+            try:
+                department = Department.objects.get(id=department_id)
+                is_preparatory = department.is_preparatory or department.code == 'PREP'
+            except Department.DoesNotExist:
+                is_preparatory = False
 
-        # Also return subjects list for table headers
-        subjects_list = [{'id': s.id, 'name': s.name, 'code': s.code} for s in subjects]
+            # Also check level name for preparatory
+            level_is_prep = level.name == 'PREPARATORY' or (hasattr(Level, 'LevelName') and level.name == Level.LevelName.PREPARATORY)
 
-        return Response({
-            'students': result,
-            'subjects': subjects_list
-        })
+            # Get students in this level
+            if is_preparatory or level_is_prep:
+                # For preparatory, filter by level and academic year only (no department filter)
+                students = Student.objects.filter(
+                    level_id=level_id,
+                    academic_year_id=academic_year_id
+                ).select_related('user')
+            else:
+                # For regular departments
+                students = Student.objects.filter(
+                    level_id=level_id,
+                    department_id=department_id,
+                    academic_year_id=academic_year_id
+                ).select_related('user')
+                
+                # Apply specialization filter if provided
+                if specialization_id:
+                    students = students.filter(specialization_id=specialization_id)
+
+            # Get subjects for this level
+            if is_preparatory or level_is_prep:
+                # For preparatory, get subjects for PREPARATORY level
+                subjects = Subject.objects.filter(level='PREPARATORY')
+            else:
+                subjects = Subject.objects.filter(
+                    level=level.name,
+                    department_id=department_id
+                )
+                # Filter subjects by specialization if provided
+                if specialization_id:
+                    subjects = subjects.filter(
+                        Q(specialization_id=specialization_id) | 
+                        Q(specialization__isnull=True)
+                    )
+
+            # Get grades for each student
+            result = []
+            for student in students:
+                student_data = {
+                    'id': student.id,
+                    'national_id': student.national_id,
+                    'full_name': student.full_name,
+                    'subjects': []
+                }
+
+                for subject in subjects:
+                    # Find grade for this student and subject
+                    grade_data = {
+                        'subject_id': subject.id,
+                        'subject_name': subject.name,
+                        'subject_code': subject.code,
+                        'midterm': None,
+                        'coursework': None,
+                        'final': None,
+                        'attendance': None,
+                        'quizzes': None,
+                    }
+
+                    # Look for StudentGrade through CourseOffering
+                    course_offerings = CourseOffering.objects.filter(
+                        subject=subject,
+                        level=level,
+                        academic_year_id=academic_year_id
+                    )
+
+                    for co in course_offerings:
+                        try:
+                            sg = StudentGrade.objects.get(
+                                student=student,
+                                course_offering=co
+                            )
+                            grade_data['midterm'] = float(sg.midterm) if sg.midterm is not None else None
+                            grade_data['coursework'] = float(sg.coursework) if sg.coursework is not None else None
+                            grade_data['final'] = float(sg.final) if sg.final is not None else None
+                            grade_data['attendance'] = sg.attendance_grade()
+                            grade_data['quizzes'] = sg.quizzes_grade()
+                            break
+                        except StudentGrade.DoesNotExist:
+                            continue
+
+                    student_data['subjects'].append(grade_data)
+
+                result.append(student_data)
+
+            # Also return subjects list for table headers
+            subjects_list = [{'id': s.id, 'name': s.name, 'code': s.code} for s in subjects]
+
+            return Response({
+                'students': result,
+                'subjects': subjects_list
+            })
+        except Exception as e:
+            import traceback
+            return Response({
+                'error': f'خطأ في السيرفر: {str(e)}',
+                'details': traceback.format_exc()
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 

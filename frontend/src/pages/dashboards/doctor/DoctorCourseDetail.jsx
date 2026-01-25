@@ -65,7 +65,31 @@ export default function DoctorCourseDetail() {
     const [gradingTemplate, setGradingTemplate] = useState(null);
 
     const token = localStorage.getItem('access_token');
-    const config = { headers: { Authorization: `Bearer ${token}` }, withCredentials: true };
+
+    // Helper to get cookie
+    const getCookie = (name) => {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    };
+
+    const csrftoken = getCookie('csrftoken');
+    const config = {
+        headers: {
+            Authorization: `Bearer ${token}`,
+            'X-CSRFToken': csrftoken
+        },
+        withCredentials: true
+    };
 
     useEffect(() => {
         fetchCourseData();
@@ -201,7 +225,9 @@ export default function DoctorCourseDetail() {
                 setAttendanceRecords(Array.isArray(attendanceRes.data) ? attendanceRes.data : []);
             } catch (err) { }
         } catch (err) {
-            setError('فشل في حفظ الحضور');
+            console.error(err);
+            const errMsg = err.response?.data?.error || err.response?.data?.detail || err.message || 'فشل في حفظ الحضور';
+            setError(`فشل في حفظ الحضور: ${errMsg}`);
         } finally {
             setSavingAttendance(false);
         }
@@ -252,7 +278,9 @@ export default function DoctorCourseDetail() {
             await axios.post('/api/academic/student-grades/bulk/', gradesData, config);
             setSuccess('تم حفظ الدرجات بنجاح');
         } catch (err) {
-            setError('فشل في حفظ الدرجات');
+            console.error(err);
+            const errMsg = err.response?.data?.error || err.response?.data?.detail || (err.response?.data?.errors ? JSON.stringify(err.response.data.errors) : err.message) || 'فشل في حفظ الدرجات';
+            setError(`فشل في حفظ الدرجات: ${errMsg}`);
         } finally {
             setSavingGrades(false);
         }

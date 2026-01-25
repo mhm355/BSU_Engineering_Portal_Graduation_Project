@@ -218,10 +218,12 @@ export default function ManageUsers() {
     const handleSelectLevel = async (level) => {
         setSelectedLevel(level);
         const specs = await fetchSpecializations(selectedDept.id);
-        if (specs && specs.length > 0) {
+        // Skip specializations for FIRST level - first year is general in Electrical Engineering
+        if (specs && specs.length > 0 && level.name !== 'FIRST') {
             setSpecializations(specs);
             setCurrentView('specializations');
         } else {
+            setSpecializations([]);
             setCurrentView('students');
             fetchStudents(level.id);
         }

@@ -236,8 +236,14 @@ export default function Home() {
 
     const getImageUrl = (image) => {
         if (!image) return null;
-        if (image.includes('http://backend:8000')) {
-            return image.replace('http://backend:8000', '');
+        // Force relative path by stripping domain/protocol
+        if (image.startsWith('http')) {
+            try {
+                const url = new URL(image);
+                return url.pathname + url.search;
+            } catch (e) {
+                return image;
+            }
         }
         return image;
     };
