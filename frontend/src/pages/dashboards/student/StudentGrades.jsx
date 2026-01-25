@@ -63,11 +63,11 @@ export default function StudentGrades() {
     };
 
     const calculateTotal = (grade) => {
-        const attendance = grade.attendance_grade || 0;
-        const quizzes = grade.quizzes_grade || 0;
-        const coursework = grade.coursework_grade || 0;
-        const midterm = grade.midterm_grade || 0;
-        const final = grade.final_grade || 0;
+        const attendance = Number(grade.attendance_grade) || 0;
+        const quizzes = Number(grade.quizzes_grade) || 0;
+        const coursework = Number(grade.coursework_grade) || 0;
+        const midterm = Number(grade.midterm_grade) || 0;
+        const final = Number(grade.final_grade) || 0;
         return attendance + quizzes + coursework + midterm + final;
     };
 
@@ -225,49 +225,35 @@ export default function StudentGrades() {
 
                                             {/* Grade Components */}
                                             <Grid container spacing={2}>
-                                                {grade.attendance_weight > 0 && (
-                                                    <Grid item xs={6} sm={4} md={2.4}>
-                                                        <Paper sx={{ p: 2, textAlign: 'center', bgcolor: '#fafafa', borderRadius: 3 }}>
-                                                            <Typography variant="body2" sx={{ fontFamily: 'Cairo', color: '#666', mb: 0.5 }}>الحضور</Typography>
-                                                            <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
-                                                                {grade.attendance_grade ?? '--'}/{grade.attendance_weight}
-                                                            </Typography>
-                                                        </Paper>
-                                                    </Grid>
-                                                )}
-                                                {grade.quizzes_weight > 0 && (
-                                                    <Grid item xs={6} sm={4} md={2.4}>
-                                                        <Paper sx={{ p: 2, textAlign: 'center', bgcolor: '#fafafa', borderRadius: 3 }}>
-                                                            <Typography variant="body2" sx={{ fontFamily: 'Cairo', color: '#666', mb: 0.5 }}>الكويزات</Typography>
-                                                            <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
-                                                                {grade.quizzes_grade ?? '--'}/{grade.quizzes_weight}
-                                                            </Typography>
-                                                        </Paper>
-                                                    </Grid>
-                                                )}
-                                                {grade.coursework_weight > 0 && (
-                                                    <Grid item xs={6} sm={4} md={2.4}>
-                                                        <Paper sx={{ p: 2, textAlign: 'center', bgcolor: '#fafafa', borderRadius: 3 }}>
-                                                            <Typography variant="body2" sx={{ fontFamily: 'Cairo', color: '#666', mb: 0.5 }}>أعمال السنة</Typography>
-                                                            <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
-                                                                {grade.coursework_grade ?? '--'}/{grade.coursework_weight}
-                                                            </Typography>
-                                                        </Paper>
-                                                    </Grid>
-                                                )}
-                                                <Grid item xs={6} sm={4} md={2.4}>
+                                                <Grid item xs={6} sm={4} md={3}>
+                                                    <Paper sx={{ p: 2, textAlign: 'center', bgcolor: '#fafafa', borderRadius: 3 }}>
+                                                        <Typography variant="body2" sx={{ fontFamily: 'Cairo', color: '#666', mb: 0.5 }}>الحضور</Typography>
+                                                        <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
+                                                            {grade.attendance_grade ?? '--'}/{grade.attendance_weight || 10}
+                                                        </Typography>
+                                                    </Paper>
+                                                </Grid>
+                                                <Grid item xs={6} sm={4} md={3}>
+                                                    <Paper sx={{ p: 2, textAlign: 'center', bgcolor: '#fafafa', borderRadius: 3 }}>
+                                                        <Typography variant="body2" sx={{ fontFamily: 'Cairo', color: '#666', mb: 0.5 }}>الكويزات</Typography>
+                                                        <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
+                                                            {grade.quizzes_grade ?? '--'}/{grade.quizzes_weight || 10}
+                                                        </Typography>
+                                                    </Paper>
+                                                </Grid>
+                                                <Grid item xs={6} sm={4} md={3}>
+                                                    <Paper sx={{ p: 2, textAlign: 'center', bgcolor: '#fafafa', borderRadius: 3 }}>
+                                                        <Typography variant="body2" sx={{ fontFamily: 'Cairo', color: '#666', mb: 0.5 }}>أعمال السنة</Typography>
+                                                        <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
+                                                            {grade.coursework_grade ?? '--'}/{grade.coursework_weight || 10}
+                                                        </Typography>
+                                                    </Paper>
+                                                </Grid>
+                                                <Grid item xs={6} sm={4} md={3}>
                                                     <Paper sx={{ p: 2, textAlign: 'center', bgcolor: '#fff3e0', borderRadius: 3 }}>
                                                         <Typography variant="body2" sx={{ fontFamily: 'Cairo', color: '#666', mb: 0.5 }}>منتصف الترم</Typography>
                                                         <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#FF9800' }}>
                                                             {grade.midterm_grade ?? '--'}/{grade.midterm_weight || 20}
-                                                        </Typography>
-                                                    </Paper>
-                                                </Grid>
-                                                <Grid item xs={6} sm={4} md={2.4}>
-                                                    <Paper sx={{ p: 2, textAlign: 'center', bgcolor: '#e3f2fd', borderRadius: 3 }}>
-                                                        <Typography variant="body2" sx={{ fontFamily: 'Cairo', color: '#666', mb: 0.5 }}>النهائي</Typography>
-                                                        <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1976d2' }}>
-                                                            {grade.final_grade ?? '--'}/{grade.final_weight || 50}
                                                         </Typography>
                                                     </Paper>
                                                 </Grid>

@@ -107,13 +107,16 @@ export default function UploadCertificates() {
         }
 
         const student = students.find(s => s.id.toString() === selectedStudent.toString());
-        if (!student || !student.user_id) {
-            setError('خطأ في بيانات الطالب.');
+        const userId = student.user || student.user_id;
+
+        if (!student || !userId) {
+            console.error('Invalid student data:', student); // Debugging
+            setError('خطأ في بيانات الطالب: حساب المستخدم غير مرتبط.');
             return;
         }
 
         const formData = new FormData();
-        formData.append('student', student.user_id);
+        formData.append('student', userId);
         formData.append('file', file);
         formData.append('description', description || 'شهادة التخرج');
 
@@ -121,9 +124,28 @@ export default function UploadCertificates() {
         setError('');
         setSuccess('');
 
+        const getCookie = (name) => {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        };
+        const csrftoken = getCookie('csrftoken');
+
         try {
             await axios.post('/api/academic/certificates/', formData, {
-                headers: { 'Content-Type': 'multipart/form-data' },
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    'X-CSRFToken': csrftoken
+                },
                 withCredentials: true,
             });
             setSuccess(`تم رفع الشهادة بنجاح للطالب ${student.full_name}`);
