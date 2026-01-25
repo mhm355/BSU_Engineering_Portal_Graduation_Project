@@ -191,7 +191,7 @@ class PendingExamGradesCountView(APIView):
 
 
 class StudentExamGradesView(APIView):
-    """Student views their own grades"""
+    """Student views their own grades (from Doctor input)"""
     permission_classes = [IsStudentRole]
 
     def get(self, request):
@@ -200,18 +200,13 @@ class StudentExamGradesView(APIView):
         except Student.DoesNotExist:
             return Response({'error': 'ملف الطالب غير موجود'}, status=status.HTTP_404_NOT_FOUND)
 
-        grades = ExamGrade.objects.filter(
-            student=student,
-            is_approved=True
-        ).select_related('subject')
+        # Use StudentGrade model which Doctor saves to
+        from .models import StudentGrade
+        from .serializers import StudentGradeSerializer
 
-        result = []
-        for grade in grades:
-            result.append({
-                'subject_name': grade.subject.name,
-                'subject_code': grade.subject.code,
-                'midterm_grade': float(grade.midterm_grade) if grade.midterm_grade else None,
-                'final_grade': float(grade.final_grade) if grade.final_grade else None,
-            })
+        grades = StudentGrade.objects.filter(
+            student=student
+        ).select_related('course_offering__subject', 'course_offering__grading_template')
 
-        return Response(result)
+        serializer = StudentGradeSerializer(grades, many=True)
+        return Response(serializer.data)

@@ -387,9 +387,13 @@ class LectureViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = Lecture.objects.all()
         course_offering = self.request.query_params.get('course_offering')
+        subject = self.request.query_params.get('subject')
 
         if course_offering:
             queryset = queryset.filter(course_offering_id=course_offering)
+        
+        if subject:
+            queryset = queryset.filter(course_offering__subject_id=subject)
 
         # Students only see lectures for their enrolled courses
         user = self.request.user
@@ -510,12 +514,12 @@ class BulkAttendanceView(APIView):
         created = 0
         updated = 0
         for item in attendance_list:
-            student_id = item.get('student_id')
-            course_offering_id = item.get('course_offering_id')
-            date = item.get('date')
-            attendance_status = item.get('status', 'PRESENT')
-
             try:
+                student_id = item.get('student_id')
+                course_offering_id = item.get('course_offering_id')
+                date = item.get('date')
+                attendance_status = item.get('status', 'PRESENT')
+
                 student = Student.objects.get(id=student_id)
                 course_offering = CourseOffering.objects.get(id=course_offering_id)
 
@@ -536,6 +540,14 @@ class BulkAttendanceView(APIView):
 
             except (Student.DoesNotExist, CourseOffering.DoesNotExist):
                 continue
+            except Exception as e:
+                # Catch-all for debugging 500 errors
+                import traceback
+                print(traceback.format_exc())
+                return Response(
+                    {'error': f"Failed to save record for Student {item.get('student_id')}: {str(e)}"}, 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
 
         return Response({'created': created, 'updated': updated})
 
@@ -543,7 +555,7 @@ class BulkAttendanceView(APIView):
 # ========== Bulk Student Grades API ==========
 class BulkStudentGradeView(APIView):
     """Doctor saves grades for multiple students at once"""
-    permission_classes = [IsDoctorRole]
+    permission_classes = [IsDoctorRole | permissions.IsAdminUser]
 
     def post(self, request):
         grades_list = request.data
@@ -552,6 +564,7 @@ class BulkStudentGradeView(APIView):
 
         created = 0
         updated = 0
+        errors = []
         for item in grades_list:
             student_id = item.get('student_id')
             course_offering_id = item.get('course_offering_id')
@@ -560,8 +573,8 @@ class BulkStudentGradeView(APIView):
                 student = Student.objects.get(id=student_id)
                 course_offering = CourseOffering.objects.get(id=course_offering_id)
 
-                # Verify doctor owns this course
-                if course_offering.doctor != request.user:
+                # Verify doctor owns this course OR user is Admin
+                if not request.user.is_superuser and course_offering.doctor != request.user:
                     continue
 
                 # Check if academic year is open
@@ -569,16 +582,19 @@ class BulkStudentGradeView(APIView):
                     continue
 
                 defaults = {}
-                if item.get('coursework_grade') is not None:
-                    defaults['coursework'] = item['coursework_grade']
-                if item.get('midterm_grade') is not None:
-                    defaults['midterm'] = item['midterm_grade']
-                if item.get('final_grade') is not None:
-                    defaults['final'] = item['final_grade']
                 
-                # Note: attendance_grade is calculated, not stored.
-                # Note: quiz_grades is JSON, standard bulk API might need update if supporting quizzes.
+                def parse_decimal(val):
+                    if val == "" or val is None: return None
+                    try:
+                        return float(val)
+                    except:
+                        return None
 
+                if 'coursework_grade' in item: defaults['coursework'] = parse_decimal(item['coursework_grade'])
+                if 'midterm_grade' in item: defaults['midterm'] = parse_decimal(item['midterm_grade'])
+                if 'final_grade' in item: defaults['final'] = parse_decimal(item['final_grade'])
+                if 'attendance_grade' in item: defaults['attendance'] = parse_decimal(item['attendance_grade'])
+                if 'quizzes_grade' in item: defaults['quizzes'] = parse_decimal(item['quizzes_grade'])
 
                 if defaults:
                     obj, is_created = StudentGrade.objects.update_or_create(
@@ -593,8 +609,13 @@ class BulkStudentGradeView(APIView):
 
             except (Student.DoesNotExist, CourseOffering.DoesNotExist):
                 continue
+            except Exception as e:
+                import traceback
+                print(f"Error saving grade for student {student_id}: {e}")
+                traceback.print_exc()
+                errors.append(f"Student {student_id}: {str(e)}")
 
-        return Response({'created': created, 'updated': updated})
+        return Response({'created': created, 'updated': updated, 'errors': errors})
 
 
 class StudentExamsView(APIView):

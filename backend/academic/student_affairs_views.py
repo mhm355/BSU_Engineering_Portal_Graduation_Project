@@ -437,8 +437,8 @@ class StudentAffairsGradesView(APIView):
                             grade_data['midterm'] = float(sg.midterm) if sg.midterm else None
                             grade_data['coursework'] = float(sg.coursework) if sg.coursework else None
                             grade_data['final'] = float(sg.final) if sg.final else None
-                            grade_data['attendance'] = sg.attendance_grade()  # This is a method
-                            grade_data['quizzes'] = sum(sg.quiz_grades.values()) if sg.quiz_grades else None
+                            grade_data['attendance'] = sg.attendance_grade()
+                            grade_data['quizzes'] = sg.quizzes_grade()
                             break
                         except StudentGrade.DoesNotExist:
                             continue

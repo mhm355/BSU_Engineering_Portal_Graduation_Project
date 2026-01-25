@@ -150,19 +150,66 @@ class AttendanceSerializer(serializers.ModelSerializer):
 class StudentGradeSerializer(serializers.ModelSerializer):
     student_name = serializers.CharField(source='student.full_name', read_only=True)
     student_national_id = serializers.CharField(source='student.national_id', read_only=True)
+    course_code = serializers.CharField(source='course_offering.subject.code', read_only=True)
+    attendance_weight = serializers.SerializerMethodField()
+    quizzes_weight = serializers.SerializerMethodField()
+    coursework_weight = serializers.SerializerMethodField()
+    midterm_weight = serializers.SerializerMethodField()
+    final_weight = serializers.SerializerMethodField()
     course_name = serializers.CharField(source='course_offering.subject.name', read_only=True)
     attendance_grade = serializers.SerializerMethodField()
+    quizzes_grade = serializers.SerializerMethodField()
+    coursework_grade = serializers.DecimalField(source='coursework', max_digits=5, decimal_places=2, read_only=True)
+    midterm_grade = serializers.DecimalField(source='midterm', max_digits=5, decimal_places=2, read_only=True)
+    final_grade = serializers.DecimalField(source='final', max_digits=5, decimal_places=2, read_only=True)
     total_grade = serializers.SerializerMethodField()
+    
+    quizzes_weight = serializers.SerializerMethodField()
+    coursework_weight = serializers.SerializerMethodField()
+    midterm_weight = serializers.SerializerMethodField()
+    final_weight = serializers.SerializerMethodField()
 
     class Meta:
         model = StudentGrade
         fields = '__all__'
 
     def get_attendance_grade(self, obj):
+        if obj.attendance is not None:
+            return float(obj.attendance)
         return obj.attendance_grade()
+
+    def get_quizzes_grade(self, obj):
+        if obj.quizzes is not None:
+            return float(obj.quizzes)
+        if obj.quiz_grades:
+            return sum(obj.quiz_grades.values())
+        return 0
 
     def get_total_grade(self, obj):
         return obj.total_grade()
+
+    def get_Template(self, obj):
+        return obj.course_offering.grading_template
+
+    def get_attendance_weight(self, obj):
+        tmpl = self.get_Template(obj)
+        return tmpl.attendance_weight if tmpl else 0
+
+    def get_quizzes_weight(self, obj):
+        tmpl = self.get_Template(obj)
+        return tmpl.quizzes_weight if tmpl else 0
+
+    def get_coursework_weight(self, obj):
+        tmpl = self.get_Template(obj)
+        return tmpl.coursework_weight if tmpl else 0
+
+    def get_midterm_weight(self, obj):
+        tmpl = self.get_Template(obj)
+        return tmpl.midterm_weight if tmpl else 0
+
+    def get_final_weight(self, obj):
+        tmpl = self.get_Template(obj)
+        return tmpl.final_weight if tmpl else 0
 
 
 class TeachingAssignmentSerializer(serializers.ModelSerializer):
