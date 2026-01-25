@@ -1,15 +1,16 @@
+# Production Docker Compose Configuration
+# Loads environment variables from .env.production automatically
+# Run with: docker compose -f docker-compose-im.yml up -d
+
 services:
   db:
     image: mysql:8.0
     container_name: bsu_db_1
     restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: bsu_db
-      MYSQL_USER: bsu_user
-      MYSQL_PASSWORD: bsu_password
+    env_file:
+      - .env.production
     volumes:
-      - db_data:/var/lib/mysql
+      - db_data_1:/var/lib/mysql
     ports:
       - "3307:3306"
     healthcheck:
@@ -31,8 +32,8 @@ services:
       db:
         condition: service_healthy
     restart: always
-    environment:
-      - DATABASE_URL=mysql://bsu_user:bsu_password@db:3306/bsu_db
+    env_file:
+      - .env.production
     networks:
       - bsu_network
 
@@ -40,7 +41,7 @@ services:
     image: mohamedessam14/bsu_frontend:v2.6
     container_name: bsu_frontend_1
     ports:
-      - "8081:5173"
+      - "8081:80"
     depends_on:
       - backend
     restart: always
@@ -48,7 +49,7 @@ services:
       - bsu_network
 
 volumes:
-  db_data:
+  db_data_1:
   media_data:
 
 

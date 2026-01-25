@@ -26,8 +26,7 @@ Thumbs.db
 *.md
 *.pdf
 docs/
-features/
-screenshots/
+other/
 
 # Test data (not needed in production)
 student_sheets/
@@ -91,6 +90,3 @@ frontend/dist/
 # ============================================
 # OTHER EXCLUSIONS
 # ============================================
-
-# Logo and static assets (not used in app)
-Logo/

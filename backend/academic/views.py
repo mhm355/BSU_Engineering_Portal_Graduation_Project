@@ -507,13 +507,25 @@ class BulkAttendanceView(APIView):
     permission_classes = [IsDoctorRole]
 
     def post(self, request):
+        from .attendance_export import export_attendance_to_excel
+        from django.conf import settings
+        import os
+        
         attendance_list = request.data
         if not isinstance(attendance_list, list):
             return Response({'error': 'Expected list of attendance records'}, status=status.HTTP_400_BAD_REQUEST)
 
+        if not attendance_list:
+            return Response({'error': 'No attendance records provided'}, status=status.HTTP_400_BAD_REQUEST)
+
         created = 0
         updated = 0
-        for item in attendance_list:
+        errors = []
+        course_offering = None
+        attendance_date = None
+        saved_attendance_records = []
+        
+        for idx, item in enumerate(attendance_list):
             try:
                 student_id = item.get('student_id')
                 course_offering_id = item.get('course_offering_id')
@@ -522,9 +534,16 @@ class BulkAttendanceView(APIView):
 
                 student = Student.objects.get(id=student_id)
                 course_offering = CourseOffering.objects.get(id=course_offering_id)
+                attendance_date = date
 
                 # Verify doctor owns this course (skip check for admin)
                 if request.user.role != 'ADMIN' and course_offering.doctor != request.user:
+                    errors.append(f"Row {idx+1}: Permission denied for this course")
+                    continue
+
+                # Check if academic year is open
+                if course_offering.academic_year.status == 'CLOSED':
+                    errors.append(f"Row {idx+1}: Academic year is closed")
                     continue
 
                 obj, is_created = Attendance.objects.update_or_create(
@@ -533,12 +552,22 @@ class BulkAttendanceView(APIView):
                     date=date,
                     defaults={'status': attendance_status}
                 )
+                
+                saved_attendance_records.append(obj)
+                
                 if is_created:
                     created += 1
                 else:
                     updated += 1
 
-            except (Student.DoesNotExist, CourseOffering.DoesNotExist):
+            except Student.DoesNotExist:
+                errors.append(f"Row {idx+1}: Student not found")
+                continue
+            except CourseOffering.DoesNotExist:
+                errors.append(f"Row {idx+1}: Course offering not found")
+                continue
+            except Exception as e:
+                errors.append(f"Row {idx+1}: {str(e)}")
                 continue
             except Exception as e:
                 # Catch-all for debugging 500 errors
@@ -549,7 +578,47 @@ class BulkAttendanceView(APIView):
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
-        return Response({'created': created, 'updated': updated})
+        # Generate Excel file if any attendance was saved
+        excel_file_path = None
+        excel_url = None
+        
+        if saved_attendance_records and course_offering and attendance_date:
+            try:
+                # Parse date string to date object for Excel export
+                from datetime import datetime
+                if isinstance(attendance_date, str):
+                    date_obj = datetime.strptime(attendance_date, '%Y-%m-%d').date()
+                else:
+                    date_obj = attendance_date
+                
+                # Export to Excel
+                excel_file_path = export_attendance_to_excel(
+                    course_offering, 
+                    date_obj,  # Use date object, not string
+                    saved_attendance_records
+                )
+                # Generate URL for download
+                excel_url = f"{settings.MEDIA_URL}{excel_file_path}"
+            except Exception as e:
+                errors.append(f"Excel export failed: {str(e)}")
+
+        response_data = {
+            'created': created,
+            'updated': updated,
+            'total_saved': created + updated,
+            'message': f'تم حفظ {created + updated} سجل حضور بنجاح'
+        }
+        
+        if excel_url:
+            response_data['excel_file'] = excel_url
+            response_data['message'] += f' | تم إنشاء ملف Excel'
+        
+        if errors:
+            response_data['errors'] = errors
+            response_data['error_count'] = len(errors)
+        
+        return Response(response_data)
+
 
 
 # ========== Bulk Student Grades API ==========

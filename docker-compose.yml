@@ -2,7 +2,7 @@ services:
   db:
     image: mysql:8.0
     container_name: bsu_db
-    restart: always
+    restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: bsu_db
@@ -12,6 +12,8 @@ services:
       - db_data:/var/lib/mysql
     ports:
       - "3306:3306"
+    networks:
+      - bsu_network
 
   backend:
     build: ./backend
@@ -23,9 +25,11 @@ services:
       - "8000:8000"
     depends_on:
       - db
-    restart: always
+    restart: unless-stopped
     environment:
       - DATABASE_URL=mysql://bsu_user:bsu_password@db:3306/bsu_db
+    networks:
+      - bsu_network
 
   frontend:
     build: ./frontend
@@ -37,21 +41,25 @@ services:
       - "5173:5173"
     depends_on:
       - backend
-    restart: always 
-
-  phpmyadmin:
-    image: phpmyadmin:latest
-    container_name: bsu_phpmyadmin
-    restart: always
-    ports:
-      - "8080:80"
-    environment:
-      PMA_HOST: db
-      PMA_PORT: 3306
-      MYSQL_ROOT_PASSWORD: root
-    depends_on:
-      - db
+    restart: unless-stopped
+    networks:
+      - bsu_network
+  # phpmyadmin:
+  #   image: phpmyadmin:latest
+  #   container_name: bsu_phpmyadmin
+  #   restart: always
+  #   ports:
+  #     - "8080:80"
+  #   environment:
+  #     PMA_HOST: db
+  #     PMA_PORT: 3306
+  #     MYSQL_ROOT_PASSWORD: root
+  #   depends_on:
+  #     - db
 
 volumes:
   db_data:
   media_data:
+
+networks:
+  bsu_network:

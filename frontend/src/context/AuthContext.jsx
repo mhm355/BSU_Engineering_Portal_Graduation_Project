@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import axios from 'axios';
+import api from '../utils/api';
 
 const AuthContext = createContext(null);
 
@@ -13,10 +13,7 @@ export const AuthProvider = ({ children }) => {
 
         if (storedUser && token) {
             // Validate session with backend
-            axios.get('/api/users/profile/', {
-                withCredentials: true,
-                headers: { 'Authorization': `Bearer ${token}` }
-            })
+            api.get('/api/auth/profile/')
                 .then(res => {
                     setUser(res.data);
                     // Update localStorage with fresh data
