@@ -40,6 +40,8 @@ services:
   frontend:
     image: mohamedessam14/bsu_frontend:v2.6
     container_name: bsu_frontend_1
+    volumes:
+      - media_data:/usr/share/nginx/html/media
     ports:
       - "8081:80"
     depends_on:

@@ -16,6 +16,10 @@ while ! python -c "import MySQLdb; MySQLdb.connect(host='db', user='bsu_user', p
 done
 echo "Database is ready!"
 
+# Ensure media directory exists and has loose permissions for frontend access
+mkdir -p /app/media
+chmod -R 777 /app/media
+
 # Run super_fix.py for schema repair and admin reset
 if [ -f "super_fix.py" ]; then
     echo "Running SUPER FIX (Schema + Admin)..."
