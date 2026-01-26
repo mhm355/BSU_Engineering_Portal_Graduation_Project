@@ -29,8 +29,10 @@ export default function UploadCertificates() {
     const [departments, setDepartments] = useState([]);
     const [students, setStudents] = useState([]);
     const [academicYears, setAcademicYears] = useState([]);
+    const [specializations, setSpecializations] = useState([]);
     const [selectedDepartment, setSelectedDepartment] = useState('');
     const [selectedYear, setSelectedYear] = useState('');
+    const [selectedSpecialization, setSelectedSpecialization] = useState('');
     const [selectedStudent, setSelectedStudent] = useState('');
     const [description, setDescription] = useState('');
     const [file, setFile] = useState(null);
@@ -39,6 +41,10 @@ export default function UploadCertificates() {
     const [error, setError] = useState('');
     const [loadingDepts, setLoadingDepts] = useState(true);
     const [loadingStudents, setLoadingStudents] = useState(false);
+
+    // Check if selected department has specializations (Electrical dept)
+    const selectedDeptData = departments.find(d => d.id.toString() === selectedDepartment.toString());
+    const hasSpecializations = selectedDeptData?.has_specializations || selectedDeptData?.code === 'ELEC';
 
     useEffect(() => {
         fetchDepartments();
@@ -60,14 +66,25 @@ export default function UploadCertificates() {
         }
     };
 
-    const fetchStudentsByDepartment = async (deptId, yearId) => {
+    const fetchSpecializations = async (deptId) => {
+        try {
+            const response = await axios.get(`/api/academic/specializations/?department=${deptId}`, { withCredentials: true });
+            setSpecializations(response.data);
+        } catch (err) {
+            console.error('Error fetching specializations:', err);
+            setSpecializations([]);
+        }
+    };
+
+    const fetchStudentsByDepartment = async (deptId, yearId, specId = '') => {
         if (!deptId || !yearId) return;
         setLoadingStudents(true);
         try {
-            const response = await axios.get(
-                `/api/academic/student-affairs/students/?level_name=FOURTH&department=${deptId}&academic_year=${yearId}`,
-                { withCredentials: true }
-            );
+            let url = `/api/academic/student-affairs/students/?level_name=FOURTH&department=${deptId}&academic_year=${yearId}`;
+            if (specId) {
+                url += `&specialization=${specId}`;
+            }
+            const response = await axios.get(url, { withCredentials: true });
             setStudents(response.data);
             setLoadingStudents(false);
         } catch (err) {
@@ -82,6 +99,15 @@ export default function UploadCertificates() {
         const deptId = e.target.value;
         setSelectedDepartment(deptId);
         setSelectedStudent('');
+        setSelectedSpecialization('');
+        setSpecializations([]);
+
+        // Check if department has specializations
+        const dept = departments.find(d => d.id.toString() === deptId.toString());
+        if (dept?.has_specializations || dept?.code === 'ELEC') {
+            fetchSpecializations(deptId);
+        }
+
         if (deptId && selectedYear) {
             fetchStudentsByDepartment(deptId, selectedYear);
         } else {
@@ -94,9 +120,18 @@ export default function UploadCertificates() {
         setSelectedYear(yearId);
         setSelectedStudent('');
         if (selectedDepartment && yearId) {
-            fetchStudentsByDepartment(selectedDepartment, yearId);
+            fetchStudentsByDepartment(selectedDepartment, yearId, selectedSpecialization);
         } else {
             setStudents([]);
+        }
+    };
+
+    const handleSpecializationChange = (e) => {
+        const specId = e.target.value;
+        setSelectedSpecialization(specId);
+        setSelectedStudent('');
+        if (selectedDepartment && selectedYear) {
+            fetchStudentsByDepartment(selectedDepartment, selectedYear, specId);
         }
     };
 
@@ -273,6 +308,30 @@ export default function UploadCertificates() {
                                             </Select>
                                         </FormControl>
                                     </Grid>
+
+                                    {/* Specialization dropdown - only show for Electrical department */}
+                                    {hasSpecializations && specializations.length > 0 && (
+                                        <Grid item xs={12}>
+                                            <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', mb: 1.5, color: '#1a2744' }}>
+                                                التخصص
+                                            </Typography>
+                                            <FormControl fullWidth variant="outlined">
+                                                <Select
+                                                    value={selectedSpecialization}
+                                                    onChange={handleSpecializationChange}
+                                                    displayEmpty
+                                                    sx={{ borderRadius: 2, fontSize: '1.3rem', minHeight: 60, bgcolor: '#fafafa', '& .MuiSelect-select': { py: 2 } }}
+                                                >
+                                                    <MenuItem value="" sx={{ fontSize: '1.2rem' }}>جميع التخصصات</MenuItem>
+                                                    {specializations.map((spec) => (
+                                                        <MenuItem key={spec.id} value={spec.id} sx={{ fontSize: '1.2rem', py: 1.5 }}>
+                                                            {spec.name} ({spec.code})
+                                                        </MenuItem>
+                                                    ))}
+                                                </Select>
+                                            </FormControl>
+                                        </Grid>
+                                    )}
                                 </Grid>
                             </Paper>
                         </Grow>
