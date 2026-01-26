@@ -22,7 +22,7 @@ services:
       - bsu_network
 
   backend:
-    image: mohamedessam14/bsu_backend:v2.6
+    image: mhmdocker1/bsu_backend:v2.7
     container_name: bsu_backend_1
     volumes:
       - media_data:/app/media
@@ -38,7 +38,7 @@ services:
       - bsu_network
 
   frontend:
-    image: mohamedessam14/bsu_frontend:v2.6
+    image: mhmdocker1/bsu_frontend:v2.7
     container_name: bsu_frontend_1
     volumes:
       - media_data:/usr/share/nginx/html/media
