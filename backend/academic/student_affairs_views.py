@@ -241,6 +241,7 @@ class StudentListView(generics.ListAPIView):
         for student in queryset:
             students.append({
                 'id': student.id,
+                'user_id': student.user.id if student.user else None,  # User ID for Certificate FK
                 'national_id': student.national_id,
                 'full_name': student.full_name,
                 'username': student.user.username if student.user else None,

@@ -424,6 +424,16 @@ class CertificateViewSet(viewsets.ModelViewSet):
     queryset = Certificate.objects.all()
     serializer_class = CertificateSerializer
     permission_classes = [permissions.IsAuthenticated]
+    
+    # Add parsers for file upload
+    from rest_framework.parsers import MultiPartParser, FormParser
+    parser_classes = [MultiPartParser, FormParser]
+
+    def get_permissions(self):
+        # Only Student Affairs can create/update/delete certificates
+        if self.action in ['create', 'update', 'partial_update', 'destroy']:
+            return [IsStudentAffairsRole()]
+        return [permissions.IsAuthenticated()]
 
     def get_queryset(self):
         user = self.request.user
