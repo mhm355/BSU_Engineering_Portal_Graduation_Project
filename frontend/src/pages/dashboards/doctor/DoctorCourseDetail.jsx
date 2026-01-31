@@ -26,8 +26,10 @@ import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import SlideshowIcon from '@mui/icons-material/Slideshow';
 import PlayCircleIcon from '@mui/icons-material/PlayCircle';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
+import DownloadIcon from '@mui/icons-material/Download';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
+import { exportToExcel, exportAttendanceToExcel } from '../../../utils/excelExport';
 
 const float = keyframes`
   0%, 100% { transform: translateY(0px); }
@@ -714,7 +716,40 @@ export default function DoctorCourseDetail() {
                                         {gradingTemplate && <Chip label={`قالب: ${gradingTemplate.name}`} size="small" sx={{ mt: 0.5 }} />}
                                     </Box>
                                 </Box>
-                                <Button variant="contained" size="large" startIcon={savingGrades ? <CircularProgress size={24} color="inherit" /> : <SaveIcon />} onClick={handleSaveGrades} disabled={savingGrades || students.length === 0} sx={{ fontFamily: 'Cairo', fontWeight: 'bold', borderRadius: 3, px: 4, background: 'linear-gradient(135deg, #d32f2f, #ef5350)' }}>حفظ الدرجات</Button>
+                                <Box sx={{ display: 'flex', gap: 2 }}>
+                                    <Button
+                                        variant="outlined"
+                                        size="large"
+                                        startIcon={<DownloadIcon />}
+                                        onClick={() => {
+                                            const columns = [
+                                                { key: 'full_name', header: 'الاسم' },
+                                                { key: 'national_id', header: 'الرقم القومي' },
+                                                { key: 'attendance', header: 'الحضور' },
+                                                { key: 'quizzes', header: 'الكويزات' },
+                                                { key: 'coursework', header: 'أعمال السنة' },
+                                                { key: 'midterm', header: 'الميدترم' },
+                                                { key: 'final', header: 'النهائي' },
+                                            ];
+                                            const exportData = students.map(s => ({
+                                                full_name: s.full_name,
+                                                national_id: s.national_id,
+                                                attendance: grades[s.id]?.attendance || '',
+                                                quizzes: grades[s.id]?.quizzes || '',
+                                                coursework: grades[s.id]?.coursework || '',
+                                                midterm: grades[s.id]?.midterm || '',
+                                                final: grades[s.id]?.final || '',
+                                            }));
+                                            exportToExcel(exportData, columns, `درجات_${course?.subject_name || 'المقرر'}`);
+                                            setSuccess('تم تصدير الدرجات إلى ملف Excel');
+                                        }}
+                                        disabled={students.length === 0}
+                                        sx={{ fontFamily: 'Cairo', fontWeight: 'bold', borderRadius: 3, px: 3, borderColor: '#4CAF50', color: '#4CAF50', '&:hover': { borderColor: '#388E3C', bgcolor: 'rgba(76, 175, 80, 0.08)' } }}
+                                    >
+                                        تصدير Excel
+                                    </Button>
+                                    <Button variant="contained" size="large" startIcon={savingGrades ? <CircularProgress size={24} color="inherit" /> : <SaveIcon />} onClick={handleSaveGrades} disabled={savingGrades || students.length === 0} sx={{ fontFamily: 'Cairo', fontWeight: 'bold', borderRadius: 3, px: 4, background: 'linear-gradient(135deg, #d32f2f, #ef5350)' }}>حفظ الدرجات</Button>
+                                </Box>
                             </Box>
 
                             {students.length > 0 ? (

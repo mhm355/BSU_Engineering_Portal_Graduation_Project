@@ -41,6 +41,7 @@ export default function UploadCertificates() {
     const [error, setError] = useState('');
     const [loadingDepts, setLoadingDepts] = useState(true);
     const [loadingStudents, setLoadingStudents] = useState(false);
+    const [certificates, setCertificates] = useState({});  // Track which students have certificates
 
     // Check if selected department has specializations (Electrical dept)
     const selectedDeptData = departments.find(d => d.id.toString() === selectedDepartment.toString());
@@ -86,6 +87,15 @@ export default function UploadCertificates() {
             }
             const response = await axios.get(url, { withCredentials: true });
             setStudents(response.data);
+
+            // Fetch existing certificates to track upload status
+            const certsRes = await axios.get('/api/academic/certificates/', { withCredentials: true });
+            const certsMap = {};
+            certsRes.data.forEach(cert => {
+                certsMap[cert.student] = cert;  // student is user_id FK
+            });
+            setCertificates(certsMap);
+
             setLoadingStudents(false);
         } catch (err) {
             console.error('Error fetching students:', err);
@@ -184,6 +194,8 @@ export default function UploadCertificates() {
                 withCredentials: true,
             });
             setSuccess(`تم رفع الشهادة بنجاح للطالب ${student.full_name}`);
+            // Update certificates state to show uploaded status
+            setCertificates(prev => ({ ...prev, [userId]: { student: userId } }));
             setSelectedStudent('');
             setDescription('');
             setFile(null);
@@ -385,8 +397,9 @@ export default function UploadCertificates() {
                                                             </Box>
                                                             <Chip
                                                                 size="small"
-                                                                label={student.graduation_status === 'APPROVED' ? 'معتمد' : 'قيد المراجعة'}
-                                                                color={student.graduation_status === 'APPROVED' ? 'success' : 'warning'}
+                                                                label={certificates[student.user_id] ? 'تم الرفع' : 'لم يرفع'}
+                                                                color={certificates[student.user_id] ? 'success' : 'warning'}
+                                                                sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}
                                                             />
                                                         </Box>
                                                     </MenuItem>

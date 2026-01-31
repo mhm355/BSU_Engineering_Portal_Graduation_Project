@@ -14,8 +14,10 @@ import MenuBookIcon from '@mui/icons-material/MenuBook';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import CategoryIcon from '@mui/icons-material/Category';
+import DownloadIcon from '@mui/icons-material/Download';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { exportGradesToExcel } from '../../../utils/excelExport';
 
 // Animations
 const float = keyframes`
@@ -366,13 +368,31 @@ export default function StudentGradesView() {
                                 </Grid>
                             </Grid>
 
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
-                                <Avatar sx={{ width: 50, height: 50, background: 'linear-gradient(135deg, #3F51B5, #7986CB)' }}>
-                                    <GradingIcon />
-                                </Avatar>
-                                <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>
-                                    جدول الدرجات
-                                </Typography>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3, justifyContent: 'space-between' }}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                    <Avatar sx={{ width: 50, height: 50, background: 'linear-gradient(135deg, #3F51B5, #7986CB)' }}>
+                                        <GradingIcon />
+                                    </Avatar>
+                                    <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>
+                                        جدول الدرجات
+                                    </Typography>
+                                </Box>
+                                <Button
+                                    variant="outlined"
+                                    size="large"
+                                    startIcon={<DownloadIcon />}
+                                    onClick={() => {
+                                        exportGradesToExcel(
+                                            gradesData.students,
+                                            gradesData.subjects,
+                                            `درجات_${selectedDeptData?.name || 'القسم'}_${selectedLevelData?.display_name || 'الفرقة'}`
+                                        );
+                                    }}
+                                    disabled={!gradesData?.students?.length}
+                                    sx={{ fontFamily: 'Cairo', fontWeight: 'bold', borderRadius: 3, px: 3, borderColor: '#4CAF50', color: '#4CAF50', '&:hover': { borderColor: '#388E3C', bgcolor: 'rgba(76, 175, 80, 0.08)' } }}
+                                >
+                                    تصدير Excel
+                                </Button>
                             </Box>
 
                             {gradesData.students.length > 0 ? (
