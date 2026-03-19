@@ -30,16 +30,16 @@ class UploadStudentsView(APIView):
         file = request.FILES.get('file')
         department_id = request.data.get('department_id')
         academic_year_id = request.data.get('academic_year_id')
-        level_id = request.data.get('level_id')
+        level_id = request.data.get('level_id')  # Optional if CSV has level column
         specialization_id = request.data.get('specialization_id')
 
         # Validate required params
         if not file:
             return Response({'error': 'لم يتم تحديد ملف'}, status=status.HTTP_400_BAD_REQUEST)
         
-        if not department_id or not academic_year_id or not level_id:
+        if not department_id or not academic_year_id:
             return Response(
-                {'error': 'يجب اختيار القسم والعام الدراسي والفرقة'}, 
+                {'error': 'يجب اختيار القسم والعام الدراسي'}, 
                 status=status.HTTP_400_BAD_REQUEST
             )
 
@@ -54,10 +54,29 @@ class UploadStudentsView(APIView):
         except AcademicYear.DoesNotExist:
             return Response({'error': 'العام الدراسي غير موجود'}, status=status.HTTP_400_BAD_REQUEST)
 
-        try:
-            level = Level.objects.get(id=level_id)
-        except Level.DoesNotExist:
-            return Response({'error': 'الفرقة غير موجودة'}, status=status.HTTP_400_BAD_REQUEST)
+        # Validate level if provided, otherwise CSV must have level column
+        level = None
+        if level_id:
+            try:
+                level = Level.objects.get(id=level_id)
+            except Level.DoesNotExist:
+                return Response({'error': 'الفرقة غير موجودة'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            # Check if CSV has level column for multi-level upload
+            if file.name.endswith('.csv'):
+                df_check = pd.read_csv(io.BytesIO(file.read()))
+            elif file.name.endswith(('.xlsx', '.xls')):
+                df_check = pd.read_excel(io.BytesIO(file.read()))
+            else:
+                return Response({'error': 'صيغة الملف غير مدعومة'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            if 'level' not in df_check.columns:
+                return Response(
+                    {'error': 'يجب اختيار الفرقة أو إضافة عمود level في الملف'}, 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            # Reset file pointer for later reading
+            file.seek(0)
 
         specialization = None
         if specialization_id:
@@ -87,15 +106,47 @@ class UploadStudentsView(APIView):
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
-            # Process students
+            # Validate CSV content matches selected department if column present
+            validation_errors = []
+            if 'department' in df.columns:
+                csv_departments = df['department'].dropna().astype(str).str.strip().unique()
+                for csv_dept in csv_departments:
+                    if csv_dept.lower() != department.name.lower() and csv_dept.lower() != department.code.lower():
+                        validation_errors.append(f'قسم في الملف "{csv_dept}" لا يطابق القسم المحدد "{department.name}"')
+            
+            # Validate level column if no level_id provided
+            if not level_id and 'level' in df.columns:
+                csv_levels = df['level'].dropna().astype(str).str.strip().unique()
+                for csv_level in csv_levels:
+                    # Check if level exists
+                    level_exists = Level.objects.filter(
+                        Q(name__iexact=csv_level) | 
+                        Q(name__iexact=csv_level.replace(' ', '_'))
+                    ).exists()
+                    if not level_exists:
+                        validation_errors.append(f'فرقة غير موجودة: "{csv_level}"')
+            elif level_id and 'level' in df.columns:
+                # Validate against selected level
+                csv_levels = df['level'].dropna().astype(str).str.strip().unique()
+                for csv_level in csv_levels:
+                    if csv_level.lower() != level.name.lower() and csv_level != level.get_name_display():
+                        validation_errors.append(f'فرقة في الملف "{csv_level}" لا تطابق الفرقة المحددة "{level.get_name_display()}"')
+            
+            if validation_errors:
+                return Response(
+                    {'error': 'خطأ في التحقق من البيانات', 'details': validation_errors}, 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            # Process students with multi-level support
             results = self._process_students(df, department, academic_year, level, specialization, request.user)
             return Response(results, status=status.HTTP_201_CREATED)
 
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    def _process_students(self, df, department, academic_year, level, specialization, performed_by):
-        """Process student data and create accounts"""
+    def _process_students(self, df, department, academic_year, default_level, specialization, performed_by):
+        """Process student data and create accounts with multi-level support"""
         created_count = 0
         updated_count = 0
         errors = []
@@ -115,6 +166,20 @@ class UploadStudentsView(APIView):
                     if not national_id or len(national_id) < 10:
                         raise ValueError('الرقم القومي غير صالح')
 
+                    # Determine level for this row
+                    row_level = default_level
+                    if not default_level and 'level' in df.columns:
+                        level_value = str(row['level']).strip()
+                        # Try to find level by name
+                        try:
+                            row_level = Level.objects.get(
+                                Q(name__iexact=level_value) | 
+                                Q(name__iexact=level_value.replace(' ', '_'))
+                            )
+                        except Level.DoesNotExist:
+                            errors.append(f"صف {index + 2}: الفرقة '{level_value}' غير موجودة")
+                            continue
+
                     # Check if student exists
                     student_exists = Student.objects.filter(national_id=national_id).exists()
                     user_exists = User.objects.filter(username=national_id).exists()
@@ -123,7 +188,7 @@ class UploadStudentsView(APIView):
                         # Update existing student
                         student = Student.objects.get(national_id=national_id)
                         student.full_name = full_name
-                        student.level = level
+                        student.level = row_level
                         student.academic_year = academic_year
                         student.department = department
                         if specialization:
@@ -150,7 +215,7 @@ class UploadStudentsView(APIView):
                             national_id=national_id,
                             full_name=full_name,
                             user=user,
-                            level=level,
+                            level=row_level,
                             academic_year=academic_year,
                             department=department,
                             specialization=specialization
@@ -173,7 +238,7 @@ class UploadStudentsView(APIView):
                             national_id=national_id,
                             full_name=full_name,
                             user=user,
-                            level=level,
+                            level=row_level,
                             academic_year=academic_year,
                             department=department,
                             specialization=specialization
@@ -185,6 +250,7 @@ class UploadStudentsView(APIView):
 
         # Audit log
         try:
+            level_info = default_level.name if default_level else 'multi-level'
             AuditLog.objects.create(
                 action=AuditLog.ActionType.STUDENT_BATCH_UPLOAD,
                 performed_by=performed_by,
@@ -192,7 +258,7 @@ class UploadStudentsView(APIView):
                 details={
                     'department': department.name,
                     'academic_year': academic_year.name,
-                    'level': level.name,
+                    'level': level_info,
                     'created': created_count,
                     'updated': updated_count,
                     'errors': len(errors)

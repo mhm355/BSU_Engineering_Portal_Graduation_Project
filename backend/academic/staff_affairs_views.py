@@ -6,6 +6,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.db import transaction
+from django.db.models import Q
 from django.contrib.auth import get_user_model
 import pandas as pd
 import io
@@ -248,13 +249,24 @@ class UploadStaffAffairsUsersView(APIView):
 
 
 class DoctorListView(APIView):
-    """List all doctors (read-only for Staff Affairs)"""
+    """List all doctors with optional search (read-only for Staff Affairs)"""
     permission_classes = [IsStaffAffairsRole]
 
     def get(self, request):
-        doctors = User.objects.filter(role='DOCTOR').values(
-            'id', 'username', 'first_name', 'last_name', 'national_id', 'email'
-        )
+        search = request.query_params.get('search', '')
+        
+        doctors = User.objects.filter(role='DOCTOR')
+        
+        # Apply search filter if provided
+        if search:
+            doctors = doctors.filter(
+                Q(first_name__icontains=search) |
+                Q(last_name__icontains=search) |
+                Q(national_id__icontains=search) |
+                Q(email__icontains=search)
+            )
+        
+        doctors = doctors.values('id', 'username', 'first_name', 'last_name', 'national_id', 'email')
         
         result = []
         for doc in doctors:

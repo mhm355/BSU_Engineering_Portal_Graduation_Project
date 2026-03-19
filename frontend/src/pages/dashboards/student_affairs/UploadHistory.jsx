@@ -157,7 +157,7 @@ export default function UploadHistory() {
                                         )}
                                     </TableCell>
                                     <TableCell sx={{ fontFamily: 'Cairo', direction: 'ltr', fontSize: 13 }}>
-                                        {new Date(record.uploaded_at).toLocaleString('ar-EG')}
+                                        {new Date(record.created_at).toLocaleString('ar-EG')}
                                     </TableCell>
                                     <TableCell>
                                         {record.error_count > 0 && record.errors_json ? (
