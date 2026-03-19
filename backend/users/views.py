@@ -1,4 +1,5 @@
 from rest_framework import generics, permissions, status
+from rest_framework.throttling import AnonRateThrottle
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.contrib.auth import authenticate, login, logout
@@ -10,13 +11,14 @@ class RegisterView(generics.CreateAPIView):
 
 class LoginView(APIView):
     permission_classes = [permissions.AllowAny]
+    throttle_classes = [AnonRateThrottle]
 
     def post(self, request):
         username = request.data.get('username')
         password = request.data.get('password')
-        print(f"Login attempt: username={username}, password={password}")
+
         user = authenticate(username=username, password=password)
-        print(f"Authenticate result: {user}")
+
         if user:
             login(request, user)
             user_data = UserSerializer(user).data

@@ -12,7 +12,7 @@ import io
 
 from .models import (
     AuditLog, TeachingAssignment, Subject, Level, AcademicYear,
-    Term, GradingTemplate, CourseOffering, Specialization
+    Term, GradingTemplate, CourseOffering, Specialization, UploadHistory
 )
 from users.permissions import IsStaffAffairsRole
 
@@ -107,6 +107,21 @@ class UploadDoctorsView(APIView):
                     'skipped': skipped_count,
                     'errors': len(errors)
                 }
+            )
+        except Exception:
+            pass
+
+        # Track upload history
+        try:
+            UploadHistory.objects.create(
+                upload_type='DOCTOR',
+                file_name='doctors_upload',
+                uploaded_by=performed_by,
+                total_rows=len(df),
+                created_count=created_count,
+                updated_count=0,
+                error_count=len(errors),
+                errors_json=errors if errors else None,
             )
         except Exception:
             pass
@@ -206,6 +221,21 @@ class UploadStaffAffairsUsersView(APIView):
                     'skipped': skipped_count,
                     'errors': len(errors)
                 }
+            )
+        except Exception:
+            pass
+
+        # Track upload history
+        try:
+            UploadHistory.objects.create(
+                upload_type='STAFF',
+                file_name='staff_upload',
+                uploaded_by=performed_by,
+                total_rows=len(df),
+                created_count=created_count,
+                updated_count=0,
+                error_count=len(errors),
+                errors_json=errors if errors else None,
             )
         except Exception:
             pass
@@ -390,6 +420,26 @@ class AssignDoctorToSubjectView(APIView):
                 'specialization': specialization
             }
         )
+
+        # Log audit trail for doctor assignment
+        try:
+            doctor_name = f"{doctor.first_name} {doctor.last_name}".strip()
+            AuditLog.objects.create(
+                action=AuditLog.ActionType.DOCTOR_ASSIGNMENT,
+                performed_by=request.user,
+                entity_type='COURSE_OFFERING',
+                entity_id=str(offering.id),
+                details={
+                    'doctor_id': doctor.id,
+                    'doctor_name': doctor_name,
+                    'subject': subject.name,
+                    'level': level.get_name_display(),
+                    'term': term.get_name_display(),
+                    'created': created,
+                }
+            )
+        except Exception:
+            pass
 
         return Response({
             'message': 'تم تعيين الدكتور بنجاح' if created else 'تم تحديث تعيين الدكتور',
@@ -598,7 +648,7 @@ class AdminDeletionRequestsView(APIView):
 
     def post(self, request, pk):
         """Approve or reject a deletion request"""
-        from .models import DoctorDeletionRequest
+        from .models import DoctorDeletionRequest, AuditLog
         from django.utils import timezone
         
         try:
@@ -608,13 +658,35 @@ class AdminDeletionRequestsView(APIView):
             if action == 'approve':
                 # Delete the doctor
                 doctor = deletion_request.doctor
+                doctor_name = f"{doctor.first_name} {doctor.last_name}".strip()
+                doctor_nid = doctor.national_id
                 deletion_request.status = DoctorDeletionRequest.Status.APPROVED
                 deletion_request.reviewed_at = timezone.now()
                 deletion_request.reviewed_by = request.user
                 deletion_request.save()
                 
                 # Actually delete the doctor user
-                doctor.delete()
+                try:
+                    doctor.delete()
+                except Exception as e:
+                    import logging
+                    logger = logging.getLogger(__name__)
+                    logger.error(f"Failed to delete doctor {doctor.id}: {e}")
+                    return Response({
+                        'error': f'فشل حذف الدكتور: {str(e)}'
+                    }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                
+                # U9: Audit log
+                try:
+                    AuditLog.objects.create(
+                        action='DOCTOR_DELETED',
+                        performed_by=request.user,
+                        entity_type='Doctor',
+                        entity_id=pk,
+                        details={'doctor_name': doctor_name, 'national_id': doctor_nid}
+                    )
+                except Exception:
+                    pass
                 
                 return Response({
                     'message': 'تمت الموافقة على الحذف وتم حذف الدكتور',
@@ -624,6 +696,18 @@ class AdminDeletionRequestsView(APIView):
                 deletion_request.reviewed_at = timezone.now()
                 deletion_request.reviewed_by = request.user
                 deletion_request.save()
+                
+                # U9: Audit log
+                try:
+                    AuditLog.objects.create(
+                        action='GRADE_REJECTED',
+                        performed_by=request.user,
+                        entity_type='DoctorDeletionRequest',
+                        entity_id=pk,
+                        details={'doctor_name': f"{deletion_request.doctor.first_name} {deletion_request.doctor.last_name}".strip()}
+                    )
+                except Exception:
+                    pass
                 
                 return Response({
                     'message': 'تم رفض طلب الحذف',
@@ -635,3 +719,33 @@ class AdminDeletionRequestsView(APIView):
                 
         except DoctorDeletionRequest.DoesNotExist:
             return Response({'error': 'Request not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+class AssignmentHistoryView(APIView):
+    """View assignment history from audit logs — Staff Affairs"""
+    permission_classes = [IsStaffAffairsRole]
+
+    def get(self, request):
+        qs = AuditLog.objects.filter(
+            action__in=[
+                AuditLog.ActionType.DOCTOR_ASSIGNMENT,
+                AuditLog.ActionType.DOCTOR_UNASSIGNMENT,
+            ]
+        ).select_related('performed_by').order_by('-created_at')[:200]
+
+        result = []
+        for log in qs:
+            details = log.details or {}
+            result.append({
+                'id': log.id,
+                'action': log.action,
+                'action_display': log.get_action_display(),
+                'performed_by': f"{log.performed_by.first_name} {log.performed_by.last_name}".strip(),
+                'doctor_name': details.get('doctor_name', ''),
+                'subject': details.get('subject', ''),
+                'level': details.get('level', ''),
+                'term': details.get('term', ''),
+                'created_at': log.created_at,
+            })
+
+        return Response(result)

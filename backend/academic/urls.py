@@ -2,28 +2,30 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import (
     DepartmentViewSet, SpecializationViewSet, AcademicYearViewSet,
-    LevelViewSet, SubjectViewSet, StudentViewSet, TeachingAssignmentViewSet,
+    LevelViewSet, SubjectViewSet, StudentViewSet,
     CertificateViewSet, StudentProfileView,
     TermViewSet, GradingTemplateViewSet, CourseOfferingViewSet, LectureViewSet,
     BulkAttendanceView, BulkStudentGradeView, AttendanceViewSet,
-    StudentExamsView, StudentCoursesView
+    StudentExamsView, StudentCoursesView, AuditLogListView,
+    ContactMessageView, AnnouncementListCreateView, UploadHistoryListView
 )
 from .student_affairs_views import (
     UploadStudentsView, StudentListView, ResetStudentPasswordView,
-    FourthYearStudentsView, StudentAffairsGradesView
+    FourthYearStudentsView, StudentAffairsGradesView, BulkCertificateUploadView
 )
 from .staff_affairs_views import (
     UploadDoctorsView, UploadStaffAffairsUsersView, DoctorListView,
     StudentAffairsUserListView, AssignDoctorToSubjectView, DoctorAssignmentsView,
     TermListView, GradingTemplateListView, DoctorDetailView, DoctorResetPasswordView,
-    DoctorDeletionRequestView, AdminDeletionRequestsView
+    DoctorDeletionRequestView, AdminDeletionRequestsView, AssignmentHistoryView
 )
 from .exam_grades_views import (
     UploadExamGradesView, PendingExamGradesView, ApproveExamGradesView,
     PendingExamGradesCountView, StudentExamGradesView
 )
 from .quiz_views import (
-    QuizViewSet, StudentQuizListView, StudentQuizAttemptView, QuizResultsView
+    QuizViewSet, StudentQuizListView, StudentQuizAttemptView, QuizResultsView,
+    BulkQuizImportView
 )
 
 router = DefaultRouter()
@@ -35,7 +37,8 @@ router.register(r'grading-templates', GradingTemplateViewSet)
 router.register(r'levels', LevelViewSet)
 router.register(r'subjects', SubjectViewSet)
 router.register(r'students', StudentViewSet)
-router.register(r'assignments', TeachingAssignmentViewSet)
+# DEPRECATED: TeachingAssignment replaced by CourseOffering. Route removed.
+# router.register(r'assignments', TeachingAssignmentViewSet)
 router.register(r'course-offerings', CourseOfferingViewSet)
 router.register(r'lectures', LectureViewSet)
 router.register(r'certificates', CertificateViewSet)
@@ -91,4 +94,25 @@ urlpatterns = [
     path('quizzes/<int:quiz_id>/results/', QuizResultsView.as_view(), name='quiz-results'),
     path('exams/', StudentExamsView.as_view(), name='student-exams'),
     path('student/courses/', StudentCoursesView.as_view(), name='student-courses'),
+
+    # Admin audit log
+    path('admin/audit-logs/', AuditLogListView.as_view(), name='audit-logs'),
+
+    # Contact form (public)
+    path('contact/', ContactMessageView.as_view(), name='contact-messages'),
+
+    # Announcements (Admin)
+    path('announcements/', AnnouncementListCreateView.as_view(), name='announcements'),
+
+    # Upload history (Student Affairs)
+    path('student-affairs/upload-history/', UploadHistoryListView.as_view(), name='upload-history'),
+
+    # Bulk certificate upload (Student Affairs)
+    path('student-affairs/bulk-certificates/', BulkCertificateUploadView.as_view(), name='bulk-certificates'),
+
+    # Bulk quiz import (Doctor)
+    path('quizzes/bulk-import/', BulkQuizImportView.as_view(), name='bulk-quiz-import'),
+
+    # Assignment history (Staff Affairs)
+    path('staff-affairs/assignment-history/', AssignmentHistoryView.as_view(), name='assignment-history'),
 ]

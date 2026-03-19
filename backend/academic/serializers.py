@@ -3,14 +3,14 @@ from .models import (
     Department, Specialization, AcademicYear, Level, Subject,
     Student, TeachingAssignment, ExamGrade, Certificate,
     Term, GradingTemplate, CourseOffering, Lecture, Attendance, StudentGrade,
-    Quiz
+    Quiz, AuditLog, ContactMessage, Announcement, UploadHistory
 )
 
 
 class DepartmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Department
-        fields = '__all__'
+        fields = ['id', 'name', 'code', 'description', 'has_specializations', 'is_preparatory', 'created_at']
 
 
 class SpecializationSerializer(serializers.ModelSerializer):
@@ -18,7 +18,7 @@ class SpecializationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Specialization
-        fields = '__all__'
+        fields = ['id', 'department', 'department_name', 'name', 'code']
 
 
 class AcademicYearSerializer(serializers.ModelSerializer):
@@ -27,7 +27,7 @@ class AcademicYearSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AcademicYear
-        fields = '__all__'
+        fields = ['id', 'name', 'status', 'status_display', 'is_current', 'created_at', 'terms_count']
 
     def get_terms_count(self, obj):
         return obj.terms.count()
@@ -39,7 +39,7 @@ class TermSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Term
-        fields = '__all__'
+        fields = ['id', 'name', 'name_display', 'academic_year', 'academic_year_name']
 
 
 class LevelSerializer(serializers.ModelSerializer):
@@ -49,7 +49,7 @@ class LevelSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Level
-        fields = '__all__'
+        fields = ['id', 'name', 'display_name', 'department', 'department_name', 'academic_year', 'year_name']
 
 
 class SubjectSerializer(serializers.ModelSerializer):
@@ -63,7 +63,13 @@ class SubjectSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Subject
-        fields = '__all__'
+        fields = [
+            'id', 'code', 'name', 'department', 'department_name',
+            'specialization', 'specialization_name', 'level', 'level_display',
+            'semester', 'semester_display', 'lecture_hours', 'tutorial_hours',
+            'lab_hours', 'credit_hours', 'max_grade', 'is_elective',
+            'elective_group', 'default_grading_template', 'default_grading_template_name',
+        ]
 
     def get_level_display(self, obj):
         levels = {
@@ -84,7 +90,12 @@ class GradingTemplateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = GradingTemplate
-        fields = '__all__'
+        fields = [
+            'id', 'name', 'attendance_weight', 'attendance_slots',
+            'quizzes_weight', 'quiz_count', 'coursework_weight',
+            'written_weight', 'practical_weight', 'midterm_weight',
+            'final_weight', 'is_default', 'created_at', 'total_weight',
+        ]
 
     def get_total_weight(self, obj):
         return obj.total_weight()
@@ -97,7 +108,11 @@ class StudentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Student
-        fields = '__all__'
+        fields = [
+            'id', 'national_id', 'full_name', 'user', 'level', 'level_name',
+            'academic_year', 'academic_year_name', 'department', 'department_name',
+            'specialization', 'created_at', 'updated_at',
+        ]
 
 
 class CourseOfferingSerializer(serializers.ModelSerializer):
@@ -115,7 +130,14 @@ class CourseOfferingSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CourseOffering
-        fields = '__all__'
+        fields = [
+            'id', 'subject', 'subject_name', 'subject_code', 'academic_year',
+            'academic_year_name', 'term', 'term_name', 'level', 'level_name',
+            'doctor', 'doctor_name', 'department_name', 'department_code',
+            'specialization', 'specialization_name', 'specialization_code',
+            'grading_template', 'grading_template_name',
+            'final_exam_date', 'final_exam_time', 'final_exam_location', 'created_at',
+        ]
 
     def get_doctor_name(self, obj):
         return f"{obj.doctor.first_name} {obj.doctor.last_name}".strip() or obj.doctor.username
@@ -133,7 +155,10 @@ class LectureSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Lecture
-        fields = '__all__'
+        fields = [
+            'id', 'course_offering', 'course_name', 'subject_name',
+            'subject_code', 'title', 'description', 'file', 'uploaded_at',
+        ]
 
 
 class AttendanceSerializer(serializers.ModelSerializer):
@@ -144,14 +169,18 @@ class AttendanceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Attendance
-        fields = '__all__'
+        fields = [
+            'id', 'student', 'student_name', 'student_national_id',
+            'course_offering', 'course_name', 'lecture_schedule',
+            'date', 'status', 'status_display', 'recorded_at',
+        ]
     
     def get_course_name(self, obj):
         """Safely get course name even if relationships are null"""
         try:
             if obj.course_offering and obj.course_offering.subject:
                 return obj.course_offering.subject.name
-        except:
+        except Exception:
             pass
         return None
 
@@ -172,15 +201,20 @@ class StudentGradeSerializer(serializers.ModelSerializer):
     midterm_grade = serializers.DecimalField(source='midterm', max_digits=5, decimal_places=2, read_only=True)
     final_grade = serializers.DecimalField(source='final', max_digits=5, decimal_places=2, read_only=True)
     total_grade = serializers.SerializerMethodField()
-    
-    quizzes_weight = serializers.SerializerMethodField()
-    coursework_weight = serializers.SerializerMethodField()
-    midterm_weight = serializers.SerializerMethodField()
-    final_weight = serializers.SerializerMethodField()
+
 
     class Meta:
         model = StudentGrade
-        fields = '__all__'
+        fields = [
+            'id', 'student', 'student_name', 'student_national_id',
+            'course_offering', 'course_code', 'course_name',
+            'quiz_grades', 'attendance', 'quizzes', 'coursework', 'midterm', 'final',
+            'attendance_grade', 'quizzes_grade', 'coursework_grade',
+            'midterm_grade', 'final_grade', 'total_grade',
+            'attendance_weight', 'quizzes_weight', 'coursework_weight',
+            'midterm_weight', 'final_weight',
+            'created_at', 'updated_at',
+        ]
 
     def get_attendance_grade(self, obj):
         if obj.attendance is not None:
@@ -231,7 +265,11 @@ class TeachingAssignmentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TeachingAssignment
-        fields = '__all__'
+        fields = [
+            'id', 'doctor', 'doctor_name', 'doctor_full_name',
+            'subject', 'subject_name', 'subject_code',
+            'level', 'level_name', 'academic_year', 'academic_year_name',
+        ]
 
     def get_doctor_full_name(self, obj):
         return f"{obj.doctor.first_name} {obj.doctor.last_name}".strip() or obj.doctor.username
@@ -244,7 +282,12 @@ class ExamGradeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ExamGrade
-        fields = '__all__'
+        fields = [
+            'id', 'student', 'student_name', 'subject', 'subject_name',
+            'subject_code', 'level', 'academic_year',
+            'midterm_grade', 'final_grade', 'is_approved',
+            'uploaded_by', 'uploaded_at', 'updated_at',
+        ]
 
 
 class CertificateSerializer(serializers.ModelSerializer):
@@ -252,11 +295,77 @@ class CertificateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Certificate
-        fields = '__all__'
+        fields = ['id', 'student', 'student_name', 'file', 'issued_at', 'description']
 
 
 class QuizSerializer(serializers.ModelSerializer):
     class Meta:
         model = Quiz
         fields = ['id', 'title', 'description', 'quiz_type', 'total_points', 'is_active', 'time_limit_minutes', 'created_at']
+
+
+class AuditLogSerializer(serializers.ModelSerializer):
+    performed_by_name = serializers.SerializerMethodField()
+    action_display = serializers.CharField(source='get_action_display', read_only=True)
+
+    class Meta:
+        model = AuditLog
+        fields = [
+            'id', 'action', 'action_display', 'performed_by', 'performed_by_name',
+            'entity_type', 'entity_id', 'details', 'created_at',
+        ]
+
+    def get_performed_by_name(self, obj):
+        u = obj.performed_by
+        full = f"{u.first_name} {u.last_name}".strip()
+        return full or u.username
+
+
+class ContactMessageSerializer(serializers.ModelSerializer):
+    inquiry_type_display = serializers.CharField(source='get_inquiry_type_display', read_only=True)
+
+    class Meta:
+        model = ContactMessage
+        fields = [
+            'id', 'name', 'email', 'phone', 'inquiry_type', 'inquiry_type_display',
+            'department', 'subject', 'message', 'is_read', 'created_at',
+        ]
+        read_only_fields = ['id', 'is_read', 'created_at']
+
+
+class AnnouncementSerializer(serializers.ModelSerializer):
+    target_role_display = serializers.CharField(source='get_target_role_display', read_only=True)
+    created_by_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Announcement
+        fields = [
+            'id', 'title', 'message', 'target_role', 'target_role_display',
+            'created_by', 'created_by_name', 'is_active', 'created_at',
+        ]
+        read_only_fields = ['id', 'created_by', 'created_at']
+
+    def get_created_by_name(self, obj):
+        u = obj.created_by
+        full = f"{u.first_name} {u.last_name}".strip()
+        return full or u.username
+
+
+class UploadHistorySerializer(serializers.ModelSerializer):
+    upload_type_display = serializers.CharField(source='get_upload_type_display', read_only=True)
+    uploaded_by_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = UploadHistory
+        fields = [
+            'id', 'upload_type', 'upload_type_display', 'file_name',
+            'uploaded_by', 'uploaded_by_name', 'total_rows',
+            'created_count', 'updated_count', 'error_count',
+            'errors_json', 'created_at',
+        ]
+
+    def get_uploaded_by_name(self, obj):
+        u = obj.uploaded_by
+        full = f"{u.first_name} {u.last_name}".strip()
+        return full or u.username
 

@@ -465,3 +465,128 @@ class QuizResultsView(APIView):
             })
         
         return Response({'error': 'غير مصرح'}, status=status.HTTP_403_FORBIDDEN)
+
+
+class BulkQuizImportView(APIView):
+    """
+    Import quizzes from a JSON file.
+    JSON format: {
+        "course_offering_id": 1,
+        "quizzes": [
+            {
+                "title": "Quiz 1",
+                "description": "...",
+                "quiz_type": "MCQ",
+                "total_points": 10,
+                "time_limit_minutes": 15,
+                "questions": [
+                    {
+                        "question_text": "...",
+                        "points": 2,
+                        "choices": [
+                            {"choice_text": "A", "is_correct": false},
+                            {"choice_text": "B", "is_correct": true}
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+    """
+    permission_classes = [IsDoctorRole]
+    parser_classes = [MultiPartParser, FormParser]
+
+    def post(self, request):
+        import json
+
+        uploaded_file = request.FILES.get('file')
+        if not uploaded_file:
+            return Response(
+                {'error': 'يرجى رفع ملف JSON'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if not uploaded_file.name.endswith('.json'):
+            return Response(
+                {'error': 'يجب أن يكون الملف بصيغة JSON'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            content = json.loads(uploaded_file.read().decode('utf-8'))
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            return Response(
+                {'error': 'ملف JSON غير صالح'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        course_offering_id = content.get('course_offering_id')
+        if not course_offering_id:
+            return Response(
+                {'error': 'course_offering_id مطلوب'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            course_offering = CourseOffering.objects.get(
+                id=course_offering_id, doctor=request.user
+            )
+        except CourseOffering.DoesNotExist:
+            return Response(
+                {'error': 'المادة غير موجودة أو ليست مخصصة لك'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        quizzes_data = content.get('quizzes', [])
+        if not quizzes_data:
+            return Response(
+                {'error': 'لا توجد كويزات في الملف'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        created_count = 0
+        errors = []
+
+        for idx, quiz_data in enumerate(quizzes_data):
+            try:
+                quiz = Quiz.objects.create(
+                    course_offering=course_offering,
+                    title=quiz_data.get('title', f'كويز {idx + 1}'),
+                    description=quiz_data.get('description', ''),
+                    quiz_type=quiz_data.get('quiz_type', 'MCQ'),
+                    total_points=quiz_data.get('total_points', 10),
+                    time_limit_minutes=quiz_data.get('time_limit_minutes'),
+                    is_active=quiz_data.get('is_active', False),
+                )
+
+                for q_idx, q_data in enumerate(quiz_data.get('questions', [])):
+                    question = QuizQuestion.objects.create(
+                        quiz=quiz,
+                        question_text=q_data.get('question_text', ''),
+                        question_type=q_data.get('question_type', 'MCQ'),
+                        points=q_data.get('points', 1),
+                        order=q_idx + 1
+                    )
+
+                    for c_idx, c_data in enumerate(q_data.get('choices', [])):
+                        QuizChoice.objects.create(
+                            question=question,
+                            choice_text=c_data.get('choice_text', ''),
+                            is_correct=c_data.get('is_correct', False),
+                            order=c_idx + 1
+                        )
+
+                created_count += 1
+            except Exception as e:
+                errors.append({
+                    'quiz_index': idx,
+                    'title': quiz_data.get('title', ''),
+                    'error': str(e)
+                })
+
+        return Response({
+            'message': f'تم إنشاء {created_count} كويز بنجاح',
+            'created_count': created_count,
+            'error_count': len(errors),
+            'errors': errors,
+        }, status=status.HTTP_201_CREATED)

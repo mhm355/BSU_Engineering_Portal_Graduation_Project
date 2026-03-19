@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import {
     Box, Container, Typography, Grid, Paper, TextField, Button,
     Accordion, AccordionSummary, AccordionDetails, IconButton,
@@ -317,8 +318,15 @@ export default function Contact() {
         setIsSubmitting(true);
 
         try {
-            await new Promise(resolve => setTimeout(resolve, 2000));
-            console.log('Form submitted:', formData);
+            await axios.post('/api/academic/contact/', {
+                name: formData.name,
+                email: formData.email,
+                phone: formData.phone,
+                inquiry_type: formData.inquiryType,
+                department: formData.department,
+                subject: formData.subject,
+                message: formData.message,
+            });
             setSnackbar({ open: true, message: 'تم إرسال رسالتك بنجاح! سنتواصل معك قريبًا.', severity: 'success' });
             setFormData({
                 name: '',

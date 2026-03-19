@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import {
   Box, Container, Typography, Card, CardContent, Button, Grid, Paper,
   CircularProgress, Alert, Chip, FormControl, Select, MenuItem,
-  Accordion, AccordionSummary, AccordionDetails, Avatar, Fade, Grow, IconButton
+  Accordion, AccordionSummary, AccordionDetails, Avatar, Fade, Grow, IconButton,
+  TextField, InputAdornment
 } from '@mui/material';
 import { keyframes } from '@mui/system';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
@@ -13,8 +14,11 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import PersonIcon from '@mui/icons-material/Person';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import ClassIcon from '@mui/icons-material/Class';
+import QuizIcon from '@mui/icons-material/Quiz';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import LogoutIcon from '@mui/icons-material/Logout';
+import SearchIcon from '@mui/icons-material/Search';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
@@ -33,6 +37,8 @@ export default function DoctorDashboard() {
   const [selectedYear, setSelectedYear] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [quizCount, setQuizCount] = useState(0);
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -40,8 +46,7 @@ export default function DoctorDashboard() {
     navigate('/login');
   };
 
-  const token = localStorage.getItem('access_token');
-  const config = { headers: { Authorization: `Bearer ${token}` }, withCredentials: true };
+  const config = { withCredentials: true };
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -82,6 +87,12 @@ export default function DoctorDashboard() {
         config
       );
       setCourses(res.data);
+      // Fetch quiz count for this doctor
+      try {
+        const qRes = await axios.get('/api/academic/quizzes/', config);
+        const quizzes = Array.isArray(qRes.data) ? qRes.data : (qRes.data?.results || []);
+        setQuizCount(quizzes.length);
+      } catch { /* quiz count is optional */ }
     } catch (err) {
       setError('فشل في تحميل المقررات');
     } finally {
@@ -91,10 +102,20 @@ export default function DoctorDashboard() {
 
   if (!user) return null;
 
-  // Group courses by term
-  const firstTermCourses = courses.filter(c => c.term_name === 'FIRST');
-  const secondTermCourses = courses.filter(c => c.term_name === 'SECOND');
+  // Group courses by term, applying search filter
+  const filteredCourses = courses.filter(c => {
+    if (!searchQuery) return true;
+    const q = searchQuery.toLowerCase();
+    return (
+      (c.subject_name || '').toLowerCase().includes(q) ||
+      (c.subject_code || '').toLowerCase().includes(q) ||
+      (c.department_name || '').toLowerCase().includes(q)
+    );
+  });
+  const firstTermCourses = filteredCourses.filter(c => c.term_name === 'FIRST');
+  const secondTermCourses = filteredCourses.filter(c => c.term_name === 'SECOND');
   const totalStudents = courses.reduce((sum, c) => sum + (c.student_count || 0), 0);
+  const avgStudents = courses.length > 0 ? Math.round(totalStudents / courses.length) : 0;
 
   const CourseCard = ({ course, index }) => (
     <Grow in={true} timeout={400 + index * 100}>
@@ -322,7 +343,7 @@ export default function DoctorDashboard() {
 
         {/* Stats Row */}
         <Grid container spacing={3} sx={{ mb: 4 }}>
-          <Grid item xs={12} sm={4}>
+          <Grid item xs={12} sm={6} md={3}>
             <Grow in={true} timeout={400}>
               <Paper elevation={0} sx={{ p: 3, borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.08)', display: 'flex', alignItems: 'center', gap: 2 }}>
                 <Avatar sx={{ width: 60, height: 60, background: 'linear-gradient(135deg, #0288d1, #03a9f4)' }}>
@@ -335,7 +356,7 @@ export default function DoctorDashboard() {
               </Paper>
             </Grow>
           </Grid>
-          <Grid item xs={12} sm={4}>
+          <Grid item xs={12} sm={6} md={3}>
             <Grow in={true} timeout={500}>
               <Paper elevation={0} sx={{ p: 3, borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.08)', display: 'flex', alignItems: 'center', gap: 2 }}>
                 <Avatar sx={{ width: 60, height: 60, background: 'linear-gradient(135deg, #4CAF50, #8BC34A)' }}>
@@ -348,20 +369,80 @@ export default function DoctorDashboard() {
               </Paper>
             </Grow>
           </Grid>
-          <Grid item xs={12} sm={4}>
+          <Grid item xs={12} sm={6} md={3}>
             <Grow in={true} timeout={600}>
               <Paper elevation={0} sx={{ p: 3, borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.08)', display: 'flex', alignItems: 'center', gap: 2 }}>
                 <Avatar sx={{ width: 60, height: 60, background: 'linear-gradient(135deg, #9c27b0, #ba68c8)' }}>
                   <ClassIcon sx={{ fontSize: 30 }} />
                 </Avatar>
                 <Box>
-                  <Typography variant="h3" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>{academicYears.length}</Typography>
-                  <Typography variant="body1" sx={{ fontFamily: 'Cairo', color: '#666', fontSize: '1.1rem' }}>الأعوام الدراسية</Typography>
+                  <Typography variant="h3" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>{avgStudents}</Typography>
+                  <Typography variant="body1" sx={{ fontFamily: 'Cairo', color: '#666', fontSize: '1.1rem' }}>متوسط الطلاب / مقرر</Typography>
+                </Box>
+              </Paper>
+            </Grow>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <Grow in={true} timeout={700}>
+              <Paper elevation={0} sx={{ p: 3, borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.08)', display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Avatar sx={{ width: 60, height: 60, background: 'linear-gradient(135deg, #FF9800, #FFD93D)' }}>
+                  <QuizIcon sx={{ fontSize: 30 }} />
+                </Avatar>
+                <Box>
+                  <Typography variant="h3" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>{quizCount}</Typography>
+                  <Typography variant="body1" sx={{ fontFamily: 'Cairo', color: '#666', fontSize: '1.1rem' }}>الاختبارات</Typography>
                 </Box>
               </Paper>
             </Grow>
           </Grid>
         </Grid>
+
+        {/* Quick Actions */}
+        <Paper elevation={0} sx={{ p: 2, mb: 3, borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.08)', display: 'flex', justifyContent: 'center', gap: 2, flexWrap: 'wrap' }}>
+          <Button
+            variant="outlined"
+            startIcon={<CloudUploadIcon />}
+            onClick={() => navigate('/doctor/bulk-quiz-import')}
+            sx={{ fontFamily: 'Cairo', borderRadius: 3, px: 3, fontWeight: 'bold', borderColor: '#9c27b0', color: '#9c27b0', '&:hover': { bgcolor: 'rgba(156,39,176,0.04)', borderColor: '#7b1fa2' } }}
+          >
+            استيراد كويزات بالجملة
+          </Button>
+        </Paper>
+
+        {/* Search / Filter Bar */}
+        {courses.length > 0 && (
+          <Grow in={true} timeout={700}>
+            <Paper elevation={0} sx={{ p: 2, mb: 4, borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}>
+              <TextField
+                fullWidth
+                placeholder="ابحث عن مقرر بالاسم أو الكود أو القسم..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon sx={{ color: '#999' }} />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    fontFamily: 'Cairo',
+                    borderRadius: 3,
+                    bgcolor: '#f8fafc',
+                    '& fieldset': { borderColor: '#e0e0e0' },
+                    '&:hover fieldset': { borderColor: '#1976d2' },
+                  },
+                }}
+              />
+              {searchQuery && (
+                <Typography variant="caption" sx={{ fontFamily: 'Cairo', color: '#666', mt: 1, display: 'block' }}>
+                  عرض {filteredCourses.length} من {courses.length} مقرر
+                </Typography>
+              )}
+            </Paper>
+          </Grow>
+        )}
 
         {loading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}><CircularProgress size={60} /></Box>

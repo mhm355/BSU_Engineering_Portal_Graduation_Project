@@ -11,8 +11,7 @@ services:
       - .env.production
     volumes:
       - db_data_1:/var/lib/mysql
-    ports:
-      - "3307:3306"
+    # DB port NOT exposed to host — only accessible within Docker network
     healthcheck:
       test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
       interval: 5s
@@ -22,7 +21,7 @@ services:
       - bsu_network
 
   backend:
-    image: mhmdocker1/bsu_backend:v2.7
+    image: mhmdocker1/bsu_backend:v2.8.0
     container_name: bsu_backend_1
     volumes:
       - media_data:/app/media
@@ -34,11 +33,17 @@ services:
     restart: always
     env_file:
       - .env.production
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/api/health/" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     networks:
       - bsu_network
 
   frontend:
-    image: mhmdocker1/bsu_frontend:v2.7
+    image: mhmdocker1/bsu_frontend:v2.8.0
     container_name: bsu_frontend_1
     volumes:
       - media_data:/usr/share/nginx/html/media

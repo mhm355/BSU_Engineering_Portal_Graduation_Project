@@ -30,6 +30,11 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import LogoutIcon from '@mui/icons-material/Logout';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import WarningIcon from '@mui/icons-material/Warning';
+import HistoryIcon from '@mui/icons-material/History';
+import CampaignIcon from '@mui/icons-material/Campaign';
+import MailIcon from '@mui/icons-material/Mail';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
@@ -265,9 +270,10 @@ export default function AdminDashboard() {
     const { logout } = useAuth();
     const [user, setUser] = useState(null);
     const [pendingCount, setPendingCount] = useState(0);
+    const [healthStatus, setHealthStatus] = useState({ status: 'checking', database: 'checking' });
     const [stats, setStats] = useState({
         users: 0,
-        departments: 5,
+        departments: 0,
         academicYear: 'جاري التحميل...',
     });
     const [currentTime, setCurrentTime] = useState(new Date());
@@ -282,9 +288,26 @@ export default function AdminDashboard() {
         const storedUser = localStorage.getItem('user');
         if (storedUser) {
             setUser(JSON.parse(storedUser));
-            // Fetch pending count
-            axios.get('/api/academic/approval/count/', { withCredentials: true })
-                .then(res => setPendingCount(res.data.pending_count || 0))
+
+            // Fetch pending approval count (correct endpoint)
+            axios.get('/api/academic/exam-grades/pending-count/', { withCredentials: true })
+                .then(res => setPendingCount(res.data.pending_grades_count || 0))
+                .catch(() => { });
+
+            // Fetch real department count
+            axios.get('/api/academic/departments/', { withCredentials: true })
+                .then(res => {
+                    const depts = Array.isArray(res.data) ? res.data : (res.data?.results || []);
+                    setStats(prev => ({ ...prev, departments: depts.length }));
+                })
+                .catch(() => { });
+
+            // Fetch real user count
+            axios.get('/api/auth/users/', { withCredentials: true })
+                .then(res => {
+                    const users = Array.isArray(res.data) ? res.data : (res.data?.results || []);
+                    setStats(prev => ({ ...prev, users: users.length }));
+                })
                 .catch(() => { });
 
             // Fetch current academic year
@@ -304,6 +327,11 @@ export default function AdminDashboard() {
         } else {
             navigate('/login');
         }
+
+        // Check system health
+        axios.get('/api/health/', { withCredentials: true, timeout: 5000 })
+            .then(res => setHealthStatus({ status: 'healthy', database: res.data?.database || 'ok' }))
+            .catch(() => setHealthStatus({ status: 'unhealthy', database: 'error' }));
 
         // Update time every second
         const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -356,20 +384,65 @@ export default function AdminDashboard() {
         },
         {
             icon: PendingActionsIcon,
-            title: 'الموافقات المعلقة',
-            description: 'مراجعة والموافقة على طلبات الدرجات',
+            title: 'مركز الموافقات',
+            description: 'مراجعة الموافقة على الدرجات وطلبات حذف الأعضاء في مكان واحد',
             buttonText: 'عرض الطلبات',
             onClick: () => navigate('/admin/pending-approvals'),
             gradient: 'linear-gradient(135deg, #FFD93D, #FF9800)',
             badge: pendingCount,
         },
         {
-            icon: DeleteIcon,
-            title: 'طلبات الحذف',
-            description: 'مراجعة والموافقة على طلبات حذف البيانات',
-            buttonText: 'عرض الطلبات',
-            onClick: () => navigate('/admin/approvals'),
-            gradient: 'linear-gradient(135deg, #E53935, #FF5252)',
+            icon: healthStatus.status === 'healthy' ? CheckCircleIcon : WarningIcon,
+            title: 'صحة النظام',
+            description: healthStatus.status === 'healthy'
+                ? `✅ النظام يعمل بشكل طبيعي\n• قاعدة البيانات: ${healthStatus.database}\n• API: متصل\n• وقت الاستجابة: طبيعي`
+                : healthStatus.status === 'checking'
+                    ? '⏳ جاري فحص النظام...\n• يتم التحقق من API واتصال قاعدة البيانات'
+                    : '❌ مشكلة في الاتصال\n• تحقق من خدمة Backend\n• تحقق من قاعدة البيانات\n• تحقق من إعدادات الشبكة',
+            buttonText: healthStatus.status === 'checking' ? 'جاري الفحص...' : 'فحص النظام',
+            onClick: () => {
+                setHealthStatus({ status: 'checking', database: 'checking' });
+                const startTime = Date.now();
+                axios.get('/api/health/', { withCredentials: true, timeout: 5000 })
+                    .then(res => {
+                        const responseTime = Date.now() - startTime;
+                        setHealthStatus({
+                            status: 'healthy',
+                            database: res.data?.database || 'ok',
+                            responseTime: responseTime + 'ms',
+                        });
+                    })
+                    .catch(() => setHealthStatus({ status: 'unhealthy', database: 'error' }));
+            },
+            gradient: healthStatus.status === 'healthy'
+                ? 'linear-gradient(135deg, #4CAF50, #8BC34A)'
+                : healthStatus.status === 'unhealthy'
+                    ? 'linear-gradient(135deg, #f44336, #FF5252)'
+                    : 'linear-gradient(135deg, #9e9e9e, #bdbdbd)',
+        },
+        {
+            icon: HistoryIcon,
+            title: 'سجل التدقيق',
+            description: 'عرض سجل جميع العمليات في النظام (رفع بيانات، تعديلات، حذف)',
+            buttonText: 'عرض السجل',
+            onClick: () => navigate('/admin/audit-logs'),
+            gradient: 'linear-gradient(135deg, #607D8B, #78909C)',
+        },
+        {
+            icon: CampaignIcon,
+            title: 'إدارة الإعلانات',
+            description: 'إنشاء وإدارة الإعلانات وبثها لجميع المستخدمين أو فئات محددة',
+            buttonText: 'إدارة الإعلانات',
+            onClick: () => navigate('/admin/announcements'),
+            gradient: 'linear-gradient(135deg, #FF6F00, #FFA726)',
+        },
+        {
+            icon: MailIcon,
+            title: 'الرسائل والشكاوى',
+            description: 'عرض وإدارة رسائل التواصل والشكاوى المقدمة من الزوار والمستخدمين',
+            buttonText: 'عرض الرسائل',
+            onClick: () => navigate('/admin/complaints'),
+            gradient: 'linear-gradient(135deg, #d32f2f, #ef5350)',
         },
     ];
 

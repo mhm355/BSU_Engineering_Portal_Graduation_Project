@@ -6,7 +6,7 @@ import Footer from '../components/Footer';
 
 export default function Layout() {
     return (
-        <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', bgcolor: '#f3f4f6' }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', bgcolor: 'background.default' }}>
             <Header />
             <Box component="main" sx={{ flexGrow: 1 }}>
                 <Outlet />

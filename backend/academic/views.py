@@ -2,17 +2,23 @@ from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
+import logging
+
+logger = logging.getLogger(__name__)
 from .models import (
     Department, Specialization, AcademicYear, Level, Subject,
     Student, TeachingAssignment, ExamGrade, Certificate,
-    Term, GradingTemplate, CourseOffering, Lecture, Attendance, StudentGrade
+    Term, GradingTemplate, CourseOffering, Lecture, Attendance, StudentGrade,
+    AuditLog, ContactMessage, Announcement, UploadHistory
 )
 from .serializers import (
     DepartmentSerializer, SpecializationSerializer, AcademicYearSerializer,
     LevelSerializer, SubjectSerializer, StudentSerializer, TeachingAssignmentSerializer,
     ExamGradeSerializer, CertificateSerializer,
     TermSerializer, GradingTemplateSerializer, CourseOfferingSerializer,
-    LectureSerializer, AttendanceSerializer, StudentGradeSerializer
+    LectureSerializer, AttendanceSerializer, StudentGradeSerializer,
+    AuditLogSerializer, ContactMessageSerializer, AnnouncementSerializer,
+    UploadHistorySerializer
 )
 from users.permissions import (
     IsAdminRole, IsDoctorRole, IsStudentRole,
@@ -152,49 +158,50 @@ class LevelViewSet(viewsets.ModelViewSet):
         department = self.request.query_params.get('department')
         academic_year = self.request.query_params.get('academic_year')
         
-        if department and academic_year:
-            # Check if levels exist for this department + year
-            existing_levels = Level.objects.filter(
-                department_id=department, 
-                academic_year_id=academic_year
-            )
-            
-            # Auto-create levels if none exist
-            if not existing_levels.exists():
-                try:
-                    from .models import Department
-                    dept = Department.objects.get(id=department)
-                    
-                    if dept.code == 'PREP':
-                        # Preparatory only has one level
-                        Level.objects.get_or_create(
-                            name=Level.LevelName.PREPARATORY,
-                            department_id=department,
-                            academic_year_id=academic_year
-                        )
-                    else:
-                        # Regular departments have 4 levels
-                        for level_name in [Level.LevelName.FIRST, Level.LevelName.SECOND,
-                                           Level.LevelName.THIRD, Level.LevelName.FOURTH]:
-                            Level.objects.get_or_create(
-                                name=level_name,
-                                department_id=department,
-                                academic_year_id=academic_year
-                            )
-                except Department.DoesNotExist:
-                    pass
-            
-            queryset = Level.objects.filter(
-                department_id=department,
-                academic_year_id=academic_year
-            )
-        else:
-            if department:
-                queryset = queryset.filter(department_id=department)
-            if academic_year:
-                queryset = queryset.filter(academic_year_id=academic_year)
+        if department:
+            queryset = queryset.filter(department_id=department)
+        if academic_year:
+            queryset = queryset.filter(academic_year_id=academic_year)
         
         return queryset
+
+    @action(detail=False, methods=['post'], url_path='ensure-levels')
+    def ensure_levels(self, request):
+        """Create default levels for a department + academic year if none exist.
+        POST body: {"department": <id>, "academic_year": <id>}
+        """
+        department = request.data.get('department')
+        academic_year = request.data.get('academic_year')
+        if not department or not academic_year:
+            return Response({'error': 'department and academic_year are required'}, status=400)
+
+        existing = Level.objects.filter(department_id=department, academic_year_id=academic_year)
+        if existing.exists():
+            return Response(LevelSerializer(existing, many=True).data)
+
+        try:
+            from .models import Department
+            dept = Department.objects.get(id=department)
+            created = []
+            if dept.code == 'PREP':
+                obj, _ = Level.objects.get_or_create(
+                    name=Level.LevelName.PREPARATORY,
+                    department_id=department,
+                    academic_year_id=academic_year
+                )
+                created.append(obj)
+            else:
+                for level_name in [Level.LevelName.FIRST, Level.LevelName.SECOND,
+                                   Level.LevelName.THIRD, Level.LevelName.FOURTH]:
+                    obj, _ = Level.objects.get_or_create(
+                        name=level_name,
+                        department_id=department,
+                        academic_year_id=academic_year
+                    )
+                    created.append(obj)
+            return Response(LevelSerializer(created, many=True).data, status=201)
+        except Department.DoesNotExist:
+            return Response({'error': 'Department not found'}, status=404)
 
     @action(detail=True, methods=['get'])
     def students(self, request, pk=None):
@@ -307,8 +314,15 @@ class CourseOfferingViewSet(viewsets.ModelViewSet):
         user = request.user
         academic_year_id = request.query_params.get('academic_year')
         
+        from django.db.models import Count, Q, F
         offerings = CourseOffering.objects.filter(doctor=user).select_related(
-            'subject', 'level', 'level__department', 'term', 'academic_year', 'grading_template'
+            'subject', 'level', 'level__department', 'term', 'academic_year',
+            'grading_template', 'specialization'
+        ).annotate(
+            student_count=Count(
+                'level__students',
+                filter=Q(level__students__specialization=F('specialization')) | Q(specialization__isnull=True)
+            )
         )
         
         if academic_year_id:
@@ -321,13 +335,6 @@ class CourseOfferingViewSet(viewsets.ModelViewSet):
         
         result = []
         for o in offerings:
-            # Count students in this level
-            # For Electrical dept level 2+, filter by specialization
-            students_qs = Student.objects.filter(level=o.level)
-            if o.specialization:
-                students_qs = students_qs.filter(specialization=o.specialization)
-            student_count = students_qs.count()
-            
             result.append({
                 'id': o.id,
                 'subject_name': o.subject.name,
@@ -346,7 +353,7 @@ class CourseOfferingViewSet(viewsets.ModelViewSet):
                 'specialization_name': o.specialization.name if o.specialization else None,
                 'specialization_code': o.specialization.code if o.specialization else None,
                 'specialization_id': o.specialization.id if o.specialization else None,
-                'student_count': student_count,
+                'student_count': o.student_count,
             })
         
         return Response(result)
@@ -579,14 +586,6 @@ class BulkAttendanceView(APIView):
             except Exception as e:
                 errors.append(f"Row {idx+1}: {str(e)}")
                 continue
-            except Exception as e:
-                # Catch-all for debugging 500 errors
-                import traceback
-                print(traceback.format_exc())
-                return Response(
-                    {'error': f"Failed to save record for Student {item.get('student_id')}: {str(e)}"}, 
-                    status=status.HTTP_400_BAD_REQUEST
-                )
 
         # Generate Excel file if any attendance was saved
         excel_file_path = None
@@ -633,8 +632,33 @@ class BulkAttendanceView(APIView):
 
 # ========== Bulk Student Grades API ==========
 class BulkStudentGradeView(APIView):
-    """Doctor saves grades for multiple students at once"""
+    """Doctor saves/retrieves grades for multiple students at once"""
     permission_classes = [IsDoctorRole | permissions.IsAdminUser]
+
+    def get(self, request):
+        """Return existing grades for a course offering"""
+        course_offering_id = request.query_params.get('course_offering')
+        if not course_offering_id:
+            return Response({'error': 'course_offering parameter required'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            course_offering = CourseOffering.objects.get(id=course_offering_id)
+            # Verify doctor owns this course OR user is admin
+            if not request.user.is_superuser and course_offering.doctor != request.user:
+                return Response({'error': 'Not authorized'}, status=status.HTTP_403_FORBIDDEN)
+        except CourseOffering.DoesNotExist:
+            return Response({'error': 'Course offering not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        grades = StudentGrade.objects.filter(course_offering=course_offering).select_related('student')
+        data = {}
+        for g in grades:
+            data[g.student.id] = {
+                'attendance': float(g.attendance) if g.attendance is not None else '',
+                'quizzes': float(g.quizzes) if g.quizzes is not None else '',
+                'coursework': float(g.coursework) if g.coursework is not None else '',
+                'midterm': float(g.midterm) if g.midterm is not None else '',
+                'final': float(g.final) if g.final is not None else '',
+            }
+        return Response(data)
 
     def post(self, request):
         grades_list = request.data
@@ -689,9 +713,7 @@ class BulkStudentGradeView(APIView):
             except (Student.DoesNotExist, CourseOffering.DoesNotExist):
                 continue
             except Exception as e:
-                import traceback
-                print(f"Error saving grade for student {student_id}: {e}")
-                traceback.print_exc()
+                logger.error(f"Error saving grade for student {student_id}: {e}", exc_info=True)
                 errors.append(f"Student {student_id}: {str(e)}")
 
         return Response({'created': created, 'updated': updated, 'errors': errors})
@@ -702,7 +724,10 @@ class StudentExamsView(APIView):
     permission_classes = [IsStudentRole]
 
     def get(self, request):
-        student = Student.objects.get(user=request.user)
+        try:
+            student = Student.objects.get(user=request.user)
+        except Student.DoesNotExist:
+            return Response({'error': 'لا يوجد ملف طالب لهذا المستخدم'}, status=status.HTTP_404_NOT_FOUND)
         # Get courses student is enrolled in (via Grades or just Level?)
         # For now, using StudentGrade as enrollment proof, or just filter by level if simpler scheme?
         # Better: Students have 'academic_year' and 'level' and 'department'.
@@ -805,3 +830,139 @@ class StudentCoursesView(APIView):
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
+class AuditLogListView(APIView):
+    """List audit logs — Admin only"""
+    permission_classes = [permissions.IsAuthenticated, IsAdminRole]
+
+    def get(self, request):
+        qs = AuditLog.objects.select_related('performed_by').order_by('-created_at')
+        action_filter = request.query_params.get('action')
+        if action_filter:
+            qs = qs.filter(action=action_filter)
+        qs = qs[:100]
+        serializer = AuditLogSerializer(qs, many=True)
+        return Response(serializer.data)
+
+
+class ContactMessageView(APIView):
+    """
+    POST: Public — submit a contact message (no auth required).
+    GET: Admin only — list all contact messages.
+    """
+    def get_permissions(self):
+        if self.request.method == 'POST':
+            return [permissions.AllowAny()]
+        return [permissions.IsAuthenticated(), IsAdminRole()]
+
+    def post(self, request):
+        serializer = ContactMessageSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                {'message': 'تم إرسال رسالتك بنجاح'},
+                status=status.HTTP_201_CREATED
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def get(self, request):
+        qs = ContactMessage.objects.all()
+        inquiry_filter = request.query_params.get('inquiry_type')
+        if inquiry_filter:
+            qs = qs.filter(inquiry_type=inquiry_filter)
+        is_read = request.query_params.get('is_read')
+        if is_read is not None:
+            qs = qs.filter(is_read=is_read.lower() == 'true')
+        qs = qs[:200]
+        serializer = ContactMessageSerializer(qs, many=True)
+        return Response(serializer.data)
+
+    def patch(self, request):
+        """Mark a message as read/unread — Admin only"""
+        pk = request.data.get('id')
+        if not pk:
+            return Response({'error': 'id مطلوب'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            msg = ContactMessage.objects.get(id=pk)
+            msg.is_read = request.data.get('is_read', True)
+            msg.save()
+            return Response({'message': 'تم تحديث حالة الرسالة'})
+        except ContactMessage.DoesNotExist:
+            return Response({'error': 'الرسالة غير موجودة'}, status=status.HTTP_404_NOT_FOUND)
+
+
+class AnnouncementListCreateView(APIView):
+    """
+    GET: List active announcements (filtered by user role).
+    POST: Admin only — create announcement.
+    DELETE: Admin only — deactivate announcement.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        qs = Announcement.objects.filter(is_active=True)
+        user_role = getattr(request.user, 'role', None)
+        if user_role != 'ADMIN':
+            qs = qs.filter(
+                target_role__in=['ALL', user_role]
+            )
+        serializer = AnnouncementSerializer(qs, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        if getattr(request.user, 'role', None) != 'ADMIN':
+            return Response(
+                {'error': 'فقط المسؤول يمكنه إنشاء إعلانات'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        serializer = AnnouncementSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(created_by=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request):
+        pk = request.query_params.get('id')
+        if not pk:
+            return Response({'error': 'id مطلوب'}, status=status.HTTP_400_BAD_REQUEST)
+        if getattr(request.user, 'role', None) != 'ADMIN':
+            return Response(
+                {'error': 'فقط المسؤول يمكنه حذف الإعلانات'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        try:
+            ann = Announcement.objects.get(id=pk)
+            ann.is_active = False
+            ann.save()
+            return Response({'message': 'تم إلغاء تفعيل الإعلان'})
+        except Announcement.DoesNotExist:
+            return Response({'error': 'الإعلان غير موجود'}, status=status.HTTP_404_NOT_FOUND)
+
+
+class UploadHistoryListView(APIView):
+    """List upload history — accessible by Student Affairs, Staff Affairs, and Admin"""
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        user_role = getattr(request.user, 'role', None)
+        qs = UploadHistory.objects.select_related('uploaded_by')
+
+        # Filter by role
+        if user_role == 'STUDENT_AFFAIRS':
+            qs = qs.filter(upload_type__in=['STUDENT', 'CERTIFICATE'])
+        elif user_role == 'STAFF_AFFAIRS':
+            qs = qs.filter(upload_type__in=['DOCTOR', 'STAFF'])
+        elif user_role != 'ADMIN':
+            return Response(
+                {'error': 'غير مصرح'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        # Filter by type
+        upload_type = request.query_params.get('upload_type')
+        if upload_type:
+            qs = qs.filter(upload_type=upload_type)
+
+        qs = qs[:200]
+        serializer = UploadHistorySerializer(qs, many=True)
+        return Response(serializer.data)

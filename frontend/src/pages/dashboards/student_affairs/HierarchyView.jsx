@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import {
     Box, Container, Typography, Paper, Grid, Card, CardContent, Button, Breadcrumbs, Link,
     CircularProgress, Chip, IconButton, Tooltip, Table, TableBody, TableCell, TableContainer,
-    TableHead, TableRow, Dialog, DialogTitle, DialogContent, DialogActions, Alert, Avatar, Fade, Grow
+    TableHead, TableRow, Dialog, DialogTitle, DialogContent, DialogActions, Alert, Avatar, Fade, Grow,
+    TextField, InputAdornment
 } from '@mui/material';
 import { keyframes } from '@mui/system';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
@@ -18,8 +19,11 @@ import CategoryIcon from '@mui/icons-material/Category';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import PendingIcon from '@mui/icons-material/Pending';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import SearchIcon from '@mui/icons-material/Search';
+import DownloadIcon from '@mui/icons-material/Download';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { exportToCsv } from '../../../utils/exportCsv';
 
 // Animations
 const float = keyframes`
@@ -139,6 +143,7 @@ export default function HierarchyView() {
     const [loading, setLoading] = useState(true);
     const [resetDialog, setResetDialog] = useState({ open: false, student: null });
     const [resetResult, setResetResult] = useState(null);
+    const [studentSearch, setStudentSearch] = useState('');
 
     useEffect(() => {
         fetchDepartments();
@@ -417,66 +422,103 @@ export default function HierarchyView() {
                 {!loading && selectedLevel && (specializations.length === 0 || selectedSpecialization) && (
                     <Fade in={true} timeout={600}>
                         <Paper elevation={0} sx={{ borderRadius: 3, overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}>
-                            <Box sx={{ p: 3, borderBottom: '1px solid #eee', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <Box sx={{ p: 3, borderBottom: '1px solid #eee', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
                                 <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>
                                     الطلاب المسجلين
                                 </Typography>
-                                <Chip label={`${students.length} طالب`} sx={{ fontFamily: 'Cairo', fontWeight: 'bold', bgcolor: '#e3f2fd', color: '#1976d2' }} />
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                                    <TextField
+                                        placeholder="ابحث بالاسم أو الرقم القومي..."
+                                        value={studentSearch}
+                                        onChange={(e) => setStudentSearch(e.target.value)}
+                                        size="small"
+                                        sx={{
+                                            minWidth: 250,
+                                            '& .MuiOutlinedInput-root': { fontFamily: 'Cairo', borderRadius: 2, bgcolor: '#f8fafc' },
+                                        }}
+                                        InputProps={{
+                                            startAdornment: <InputAdornment position="start"><SearchIcon sx={{ color: '#999' }} /></InputAdornment>,
+                                        }}
+                                    />
+                                    <Button
+                                        variant="outlined"
+                                        startIcon={<DownloadIcon />}
+                                        onClick={() => {
+                                            exportToCsv(students, [
+                                                { key: 'full_name', label: 'الاسم' },
+                                                { key: 'username', label: 'اسم المستخدم' },
+                                                { key: 'national_id', label: 'الرقم القومي' },
+                                                { key: 'level_name', label: 'المستوى' },
+                                            ], 'students_list');
+                                        }}
+                                        sx={{ fontFamily: 'Cairo', borderRadius: 2, whiteSpace: 'nowrap' }}
+                                    >
+                                        تصدير CSV
+                                    </Button>
+                                    <Chip label={`${students.length} طالب`} sx={{ fontFamily: 'Cairo', fontWeight: 'bold', bgcolor: '#e3f2fd', color: '#1976d2' }} />
+                                </Box>
                             </Box>
 
-                            {students.length > 0 ? (
-                                <TableContainer>
-                                    <Table>
-                                        <TableHead>
-                                            <TableRow sx={{ background: 'linear-gradient(135deg, #00BCD4, #00ACC1)' }}>
-                                                <TableCell sx={{ color: 'white', fontFamily: 'Cairo', fontWeight: 'bold' }}>#</TableCell>
-                                                <TableCell sx={{ color: 'white', fontFamily: 'Cairo', fontWeight: 'bold' }}>الاسم</TableCell>
-                                                <TableCell sx={{ color: 'white', fontFamily: 'Cairo', fontWeight: 'bold' }}>اسم المستخدم</TableCell>
-                                                <TableCell sx={{ color: 'white', fontFamily: 'Cairo', fontWeight: 'bold' }}>الرقم القومي</TableCell>
-                                                <TableCell sx={{ color: 'white', fontFamily: 'Cairo', fontWeight: 'bold' }}>المستوى</TableCell>
-                                                <TableCell sx={{ color: 'white', fontFamily: 'Cairo', fontWeight: 'bold' }}>الحالة</TableCell>
-                                                <TableCell sx={{ color: 'white', fontFamily: 'Cairo', fontWeight: 'bold' }}>إجراءات</TableCell>
-                                            </TableRow>
-                                        </TableHead>
-                                        <TableBody>
-                                            {students.map((student, idx) => (
-                                                <TableRow key={student.id} hover sx={{ '&:nth-of-type(odd)': { bgcolor: '#fafafa' } }}>
-                                                    <TableCell>{idx + 1}</TableCell>
-                                                    <TableCell>
-                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                                                            <Avatar sx={{ width: 36, height: 36, bgcolor: '#00BCD4', fontSize: 14 }}>{student.full_name?.charAt(0)}</Avatar>
-                                                            <Typography sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>{student.full_name}</Typography>
-                                                        </Box>
-                                                    </TableCell>
-                                                    <TableCell sx={{ fontFamily: 'monospace' }}>{student.username}</TableCell>
-                                                    <TableCell sx={{ fontFamily: 'monospace' }}>{student.national_id}</TableCell>
-                                                    <TableCell sx={{ fontFamily: 'Cairo' }}>{getLevelDisplayName(student.level_name)}</TableCell>
-                                                    <TableCell>
-                                                        <Chip
-                                                            icon={student.first_login_required ? <PendingIcon sx={{ fontSize: 16 }} /> : <CheckCircleIcon sx={{ fontSize: 16 }} />}
-                                                            label={student.first_login_required ? 'أول دخول' : 'فعّال'}
-                                                            size="small"
-                                                            sx={{ fontFamily: 'Cairo', fontWeight: 'bold', bgcolor: student.first_login_required ? '#fff3e0' : '#e8f5e9', color: student.first_login_required ? '#e65100' : '#2e7d32' }}
-                                                        />
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <Tooltip title="إعادة تعيين كلمة المرور">
-                                                            <IconButton onClick={() => setResetDialog({ open: true, student })} sx={{ bgcolor: '#e3f2fd', color: '#1976d2', '&:hover': { bgcolor: '#bbdefb' } }}>
-                                                                <LockResetIcon fontSize="small" />
-                                                            </IconButton>
-                                                        </Tooltip>
-                                                    </TableCell>
+                            {(() => {
+                                const filteredStudents = students.filter(s => {
+                                    if (!studentSearch) return true;
+                                    const q = studentSearch.toLowerCase();
+                                    return (s.full_name || '').toLowerCase().includes(q) || (s.national_id || '').includes(q) || (s.username || '').toLowerCase().includes(q);
+                                });
+                                return filteredStudents.length > 0 ? (
+                                    <TableContainer>
+                                        <Table>
+                                            <TableHead>
+                                                <TableRow sx={{ background: 'linear-gradient(135deg, #00BCD4, #00ACC1)' }}>
+                                                    <TableCell sx={{ color: 'white', fontFamily: 'Cairo', fontWeight: 'bold' }}>#</TableCell>
+                                                    <TableCell sx={{ color: 'white', fontFamily: 'Cairo', fontWeight: 'bold' }}>الاسم</TableCell>
+                                                    <TableCell sx={{ color: 'white', fontFamily: 'Cairo', fontWeight: 'bold' }}>اسم المستخدم</TableCell>
+                                                    <TableCell sx={{ color: 'white', fontFamily: 'Cairo', fontWeight: 'bold' }}>الرقم القومي</TableCell>
+                                                    <TableCell sx={{ color: 'white', fontFamily: 'Cairo', fontWeight: 'bold' }}>المستوى</TableCell>
+                                                    <TableCell sx={{ color: 'white', fontFamily: 'Cairo', fontWeight: 'bold' }}>الحالة</TableCell>
+                                                    <TableCell sx={{ color: 'white', fontFamily: 'Cairo', fontWeight: 'bold' }}>إجراءات</TableCell>
                                                 </TableRow>
-                                            ))}
-                                        </TableBody>
-                                    </Table>
-                                </TableContainer>
-                            ) : (
-                                <Box sx={{ p: 6, textAlign: 'center' }}>
-                                    <PeopleIcon sx={{ fontSize: 60, color: '#ddd', mb: 2 }} />
-                                    <Typography sx={{ fontFamily: 'Cairo', color: '#999' }}>لا يوجد طلاب مسجلين في هذا المستوى.</Typography>
-                                </Box>
-                            )}
+                                            </TableHead>
+                                            <TableBody>
+                                                {filteredStudents.map((student, idx) => (
+                                                    <TableRow key={student.id} hover sx={{ '&:nth-of-type(odd)': { bgcolor: '#fafafa' } }}>
+                                                        <TableCell>{idx + 1}</TableCell>
+                                                        <TableCell>
+                                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                                                                <Avatar sx={{ width: 36, height: 36, bgcolor: '#00BCD4', fontSize: 14 }}>{student.full_name?.charAt(0)}</Avatar>
+                                                                <Typography sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>{student.full_name}</Typography>
+                                                            </Box>
+                                                        </TableCell>
+                                                        <TableCell sx={{ fontFamily: 'monospace' }}>{student.username}</TableCell>
+                                                        <TableCell sx={{ fontFamily: 'monospace' }}>{student.national_id}</TableCell>
+                                                        <TableCell sx={{ fontFamily: 'Cairo' }}>{getLevelDisplayName(student.level_name)}</TableCell>
+                                                        <TableCell>
+                                                            <Chip
+                                                                icon={student.first_login_required ? <PendingIcon sx={{ fontSize: 16 }} /> : <CheckCircleIcon sx={{ fontSize: 16 }} />}
+                                                                label={student.first_login_required ? 'أول دخول' : 'فعّال'}
+                                                                size="small"
+                                                                sx={{ fontFamily: 'Cairo', fontWeight: 'bold', bgcolor: student.first_login_required ? '#fff3e0' : '#e8f5e9', color: student.first_login_required ? '#e65100' : '#2e7d32' }}
+                                                            />
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            <Tooltip title="إعادة تعيين كلمة المرور">
+                                                                <IconButton onClick={() => setResetDialog({ open: true, student })} sx={{ bgcolor: '#e3f2fd', color: '#1976d2', '&:hover': { bgcolor: '#bbdefb' } }}>
+                                                                    <LockResetIcon fontSize="small" />
+                                                                </IconButton>
+                                                            </Tooltip>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ))}
+                                            </TableBody>
+                                        </Table>
+                                    </TableContainer>
+                                ) : (
+                                    <Box sx={{ p: 6, textAlign: 'center' }}>
+                                        <PeopleIcon sx={{ fontSize: 60, color: '#ddd', mb: 2 }} />
+                                        <Typography sx={{ fontFamily: 'Cairo', color: '#999' }}>لا يوجد طلاب مطابقين للبحث.</Typography>
+                                    </Box>
+                                );
+                            })()}
                         </Paper>
                     </Fade>
                 )}

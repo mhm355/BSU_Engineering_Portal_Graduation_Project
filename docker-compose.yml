@@ -4,14 +4,13 @@ services:
     container_name: bsu_db
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: bsu_db
-      MYSQL_USER: bsu_user
-      MYSQL_PASSWORD: bsu_password
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-bsu_db}
+      MYSQL_USER: ${MYSQL_USER:-bsu_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-bsu_password}
     volumes:
       - db_data:/var/lib/mysql
-    ports:
-      - "3306:3306"
+    # DB port NOT exposed to host — only accessible within Docker network
     networks:
       - bsu_network
 
@@ -27,7 +26,8 @@ services:
       - db
     restart: unless-stopped
     environment:
-      - DATABASE_URL=mysql://bsu_user:bsu_password@db:3306/bsu_db
+      - DATABASE_URL=mysql://${MYSQL_USER:-bsu_user}:${MYSQL_PASSWORD:-bsu_password}@db:3306/${MYSQL_DATABASE:-bsu_db}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-password123}
     networks:
       - bsu_network
 
@@ -44,18 +44,6 @@ services:
     restart: unless-stopped
     networks:
       - bsu_network
-  # phpmyadmin:
-  #   image: phpmyadmin:latest
-  #   container_name: bsu_phpmyadmin
-  #   restart: always
-  #   ports:
-  #     - "8080:80"
-  #   environment:
-  #     PMA_HOST: db
-  #     PMA_PORT: 3306
-  #     MYSQL_ROOT_PASSWORD: root
-  #   depends_on:
-  #     - db
 
 volumes:
   db_data:

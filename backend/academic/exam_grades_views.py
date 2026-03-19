@@ -175,6 +175,23 @@ class ApproveExamGradesView(APIView):
 
         updated = ExamGrade.objects.filter(level=level, is_approved=False).update(is_approved=True)
 
+        # U9: Audit log for grade approval
+        try:
+            from .models import AuditLog
+            AuditLog.objects.create(
+                action='GRADE_APPROVED',
+                performed_by=request.user,
+                entity_type='Level',
+                entity_id=level_id,
+                details={
+                    'level_name': level.name,
+                    'department': level.department.name if level.department else 'إعدادي',
+                    'approved_count': updated,
+                }
+            )
+        except Exception:
+            pass  # Don't fail the approval if logging fails
+
         return Response({
             'message': f'تمت الموافقة على {updated} درجة',
             'approved_count': updated

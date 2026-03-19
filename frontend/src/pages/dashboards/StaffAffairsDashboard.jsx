@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import {
     Container, Paper, Typography, Box, Card, CardContent, CardActionArea,
-    Avatar, Grid, Fade, Grow, CircularProgress, IconButton
+    Avatar, Grid, Fade, Grow, CircularProgress, IconButton, Button,
+    TextField, InputAdornment
 } from '@mui/material';
 import { keyframes } from '@mui/system';
 import {
@@ -16,10 +17,14 @@ import {
     Groups as GroupsIcon,
     Badge as BadgeIcon,
     Logout as LogoutIcon,
+    History as HistoryIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
+import SearchIcon from '@mui/icons-material/Search';
+import DownloadIcon from '@mui/icons-material/Download';
+import { exportToCsv } from '../../utils/exportCsv';
 
 // Animations
 const float = keyframes`
@@ -40,8 +45,11 @@ const StaffAffairsDashboard = () => {
     const [assignmentCount, setAssignmentCount] = useState(0);
     const [loading, setLoading] = useState(true);
 
-    const token = localStorage.getItem('access_token');
-    const config = { headers: { Authorization: `Bearer ${token}` }, withCredentials: true };
+    const config = { withCredentials: true };
+    const [departmentCount, setDepartmentCount] = useState(0);
+    const [specCount, setSpecCount] = useState(0);
+    const [doctors, setDoctors] = useState([]);
+    const [searchQuery, setSearchQuery] = useState('');
 
     useEffect(() => {
         fetchStats();
@@ -49,12 +57,21 @@ const StaffAffairsDashboard = () => {
 
     const fetchStats = async () => {
         try {
-            const [doctorsRes, assignmentsRes] = await Promise.all([
+            const [doctorsRes, assignmentsRes, deptsRes, specsRes] = await Promise.all([
                 axios.get('/api/academic/staff-affairs/doctors/', config).catch(() => ({ data: [] })),
-                axios.get('/api/academic/staff-affairs/assignments/', config).catch(() => ({ data: [] }))
+                axios.get('/api/academic/staff-affairs/assignments/', config).catch(() => ({ data: [] })),
+                axios.get('/api/academic/departments/', config).catch(() => ({ data: [] })),
+                axios.get('/api/academic/specializations/', config).catch(() => ({ data: [] }))
             ]);
-            setDoctorCount(doctorsRes.data.length);
-            setAssignmentCount(assignmentsRes.data.length);
+            const doctors = Array.isArray(doctorsRes.data) ? doctorsRes.data : (doctorsRes.data?.results || []);
+            const assignments = Array.isArray(assignmentsRes.data) ? assignmentsRes.data : (assignmentsRes.data?.results || []);
+            const depts = Array.isArray(deptsRes.data) ? deptsRes.data : (deptsRes.data?.results || []);
+            const specs = Array.isArray(specsRes.data) ? specsRes.data : (specsRes.data?.results || []);
+            setDoctorCount(doctors.length);
+            setDoctors(doctors);
+            setAssignmentCount(assignments.length);
+            setDepartmentCount(depts.length);
+            setSpecCount(specs.length);
         } catch (err) {
             console.error('Error fetching stats:', err);
         } finally {
@@ -98,7 +115,34 @@ const StaffAffairsDashboard = () => {
             gradient: 'linear-gradient(135deg, #0288d1, #03a9f4)',
             path: '/staff-affairs/academic-structure',
         },
+        {
+            title: 'سجل التعيينات',
+            description: 'تتبع جميع عمليات تعيين وإلغاء تعيين الدكاترة',
+            icon: <HistoryIcon sx={{ fontSize: 40 }} />,
+            gradient: 'linear-gradient(135deg, #607D8B, #90A4AE)',
+            path: '/staff-affairs/assignment-history',
+        },
     ];
+
+    const filteredDoctors = doctors.filter(d => {
+        if (!searchQuery) return false; // only show when searching
+        const q = searchQuery.toLowerCase();
+        return (
+            (d.first_name || '').toLowerCase().includes(q) ||
+            (d.last_name || '').toLowerCase().includes(q) ||
+            (d.username || '').toLowerCase().includes(q) ||
+            (d.email || '').toLowerCase().includes(q)
+        );
+    });
+
+    const handleExportDoctors = () => {
+        exportToCsv(doctors, [
+            { key: 'username', label: 'اسم المستخدم' },
+            { key: 'first_name', label: 'الاسم الأول' },
+            { key: 'last_name', label: 'اسم العائلة' },
+            { key: 'email', label: 'البريد الإلكتروني' },
+        ], 'doctors_list');
+    };
 
     return (
         <Box sx={{ minHeight: '100vh', background: 'linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%)', pb: 6 }}>
@@ -198,7 +242,7 @@ const StaffAffairsDashboard = () => {
                                     <TrendingUpIcon sx={{ fontSize: 30, color: '#fff' }} />
                                 </Box>
                                 <Box>
-                                    <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>5</Typography>
+                                    <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>{loading ? <CircularProgress size={24} /> : departmentCount}</Typography>
                                     <Typography variant="body1" sx={{ fontFamily: 'Cairo', color: '#666' }}>الأقسام</Typography>
                                 </Box>
                             </Paper>
@@ -211,13 +255,70 @@ const StaffAffairsDashboard = () => {
                                     <GroupsIcon sx={{ fontSize: 30, color: '#fff' }} />
                                 </Box>
                                 <Box>
-                                    <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>2</Typography>
+                                    <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>{loading ? <CircularProgress size={24} /> : specCount}</Typography>
                                     <Typography variant="body1" sx={{ fontFamily: 'Cairo', color: '#666' }}>التخصصات</Typography>
                                 </Box>
                             </Paper>
                         </Grow>
                     </Grid>
                 </Grid>
+
+                {/* Doctor Search & Export */}
+                <Paper elevation={0} sx={{ p: 3, borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.08)', mb: 4 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
+                        <TextField
+                            placeholder="ابحث عن دكتور بالاسم أو البريد..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            size="small"
+                            sx={{
+                                flex: 1,
+                                minWidth: 250,
+                                '& .MuiOutlinedInput-root': { fontFamily: 'Cairo', borderRadius: 3, bgcolor: '#f8fafc' },
+                            }}
+                            InputProps={{
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <SearchIcon sx={{ color: '#999' }} />
+                                    </InputAdornment>
+                                ),
+                            }}
+                        />
+                        <Button
+                            variant="contained"
+                            startIcon={<DownloadIcon />}
+                            onClick={handleExportDoctors}
+                            disabled={doctors.length === 0}
+                            sx={{
+                                fontFamily: 'Cairo',
+                                fontWeight: 'bold',
+                                borderRadius: 3,
+                                background: 'linear-gradient(135deg, #4CAF50, #8BC34A)',
+                            }}
+                        >
+                            تصدير CSV
+                        </Button>
+                    </Box>
+                    {searchQuery && filteredDoctors.length > 0 && (
+                        <Box sx={{ mt: 2, maxHeight: 200, overflowY: 'auto' }}>
+                            {filteredDoctors.map((d, i) => (
+                                <Box key={i} sx={{ py: 1, px: 2, borderBottom: '1px solid #eee', fontFamily: 'Cairo', display: 'flex', gap: 2, alignItems: 'center' }}>
+                                    <Avatar sx={{ width: 32, height: 32, bgcolor: '#ede7f6', fontSize: 14 }}>
+                                        {(d.first_name || '?')[0]}
+                                    </Avatar>
+                                    <Typography variant="body2" sx={{ fontFamily: 'Cairo' }}>
+                                        {d.first_name} {d.last_name} — {d.email || d.username}
+                                    </Typography>
+                                </Box>
+                            ))}
+                        </Box>
+                    )}
+                    {searchQuery && filteredDoctors.length === 0 && (
+                        <Typography variant="caption" sx={{ fontFamily: 'Cairo', color: '#999', mt: 1, display: 'block' }}>
+                            لا توجد نتائج
+                        </Typography>
+                    )}
+                </Paper>
 
                 {/* Navigation Cards */}
                 <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744', mb: 3 }}>

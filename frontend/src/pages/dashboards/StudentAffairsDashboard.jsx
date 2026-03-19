@@ -15,8 +15,12 @@ import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import CampaignIcon from '@mui/icons-material/Campaign';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import LogoutIcon from '@mui/icons-material/Logout';
+import HistoryIcon from '@mui/icons-material/History';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import DomainIcon from '@mui/icons-material/Domain';
+import axios from 'axios';
 
 // Animations
 const float = keyframes`
@@ -162,6 +166,29 @@ export default function StudentAffairsDashboard() {
 
     if (!user) return null;
 
+    const [stats, setStats] = useState({ students: 0, departments: 0, certificates: 0, levels: 0 });
+
+    useEffect(() => {
+        const fetchStats = async () => {
+            try {
+                const config = { withCredentials: true };
+                const [studentsRes, deptsRes, certsRes, levelsRes] = await Promise.all([
+                    axios.get('/api/academic/student-affairs/students/', config).catch(() => ({ data: [] })),
+                    axios.get('/api/academic/departments/', config).catch(() => ({ data: [] })),
+                    axios.get('/api/academic/certificates/', config).catch(() => ({ data: [] })),
+                    axios.get('/api/academic/levels/', config).catch(() => ({ data: [] })),
+                ]);
+                setStats({
+                    students: (Array.isArray(studentsRes.data) ? studentsRes.data : studentsRes.data?.results || []).length,
+                    departments: (Array.isArray(deptsRes.data) ? deptsRes.data : deptsRes.data?.results || []).length,
+                    certificates: (Array.isArray(certsRes.data) ? certsRes.data : certsRes.data?.results || []).length,
+                    levels: (Array.isArray(levelsRes.data) ? levelsRes.data : levelsRes.data?.results || []).length,
+                });
+            } catch { /* fail silently */ }
+        };
+        fetchStats();
+    }, []);
+
     const navigationCards = [
         {
             icon: AccountTreeIcon,
@@ -197,6 +224,20 @@ export default function StudentAffairsDashboard() {
             description: 'عرض درجات كل فرقة (للقراءة فقط)',
             path: '/student-affairs/grades',
             gradient: 'linear-gradient(135deg, #00BCD4, #00E5FF)',
+        },
+        {
+            icon: HistoryIcon,
+            title: 'سجل عمليات الرفع',
+            description: 'تتبع جميع عمليات الرفع السابقة وتحميل تقارير الأخطاء',
+            path: '/student-affairs/upload-history',
+            gradient: 'linear-gradient(135deg, #607D8B, #90A4AE)',
+        },
+        {
+            icon: CloudUploadIcon,
+            title: 'رفع شهادات بالجملة',
+            description: 'رفع ملف ZIP يحتوي على شهادات PDF للطلاب',
+            path: '/student-affairs/bulk-certificates',
+            gradient: 'linear-gradient(135deg, #9C27B0, #CE93D8)',
         },
     ];
 
@@ -304,17 +345,17 @@ export default function StudentAffairsDashboard() {
                     <Grid item xs={12} sm={6} md={3}>
                         <StatCard
                             icon={PeopleIcon}
-                            value="5"
-                            label="خدمات متاحة"
+                            value={String(stats.students)}
+                            label="إجمالي الطلاب"
                             color="#2196F3"
                             delay={0}
                         />
                     </Grid>
                     <Grid item xs={12} sm={6} md={3}>
                         <StatCard
-                            icon={UploadFileIcon}
-                            value="Excel"
-                            label="رفع البيانات"
+                            icon={DomainIcon}
+                            value={String(stats.departments)}
+                            label="الأقسام"
                             color="#FF9800"
                             delay={100}
                         />
@@ -322,7 +363,7 @@ export default function StudentAffairsDashboard() {
                     <Grid item xs={12} sm={6} md={3}>
                         <StatCard
                             icon={EmojiEventsIcon}
-                            value="PDF"
+                            value={String(stats.certificates)}
                             label="الشهادات"
                             color="#4CAF50"
                             delay={200}
@@ -330,9 +371,9 @@ export default function StudentAffairsDashboard() {
                     </Grid>
                     <Grid item xs={12} sm={6} md={3}>
                         <StatCard
-                            icon={GradingIcon}
-                            value="للقراءة"
-                            label="عرض الدرجات"
+                            icon={SchoolIcon}
+                            value={String(stats.levels)}
+                            label="الفرق الدراسية"
                             color="#00BCD4"
                             delay={300}
                         />

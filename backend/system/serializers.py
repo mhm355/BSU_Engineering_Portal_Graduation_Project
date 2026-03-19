@@ -6,5 +6,9 @@ class DeleteRequestSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = DeleteRequest
-        fields = '__all__'
+        fields = [
+            'id', 'requested_by', 'requested_by_name',
+            'item_type', 'item_id', 'reason',
+            'created_at', 'is_approved', 'is_rejected',
+        ]
         read_only_fields = ['requested_by', 'created_at', 'is_approved', 'is_rejected']

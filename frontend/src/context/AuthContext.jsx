@@ -9,9 +9,8 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         const storedUser = localStorage.getItem('user');
-        const token = localStorage.getItem('access_token');
 
-        if (storedUser && token) {
+        if (storedUser) {
             // Validate session with backend
             api.get('/api/auth/profile/')
                 .then(res => {
@@ -22,29 +21,29 @@ export const AuthProvider = ({ children }) => {
                 .catch(() => {
                     // Session invalid - clear localStorage
                     localStorage.removeItem('user');
-                    localStorage.removeItem('access_token');
                     setUser(null);
                 })
                 .finally(() => setLoading(false));
         } else {
             // No stored credentials - clear any partial data
             localStorage.removeItem('user');
-            localStorage.removeItem('access_token');
             setLoading(false);
         }
     }, []);
 
-    const login = (userData, token) => {
+    const login = (userData) => {
         localStorage.setItem('user', JSON.stringify(userData));
-        if (token) {
-            localStorage.setItem('access_token', token);
-        }
         setUser(userData);
     };
 
-    const logout = () => {
+    const logout = async () => {
+        try {
+            // Invalidate session on backend
+            await api.post('/api/auth/logout/');
+        } catch {
+            // Continue logout even if backend call fails
+        }
         localStorage.removeItem('user');
-        localStorage.removeItem('access_token');
         setUser(null);
     };
 

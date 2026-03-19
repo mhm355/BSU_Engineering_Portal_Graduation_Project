@@ -11,7 +11,7 @@ from django.contrib.auth import get_user_model
 import pandas as pd
 import io
 
-from .models import Student, Level, AcademicYear, Department, Specialization, AuditLog
+from .models import Student, Level, AcademicYear, Department, Specialization, AuditLog, UploadHistory, Certificate
 from users.permissions import IsStudentAffairsRole, IsStudentRole
 
 User = get_user_model()
@@ -200,6 +200,21 @@ class UploadStudentsView(APIView):
             )
         except Exception as e:
             errors.append(f"خطأ في سجل العمليات: {str(e)}")
+
+        # Track upload history
+        try:
+            UploadHistory.objects.create(
+                upload_type='STUDENT',
+                file_name='students_upload',
+                uploaded_by=performed_by,
+                total_rows=len(df),
+                created_count=created_count,
+                updated_count=updated_count,
+                error_count=len(errors),
+                errors_json=errors if errors else None,
+            )
+        except Exception:
+            pass
 
         return {
             'created': created_count,
@@ -462,3 +477,98 @@ class StudentAffairsGradesView(APIView):
                 'details': traceback.format_exc()
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
+class BulkCertificateUploadView(APIView):
+    """
+    Upload certificates in bulk via a CSV mapping file + PDF files.
+    CSV format: national_id, description (optional)
+    Each row maps to a PDF file named <national_id>.pdf in the uploaded ZIP.
+    Or upload individual PDFs with a CSV mapping.
+    """
+    parser_classes = (MultiPartParser, FormParser)
+    permission_classes = [IsStudentAffairsRole]
+
+    def post(self, request):
+        import zipfile
+        from django.core.files.base import ContentFile
+
+        zip_file = request.FILES.get('file')
+        if not zip_file:
+            return Response(
+                {'error': 'يرجى رفع ملف ZIP يحتوي على الشهادات'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if not zip_file.name.endswith('.zip'):
+            return Response(
+                {'error': 'يجب أن يكون الملف بصيغة ZIP'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            zf = zipfile.ZipFile(io.BytesIO(zip_file.read()))
+        except zipfile.BadZipFile:
+            return Response(
+                {'error': 'ملف ZIP غير صالح'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        created_count = 0
+        errors = []
+        pdf_names = [n for n in zf.namelist() if n.lower().endswith('.pdf')]
+
+        for pdf_name in pdf_names:
+            try:
+                # Extract national_id from filename (e.g., "12345678901234.pdf")
+                national_id = pdf_name.rsplit('.', 1)[0].strip()
+                # Handle nested folders (e.g., "certs/12345678901234.pdf")
+                if '/' in national_id:
+                    national_id = national_id.rsplit('/', 1)[1]
+
+                # Find student by national_id
+                try:
+                    student = Student.objects.get(national_id=national_id)
+                except Student.DoesNotExist:
+                    errors.append(f'{pdf_name}: الطالب بالرقم القومي {national_id} غير موجود')
+                    continue
+
+                if not student.user:
+                    errors.append(f'{pdf_name}: الطالب ليس لديه حساب مستخدم')
+                    continue
+
+                # Read PDF content
+                pdf_content = zf.read(pdf_name)
+                cert_file = ContentFile(pdf_content, name=f'{national_id}.pdf')
+
+                # Create certificate
+                Certificate.objects.create(
+                    student=student.user,
+                    file=cert_file,
+                    description=f'شهادة مرفوعة بالجملة - {student.full_name}',
+                )
+                created_count += 1
+
+            except Exception as e:
+                errors.append(f'{pdf_name}: {str(e)}')
+
+        # Track upload history
+        try:
+            UploadHistory.objects.create(
+                upload_type='CERTIFICATE',
+                file_name=zip_file.name,
+                uploaded_by=request.user,
+                total_rows=len(pdf_names),
+                created_count=created_count,
+                updated_count=0,
+                error_count=len(errors),
+                errors_json=errors if errors else None,
+            )
+        except Exception:
+            pass
+
+        return Response({
+            'message': f'تم رفع {created_count} شهادة بنجاح',
+            'created_count': created_count,
+            'error_count': len(errors),
+            'errors': errors,
+        }, status=status.HTTP_201_CREATED)

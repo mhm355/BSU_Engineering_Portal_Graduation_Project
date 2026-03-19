@@ -54,6 +54,7 @@ export default function StudentDashboard() {
     const [certificateLoading, setCertificateLoading] = useState(false);
     const [quizzes, setQuizzes] = useState([]);
     const [grades, setGrades] = useState(null);
+    const [attendanceStats, setAttendanceStats] = useState({ percentage: 0, present: 0, total: 0 });
 
     useEffect(() => {
         if (!user) {
@@ -123,7 +124,24 @@ export default function StudentDashboard() {
         fetchStudentInfo();
         fetchQuizzes();
         fetchGrades();
+        fetchAttendance();
     }, [user, navigate]);
+
+    // Fetch attendance summary
+    const fetchAttendance = async () => {
+        try {
+            const res = await axios.get('/api/academic/attendance/', { withCredentials: true });
+            const data = Array.isArray(res.data) ? res.data : (res.data?.results || []);
+            const present = data.filter(r => r.status === 'PRESENT').length;
+            setAttendanceStats({
+                total: data.length,
+                present,
+                percentage: data.length > 0 ? Math.round((present / data.length) * 100) : 0,
+            });
+        } catch {
+            // Silently fail - attendance widget is optional
+        }
+    };
 
     // Fetch certificate for fourth-year students
     useEffect(() => {
@@ -359,15 +377,29 @@ export default function StudentDashboard() {
                                 textAlign: 'center',
                                 background: '#fff',
                                 transition: 'transform 0.3s',
-                                '&:hover': { transform: 'translateY(-5px)' }
+                                '&:hover': { transform: 'translateY(-5px)' },
+                                border: attendanceStats.percentage > 0
+                                    ? `2px solid ${attendanceStats.percentage >= 75 ? '#4CAF5030' : '#f4433630'}`
+                                    : 'none',
                             }}>
-                                <Avatar sx={{ width: 56, height: 56, bgcolor: '#fce4ec', mx: 'auto', mb: 1.5 }}>
-                                    <EmojiEventsIcon sx={{ color: '#e91e63', fontSize: 28 }} />
-                                </Avatar>
-                                <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>
-                                    {studentInfo?.levelDisplay?.split(' ')[1] || '1'}
-                                </Typography>
-                                <Typography variant="body2" sx={{ fontFamily: 'Cairo', color: '#666' }}>الفرقة الدراسية</Typography>
+                                <Box sx={{ position: 'relative', display: 'inline-flex', mb: 1 }}>
+                                    <CircularProgress
+                                        variant="determinate"
+                                        value={attendanceStats.percentage}
+                                        size={56}
+                                        thickness={5}
+                                        sx={{
+                                            color: attendanceStats.percentage >= 75 ? '#4CAF50' : '#f44336',
+                                            '& .MuiCircularProgress-circle': { strokeLinecap: 'round' },
+                                        }}
+                                    />
+                                    <Box sx={{ position: 'absolute', top: 0, left: 0, bottom: 0, right: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                        <Typography variant="caption" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', fontSize: '0.7rem' }}>
+                                            {attendanceStats.percentage}%
+                                        </Typography>
+                                    </Box>
+                                </Box>
+                                <Typography variant="body2" sx={{ fontFamily: 'Cairo', color: '#666' }}>نسبة الحضور</Typography>
                             </Paper>
                         </Grow>
                     </Grid>
@@ -426,7 +458,19 @@ export default function StudentDashboard() {
                                             borderRadius: 3,
                                             '&:hover': { bgcolor: 'rgba(255,255,255,0.9)' }
                                         }}
-                                        onClick={() => window.open(certificate.file, '_blank')}
+                                        onClick={() => {
+                                            let fileUrl = certificate.file || '';
+                                            // Strip internal Docker hostname if present
+                                            if (fileUrl.includes('://')) {
+                                                try {
+                                                    const url = new URL(fileUrl);
+                                                    fileUrl = url.pathname;
+                                                } catch (e) { /* use as-is */ }
+                                            }
+                                            // Ensure it starts with /
+                                            if (fileUrl && !fileUrl.startsWith('/')) fileUrl = '/' + fileUrl;
+                                            window.open(fileUrl, '_blank');
+                                        }}
                                     >
                                         تحميل الشهادة
                                     </Button>

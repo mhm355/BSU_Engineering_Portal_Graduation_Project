@@ -29,6 +29,11 @@ import ElectricalServicesIcon from '@mui/icons-material/ElectricalServices';
 import FoundationIcon from '@mui/icons-material/Foundation';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useThemeMode } from '../context/ThemeContext';
+import DarkModeIcon from '@mui/icons-material/DarkMode';
+import LightModeIcon from '@mui/icons-material/LightMode';
+import GlobalSearch from './GlobalSearch';
+import SearchIcon from '@mui/icons-material/Search';
 
 // Animations
 const shimmer = keyframes`
@@ -168,12 +173,14 @@ const StyledMenu = ({ anchorEl, open, onClose, items }) => (
 
 export default function Header() {
   const { user } = useAuth();
+  const { isDark, toggleMode } = useThemeMode();
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const [currentMenu, setCurrentMenu] = useState(null);
   const [scrolled, setScrolled] = useState(false);
   const [expandedMobile, setExpandedMobile] = useState(null);
+  const [searchOpen, setSearchOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -349,6 +356,43 @@ export default function Header() {
                 <NavItem label="اتصل بنا" isActive={isActive('/contact')} />
               </Box>
             </Box>
+
+            {/* Search Button */}
+            <IconButton
+              onClick={() => setSearchOpen(true)}
+              sx={{
+                color: '#FFC107',
+                bgcolor: 'rgba(255,193,7,0.1)',
+                border: '1px solid rgba(255,193,7,0.3)',
+                borderRadius: 2,
+                p: 1,
+                transition: 'all 0.3s ease',
+                '&:hover': {
+                  bgcolor: 'rgba(255,193,7,0.2)',
+                }
+              }}
+            >
+              <SearchIcon />
+            </IconButton>
+
+            {/* Dark Mode Toggle */}
+            <IconButton
+              onClick={toggleMode}
+              sx={{
+                color: '#FFC107',
+                bgcolor: 'rgba(255,193,7,0.1)',
+                border: '1px solid rgba(255,193,7,0.3)',
+                borderRadius: 2,
+                p: 1,
+                transition: 'all 0.3s ease',
+                '&:hover': {
+                  bgcolor: 'rgba(255,193,7,0.2)',
+                  transform: 'rotate(30deg)',
+                }
+              }}
+            >
+              {isDark ? <LightModeIcon /> : <DarkModeIcon />}
+            </IconButton>
 
             {/* Mobile Menu Button */}
             <IconButton
@@ -556,6 +600,7 @@ export default function Header() {
           </Box>
         </Drawer>
       </AppBar>
+      <GlobalSearch open={searchOpen} onClose={() => setSearchOpen(false)} />
     </>
   );
 }

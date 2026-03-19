@@ -14,13 +14,14 @@ import GradingIcon from '@mui/icons-material/Grading';
 import VideoLibraryIcon from '@mui/icons-material/VideoLibrary';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EventAvailableIcon from '@mui/icons-material/EventAvailable';
+import EventNoteIcon from '@mui/icons-material/EventNote';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import SaveIcon from '@mui/icons-material/Save';
 import QuizIcon from '@mui/icons-material/Quiz';
 import AddIcon from '@mui/icons-material/Add';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import SchoolIcon from '@mui/icons-material/School';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import SlideshowIcon from '@mui/icons-material/Slideshow';
@@ -142,6 +143,21 @@ export default function DoctorCourseDetail() {
                         initialGrades[s.id] = { attendance: '', quizzes: '', coursework: '', midterm: '', final: '' };
                     });
                     setAttendance(initialAttendance);
+
+                    // Fetch existing saved grades from API and merge
+                    try {
+                        const gradesRes = await axios.get(`/api/academic/student-grades/bulk/?course_offering=${courseId}`, config);
+                        if (gradesRes.data && typeof gradesRes.data === 'object') {
+                            Object.entries(gradesRes.data).forEach(([studentId, savedGrades]) => {
+                                const sid = parseInt(studentId);
+                                if (initialGrades[sid]) {
+                                    initialGrades[sid] = { ...initialGrades[sid], ...savedGrades };
+                                }
+                            });
+                        }
+                    } catch (err) {
+                        console.log('Failed to load existing grades');
+                    }
                     setGrades(initialGrades);
                 } catch (err) {
                     console.log('Failed to load students');
@@ -268,6 +284,73 @@ export default function DoctorCourseDetail() {
             setSuccess('تم احتساب درجات الحضور تلقائياً وإضافتها للدرجات');
         } catch (err) {
             setError('فشل في احتساب درجات الحضور');
+        } finally {
+            setSavingGrades(false);
+        }
+    };
+
+    // Auto-assign quiz grades based on quiz results
+    const handleAutoAssignQuizGrades = async () => {
+        if (!gradingTemplate) {
+            setError('لا يوجد قالب تقييم محدد للمادة');
+            return;
+        }
+        if (quizzes.length === 0) {
+            setError('لا توجد كويزات لهذا المقرر');
+            return;
+        }
+        const quizzesWeight = gradingTemplate.quizzes_weight || 10;
+
+        setSavingGrades(true);
+        try {
+            // Fetch results for all quizzes
+            const allResults = {};
+            for (const quiz of quizzes) {
+                try {
+                    const res = await axios.get(`/api/academic/quizzes/${quiz.id}/results/`, config);
+                    const results = Array.isArray(res.data) ? res.data : [];
+                    results.forEach(r => {
+                        if (!allResults[r.student_id]) allResults[r.student_id] = [];
+                        allResults[r.student_id].push({
+                            score: r.score || 0,
+                            total: r.total_points || quiz.total_points || 1
+                        });
+                    });
+                } catch (err) {
+                    console.log(`Failed to load results for quiz ${quiz.id}`);
+                }
+            }
+
+            const gradesData = students.map(s => {
+                const studentResults = allResults[s.id] || [];
+                let quizGrade = 0;
+                if (studentResults.length > 0) {
+                    // Average percentage across all quizzes, then apply weight
+                    const avgPercentage = studentResults.reduce((sum, r) => sum + (r.score / r.total), 0) / studentResults.length;
+                    quizGrade = Math.round(avgPercentage * quizzesWeight * 10) / 10;
+                }
+                return {
+                    student_id: s.id,
+                    course_offering_id: courseId,
+                    quizzes_grade: Math.min(quizGrade, quizzesWeight)
+                };
+            });
+            await axios.post('/api/academic/student-grades/bulk/', gradesData, config);
+
+            // Update local grades state
+            setGrades(prev => {
+                const updated = { ...prev };
+                gradesData.forEach(g => {
+                    if (updated[g.student_id]) {
+                        updated[g.student_id] = { ...updated[g.student_id], quizzes: g.quizzes_grade };
+                    }
+                });
+                return updated;
+            });
+
+            setSuccess('تم احتساب درجات الكويزات تلقائياً وإضافتها للدرجات');
+        } catch (err) {
+            setError('فشل في احتساب درجات الكويزات');
         } finally {
             setSavingGrades(false);
         }
@@ -411,6 +494,7 @@ export default function DoctorCourseDetail() {
                         <Tab icon={<EventAvailableIcon />} label="الحضور" sx={tabStyle} />
                         <Tab icon={<GradingIcon />} label="الدرجات" sx={tabStyle} />
                         <Tab icon={<QuizIcon />} label="الكويزات" sx={{ ...tabStyle, color: '#9c27b0' }} />
+                        <Tab icon={<EventNoteIcon />} label="جدول الامتحانات" sx={{ ...tabStyle, color: '#0288d1' }} />
                     </Tabs>
                 </Paper>
 
@@ -716,7 +800,29 @@ export default function DoctorCourseDetail() {
                                         {gradingTemplate && <Chip label={`قالب: ${gradingTemplate.name}`} size="small" sx={{ mt: 0.5 }} />}
                                     </Box>
                                 </Box>
-                                <Box sx={{ display: 'flex', gap: 2 }}>
+                                <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                                    <Button
+                                        variant="outlined"
+                                        size="large"
+                                        color="success"
+                                        startIcon={savingGrades ? <CircularProgress size={20} color="inherit" /> : <GradingIcon />}
+                                        onClick={handleAutoAssignAttendanceGrades}
+                                        disabled={savingGrades || students.length === 0 || !gradingTemplate}
+                                        sx={{ fontFamily: 'Cairo', fontWeight: 'bold', borderRadius: 3, px: 3 }}
+                                    >
+                                        احتساب درجات الحضور
+                                    </Button>
+                                    <Button
+                                        variant="outlined"
+                                        size="large"
+                                        color="secondary"
+                                        startIcon={savingGrades ? <CircularProgress size={20} color="inherit" /> : <QuizIcon />}
+                                        onClick={handleAutoAssignQuizGrades}
+                                        disabled={savingGrades || students.length === 0 || !gradingTemplate || quizzes.length === 0}
+                                        sx={{ fontFamily: 'Cairo', fontWeight: 'bold', borderRadius: 3, px: 3 }}
+                                    >
+                                        احتساب درجات الكويزات
+                                    </Button>
                                     <Button
                                         variant="outlined"
                                         size="large"
@@ -798,7 +904,12 @@ export default function DoctorCourseDetail() {
                                     <Avatar sx={{ width: 50, height: 50, background: 'linear-gradient(135deg, #9c27b0, #ba68c8)' }}><QuizIcon /></Avatar>
                                     <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>الكويزات ({quizzes.length})</Typography>
                                 </Box>
-                                <Button variant="contained" size="large" startIcon={<AddIcon />} onClick={() => navigate(`/doctor/courses/${courseId}/quiz`)} sx={{ fontFamily: 'Cairo', fontWeight: 'bold', borderRadius: 3, px: 4, background: 'linear-gradient(135deg, #9c27b0, #ba68c8)' }}>إنشاء كويز</Button>
+                                <Box sx={{ display: 'flex', gap: 2 }}>
+                                    <Button variant="outlined" size="large" startIcon={<UploadFileIcon />}
+                                        onClick={() => { const inp = document.createElement('input'); inp.type='file'; inp.accept='.xlsx,.csv'; inp.onchange = async (e) => { const f = e.target.files[0]; if(!f) return; const fd = new FormData(); fd.append('file', f); fd.append('course_offering', courseId); try { await axios.post('/api/academic/quizzes/bulk-import/', fd, {...config, headers:{...config.headers,'Content-Type':'multipart/form-data'}}); setSuccess('تم استيراد الكويزات بنجاح'); const qr = await axios.get(`/api/academic/quizzes/?course_offering=${courseId}`, config); setQuizzes(Array.isArray(qr.data) ? qr.data : []); } catch(err){ setError(err.response?.data?.error || 'فشل استيراد الكويزات'); } }; inp.click(); }}
+                                        sx={{ fontFamily: 'Cairo', fontWeight: 'bold', borderRadius: 3, px: 3, borderColor: '#9c27b0', color: '#9c27b0' }}>استيراد كويزات</Button>
+                                    <Button variant="contained" size="large" startIcon={<AddIcon />} onClick={() => navigate(`/doctor/courses/${courseId}/quiz`)} sx={{ fontFamily: 'Cairo', fontWeight: 'bold', borderRadius: 3, px: 4, background: 'linear-gradient(135deg, #9c27b0, #ba68c8)' }}>إنشاء كويز</Button>
+                                </Box>
                             </Box>
 
                             {quizzes.length > 0 ? (
@@ -832,6 +943,87 @@ export default function DoctorCourseDetail() {
                                     <Typography variant="h5" sx={{ fontFamily: 'Cairo', color: '#999', mb: 2 }}>لا توجد كويزات بعد</Typography>
                                     <Button variant="contained" startIcon={<AddIcon />} onClick={() => navigate(`/doctor/courses/${courseId}/quiz`)} sx={{ fontFamily: 'Cairo', fontWeight: 'bold', borderRadius: 3, background: 'linear-gradient(135deg, #9c27b0, #ba68c8)' }}>إنشاء أول كويز</Button>
                                 </Box>
+                            )}
+                        </Paper>
+                    </Grow>
+                )}
+
+                {/* Tab 5: Exam Schedule */}
+                {activeTab === 5 && (
+                    <Grow in={true} timeout={400}>
+                        <Paper elevation={0} sx={{ p: 4, borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 4 }}>
+                                <Avatar sx={{ width: 50, height: 50, background: 'linear-gradient(135deg, #0288d1, #26c6da)' }}><EventNoteIcon /></Avatar>
+                                <Box>
+                                    <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>جدول الامتحانات</Typography>
+                                    <Typography variant="body2" sx={{ fontFamily: 'Cairo', color: '#666' }}>تحديد مواعيد الامتحانات للمادة</Typography>
+                                </Box>
+                            </Box>
+                            <Grid container spacing={3}>
+                                <Grid item xs={12} md={4}>
+                                    <Paper elevation={0} sx={{ p: 3, borderRadius: 3, border: '2px solid #e3f2fd', bgcolor: '#f8fbff' }}>
+                                        <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0288d1', mb: 2 }}>الامتحان النهائي</Typography>
+                                        {course?.final_exam_date ? (
+                                            <Box>
+                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                                                    <EventNoteIcon sx={{ color: '#0288d1' }} />
+                                                    <Typography sx={{ fontFamily: 'Cairo' }}>{new Date(course.final_exam_date).toLocaleDateString('ar-EG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</Typography>
+                                                </Box>
+                                                {course.final_exam_time && (
+                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                                                        <AccessTimeIcon sx={{ color: '#0288d1' }} />
+                                                        <Typography sx={{ fontFamily: 'Cairo' }}>الساعة: {course.final_exam_time}</Typography>
+                                                    </Box>
+                                                )}
+                                                {course.final_exam_location && (
+                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                        <Typography sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#555' }}>📍 {course.final_exam_location}</Typography>
+                                                    </Box>
+                                                )}
+                                            </Box>
+                                        ) : (
+                                            <Typography sx={{ fontFamily: 'Cairo', color: '#999', fontStyle: 'italic' }}>لم يتم تحديد موعد الامتحان بعد</Typography>
+                                        )}
+                                    </Paper>
+                                </Grid>
+                                <Grid item xs={12} md={8}>
+                                    <Paper elevation={0} sx={{ p: 3, borderRadius: 3, border: '2px solid #e8f5e9', bgcolor: '#f8fff8' }}>
+                                        <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#2e7d32', mb: 2 }}>إحصائيات سريعة</Typography>
+                                        <Grid container spacing={2}>
+                                            <Grid item xs={6}>
+                                                <Paper sx={{ p: 2, borderRadius: 2, textAlign: 'center', bgcolor: '#fff' }}>
+                                                    <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>{students.length}</Typography>
+                                                    <Typography sx={{ fontFamily: 'Cairo', color: '#666', fontSize: 13 }}>عدد الطلاب</Typography>
+                                                </Paper>
+                                            </Grid>
+                                            <Grid item xs={6}>
+                                                <Paper sx={{ p: 2, borderRadius: 2, textAlign: 'center', bgcolor: '#fff' }}>
+                                                    <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>{quizzes.length}</Typography>
+                                                    <Typography sx={{ fontFamily: 'Cairo', color: '#666', fontSize: 13 }}>عدد الكويزات</Typography>
+                                                </Paper>
+                                            </Grid>
+                                            <Grid item xs={6}>
+                                                <Paper sx={{ p: 2, borderRadius: 2, textAlign: 'center', bgcolor: '#fff' }}>
+                                                    <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>{lectures.length}</Typography>
+                                                    <Typography sx={{ fontFamily: 'Cairo', color: '#666', fontSize: 13 }}>المحاضرات</Typography>
+                                                </Paper>
+                                            </Grid>
+                                            <Grid item xs={6}>
+                                                <Paper sx={{ p: 2, borderRadius: 2, textAlign: 'center', bgcolor: '#fff' }}>
+                                                    <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: course?.academic_year_status === 'OPEN' ? '#4CAF50' : '#F44336' }}>
+                                                        {course?.academic_year_status === 'OPEN' ? 'مفتوح' : 'مغلق'}
+                                                    </Typography>
+                                                    <Typography sx={{ fontFamily: 'Cairo', color: '#666', fontSize: 13 }}>العام الأكاديمي</Typography>
+                                                </Paper>
+                                            </Grid>
+                                        </Grid>
+                                    </Paper>
+                                </Grid>
+                            </Grid>
+                            {!course?.final_exam_date && (
+                                <Alert severity="info" sx={{ mt: 3, fontFamily: 'Cairo', borderRadius: 3 }}>
+                                    مواعيد الامتحانات تُحدَّد من قبل الإدارة — يرجى التواصل مع إدارة الكلية لتحديد موعد الامتحان النهائي لهذه المادة.
+                                </Alert>
                             )}
                         </Paper>
                     </Grow>

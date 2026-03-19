@@ -21,8 +21,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-# Read from environment variable with fallback for development
-SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-kh+*3msg203*!b345wr9f9e%0hpp^1@*y@!z$+x10c(=!e&na*')
+# Read from environment variable — NO fallback, must be set explicitly
+SECRET_KEY = os.environ.get('SECRET_KEY')
+if not SECRET_KEY:
+    if os.getenv('DEBUG', 'True') == 'True':
+        SECRET_KEY = 'dev-only-insecure-key-do-not-use-in-production'
+    else:
+        raise ValueError('SECRET_KEY environment variable is required in production')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # Read from environment variable (defaults to True for development)
@@ -31,8 +36,8 @@ DEBUG = os.getenv('DEBUG', 'True') == 'True'
 # Read from environment variable (comma-separated list)
 # Include '*' for Railway internal health checks
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,backend').split(',')
-if not DEBUG:
-    ALLOWED_HOSTS.append('*')  # Allow Railway internal health checks
+# In production, set ALLOWED_HOSTS env var to include all valid hostnames
+# Railway internal health checks use the hostname from ALLOWED_HOSTS
 
 
 # Application definition
@@ -219,6 +224,16 @@ REST_FRAMEWORK = {
         'users.authentication.CsrfExemptSessionAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.AllowAny',
+        'rest_framework.permissions.IsAuthenticated',
     ],
+    # NOTE: Global pagination removed — frontend expects plain array responses.
+    # Add pagination per-view where needed instead.
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '100/hour',
+        'user': '1000/hour',
+    },
 }

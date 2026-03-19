@@ -256,7 +256,7 @@ export default function Home() {
         try {
             const response = await fetch('/api/content/news/');
             const data = await response.json();
-            setNewsList(data);
+            setNewsList(Array.isArray(data) ? data : (data?.results || []));
         } catch (err) {
             console.error('Error fetching news:', err);
         }

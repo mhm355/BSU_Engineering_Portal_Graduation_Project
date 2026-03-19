@@ -60,95 +60,115 @@ import DeletionRequests from './pages/dashboards/admin/DeletionRequests';
 
 import ManageAcademicYears from './pages/dashboards/admin/ManageAcademicYears';
 import ManageGradingTemplates from './pages/dashboards/admin/ManageGradingTemplates';
+import AuditLogViewer from './pages/dashboards/admin/AuditLogViewer';
+import Announcements from './pages/dashboards/admin/Announcements';
+import ComplaintsDashboard from './pages/dashboards/admin/ComplaintsDashboard';
+import BulkQuizImport from './pages/dashboards/doctor/BulkQuizImport';
+import UploadHistory from './pages/dashboards/student_affairs/UploadHistory';
+import BulkCertificateUpload from './pages/dashboards/student_affairs/BulkCertificateUpload';
+import AssignmentHistory from './pages/dashboards/staff_affairs/AssignmentHistory';
 
 import { AuthProvider } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
+import { ToastProvider } from './hooks/useToast';
+import ProtectedRoute from './components/ProtectedRoute';
+import OfflineBanner from './components/OfflineBanner';
 import axios from 'axios';
 
 function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Layout />}>
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/change-password" element={<ChangePassword />} />
-            <Route path="/staff" element={<StaffDirectory />} />
-            <Route path="contact" element={<Contact />} />
-            <Route path="login" element={<Login />} />
+    <ThemeProvider>
+      <AuthProvider>
+        <ToastProvider>
+          <OfflineBanner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Layout />}>
+                <Route path="/" element={<Home />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/change-password" element={<ChangePassword />} />
+                <Route path="/staff" element={<StaffDirectory />} />
+                <Route path="/contact" element={<Contact />} />
 
-            {/* Content Pages */}
-            <Route path="about" element={<AboutPage />} />
-            <Route path="/about" element={<AboutPage />} />
-            <Route path="/dean-word" element={<DeanWordPage />} />
-            <Route path="/vision-mission" element={<VisionMissionPage />} />
-            <Route path="/regulations" element={<RegulationsPage />} />
-            <Route path="/ethics" element={<EthicsPage />} />
+                {/* Content Pages */}
+                <Route path="/about" element={<AboutPage />} />
+                <Route path="/dean-word" element={<DeanWordPage />} />
+                <Route path="/vision-mission" element={<VisionMissionPage />} />
+                <Route path="/regulations" element={<RegulationsPage />} />
+                <Route path="/ethics" element={<EthicsPage />} />
 
-            {/* Department Pages */}
-            <Route path="/departments" element={<DepartmentsPage />} />
-            <Route path="departments" element={<DepartmentsPage />} />
-            <Route path="/departments/civil" element={<CivilDepartmentPage />} />
-            <Route path="/departments/arch" element={<ArchDepartmentPage />} />
-            <Route path="/departments/electrical" element={<ElectricalDepartmentPage />} />
+                {/* Department Pages */}
+                <Route path="/departments" element={<DepartmentsPage />} />
+                <Route path="/departments/civil" element={<CivilDepartmentPage />} />
+                <Route path="/departments/arch" element={<ArchDepartmentPage />} />
+                <Route path="/departments/electrical" element={<ElectricalDepartmentPage />} />
 
-            {/* Protected Dashboard Routes */}
-            <Route path="student/dashboard" element={<StudentDashboard />} />
-            <Route path="student/grades" element={<StudentGrades />} />
-            <Route path="student/attendance" element={<StudentAttendance />} />
-            <Route path="student/materials" element={<StudentMaterials />} />
-            <Route path="student/exams" element={<StudentExams />} />
-            <Route path="student/quizzes" element={<StudentQuizzes />} />
-            <Route path="student/quiz/:quizId" element={<TakeQuiz />} />
-            <Route path="student/quiz/:quizId/results" element={<StudentQuizResults />} />
-            <Route path="profile" element={<UserProfile />} />
+                {/* Protected Student Routes */}
+                <Route path="student/dashboard" element={<ProtectedRoute roles={['STUDENT']}><StudentDashboard /></ProtectedRoute>} />
+                <Route path="student/grades" element={<ProtectedRoute roles={['STUDENT']}><StudentGrades /></ProtectedRoute>} />
+                <Route path="student/attendance" element={<ProtectedRoute roles={['STUDENT']}><StudentAttendance /></ProtectedRoute>} />
+                <Route path="student/materials" element={<ProtectedRoute roles={['STUDENT']}><StudentMaterials /></ProtectedRoute>} />
+                <Route path="student/exams" element={<ProtectedRoute roles={['STUDENT']}><StudentExams /></ProtectedRoute>} />
+                <Route path="student/quizzes" element={<ProtectedRoute roles={['STUDENT']}><StudentQuizzes /></ProtectedRoute>} />
+                <Route path="student/quiz/:quizId" element={<ProtectedRoute roles={['STUDENT']}><TakeQuiz /></ProtectedRoute>} />
+                <Route path="student/quiz/:quizId/results" element={<ProtectedRoute roles={['STUDENT']}><StudentQuizResults /></ProtectedRoute>} />
+                <Route path="profile" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
 
-            {/* Doctor Routes */}
-            <Route path="doctor/dashboard" element={<DoctorDashboard />} />
-            <Route path="doctor/courses" element={<DoctorCourses />} />
-            <Route path="doctor/courses/:courseId" element={<DoctorCourseDetail />} />
-            <Route path="doctor/courses/:courseId/manage" element={<DoctorCourseManager />} />
-            <Route path="doctor/courses/:courseId/upload-grades" element={<UploadGrades />} />
-            <Route path="doctor/courses/:courseId/quiz" element={<CreateQuiz />} />
-            <Route path="doctor/courses/:courseId/quiz/:quizId/results" element={<QuizResults />} />
+                {/* Doctor Routes */}
+                <Route path="doctor/dashboard" element={<ProtectedRoute roles={['DOCTOR']}><DoctorDashboard /></ProtectedRoute>} />
+                <Route path="doctor/courses" element={<ProtectedRoute roles={['DOCTOR']}><DoctorCourses /></ProtectedRoute>} />
+                <Route path="doctor/courses/:courseId" element={<ProtectedRoute roles={['DOCTOR']}><DoctorCourseDetail /></ProtectedRoute>} />
+                <Route path="doctor/courses/:courseId/manage" element={<ProtectedRoute roles={['DOCTOR']}><DoctorCourseManager /></ProtectedRoute>} />
+                <Route path="doctor/courses/:courseId/upload-grades" element={<ProtectedRoute roles={['DOCTOR']}><UploadGrades /></ProtectedRoute>} />
+                <Route path="doctor/courses/:courseId/quiz" element={<ProtectedRoute roles={['DOCTOR']}><CreateQuiz /></ProtectedRoute>} />
+                <Route path="doctor/courses/:courseId/quiz/:quizId/results" element={<ProtectedRoute roles={['DOCTOR']}><QuizResults /></ProtectedRoute>} />
+                <Route path="doctor/bulk-quiz-import" element={<ProtectedRoute roles={['DOCTOR']}><BulkQuizImport /></ProtectedRoute>} />
 
-            {/* Student Affairs Routes */}
-            <Route path="staff/dashboard" element={<StudentAffairsDashboard />} />
-            <Route path="student-affairs/dashboard" element={<StudentAffairsDashboard />} />
-            <Route path="student-affairs/hierarchy" element={<HierarchyView />} />
-            <Route path="student-affairs/upload-students" element={<UploadStudents />} />
-            <Route path="student-affairs/certificates" element={<UploadCertificates />} />
-            <Route path="student-affairs/news" element={<ManageStaffNews />} />
-            <Route path="student-affairs/exam-grades" element={<UploadExamGrades />} />
-            <Route path="student-affairs/grades" element={<StudentGradesView />} />
+                {/* Student Affairs Routes */}
+                <Route path="staff/dashboard" element={<ProtectedRoute roles={['STUDENT_AFFAIRS']}><StudentAffairsDashboard /></ProtectedRoute>} />
+                <Route path="student-affairs/dashboard" element={<ProtectedRoute roles={['STUDENT_AFFAIRS']}><StudentAffairsDashboard /></ProtectedRoute>} />
+                <Route path="student-affairs/hierarchy" element={<ProtectedRoute roles={['STUDENT_AFFAIRS']}><HierarchyView /></ProtectedRoute>} />
+                <Route path="student-affairs/upload-students" element={<ProtectedRoute roles={['STUDENT_AFFAIRS']}><UploadStudents /></ProtectedRoute>} />
+                <Route path="student-affairs/certificates" element={<ProtectedRoute roles={['STUDENT_AFFAIRS']}><UploadCertificates /></ProtectedRoute>} />
+                <Route path="student-affairs/news" element={<ProtectedRoute roles={['STUDENT_AFFAIRS']}><ManageStaffNews /></ProtectedRoute>} />
+                <Route path="student-affairs/exam-grades" element={<ProtectedRoute roles={['STUDENT_AFFAIRS']}><UploadExamGrades /></ProtectedRoute>} />
+                <Route path="student-affairs/grades" element={<ProtectedRoute roles={['STUDENT_AFFAIRS']}><StudentGradesView /></ProtectedRoute>} />
+                <Route path="student-affairs/upload-history" element={<ProtectedRoute roles={['STUDENT_AFFAIRS']}><UploadHistory /></ProtectedRoute>} />
+                <Route path="student-affairs/bulk-certificates" element={<ProtectedRoute roles={['STUDENT_AFFAIRS']}><BulkCertificateUpload /></ProtectedRoute>} />
 
-            {/* Staff Affairs Routes (NEW) */}
-            <Route path="staff-affairs" element={<StaffAffairsDashboard />} />
-            <Route path="staff-affairs/dashboard" element={<StaffAffairsDashboard />} />
-            <Route path="staff-affairs/upload-doctors" element={<UploadDoctors />} />
-            <Route path="staff-affairs/upload-staff" element={<UploadStaffAffairs />} />
-            <Route path="staff-affairs/assign-doctors" element={<AssignDoctors />} />
-            <Route path="staff-affairs/view-users" element={<ViewUsers />} />
-            <Route path="staff-affairs/academic-structure" element={<StaffAcademicStructure />} />
-            <Route path="staff-affairs/manage-doctors" element={<ManageDoctors />} />
+                {/* Staff Affairs Routes */}
+                <Route path="staff-affairs" element={<ProtectedRoute roles={['STAFF_AFFAIRS']}><StaffAffairsDashboard /></ProtectedRoute>} />
+                <Route path="staff-affairs/dashboard" element={<ProtectedRoute roles={['STAFF_AFFAIRS']}><StaffAffairsDashboard /></ProtectedRoute>} />
+                <Route path="staff-affairs/upload-doctors" element={<ProtectedRoute roles={['STAFF_AFFAIRS']}><UploadDoctors /></ProtectedRoute>} />
+                <Route path="staff-affairs/upload-staff" element={<ProtectedRoute roles={['STAFF_AFFAIRS']}><UploadStaffAffairs /></ProtectedRoute>} />
+                <Route path="staff-affairs/assign-doctors" element={<ProtectedRoute roles={['STAFF_AFFAIRS']}><AssignDoctors /></ProtectedRoute>} />
+                <Route path="staff-affairs/view-users" element={<ProtectedRoute roles={['STAFF_AFFAIRS']}><ViewUsers /></ProtectedRoute>} />
+                <Route path="staff-affairs/academic-structure" element={<ProtectedRoute roles={['STAFF_AFFAIRS']}><StaffAcademicStructure /></ProtectedRoute>} />
+                <Route path="staff-affairs/manage-doctors" element={<ProtectedRoute roles={['STAFF_AFFAIRS']}><ManageDoctors /></ProtectedRoute>} />
+                <Route path="staff-affairs/assignment-history" element={<ProtectedRoute roles={['STAFF_AFFAIRS']}><AssignmentHistory /></ProtectedRoute>} />
 
-            {/* Admin Routes */}
-            <Route path="admin/dashboard" element={<AdminDashboard />} />
-            <Route path="admin/academic-years" element={<ManageAcademicYears />} />
-            <Route path="admin/grading-templates" element={<ManageGradingTemplates />} />
-            <Route path="admin/departments" element={<ManageDepartments />} />
-            <Route path="admin/years" element={<ManageYears />} />
-            <Route path="admin/levels" element={<ManageLevels />} />
-            <Route path="admin/users" element={<ManageUsers />} />
-            <Route path="admin/academic-structure" element={<AdminAcademicStructure />} />
-            <Route path="admin/approvals" element={<ApprovalCenter />} />
-            <Route path="admin/pending-approvals" element={<PendingApprovals />} />
-            <Route path="admin/news" element={<ManageNews />} />
-            <Route path="admin/deletion-requests" element={<DeletionRequests />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
-    </AuthProvider>
+                {/* Admin Routes */}
+                <Route path="admin/dashboard" element={<ProtectedRoute roles={['ADMIN']}><AdminDashboard /></ProtectedRoute>} />
+                <Route path="admin/academic-years" element={<ProtectedRoute roles={['ADMIN']}><ManageAcademicYears /></ProtectedRoute>} />
+                <Route path="admin/grading-templates" element={<ProtectedRoute roles={['ADMIN']}><ManageGradingTemplates /></ProtectedRoute>} />
+                <Route path="admin/departments" element={<ProtectedRoute roles={['ADMIN']}><ManageDepartments /></ProtectedRoute>} />
+                <Route path="admin/years" element={<ProtectedRoute roles={['ADMIN']}><ManageYears /></ProtectedRoute>} />
+                <Route path="admin/levels" element={<ProtectedRoute roles={['ADMIN']}><ManageLevels /></ProtectedRoute>} />
+                <Route path="admin/users" element={<ProtectedRoute roles={['ADMIN']}><ManageUsers /></ProtectedRoute>} />
+                <Route path="admin/academic-structure" element={<ProtectedRoute roles={['ADMIN']}><AdminAcademicStructure /></ProtectedRoute>} />
+                <Route path="admin/approvals" element={<ProtectedRoute roles={['ADMIN']}><ApprovalCenter /></ProtectedRoute>} />
+                <Route path="admin/pending-approvals" element={<ProtectedRoute roles={['ADMIN']}><PendingApprovals /></ProtectedRoute>} />
+                <Route path="admin/news" element={<ProtectedRoute roles={['ADMIN']}><ManageNews /></ProtectedRoute>} />
+                <Route path="admin/deletion-requests" element={<ProtectedRoute roles={['ADMIN']}><DeletionRequests /></ProtectedRoute>} />
+                <Route path="admin/audit-logs" element={<ProtectedRoute roles={['ADMIN']}><AuditLogViewer /></ProtectedRoute>} />
+                <Route path="admin/announcements" element={<ProtectedRoute roles={['ADMIN']}><Announcements /></ProtectedRoute>} />
+                <Route path="admin/complaints" element={<ProtectedRoute roles={['ADMIN']}><ComplaintsDashboard /></ProtectedRoute>} />
+              </Route>
+            </Routes>
+          </BrowserRouter>
+        </ToastProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 

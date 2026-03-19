@@ -390,7 +390,7 @@ class ExamGrade(models.Model):
     academic_year = models.ForeignKey(AcademicYear, on_delete=models.CASCADE)
     midterm_grade = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
     final_grade = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
-    is_approved = models.BooleanField(default=False)
+    is_approved = models.BooleanField(default=False, db_index=True)
     uploaded_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
@@ -430,6 +430,17 @@ class AuditLog(models.Model):
         STAFF_BATCH_UPLOAD = "STAFF_BATCH_UPLOAD", "Staff Batch Upload"
         GRADE_UPLOAD = "GRADE_UPLOAD", "Grade Upload"
         STUDENT_PASSWORD_RESET = "STUDENT_PASSWORD_RESET", "Student Password Reset"
+        DOCTOR_ASSIGNMENT = "DOCTOR_ASSIGNMENT", "Doctor Assignment"
+        DOCTOR_UNASSIGNMENT = "DOCTOR_UNASSIGNMENT", "Doctor Unassignment"
+        # U9: Enhanced action types
+        STUDENT_CREATED = "STUDENT_CREATED", "Student Created"
+        STUDENT_DELETED = "STUDENT_DELETED", "Student Deleted"
+        DOCTOR_CREATED = "DOCTOR_CREATED", "Doctor Created"
+        DOCTOR_DELETED = "DOCTOR_DELETED", "Doctor Deleted"
+        GRADE_APPROVED = "GRADE_APPROVED", "Grade Approved"
+        GRADE_REJECTED = "GRADE_REJECTED", "Grade Rejected"
+        CERTIFICATE_GENERATED = "CERTIFICATE_GENERATED", "Certificate Generated"
+        NEWS_CREATED = "NEWS_CREATED", "News Created"
 
     action = models.CharField(max_length=50, choices=ActionType.choices)
     performed_by = models.ForeignKey(
@@ -574,3 +585,88 @@ class DoctorDeletionRequest(models.Model):
     
     def __str__(self):
         return f"Delete {self.doctor.get_full_name()} - {self.get_status_display()}"
+
+
+class ContactMessage(models.Model):
+    """Messages submitted through the public contact form"""
+    class InquiryType(models.TextChoices):
+        GENERAL = 'general', 'استفسار عام'
+        ADMISSION = 'admission', 'القبول والتسجيل'
+        ACADEMIC = 'academic', 'الشؤون الأكاديمية'
+        TECHNICAL = 'technical', 'الدعم التقني'
+        COMPLAINT = 'complaint', 'شكوى أو اقتراح'
+        OTHER = 'other', 'أخرى'
+
+    name = models.CharField(max_length=200)
+    email = models.EmailField()
+    phone = models.CharField(max_length=20, blank=True)
+    inquiry_type = models.CharField(max_length=20, choices=InquiryType.choices, default=InquiryType.GENERAL)
+    department = models.CharField(max_length=50, blank=True)
+    subject = models.CharField(max_length=300)
+    message = models.TextField()
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.subject} - {self.name} ({self.get_inquiry_type_display()})"
+
+    class Meta:
+        ordering = ['-created_at']
+
+
+class Announcement(models.Model):
+    """System-wide announcements created by admin"""
+    class TargetRole(models.TextChoices):
+        ALL = 'ALL', 'الكل'
+        STUDENT = 'STUDENT', 'الطلاب'
+        DOCTOR = 'DOCTOR', 'أعضاء هيئة التدريس'
+        STUDENT_AFFAIRS = 'STUDENT_AFFAIRS', 'شؤون الطلاب'
+        STAFF_AFFAIRS = 'STAFF_AFFAIRS', 'شؤون الموظفين'
+
+    title = models.CharField(max_length=300)
+    message = models.TextField()
+    target_role = models.CharField(max_length=20, choices=TargetRole.choices, default=TargetRole.ALL)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='announcements_created'
+    )
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.title} ({self.get_target_role_display()})"
+
+    class Meta:
+        ordering = ['-created_at']
+
+
+class UploadHistory(models.Model):
+    """Track batch upload operations and their results"""
+    class UploadType(models.TextChoices):
+        STUDENT = 'STUDENT', 'رفع طلاب'
+        DOCTOR = 'DOCTOR', 'رفع أعضاء هيئة تدريس'
+        STAFF = 'STAFF', 'رفع موظفين'
+        GRADE = 'GRADE', 'رفع درجات'
+        CERTIFICATE = 'CERTIFICATE', 'رفع شهادات'
+
+    upload_type = models.CharField(max_length=20, choices=UploadType.choices)
+    file_name = models.CharField(max_length=255)
+    uploaded_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='upload_history'
+    )
+    total_rows = models.IntegerField(default=0)
+    created_count = models.IntegerField(default=0)
+    updated_count = models.IntegerField(default=0)
+    error_count = models.IntegerField(default=0)
+    errors_json = models.JSONField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.get_upload_type_display()} - {self.file_name} ({self.created_at})"
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name_plural = 'Upload histories'

@@ -8,7 +8,7 @@ echo "PORT: ${PORT:-8000}"
 
 # Run migrations in correct order (users first due to custom User model)
 echo "Running migrations..."
-python manage.py migrate --noinput || echo "Warning: migrations failed, continuing..."
+python manage.py migrate --noinput || { echo "ERROR: migrations failed, aborting startup"; exit 1; }
 
 echo "Migrations completed!"
 
@@ -19,6 +19,7 @@ python manage.py collectstatic --noinput || true
 # Create superuser if it doesn't exist
 echo "Checking for admin user..."
 python manage.py shell -c "
+import os
 from django.contrib.auth import get_user_model
 User = get_user_model()
 admin, created = User.objects.get_or_create(
@@ -31,9 +32,14 @@ admin, created = User.objects.get_or_create(
     }
 )
 if created:
-    admin.set_password('password123')
+    admin_password = os.environ.get('ADMIN_PASSWORD', 'password123')
+    admin.set_password(admin_password)
+    admin.first_login_required = True
     admin.save()
-    print('Admin user created!')
+    if admin_password == 'password123':
+        print('WARNING: Admin created with default password. Set ADMIN_PASSWORD env var for production!')
+    else:
+        print('Admin user created with secure password.')
 else:
     print('Admin user already exists.')
 " || echo "Warning: admin user creation failed"
