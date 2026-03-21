@@ -298,6 +298,30 @@ class UploadStudentsView(APIView):
                         if not level_exists:
                             validation_errors.append(f'فرقة غير موجودة: "{csv_level}"')
             
+            # Validate specialization column - optional but must match if provided
+            if 'specialization' in df.columns:
+                csv_specializations = df['specialization'].dropna().astype(str).str.strip().unique()
+                for csv_spec in csv_specializations:
+                    if csv_spec:
+                        if specialization:
+                            # Check if CSV specialization matches UI selection
+                            spec_match = (
+                                csv_spec.lower() == specialization.name.lower() or 
+                                csv_spec.lower() == specialization.code.lower() or
+                                csv_spec == str(specialization.id)
+                            )
+                            if not spec_match:
+                                validation_errors.append(
+                                    f'تخصص في الملف "{csv_spec}" لا يطابق التخصص المحدد في الواجهة "{specialization.name}". '
+                                    f'يرجى التحقق من اختيار التخصص الصحيح أو إزالة عمود specialization من الملف'
+                                )
+                        else:
+                            # No specialization selected in UI but CSV has specialization column
+                            validation_errors.append(
+                                f'عمود specialization موجود في الملف ("{csv_spec}") ولكن لم يتم اختيار تخصص في الواجهة. '
+                                f'يرجى اختيار التخصص في الواجهة أولاً أو إزالة عمود specialization من الملف'
+                            )
+            
             if validation_errors:
                 return Response(
                     {'error': 'خطأ في التحقق من البيانات', 'details': validation_errors}, 
