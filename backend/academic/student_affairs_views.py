@@ -17,6 +17,148 @@ from users.permissions import IsStudentAffairsRole, IsStudentRole
 User = get_user_model()
 
 
+class PreviewStudentsUploadView(APIView):
+    """
+    Preview CSV/Excel file before actual upload.
+    Returns first 5 rows with validation results.
+    """
+    parser_classes = (MultiPartParser, FormParser)
+    permission_classes = [IsStudentAffairsRole]
+
+    def post(self, request):
+        file = request.FILES.get('file')
+        department_id = request.data.get('department_id')
+        academic_year_id = request.data.get('academic_year_id')
+        level_id = request.data.get('level_id')
+
+        if not file:
+            return Response({'error': 'لم يتم تحديد ملف'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if not department_id or not academic_year_id:
+            return Response(
+                {'error': 'يجب اختيار القسم والعام الدراسي'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            department = Department.objects.get(id=department_id)
+        except Department.DoesNotExist:
+            return Response({'error': 'القسم غير موجود'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            academic_year = AcademicYear.objects.get(id=academic_year_id)
+        except AcademicYear.DoesNotExist:
+            return Response({'error': 'العام الدراسي غير موجود'}, status=status.HTTP_400_BAD_REQUEST)
+
+        level = None
+        if level_id:
+            try:
+                level = Level.objects.get(id=level_id)
+            except Level.DoesNotExist:
+                return Response({'error': 'الفرقة غير موجودة'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            # Read file
+            if file.name.endswith('.csv'):
+                df = pd.read_csv(io.BytesIO(file.read()))
+            elif file.name.endswith(('.xlsx', '.xls')):
+                df = pd.read_excel(io.BytesIO(file.read()))
+            else:
+                return Response(
+                    {'error': 'صيغة الملف غير مدعومة. استخدم CSV أو Excel.'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            # Validate required columns
+            required_columns = ['national_id', 'full_name', 'department', 'level']
+            missing_columns = [col for col in required_columns if col not in df.columns]
+            if missing_columns:
+                return Response(
+                    {
+                        'error': f'أعمدة مفقودة: {missing_columns}',
+                        'required_columns': required_columns,
+                        'found_columns': list(df.columns)
+                    },
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            # Validate first 5 rows
+            preview_rows = []
+            validation_errors = []
+
+            for index, row in df.head(5).iterrows():
+                row_errors = []
+
+                national_id = str(row.get('national_id', '')).strip()
+                csv_dept = str(row.get('department', '')).strip()
+                csv_level = str(row.get('level', '')).strip()
+
+                # Validate national_id
+                if not national_id or len(national_id) < 10:
+                    row_errors.append('الرقم القومي غير صالح')
+
+                # Validate department match
+                dept_match = (
+                    csv_dept.lower() == department.name.lower() or
+                    csv_dept.lower() == department.code.lower() or
+                    csv_dept == str(department.id)
+                )
+                if not dept_match:
+                    row_errors.append(f'القسم "{csv_dept}" لا يطابق "{department.name}"')
+
+                # Validate level match
+                if level:
+                    level_match = (
+                        csv_level.lower() == level.name.lower() or
+                        csv_level == level.get_name_display() or
+                        csv_level == str(level.id) or
+                        csv_level.lower() == level.name.lower().replace('_', ' ')
+                    )
+                    if not level_match:
+                        row_errors.append(f'الفرقة "{csv_level}" لا تطابق "{level.get_name_display()}"')
+                else:
+                    # Validate level exists
+                    level_exists = Level.objects.filter(
+                        Q(name__iexact=csv_level) |
+                        Q(name__iexact=csv_level.replace(' ', '_')) |
+                        Q(id=csv_level if csv_level.isdigit() else 0)
+                    ).exists()
+                    if not level_exists:
+                        row_errors.append(f'الفرقة "{csv_level}" غير موجودة')
+
+                preview_rows.append({
+                    'row_number': index + 2,
+                    'national_id': national_id,
+                    'full_name': str(row.get('full_name', '')),
+                    'department': csv_dept,
+                    'level': csv_level,
+                    'email': str(row.get('email', '')) if pd.notna(row.get('email')) else '',
+                    'errors': row_errors
+                })
+
+                if row_errors:
+                    validation_errors.extend([f"صف {index + 2}: {', '.join(row_errors)}"])
+
+            # Summary statistics
+            total_rows = len(df)
+            unique_departments = df['department'].dropna().astype(str).str.strip().unique().tolist()
+            unique_levels = df['level'].dropna().astype(str).str.strip().unique().tolist()
+
+            return Response({
+                'total_rows': total_rows,
+                'preview_rows': preview_rows,
+                'validation_errors': validation_errors,
+                'selected_department': department.name,
+                'selected_level': level.get_name_display() if level else 'متعددة',
+                'csv_departments': unique_departments,
+                'csv_levels': unique_levels,
+                'can_upload': len(validation_errors) == 0
+            })
+
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 class UploadStudentsView(APIView):
     """
     Upload students via Excel/CSV file.
@@ -97,40 +239,64 @@ class UploadStudentsView(APIView):
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
-            # Validate required columns
-            required_columns = ['national_id', 'full_name']
+            # Validate required columns (now requires department and level)
+            required_columns = ['national_id', 'full_name', 'department', 'level']
             missing_columns = [col for col in required_columns if col not in df.columns]
             if missing_columns:
                 return Response(
-                    {'error': f'أعمدة مفقودة: {missing_columns}'}, 
+                    {
+                        'error': f'أعمدة مفقودة إلزامية: {missing_columns}. يجب إضافة أعمدة department و level للتحقق من البيانات.',
+                        'required_columns': required_columns,
+                        'found_columns': list(df.columns),
+                        'note': 'الأعمدة الإلزامية: national_id, full_name, department, level. العمود email اختياري.'
+                    },
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
-            # Validate CSV content matches selected department if column present
+            # Validate CSV content matches selected department - now REQUIRED
             validation_errors = []
-            if 'department' in df.columns:
+            if 'department' not in df.columns:
+                validation_errors.append('عمود department مطلوب في الملف للتحقق من القسم')
+            else:
                 csv_departments = df['department'].dropna().astype(str).str.strip().unique()
                 for csv_dept in csv_departments:
-                    if csv_dept.lower() != department.name.lower() and csv_dept.lower() != department.code.lower():
-                        validation_errors.append(f'قسم في الملف "{csv_dept}" لا يطابق القسم المحدد "{department.name}"')
+                    dept_match = (
+                        csv_dept.lower() == department.name.lower() or 
+                        csv_dept.lower() == department.code.lower() or
+                        csv_dept.lower() == str(department.id)
+                    )
+                    if not dept_match:
+                        validation_errors.append(
+                            f'قسم في الملف "{csv_dept}" لا يطابق القسم المحدد "{department.name}". '
+                            f'يرجى التحقق من اختيار القسم الصحيح أو تصحيح البيانات في الملف'
+                        )
             
-            # Validate level column if no level_id provided
-            if not level_id and 'level' in df.columns:
+            # Validate level column - now REQUIRED
+            if 'level' not in df.columns:
+                validation_errors.append('عمود level مطلوب في الملف للتحقق من الفرقة')
+            else:
                 csv_levels = df['level'].dropna().astype(str).str.strip().unique()
                 for csv_level in csv_levels:
-                    # Check if level exists
-                    level_exists = Level.objects.filter(
-                        Q(name__iexact=csv_level) | 
-                        Q(name__iexact=csv_level.replace(' ', '_'))
-                    ).exists()
-                    if not level_exists:
-                        validation_errors.append(f'فرقة غير موجودة: "{csv_level}"')
-            elif level_id and 'level' in df.columns:
-                # Validate against selected level
-                csv_levels = df['level'].dropna().astype(str).str.strip().unique()
-                for csv_level in csv_levels:
-                    if csv_level.lower() != level.name.lower() and csv_level != level.get_name_display():
-                        validation_errors.append(f'فرقة في الملف "{csv_level}" لا تطابق الفرقة المحددة "{level.get_name_display()}"')
+                    if level:  # Single level selected in UI
+                        level_match = (
+                            csv_level.lower() == level.name.lower() or 
+                            csv_level == level.get_name_display() or
+                            csv_level == str(level.id) or
+                            csv_level.lower() == level.name.lower().replace('_', ' ')
+                        )
+                        if not level_match:
+                            validation_errors.append(
+                                f'فرقة في الملف "{csv_level}" لا تطابق الفرقة المحددة "{level.get_name_display()}". '
+                                f'يرجى التحقق من اختيار الفرقة الصحيحة أو تصحيح البيانات في الملف'
+                            )
+                    else:  # Multi-level upload - just validate level exists
+                        level_exists = Level.objects.filter(
+                            Q(name__iexact=csv_level) | 
+                            Q(name__iexact=csv_level.replace(' ', '_')) |
+                            Q(id=csv_level if csv_level.isdigit() else 0)
+                        ).exists()
+                        if not level_exists:
+                            validation_errors.append(f'فرقة غير موجودة: "{csv_level}"')
             
             if validation_errors:
                 return Response(

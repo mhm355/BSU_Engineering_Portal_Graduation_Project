@@ -3,7 +3,8 @@ import {
     Box, Container, Typography, Paper, Button, Alert, LinearProgress,
     List, ListItem, ListItemText, Table, TableBody, TableCell, TableContainer,
     TableHead, TableRow, Chip, FormControl, InputLabel, Select, MenuItem,
-    Avatar, Fade, Grow, Grid
+    Avatar, Fade, Grow, Grid, Dialog, DialogTitle, DialogContent, DialogActions,
+    IconButton, Tooltip
 } from '@mui/material';
 import { keyframes } from '@mui/system';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
@@ -17,6 +18,9 @@ import SchoolIcon from '@mui/icons-material/School';
 import CategoryIcon from '@mui/icons-material/Category';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import WarningIcon from '@mui/icons-material/Warning';
+import CancelIcon from '@mui/icons-material/Cancel';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
@@ -51,7 +55,10 @@ export default function UploadStudents() {
     const [uploading, setUploading] = useState(false);
     const [result, setResult] = useState(null);
     const [error, setError] = useState('');
-    const [loadingData, setLoadingData] = useState(true);
+    // Preview state
+    const [previewOpen, setPreviewOpen] = useState(false);
+    const [previewData, setPreviewData] = useState(null);
+    const [previewLoading, setPreviewLoading] = useState(false);
 
     const token = localStorage.getItem('access_token');
     const config = { headers: { Authorization: `Bearer ${token}` }, withCredentials: true };
@@ -124,6 +131,54 @@ export default function UploadStudents() {
         setFile(e.target.files[0]);
         setResult(null);
         setError('');
+        setPreviewData(null);
+    };
+
+    const handlePreview = async () => {
+        if (!selectedDepartment || !selectedYear || !selectedLevel) {
+            setError('يرجى اختيار القسم والعام الدراسي والفرقة أولاً');
+            return;
+        }
+        if (needsSpecialization && !selectedSpecialization) {
+            setError('يرجى اختيار التخصص (اتصالات/قوى)');
+            return;
+        }
+        if (!file) {
+            setError('يرجى اختيار ملف أولاً.');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('department_id', selectedDepartment);
+        formData.append('academic_year_id', selectedYear);
+        formData.append('level_id', selectedLevel);
+        if (needsSpecialization && selectedSpecialization) {
+            formData.append('specialization_id', selectedSpecialization);
+        }
+
+        setPreviewLoading(true);
+        setError('');
+
+        try {
+            const response = await axios.post('/api/academic/student-affairs/upload-preview/', formData, {
+                ...config,
+                headers: { ...config.headers, 'Content-Type': 'multipart/form-data' }
+            });
+            setPreviewData(response.data);
+            setPreviewOpen(true);
+        } catch (err) {
+            console.error('Error previewing file:', err);
+            const errorMsg = err.response?.data?.error || 'فشل معاينة الملف. تأكد من صحة البيانات.';
+            const details = err.response?.data?.details || err.response?.data?.required_columns;
+            if (details) {
+                setError(`${errorMsg}: ${JSON.stringify(details)}`);
+            } else {
+                setError(errorMsg);
+            }
+        } finally {
+            setPreviewLoading(false);
+        }
     };
 
     const handleUpload = async () => {
@@ -152,6 +207,7 @@ export default function UploadStudents() {
         setUploading(true);
         setError('');
         setResult(null);
+        setPreviewOpen(false);
 
         try {
             const response = await axios.post('/api/academic/student-affairs/upload/', formData, {
@@ -160,6 +216,7 @@ export default function UploadStudents() {
             });
             setResult(response.data);
             setFile(null);
+            setPreviewData(null);
         } catch (err) {
             console.error('Error uploading file:', err);
             const errorMsg = err.response?.data?.error || 'فشل رفع الملف. تأكد من صحة البيانات.';
@@ -170,8 +227,8 @@ export default function UploadStudents() {
     };
 
     const sampleData = [
-        { national_id: '12345678901234', full_name: 'أحمد محمد علي', email: 'ahmed@example.com' },
-        { national_id: '23456789012345', full_name: 'محمد سعيد أحمد', email: '' },
+        { national_id: '12345678901234', full_name: 'أحمد محمد علي', department: 'الإعدادية', level: 'الإعدادية', email: 'ahmed@example.com' },
+        { national_id: '23456789012345', full_name: 'محمد سعيد أحمد', department: 'الإعدادية', level: 'الإعدادية', email: '' },
     ];
 
     const isPrepDepartment = levels.length === 1;
@@ -380,16 +437,22 @@ export default function UploadStudents() {
                         <Grid container spacing={4}>
                             <Grid item xs={12} md={6}>
                                 <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', mb: 2, color: '#1a2744' }}>
-                                    الأعمدة المطلوبة:
+                                    الأعمدة الإلزامية:
                                 </Typography>
-                                <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', mb: 3 }}>
-                                    <Chip label="national_id (الرقم القومي)" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', bgcolor: '#e3f2fd', color: '#1976d2', fontSize: '1rem', py: 2.5, px: 1 }} />
-                                    <Chip label="full_name (الاسم بالكامل)" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', bgcolor: '#e3f2fd', color: '#1976d2', fontSize: '1rem', py: 2.5, px: 1 }} />
-                                    <Chip label="email (اختياري)" variant="outlined" sx={{ fontFamily: 'Cairo', borderColor: '#9C27B0', color: '#9C27B0', fontSize: '1rem', py: 2.5, px: 1 }} />
+                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, mb: 3 }}>
+                                    <Chip label="national_id (الرقم القومي)" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', bgcolor: '#ffebee', color: '#c62828', fontSize: '1rem', py: 2.5, px: 1, justifyContent: 'flex-start' }} />
+                                    <Chip label="full_name (الاسم بالكامل)" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', bgcolor: '#ffebee', color: '#c62828', fontSize: '1rem', py: 2.5, px: 1, justifyContent: 'flex-start' }} />
+                                    <Chip label="department (القسم)" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', bgcolor: '#ffebee', color: '#c62828', fontSize: '1rem', py: 2.5, px: 1, justifyContent: 'flex-start' }} />
+                                    <Chip label="level (الفرقة)" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', bgcolor: '#ffebee', color: '#c62828', fontSize: '1rem', py: 2.5, px: 1, justifyContent: 'flex-start' }} />
                                 </Box>
 
-                                <Alert severity="info" sx={{ fontFamily: 'Cairo', borderRadius: 3, fontSize: '1rem' }}>
-                                    <strong>ملاحظة:</strong> القسم والعام الدراسي والفرقة يتم تحديدهم من القائمة أعلاه، وليس من الملف.
+                                <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', mb: 2, mt: 2, color: '#1a2744' }}>
+                                    الأعمدة الاختيارية:
+                                </Typography>
+                                <Chip label="email (البريد الإلكتروني)" variant="outlined" sx={{ fontFamily: 'Cairo', borderColor: '#9C27B0', color: '#9C27B0', fontSize: '1rem', py: 2.5, px: 1 }} />
+
+                                <Alert severity="warning" sx={{ fontFamily: 'Cairo', borderRadius: 3, fontSize: '1rem', mt: 3 }}>
+                                    <strong>تحذير:</strong> يجب أن يتطابق عمود القسم في الملف مع القسم المحدد أعلاه، ويجب أن يتطابق عمود الفرقة مع الفرقة المحددة. إذا لم تتطابق البيانات، سيتم رفض الملف.
                                 </Alert>
 
                                 <Box sx={{ mt: 3, p: 2.5, bgcolor: '#fff3e0', borderRadius: 3 }}>
@@ -406,17 +469,21 @@ export default function UploadStudents() {
                                     <Table>
                                         <TableHead>
                                             <TableRow sx={{ bgcolor: '#f5f5f5' }}>
-                                                <TableCell sx={{ fontFamily: 'monospace', fontWeight: 'bold', color: '#1976d2', fontSize: '1rem' }}>national_id</TableCell>
-                                                <TableCell sx={{ fontFamily: 'monospace', fontWeight: 'bold', color: '#1976d2', fontSize: '1rem' }}>full_name</TableCell>
-                                                <TableCell sx={{ fontFamily: 'monospace', fontWeight: 'bold', color: '#9C27B0', fontSize: '1rem' }}>email</TableCell>
+                                                <TableCell sx={{ fontFamily: 'monospace', fontWeight: 'bold', color: '#c62828', fontSize: '0.9rem' }}>national_id</TableCell>
+                                                <TableCell sx={{ fontFamily: 'monospace', fontWeight: 'bold', color: '#c62828', fontSize: '0.9rem' }}>full_name</TableCell>
+                                                <TableCell sx={{ fontFamily: 'monospace', fontWeight: 'bold', color: '#c62828', fontSize: '0.9rem' }}>department</TableCell>
+                                                <TableCell sx={{ fontFamily: 'monospace', fontWeight: 'bold', color: '#c62828', fontSize: '0.9rem' }}>level</TableCell>
+                                                <TableCell sx={{ fontFamily: 'monospace', fontWeight: 'bold', color: '#9C27B0', fontSize: '0.9rem' }}>email</TableCell>
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
                                             {sampleData.map((row, index) => (
                                                 <TableRow key={index} sx={{ '&:nth-of-type(odd)': { bgcolor: '#fafafa' } }}>
-                                                    <TableCell sx={{ fontFamily: 'monospace', fontSize: '1rem' }}>{row.national_id}</TableCell>
-                                                    <TableCell sx={{ fontFamily: 'Cairo', fontSize: '1rem' }}>{row.full_name}</TableCell>
-                                                    <TableCell sx={{ color: row.email ? 'inherit' : '#ccc', fontSize: '1rem' }}>{row.email || '-'}</TableCell>
+                                                    <TableCell sx={{ fontFamily: 'monospace', fontSize: '0.9rem' }}>{row.national_id}</TableCell>
+                                                    <TableCell sx={{ fontFamily: 'Cairo', fontSize: '0.9rem' }}>{row.full_name}</TableCell>
+                                                    <TableCell sx={{ fontFamily: 'Cairo', fontSize: '0.9rem' }}>{row.department}</TableCell>
+                                                    <TableCell sx={{ fontFamily: 'Cairo', fontSize: '0.9rem' }}>{row.level}</TableCell>
+                                                    <TableCell sx={{ color: row.email ? 'inherit' : '#ccc', fontSize: '0.9rem' }}>{row.email || '-'}</TableCell>
                                                 </TableRow>
                                             ))}
                                         </TableBody>
@@ -492,29 +559,31 @@ export default function UploadStudents() {
                             </label>
                         </Box>
 
-                        <Box sx={{ textAlign: 'center' }}>
+                        <Box sx={{ textAlign: 'center', display: 'flex', gap: 2, justifyContent: 'center' }}>
                             <Button
                                 variant="contained"
                                 size="large"
-                                onClick={handleUpload}
-                                disabled={!file || uploading || !isSelectionComplete}
+                                onClick={handlePreview}
+                                disabled={!file || previewLoading || !isSelectionComplete}
+                                startIcon={<VisibilityIcon />}
                                 sx={{
                                     fontFamily: 'Cairo',
                                     fontWeight: 'bold',
-                                    px: 8,
+                                    px: 6,
                                     py: 2,
                                     fontSize: '1.2rem',
                                     borderRadius: 4,
-                                    background: 'linear-gradient(135deg, #FF9800, #FFB74D)',
-                                    boxShadow: '0 10px 30px rgba(255, 152, 0, 0.4)',
-                                    '&:hover': { background: 'linear-gradient(135deg, #F57C00, #FF9800)' },
+                                    background: 'linear-gradient(135deg, #2196F3, #21CBF3)',
+                                    boxShadow: '0 10px 30px rgba(33, 150, 243, 0.4)',
+                                    '&:hover': { background: 'linear-gradient(135deg, #1976D2, #2196F3)' },
                                     '&:disabled': { background: '#ccc' }
                                 }}
                             >
-                                {uploading ? 'جاري الرفع...' : 'رفع البيانات'}
+                                {previewLoading ? 'جاري المعاينة...' : 'معاينة البيانات'}
                             </Button>
                         </Box>
 
+                        {previewLoading && <LinearProgress sx={{ mt: 4, borderRadius: 3, height: 8 }} />}
                         {uploading && <LinearProgress sx={{ mt: 4, borderRadius: 3, height: 8 }} />}
                         {error && <Alert severity="error" sx={{ mt: 4, fontFamily: 'Cairo', borderRadius: 3, fontSize: '1.1rem' }}>{error}</Alert>}
 
@@ -546,6 +615,157 @@ export default function UploadStudents() {
                     </Paper>
                 </Grow>
             </Container>
+
+            {/* Preview Dialog */}
+            <Dialog
+                open={previewOpen}
+                onClose={() => setPreviewOpen(false)}
+                maxWidth="lg"
+                fullWidth
+                PaperProps={{ sx: { borderRadius: 3, maxHeight: '90vh' } }}
+            >
+                <DialogTitle sx={{ fontFamily: 'Cairo', fontWeight: 'bold', bgcolor: '#f5f5f5', display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <VisibilityIcon color="primary" />
+                    معاينة البيانات
+                    <Box sx={{ flexGrow: 1 }} />
+                    <IconButton onClick={() => setPreviewOpen(false)}>
+                        <CancelIcon />
+                    </IconButton>
+                </DialogTitle>
+                <DialogContent sx={{ p: 3 }}>
+                    {previewData && (
+                        <Box>
+                            {/* Summary */}
+                            <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', mb: 3 }}>
+                                <Chip
+                                    icon={<DescriptionIcon />}
+                                    label={`إجمالي الصفوف: ${previewData.total_rows}`}
+                                    color="primary"
+                                    sx={{ fontFamily: 'Cairo', fontWeight: 'bold', fontSize: '1rem', py: 1 }}
+                                />
+                                <Chip
+                                    label={`القسم المحدد: ${previewData.selected_department}`}
+                                    color="info"
+                                    sx={{ fontFamily: 'Cairo', fontWeight: 'bold', fontSize: '1rem', py: 1 }}
+                                />
+                                <Chip
+                                    label={`الفرقة المحددة: ${previewData.selected_level}`}
+                                    color="info"
+                                    sx={{ fontFamily: 'Cairo', fontWeight: 'bold', fontSize: '1rem', py: 1 }}
+                                />
+                                <Chip
+                                    icon={previewData.can_upload ? <CheckCircleIcon /> : <WarningIcon />}
+                                    label={previewData.can_upload ? 'يمكن الرفع' : 'يوجد أخطاء'}
+                                    color={previewData.can_upload ? 'success' : 'error'}
+                                    sx={{ fontFamily: 'Cairo', fontWeight: 'bold', fontSize: '1rem', py: 1 }}
+                                />
+                            </Box>
+
+                            {/* Validation Errors */}
+                            {previewData.validation_errors && previewData.validation_errors.length > 0 && (
+                                <Alert severity="error" sx={{ mb: 3, fontFamily: 'Cairo' }}>
+                                    <Typography fontWeight="bold" sx={{ mb: 1 }}>أخطاء في التحقق من البيانات:</Typography>
+                                    <List dense>
+                                        {previewData.validation_errors.map((err, index) => (
+                                            <ListItem key={index} sx={{ py: 0 }}>
+                                                <ListItemText primary={err} primaryTypographyProps={{ fontFamily: 'Cairo', color: 'error' }} />
+                                            </ListItem>
+                                        ))}
+                                    </List>
+                                </Alert>
+                            )}
+
+                            {/* CSV Info */}
+                            <Box sx={{ mb: 2 }}>
+                                <Typography variant="subtitle1" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', mb: 1 }}>
+                                    الأقسام في الملف: {previewData.csv_departments?.join(', ')}
+                                </Typography>
+                                <Typography variant="subtitle1" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
+                                    الفرق في الملف: {previewData.csv_levels?.join(', ')}
+                                </Typography>
+                            </Box>
+
+                            {/* Preview Table */}
+                            <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', mb: 2 }}>
+                                معاينة أول 5 صفوف:
+                            </Typography>
+                            <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 2 }}>
+                                <Table>
+                                    <TableHead>
+                                        <TableRow sx={{ bgcolor: '#f5f5f5' }}>
+                                            <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>#</TableCell>
+                                            <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>الرقم القومي</TableCell>
+                                            <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>الاسم</TableCell>
+                                            <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>القسم</TableCell>
+                                            <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>الفرقة</TableCell>
+                                            <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>البريد</TableCell>
+                                            <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>الحالة</TableCell>
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {previewData.preview_rows?.map((row, index) => (
+                                            <TableRow key={index}>
+                                                <TableCell>{row.row_number}</TableCell>
+                                                <TableCell sx={{ fontFamily: 'monospace' }}>{row.national_id}</TableCell>
+                                                <TableCell sx={{ fontFamily: 'Cairo' }}>{row.full_name}</TableCell>
+                                                <TableCell sx={{ fontFamily: 'Cairo' }}>{row.department}</TableCell>
+                                                <TableCell sx={{ fontFamily: 'Cairo' }}>{row.level}</TableCell>
+                                                <TableCell>{row.email || '-'}</TableCell>
+                                                <TableCell>
+                                                    {row.errors.length > 0 ? (
+                                                        <Tooltip title={row.errors.join(', ')}>
+                                                            <Chip
+                                                                icon={<ErrorOutlineIcon />}
+                                                                label="خطأ"
+                                                                color="error"
+                                                                size="small"
+                                                                sx={{ fontFamily: 'Cairo' }}
+                                                            />
+                                                        </Tooltip>
+                                                    ) : (
+                                                        <Chip
+                                                            icon={<CheckCircleIcon />}
+                                                            label="صحيح"
+                                                            color="success"
+                                                            size="small"
+                                                            sx={{ fontFamily: 'Cairo' }}
+                                                        />
+                                                    )}
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
+                        </Box>
+                    )}
+                </DialogContent>
+                <DialogActions sx={{ p: 3, bgcolor: '#f5f5f5' }}>
+                    <Button
+                        onClick={() => setPreviewOpen(false)}
+                        variant="outlined"
+                        sx={{ fontFamily: 'Cairo', fontWeight: 'bold', px: 4 }}
+                    >
+                        إلغاء
+                    </Button>
+                    <Button
+                        onClick={handleUpload}
+                        variant="contained"
+                        disabled={!previewData?.can_upload || uploading}
+                        startIcon={uploading ? <></> : <UploadFileIcon />}
+                        sx={{
+                            fontFamily: 'Cairo',
+                            fontWeight: 'bold',
+                            px: 6,
+                            background: 'linear-gradient(135deg, #4CAF50, #8BC34A)',
+                            '&:hover': { background: 'linear-gradient(135deg, #388E3C, #4CAF50)' },
+                            '&:disabled': { background: '#ccc' }
+                        }}
+                    >
+                        {uploading ? 'جاري الرفع...' : 'رفع البيانات'}
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Box>
     );
 }

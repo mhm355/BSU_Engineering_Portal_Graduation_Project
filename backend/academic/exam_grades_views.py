@@ -12,9 +12,11 @@ from .models import ExamGrade, Student, Subject, Level, AcademicYear
 from users.permissions import IsAdminRole, IsStudentAffairsRole, IsStudentRole
 
 
+from rest_framework.permissions import IsAdminUser
+
 class UploadExamGradesView(APIView):
-    """Student Affairs uploads exam grades for a level"""
-    permission_classes = [IsStudentAffairsRole]
+    """Student Affairs or Admin uploads exam grades for a level"""
+    permission_classes = [IsStudentAffairsRole | IsAdminUser]
     parser_classes = [MultiPartParser]
 
     def post(self, request):

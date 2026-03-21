@@ -367,7 +367,7 @@ function SubjectFolder({ subject, index, expanded, onToggle, lectures, getFileIc
                                     variant="contained"
                                     size="small"
                                     startIcon={<DownloadIcon />}
-                                    href={lecture.file ? lecture.file.replace('http://backend:8000', '') : '#'}
+                                    href={lecture.file_url || lecture.file || '#'}
                                     target="_blank"
                                     sx={{ fontFamily: 'Cairo', borderRadius: 2, bgcolor: color, '&:hover': { bgcolor: color } }}
                                 >

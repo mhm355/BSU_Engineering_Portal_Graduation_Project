@@ -55,14 +55,19 @@ class Term(models.Model):
         FIRST = 'FIRST', 'الترم الأول'
         SECOND = 'SECOND', 'الترم الثاني'
 
+    class Status(models.TextChoices):
+        OPEN = 'OPEN', 'مفتوح'
+        CLOSED = 'CLOSED', 'مغلق'
+
     name = models.CharField(max_length=10, choices=TermName.choices)
     academic_year = models.ForeignKey(AcademicYear, on_delete=models.CASCADE, related_name='terms')
+    status = models.CharField(max_length=10, choices=Status.choices, default=Status.OPEN)
 
     class Meta:
         unique_together = ('name', 'academic_year')
 
     def __str__(self):
-        return f"{self.get_name_display()} - {self.academic_year.name}"
+        return f"{self.get_name_display()} - {self.academic_year.name} ({self.get_status_display()})"
 
 
 class Level(models.Model):
@@ -463,6 +468,7 @@ class Quiz(models.Model):
         MCQ = "MCQ", "Multiple Choice"
         ESSAY = "ESSAY", "Essay"
         IMAGE = "IMAGE", "Image-based"
+        MIXED = "MIXED", "Mixed (MCQ + Essay)"
 
     course_offering = models.ForeignKey(CourseOffering, on_delete=models.CASCADE, related_name='quizzes')
     title = models.CharField(max_length=255)

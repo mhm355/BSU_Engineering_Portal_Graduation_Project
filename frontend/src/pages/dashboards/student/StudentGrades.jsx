@@ -53,7 +53,15 @@ export default function StudentGrades() {
         return '#f44336';
     };
 
-    const getGradeLabel = (percentage) => {
+    const getGradeLabel = (grade) => {
+        const percentage = grade.total_grade || calculateTotal(grade);
+        const yearStatus = grade.year_status;
+        
+        // Don't show "راسب" when term is still open
+        if (yearStatus === 'OPEN' && percentage < 60) {
+            return 'مستمر';
+        }
+        
         if (percentage === null || percentage === undefined) return '-';
         if (percentage >= 90) return 'ممتاز';
         if (percentage >= 80) return 'جيد جداً';
@@ -160,7 +168,7 @@ export default function StudentGrades() {
                                 <td>${g.midterm_grade ?? '-'}</td>
                                 <td>${g.final_grade ?? '-'}</td>
                                 <td style="font-weight:bold">${total}</td>
-                                <td>${getGradeLabel(total)}</td>
+                                <td>${getGradeLabel(g)}</td>
                             </tr>`;
         }).join('')}
                     </tbody>
@@ -395,7 +403,7 @@ export default function StudentGrades() {
                                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                                                     <Chip
                                                         icon={<StarIcon />}
-                                                        label={getGradeLabel(total)}
+                                                        label={getGradeLabel(grade)}
                                                         sx={{ bgcolor: `${color}20`, color, fontFamily: 'Cairo', fontWeight: 'bold' }}
                                                     />
                                                     <Tooltip title={`GPA: ${courseGPA}`}>

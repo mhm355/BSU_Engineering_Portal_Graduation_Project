@@ -42,6 +42,7 @@ import DoctorCourseDetail from './pages/dashboards/doctor/DoctorCourseDetail';
 import UploadGrades from './pages/dashboards/doctor/UploadGrades';
 import CreateQuiz from './pages/dashboards/doctor/CreateQuiz';
 import QuizResults from './pages/dashboards/doctor/QuizResults';
+import GradeQuizAttempt from './pages/dashboards/doctor/GradeQuizAttempt';
 import ApprovalCenter from './pages/dashboards/admin/ApprovalCenter';
 import PendingApprovals from './pages/dashboards/admin/PendingApprovals';
 import AdminAcademicStructure from './pages/dashboards/admin/AdminAcademicStructure';
@@ -63,7 +64,6 @@ import ManageGradingTemplates from './pages/dashboards/admin/ManageGradingTempla
 import AuditLogViewer from './pages/dashboards/admin/AuditLogViewer';
 import Announcements from './pages/dashboards/admin/Announcements';
 import ComplaintsDashboard from './pages/dashboards/admin/ComplaintsDashboard';
-import BulkQuizImport from './pages/dashboards/doctor/BulkQuizImport';
 import UploadHistory from './pages/dashboards/student_affairs/UploadHistory';
 import BulkCertificateUpload from './pages/dashboards/student_affairs/BulkCertificateUpload';
 import AssignmentHistory from './pages/dashboards/staff_affairs/AssignmentHistory';
@@ -122,7 +122,7 @@ function App() {
                 <Route path="doctor/courses/:courseId/upload-grades" element={<ProtectedRoute roles={['DOCTOR']}><UploadGrades /></ProtectedRoute>} />
                 <Route path="doctor/courses/:courseId/quiz" element={<ProtectedRoute roles={['DOCTOR']}><CreateQuiz /></ProtectedRoute>} />
                 <Route path="doctor/courses/:courseId/quiz/:quizId/results" element={<ProtectedRoute roles={['DOCTOR']}><QuizResults /></ProtectedRoute>} />
-                <Route path="doctor/bulk-quiz-import" element={<ProtectedRoute roles={['DOCTOR']}><BulkQuizImport /></ProtectedRoute>} />
+                <Route path="doctor/courses/:courseId/quiz/:quizId/grade/:attemptId" element={<ProtectedRoute roles={['DOCTOR']}><GradeQuizAttempt /></ProtectedRoute>} />
 
                 {/* Student Affairs Routes */}
                 <Route path="staff/dashboard" element={<ProtectedRoute roles={['STUDENT_AFFAIRS']}><StudentAffairsDashboard /></ProtectedRoute>} />

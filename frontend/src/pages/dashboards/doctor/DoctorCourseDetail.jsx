@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import {
     Box, Container, Typography, Card, CardContent, Button, Tabs, Tab, Grid, Paper,
     CircularProgress, Alert, Chip, IconButton, Table, TableBody, TableCell,
@@ -48,6 +48,7 @@ export default function DoctorCourseDetail() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+    const [lectureFileTypeFilter, setLectureFileTypeFilter] = useState('');
 
     // Upload Dialog
     const [uploadOpen, setUploadOpen] = useState(false);
@@ -385,6 +386,13 @@ export default function DoctorCourseDetail() {
         }
     };
 
+    const fileTypeOptions = useMemo(() => [...new Set(lectures.map(l => l.file_type).filter(Boolean))], [lectures]);
+
+    const filteredLectures = useMemo(() => {
+        if (!lectureFileTypeFilter) return lectures;
+        return lectures.filter(l => l.file_type === lectureFileTypeFilter);
+    }, [lectures, lectureFileTypeFilter]);
+
     const getFileIcon = (type) => {
         switch (type) {
             case 'PDF': return <PictureAsPdfIcon sx={{ color: '#d32f2f' }} />;
@@ -502,17 +510,49 @@ export default function DoctorCourseDetail() {
                 {activeTab === 0 && (
                     <Grow in={true} timeout={400}>
                         <Paper elevation={0} sx={{ p: 4, borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}>
-                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4, flexWrap: 'wrap', gap: 2 }}>
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                                     <Avatar sx={{ width: 50, height: 50, background: 'linear-gradient(135deg, #2196F3, #64B5F6)' }}><VideoLibraryIcon /></Avatar>
-                                    <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>المحاضرات ({lectures.length})</Typography>
+                                    <Box>
+                                        <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>المحاضرات</Typography>
+                                        <Typography variant="body2" sx={{ fontFamily: 'Cairo', color: '#666' }}>
+                                            إجمالي: {lectures.length} | معروض: {filteredLectures.length}
+                                        </Typography>
+                                    </Box>
                                 </Box>
-                                <Button variant="contained" size="large" startIcon={<UploadFileIcon />} onClick={() => setUploadOpen(true)} sx={{ fontFamily: 'Cairo', fontWeight: 'bold', borderRadius: 3, px: 4, background: 'linear-gradient(135deg, #2196F3, #64B5F6)' }}>رفع محاضرة</Button>
+                                <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+                                    {fileTypeOptions.length > 0 && (
+                                        <FormControl size="small" sx={{ minWidth: 140 }}>
+                                            <InputLabel sx={{ fontFamily: 'Cairo' }}>نوع الملف</InputLabel>
+                                            <Select
+                                                value={lectureFileTypeFilter}
+                                                onChange={(e) => setLectureFileTypeFilter(e.target.value)}
+                                                label="نوع الملف"
+                                                sx={{ borderRadius: 3, fontFamily: 'Cairo' }}
+                                            >
+                                                <MenuItem value="" sx={{ fontFamily: 'Cairo' }}>الكل</MenuItem>
+                                                {fileTypeOptions.map(type => (
+                                                    <MenuItem key={type} value={type} sx={{ fontFamily: 'Cairo' }}>{type}</MenuItem>
+                                                ))}
+                                            </Select>
+                                        </FormControl>
+                                    )}
+                                    {lectureFileTypeFilter && (
+                                        <Button
+                                            size="small"
+                                            onClick={() => setLectureFileTypeFilter('')}
+                                            sx={{ fontFamily: 'Cairo', color: '#e53935' }}
+                                        >
+                                            مسح
+                                        </Button>
+                                    )}
+                                    <Button variant="contained" size="large" startIcon={<UploadFileIcon />} onClick={() => setUploadOpen(true)} sx={{ fontFamily: 'Cairo', fontWeight: 'bold', borderRadius: 3, px: 4, background: 'linear-gradient(135deg, #2196F3, #64B5F6)' }}>رفع محاضرة</Button>
+                                </Box>
                             </Box>
 
-                            {lectures.length > 0 ? (
+                            {filteredLectures.length > 0 ? (
                                 <Grid container spacing={3}>
-                                    {lectures.map((lecture, index) => (
+                                    {filteredLectures.map((lecture, index) => (
                                         <Grid item xs={12} sm={6} md={4} key={lecture.id}>
                                             <Card sx={{ borderRadius: 3, boxShadow: '0 4px 15px rgba(0,0,0,0.08)', '&:hover': { boxShadow: '0 8px 25px rgba(0,0,0,0.12)' } }}>
                                                 <CardContent>
@@ -526,7 +566,7 @@ export default function DoctorCourseDetail() {
                                                     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                                                         <Chip label={lecture.file_type} size="small" sx={{ fontWeight: 'bold' }} />
                                                         <Box>
-                                                            <Button size="small" href={lecture.file} target="_blank" sx={{ fontFamily: 'Cairo' }}>عرض</Button>
+                                                            <Button size="small" href={lecture.file_url || lecture.file || '#'} target="_blank" sx={{ fontFamily: 'Cairo' }}>عرض</Button>
                                                             <IconButton color="error" size="small" onClick={() => handleDeleteLecture(lecture.id)}><DeleteIcon /></IconButton>
                                                         </Box>
                                                     </Box>
@@ -538,7 +578,9 @@ export default function DoctorCourseDetail() {
                             ) : (
                                 <Box sx={{ textAlign: 'center', py: 8 }}>
                                     <VideoLibraryIcon sx={{ fontSize: 80, color: '#ddd', mb: 2 }} />
-                                    <Typography variant="h5" sx={{ fontFamily: 'Cairo', color: '#999' }}>لم يتم رفع أي محاضرات بعد</Typography>
+                                    <Typography variant="h5" sx={{ fontFamily: 'Cairo', color: '#999' }}>
+                                        {lectureFileTypeFilter ? 'لا توجد محاضرات من هذا النوع' : 'لم يتم رفع أي محاضرات بعد'}
+                                    </Typography>
                                 </Box>
                             )}
                         </Paper>
@@ -905,9 +947,6 @@ export default function DoctorCourseDetail() {
                                     <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>الكويزات ({quizzes.length})</Typography>
                                 </Box>
                                 <Box sx={{ display: 'flex', gap: 2 }}>
-                                    <Button variant="outlined" size="large" startIcon={<UploadFileIcon />}
-                                        onClick={() => { const inp = document.createElement('input'); inp.type='file'; inp.accept='.xlsx,.csv'; inp.onchange = async (e) => { const f = e.target.files[0]; if(!f) return; const fd = new FormData(); fd.append('file', f); fd.append('course_offering', courseId); try { await axios.post('/api/academic/quizzes/bulk-import/', fd, {...config, headers:{...config.headers,'Content-Type':'multipart/form-data'}}); setSuccess('تم استيراد الكويزات بنجاح'); const qr = await axios.get(`/api/academic/quizzes/?course_offering=${courseId}`, config); setQuizzes(Array.isArray(qr.data) ? qr.data : []); } catch(err){ setError(err.response?.data?.error || 'فشل استيراد الكويزات'); } }; inp.click(); }}
-                                        sx={{ fontFamily: 'Cairo', fontWeight: 'bold', borderRadius: 3, px: 3, borderColor: '#9c27b0', color: '#9c27b0' }}>استيراد كويزات</Button>
                                     <Button variant="contained" size="large" startIcon={<AddIcon />} onClick={() => navigate(`/doctor/courses/${courseId}/quiz`)} sx={{ fontFamily: 'Cairo', fontWeight: 'bold', borderRadius: 3, px: 4, background: 'linear-gradient(135deg, #9c27b0, #ba68c8)' }}>إنشاء كويز</Button>
                                 </Box>
                             </Box>
@@ -1050,8 +1089,13 @@ export default function DoctorCourseDetail() {
                             </Select>
                         </FormControl>
                         <Button variant="outlined" component="label" startIcon={<UploadFileIcon />} sx={{ py: 2, borderRadius: 2, borderStyle: 'dashed' }}>
-                            {uploadData.file ? uploadData.file.name : 'اختر ملف'}
-                            <input type="file" hidden onChange={(e) => setUploadData({ ...uploadData, file: e.target.files[0] })} />
+                            {uploadData.file ? uploadData.file.name : 'اختر ملف (PDF أو PowerPoint)'}
+                            <input
+                                type="file"
+                                hidden
+                                accept=".pdf,.ppt,.pptx,application/pdf,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation"
+                                onChange={(e) => setUploadData({ ...uploadData, file: e.target.files[0] })}
+                            />
                         </Button>
                     </Box>
                 </DialogContent>

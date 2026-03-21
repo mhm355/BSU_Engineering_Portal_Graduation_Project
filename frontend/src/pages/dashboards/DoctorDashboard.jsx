@@ -401,11 +401,11 @@ export default function DoctorDashboard() {
         <Paper elevation={0} sx={{ p: 2, mb: 3, borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.08)', display: 'flex', justifyContent: 'center', gap: 2, flexWrap: 'wrap' }}>
           <Button
             variant="outlined"
-            startIcon={<CloudUploadIcon />}
-            onClick={() => navigate('/doctor/bulk-quiz-import')}
+            startIcon={<QuizIcon />}
+            onClick={() => navigate('/doctor/course-manager')}
             sx={{ fontFamily: 'Cairo', borderRadius: 3, px: 3, fontWeight: 'bold', borderColor: '#9c27b0', color: '#9c27b0', '&:hover': { bgcolor: 'rgba(156,39,176,0.04)', borderColor: '#7b1fa2' } }}
           >
-            استيراد كويزات بالجملة
+            إدارة الكويزات
           </Button>
         </Paper>
 

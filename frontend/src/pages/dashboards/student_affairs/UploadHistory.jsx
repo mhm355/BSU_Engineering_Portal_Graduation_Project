@@ -53,6 +53,24 @@ export default function UploadHistory() {
         URL.revokeObjectURL(url);
     };
 
+    const formatDate = (dateString) => {
+        if (!dateString) return 'غير متوفر';
+        try {
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) return 'تاريخ غير صالح';
+            return date.toLocaleString('ar-EG', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            });
+        } catch (e) {
+            return 'تاريخ غير صالح';
+        }
+    };
+
     const getTypeLabel = (type) => {
         const labels = {
             'STUDENT': 'طلاب',
@@ -157,7 +175,7 @@ export default function UploadHistory() {
                                         )}
                                     </TableCell>
                                     <TableCell sx={{ fontFamily: 'Cairo', direction: 'ltr', fontSize: 13 }}>
-                                        {new Date(record.created_at).toLocaleString('ar-EG')}
+                                        {formatDate(record.created_at)}
                                     </TableCell>
                                     <TableCell>
                                         {record.error_count > 0 && record.errors_json ? (

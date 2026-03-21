@@ -2,6 +2,7 @@ from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from django.db.models import Q
 import logging
 
 logger = logging.getLogger(__name__)
@@ -335,6 +336,23 @@ class CourseOfferingViewSet(viewsets.ModelViewSet):
         
         result = []
         for o in offerings:
+            # Build grading template details
+            template_data = None
+            if o.grading_template:
+                template_data = {
+                    'id': o.grading_template.id,
+                    'name': o.grading_template.name,
+                    'attendance_weight': o.grading_template.attendance_weight,
+                    'attendance_slots': o.grading_template.attendance_slots,
+                    'quizzes_weight': o.grading_template.quizzes_weight,
+                    'quiz_count': o.grading_template.quiz_count,
+                    'coursework_weight': o.grading_template.coursework_weight,
+                    'written_weight': o.grading_template.written_weight,
+                    'practical_weight': o.grading_template.practical_weight,
+                    'midterm_weight': o.grading_template.midterm_weight,
+                    'final_weight': o.grading_template.final_weight,
+                }
+            
             result.append({
                 'id': o.id,
                 'subject_name': o.subject.name,
@@ -350,6 +368,7 @@ class CourseOfferingViewSet(viewsets.ModelViewSet):
                 'year_status': o.academic_year.status,
                 'grading_template': o.grading_template.name if o.grading_template else None,
                 'grading_template_id': o.grading_template.id if o.grading_template else None,
+                'grading_template_details': template_data,
                 'specialization_name': o.specialization.name if o.specialization else None,
                 'specialization_code': o.specialization.code if o.specialization else None,
                 'specialization_id': o.specialization.id if o.specialization else None,
@@ -417,13 +436,39 @@ class LectureViewSet(viewsets.ModelViewSet):
         return queryset
 
     def create(self, request, *args, **kwargs):
-        """Doctor creates lecture - check if academic year is OPEN"""
+        """Doctor creates lecture - check if academic year is OPEN and validate file type"""
         course_offering = CourseOffering.objects.get(id=request.data.get('course_offering'))
         if course_offering.academic_year.status == AcademicYear.Status.CLOSED:
             return Response(
                 {'error': 'لا يمكن إضافة محاضرات - العام الدراسي مغلق'},
                 status=status.HTTP_400_BAD_REQUEST
             )
+        
+        # Validate file type matches selected filter
+        file_obj = request.FILES.get('file')
+        file_type = request.data.get('file_type', 'OTHER')
+        
+        if file_obj:
+            file_name = file_obj.name.lower()
+            file_ext = file_name.split('.')[-1] if '.' in file_name else ''
+            
+            # Define allowed extensions for each file_type
+            type_mapping = {
+                'PDF': ['pdf'],
+                'SLIDES': ['ppt', 'pptx'],
+                'VIDEO': ['mp4', 'avi', 'mov', 'mkv', 'webm'],
+                'OTHER': []
+            }
+            
+            allowed_exts = type_mapping.get(file_type, [])
+            
+            # If file_type is specified and file doesn't match, return error
+            if file_type != 'OTHER' and allowed_exts and file_ext not in allowed_exts:
+                return Response(
+                    {'error': f'نوع الملف لا يطابق الفلتر المحدد. اخترت "{file_type}" لكن الملف "{file_ext}"'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        
         return super().create(request, *args, **kwargs)
 
 
@@ -746,7 +791,7 @@ class StudentExamsView(APIView):
         
         # If student has specialization, filter.
         if student.specialization:
-             offerings = offerings.filter(models.Q(specialization=student.specialization) | models.Q(specialization__isnull=True))
+             offerings = offerings.filter(Q(specialization=student.specialization) | Q(specialization__isnull=True))
         elif student.department:
              # If student has dept, filter offerings that match dept (via level)
              pass 
@@ -784,8 +829,8 @@ class StudentCoursesView(APIView):
             # If student has specialization, filter by it (or include general subjects)
             if student.specialization:
                 offerings = offerings.filter(
-                    models.Q(specialization=student.specialization) | 
-                    models.Q(specialization__isnull=True)
+                    Q(specialization=student.specialization) | 
+                    Q(specialization__isnull=True)
                 )
             
             data = []
@@ -893,19 +938,26 @@ class ContactMessageView(APIView):
 
 class AnnouncementListCreateView(APIView):
     """
-    GET: List active announcements (filtered by user role).
+    GET: List active announcements (filtered by user role) — accessible to all.
     POST: Admin only — create announcement.
     DELETE: Admin only — deactivate announcement.
     """
-    permission_classes = [permissions.IsAuthenticated]
+
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            return [permissions.AllowAny()]
+        return [permissions.IsAuthenticated()]
 
     def get(self, request):
         qs = Announcement.objects.filter(is_active=True)
         user_role = getattr(request.user, 'role', None)
-        if user_role != 'ADMIN':
+        if user_role and user_role != 'ADMIN':
             qs = qs.filter(
                 target_role__in=['ALL', user_role]
             )
+        elif not user_role:
+            # Unauthenticated users only see ALL announcements
+            qs = qs.filter(target_role='ALL')
         serializer = AnnouncementSerializer(qs, many=True)
         return Response(serializer.data)
 

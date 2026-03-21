@@ -25,7 +25,7 @@ from .exam_grades_views import (
 )
 from .quiz_views import (
     QuizViewSet, StudentQuizListView, StudentQuizAttemptView, QuizResultsView,
-    BulkQuizImportView
+    BulkQuizImportView, QuizAttemptDetailView, GradeQuizAttemptView
 )
 
 router = DefaultRouter()
@@ -54,6 +54,7 @@ urlpatterns = [
 
     # Student Affairs endpoints
     path('student-affairs/upload/', UploadStudentsView.as_view(), name='student-affairs-upload'),
+    path('student-affairs/upload-preview/', PreviewStudentsUploadView.as_view(), name='student-affairs-upload-preview'),
     path('student-affairs/students/', StudentListView.as_view(), name='student-affairs-students'),
     path('student-affairs/students/<int:student_id>/reset-password/', ResetStudentPasswordView.as_view(), name='reset-student-password'),
     path('student-affairs/fourth-year-students/', FourthYearStudentsView.as_view(), name='fourth-year-students'),
@@ -92,6 +93,8 @@ urlpatterns = [
     path('student/quizzes/<int:quiz_id>/attempt/', StudentQuizAttemptView.as_view(), name='quiz-attempt'),
     path('student/quizzes/<int:quiz_id>/results/', QuizResultsView.as_view(), name='student-quiz-results'),
     path('quizzes/<int:quiz_id>/results/', QuizResultsView.as_view(), name='quiz-results'),
+    path('quizzes/<int:quiz_id>/attempts/<int:attempt_id>/', QuizAttemptDetailView.as_view(), name='quiz-attempt-detail'),
+    path('quizzes/<int:quiz_id>/attempts/<int:attempt_id>/grade/', GradeQuizAttemptView.as_view(), name='grade-quiz-attempt'),
     path('exams/', StudentExamsView.as_view(), name='student-exams'),
     path('student/courses/', StudentCoursesView.as_view(), name='student-courses'),
 
