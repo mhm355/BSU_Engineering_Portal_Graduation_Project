@@ -11,7 +11,8 @@ from .views import (
 )
 from .student_affairs_views import (
     UploadStudentsView, StudentListView, ResetStudentPasswordView,
-    FourthYearStudentsView, StudentAffairsGradesView, BulkCertificateUploadView
+    FourthYearStudentsView, StudentAffairsGradesView, BulkCertificateUploadView,
+    PreviewStudentsUploadView
 )
 from .staff_affairs_views import (
     UploadDoctorsView, UploadStaffAffairsUsersView, DoctorListView,
