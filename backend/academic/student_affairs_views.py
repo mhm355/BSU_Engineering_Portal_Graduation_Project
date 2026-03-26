@@ -69,6 +69,12 @@ class PreviewStudentsUploadView(APIView):
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
+            # Auto-fill missing columns from UI selections
+            if 'department' not in df.columns:
+                df['department'] = department.name
+            if 'level' not in df.columns and level:
+                df['level'] = level.get_name_display()
+
             # Validate required columns
             required_columns = ['national_id', 'full_name', 'department', 'level']
             missing_columns = [col for col in required_columns if col not in df.columns]
@@ -238,6 +244,12 @@ class UploadStudentsView(APIView):
                     {'error': 'صيغة الملف غير مدعومة. استخدم CSV أو Excel.'}, 
                     status=status.HTTP_400_BAD_REQUEST
                 )
+
+            # Auto-fill missing columns from UI selections
+            if 'department' not in df.columns:
+                df['department'] = department.name
+            if 'level' not in df.columns and level:
+                df['level'] = level.get_name_display()
 
             # Validate required columns (now requires department and level)
             required_columns = ['national_id', 'full_name', 'department', 'level']

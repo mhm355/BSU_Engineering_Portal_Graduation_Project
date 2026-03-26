@@ -371,7 +371,7 @@ class AnnouncementSerializer(serializers.ModelSerializer):
 class UploadHistorySerializer(serializers.ModelSerializer):
     upload_type_display = serializers.CharField(source='get_upload_type_display', read_only=True)
     uploaded_by_name = serializers.SerializerMethodField()
-    created_at = serializers.DateTimeField(format='%Y-%m-%dT%H:%M:%S.%fZ', read_only=True)
+    created_at = serializers.DateTimeField(read_only=True)
 
     class Meta:
         model = UploadHistory

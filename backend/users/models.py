@@ -33,9 +33,10 @@ class User(AbstractUser):
             # Set default password to national_id or username if not provided
             if not self.password or self.password == '!':
                 self.set_password(self.national_id or self.username)
-                # Require password change on first login for staff users AND students
-                if self.role in ['STUDENT', 'STUDENT_AFFAIRS', 'STAFF_AFFAIRS', 'DOCTOR']:
-                    self.first_login_required = True
+            
+            # Require password change on first login for staff users AND students
+            if self.role in ['STUDENT', 'STUDENT_AFFAIRS', 'STAFF_AFFAIRS', 'DOCTOR']:
+                self.first_login_required = True
         return super().save(*args, **kwargs)
 
     def get_absolute_url(self):

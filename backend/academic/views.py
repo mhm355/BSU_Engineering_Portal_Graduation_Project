@@ -725,8 +725,12 @@ class BulkStudentGradeView(APIView):
                 if not request.user.is_superuser and course_offering.doctor != request.user:
                     continue
 
-                # Check if academic year is open
+                # Check if academic year or term is closed
                 if course_offering.academic_year.status == 'CLOSED':
+                    errors.append(f'العام الأكاديمي مغلق - لا يمكن تعديل الدرجات')
+                    continue
+                if hasattr(course_offering, 'term') and course_offering.term and course_offering.term.status == 'CLOSED':
+                    errors.append(f'الترم مغلق - لا يمكن تعديل الدرجات')
                     continue
 
                 defaults = {}
