@@ -1,7 +1,7 @@
-# other
+other
 features/
 other/
-.github
+.github/workflows/main.yml
 # Python
 __pycache__/
 *.py[cod]
