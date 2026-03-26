@@ -6,7 +6,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser
-from django.utils import timezone
+from django.db import models as db_models
 from django.utils import timezone
 
 from .models import (
@@ -713,7 +713,7 @@ class GradeQuizAttemptView(APIView):
         mcq_points = attempt.answers.filter(
             question__question_type='MCQ',
             points_earned__isnull=False
-        ).aggregate(total=models.Sum('points_earned'))['total'] or 0
+        ).aggregate(total=db_models.Sum('points_earned'))['total'] or 0
 
         # Update attempt
         attempt.score = total_score + float(mcq_points)
