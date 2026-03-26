@@ -14,14 +14,14 @@ services:
     # DB port NOT exposed to host — only accessible within Docker network
     healthcheck:
       test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
-      interval: 5s
+      interval: 30s
       timeout: 5s
       retries: 5
     networks:
       - bsu_network
 
   backend:
-    image: mhmdocker1/bsu_backend:v2.8.0
+    image: mhmdocker1/bsu_backend:v2.8.2
     container_name: bsu_backend_1
     volumes:
       - media_data:/app/media
@@ -43,7 +43,7 @@ services:
       - bsu_network
 
   frontend:
-    image: mhmdocker1/bsu_frontend:v2.8.0
+    image: mhmdocker1/bsu_frontend:v2.8.2
     container_name: bsu_frontend_1
     volumes:
       - media_data:/usr/share/nginx/html/media
@@ -62,4 +62,5 @@ volumes:
 
 networks:
   bsu_network:
+    name: bsu_network
     driver: bridge

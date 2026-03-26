@@ -258,6 +258,7 @@ export default function CreateQuiz() {
                         >
                             <MenuItem value="MCQ">اختيار من متعدد</MenuItem>
                             <MenuItem value="ESSAY">مقالي</MenuItem>
+                            <MenuItem value="MIXED">مختلط (اختيار + مقالي)</MenuItem>
                         </Select>
                     </FormControl>
 

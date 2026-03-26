@@ -64,7 +64,9 @@ export default function ChangePassword() {
             const role = user?.role;
             if (role === 'STUDENT') navigate('/student/dashboard');
             else if (role === 'DOCTOR') navigate('/doctor/dashboard');
-            else if (role === 'STAFF') navigate('/student-affairs/dashboard');
+            else if (role === 'STUDENT_AFFAIRS') navigate('/student-affairs/dashboard');
+            else if (role === 'STAFF_AFFAIRS') navigate('/staff-affairs/dashboard');
+            else if (role === 'STAFF') navigate('/student-affairs/dashboard'); // Legacy support
             else if (role === 'ADMIN') navigate('/admin/dashboard');
             else navigate('/');
 

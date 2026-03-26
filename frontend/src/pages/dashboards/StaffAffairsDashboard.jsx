@@ -18,6 +18,7 @@ import {
     Badge as BadgeIcon,
     Logout as LogoutIcon,
     History as HistoryIcon,
+    Newspaper as NewspaperIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -121,6 +122,13 @@ const StaffAffairsDashboard = () => {
             icon: <HistoryIcon sx={{ fontSize: 40 }} />,
             gradient: 'linear-gradient(135deg, #607D8B, #90A4AE)',
             path: '/staff-affairs/assignment-history',
+        },
+        {
+            title: 'الأخبار والإعلانات',
+            description: 'نشر وإدارة الأخبار الخاصة بشئون العاملين',
+            icon: <NewspaperIcon sx={{ fontSize: 40 }} />,
+            gradient: 'linear-gradient(135deg, #E91E63, #F06292)',
+            path: '/staff-affairs/news',
         },
     ];
 

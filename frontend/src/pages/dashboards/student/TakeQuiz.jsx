@@ -507,20 +507,28 @@ export default function TakeQuiz() {
                                     </Typography>
 
                                     {/* Question Image */}
-                                    {currentQ.question_image && (
-                                        <Box sx={{ mb: 3, textAlign: 'center' }}>
-                                            <img
-                                                src={currentQ.question_image ? currentQ.question_image.replace('http://backend:8000', window.location.protocol + '//' + window.location.hostname + ':8000') : ''}
-                                                alt="Question"
-                                                style={{
-                                                    maxWidth: '100%',
-                                                    maxHeight: 400,
-                                                    borderRadius: 12,
-                                                    boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
-                                                }}
-                                            />
-                                        </Box>
-                                    )}
+                                    {currentQ.question_image && (() => {
+                                        let imgUrl = currentQ.question_image;
+                                        // Strip any internal Docker/backend hostname, keep only the path
+                                        if (imgUrl.includes('://')) {
+                                            try { imgUrl = new URL(imgUrl).pathname; } catch (e) { /* use as-is */ }
+                                        }
+                                        if (imgUrl && !imgUrl.startsWith('/')) imgUrl = '/' + imgUrl;
+                                        return (
+                                            <Box sx={{ mb: 3, textAlign: 'center' }}>
+                                                <img
+                                                    src={imgUrl}
+                                                    alt="Question"
+                                                    style={{
+                                                        maxWidth: '100%',
+                                                        maxHeight: 400,
+                                                        borderRadius: 12,
+                                                        boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
+                                                    }}
+                                                />
+                                            </Box>
+                                        );
+                                    })()}
 
                                     {/* MCQ Options */}
                                     {currentQ.question_type === 'MCQ' ? (

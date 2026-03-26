@@ -35,6 +35,7 @@ import WarningIcon from '@mui/icons-material/Warning';
 import HistoryIcon from '@mui/icons-material/History';
 import CampaignIcon from '@mui/icons-material/Campaign';
 import MailIcon from '@mui/icons-material/Mail';
+import NewspaperIcon from '@mui/icons-material/Newspaper';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
@@ -443,6 +444,14 @@ export default function AdminDashboard() {
             buttonText: 'عرض الرسائل',
             onClick: () => navigate('/admin/complaints'),
             gradient: 'linear-gradient(135deg, #d32f2f, #ef5350)',
+        },
+        {
+            icon: NewspaperIcon,
+            title: 'إدارة الأخبار',
+            description: 'إنشاء وإدارة الأخبار المتنوعة في النظام',
+            buttonText: 'إدارة الأخبار',
+            onClick: () => navigate('/admin/news'),
+            gradient: 'linear-gradient(135deg, #E91E63, #F06292)',
         },
     ];
 

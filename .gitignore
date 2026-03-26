@@ -1,7 +1,7 @@
 # other
 features/
 other/
-
+.github
 # Python
 __pycache__/
 *.py[cod]

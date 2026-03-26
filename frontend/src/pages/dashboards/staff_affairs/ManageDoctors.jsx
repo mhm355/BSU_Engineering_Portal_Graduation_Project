@@ -28,6 +28,8 @@ const float = keyframes`
 export default function ManageDoctors() {
     const navigate = useNavigate();
     const [doctors, setDoctors] = useState([]);
+    const [filteredDoctors, setFilteredDoctors] = useState([]);
+    const [searchQuery, setSearchQuery] = useState('');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
@@ -53,10 +55,26 @@ export default function ManageDoctors() {
         fetchDeletionRequests();
     }, []);
 
+    useEffect(() => {
+        // Filter doctors based on search query
+        if (searchQuery.trim() === '') {
+            setFilteredDoctors(doctors);
+        } else {
+            const query = searchQuery.toLowerCase();
+            const filtered = doctors.filter(d =>
+                d.full_name?.toLowerCase().includes(query) ||
+                d.national_id?.includes(query) ||
+                d.email?.toLowerCase().includes(query)
+            );
+            setFilteredDoctors(filtered);
+        }
+    }, [searchQuery, doctors]);
+
     const fetchDoctors = async () => {
         try {
             const response = await axios.get('/api/academic/staff-affairs/doctors/', config);
             setDoctors(response.data);
+            setFilteredDoctors(response.data);
             setLoading(false);
         } catch (err) {
             setError('فشل تحميل قائمة الأعضاء');
@@ -209,13 +227,20 @@ export default function ManageDoctors() {
                 ) : (
                     <Grow in={true} timeout={700}>
                         <Paper elevation={0} sx={{ p: 4, borderRadius: 4, boxShadow: '0 4px 25px rgba(0,0,0,0.1)' }}>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3, flexWrap: 'wrap' }}>
                                 <Avatar sx={{ width: 50, height: 50, background: 'linear-gradient(135deg, #d32f2f, #ef5350)' }}>
                                     <PersonIcon />
                                 </Avatar>
-                                <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>
-                                    قائمة الأعضاء ({doctors.length})
+                                <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744', flex: 1 }}>
+                                    قائمة الأعضاء ({filteredDoctors.length})
                                 </Typography>
+                                <TextField
+                                    placeholder="بحث بالاسم أو الرقم القومي أو البريد..."
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    sx={{ minWidth: 300, '& .MuiOutlinedInput-root': { borderRadius: 3, fontFamily: 'Cairo' } }}
+                                    size="small"
+                                />
                             </Box>
 
                             <TableContainer sx={{ borderRadius: 3, border: '1px solid #eee' }}>
@@ -231,7 +256,7 @@ export default function ManageDoctors() {
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
-                                        {doctors.map((doctor, index) => (
+                                        {filteredDoctors.map((doctor, index) => (
                                             <TableRow key={doctor.id} hover sx={{ '&:nth-of-type(odd)': { bgcolor: '#fafafa' } }}>
                                                 <TableCell>
                                                     <Avatar sx={{ width: 35, height: 35, bgcolor: '#d32f2f', fontSize: 14 }}>{index + 1}</Avatar>

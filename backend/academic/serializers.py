@@ -152,13 +152,29 @@ class LectureSerializer(serializers.ModelSerializer):
     course_name = serializers.CharField(source='course_offering.subject.name', read_only=True)
     subject_name = serializers.CharField(source='course_offering.subject.name', read_only=True)
     subject_code = serializers.CharField(source='course_offering.subject.code', read_only=True)
+    file_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Lecture
         fields = [
             'id', 'course_offering', 'course_name', 'subject_name',
-            'subject_code', 'title', 'description', 'file', 'uploaded_at',
+            'subject_code', 'title', 'description', 'file', 'file_url', 'uploaded_at',
         ]
+
+    def get_file_url(self, obj):
+        """Return relative URL for file to avoid docker internal hostname issues"""
+        if obj.file:
+            url = obj.file.url
+            # Strip domain/protocol to return relative path
+            if url.startswith('http'):
+                try:
+                    from urllib.parse import urlparse
+                    parsed = urlparse(url)
+                    return parsed.path
+                except Exception:
+                    pass
+            return url
+        return None
 
 
 class AttendanceSerializer(serializers.ModelSerializer):
@@ -201,7 +217,7 @@ class StudentGradeSerializer(serializers.ModelSerializer):
     midterm_grade = serializers.DecimalField(source='midterm', max_digits=5, decimal_places=2, read_only=True)
     final_grade = serializers.DecimalField(source='final', max_digits=5, decimal_places=2, read_only=True)
     total_grade = serializers.SerializerMethodField()
-
+    year_status = serializers.CharField(source='course_offering.academic_year.status', read_only=True)
 
     class Meta:
         model = StudentGrade
@@ -212,7 +228,7 @@ class StudentGradeSerializer(serializers.ModelSerializer):
             'attendance_grade', 'quizzes_grade', 'coursework_grade',
             'midterm_grade', 'final_grade', 'total_grade',
             'attendance_weight', 'quizzes_weight', 'coursework_weight',
-            'midterm_weight', 'final_weight',
+            'midterm_weight', 'final_weight', 'year_status',
             'created_at', 'updated_at',
         ]
 
@@ -336,11 +352,12 @@ class ContactMessageSerializer(serializers.ModelSerializer):
 class AnnouncementSerializer(serializers.ModelSerializer):
     target_role_display = serializers.CharField(source='get_target_role_display', read_only=True)
     created_by_name = serializers.SerializerMethodField()
+    target_roles = serializers.CharField(source='target_role', read_only=True)
 
     class Meta:
         model = Announcement
         fields = [
-            'id', 'title', 'message', 'target_role', 'target_role_display',
+            'id', 'title', 'message', 'target_role', 'target_roles', 'target_role_display',
             'created_by', 'created_by_name', 'is_active', 'created_at',
         ]
         read_only_fields = ['id', 'created_by', 'created_at']
@@ -354,6 +371,7 @@ class AnnouncementSerializer(serializers.ModelSerializer):
 class UploadHistorySerializer(serializers.ModelSerializer):
     upload_type_display = serializers.CharField(source='get_upload_type_display', read_only=True)
     uploaded_by_name = serializers.SerializerMethodField()
+    created_at = serializers.DateTimeField(read_only=True)
 
     class Meta:
         model = UploadHistory

@@ -55,6 +55,7 @@ export default function StudentDashboard() {
     const [quizzes, setQuizzes] = useState([]);
     const [grades, setGrades] = useState(null);
     const [attendanceStats, setAttendanceStats] = useState({ percentage: 0, present: 0, total: 0 });
+    const [news, setNews] = useState([]);
 
     useEffect(() => {
         if (!user) {
@@ -121,10 +122,22 @@ export default function StudentDashboard() {
             }
         };
 
+        // Fetch news
+        const fetchNews = async () => {
+            try {
+                const res = await axios.get('/api/content/news/', { withCredentials: true });
+                const data = Array.isArray(res.data) ? res.data : (res.data?.results || []);
+                setNews(data.filter(n => n.status === 'PUBLISHED').slice(0, 5));
+            } catch (err) {
+                console.log('Failed to load news');
+            }
+        };
+
         fetchStudentInfo();
         fetchQuizzes();
         fetchGrades();
         fetchAttendance();
+        fetchNews();
     }, [user, navigate]);
 
     // Fetch attendance summary
@@ -666,22 +679,52 @@ export default function StudentDashboard() {
                     </Grid>
                 </Grid>
 
-                {/* Notifications Section */}
+                {/* News Section */}
                 <Paper elevation={0} sx={{ p: 3, mt: 4, borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2 }}>
-                        <Avatar sx={{ bgcolor: '#e3f2fd' }}>
-                            <NotificationsActiveIcon sx={{ color: '#1976d2' }} />
+                        <Avatar sx={{ bgcolor: '#fce4ec' }}>
+                            <NotificationsActiveIcon sx={{ color: '#E91E63' }} />
                         </Avatar>
                         <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>
-                            آخر الإشعارات
+                            آخر الأخبار والإعلانات
                         </Typography>
                     </Box>
-                    <Box sx={{ p: 3, textAlign: 'center', bgcolor: '#fafafa', borderRadius: 3 }}>
-                        <NotificationsActiveIcon sx={{ fontSize: 50, color: '#ddd', mb: 1 }} />
-                        <Typography sx={{ fontFamily: 'Cairo', color: '#999' }}>
-                            لا توجد إشعارات جديدة حالياً
-                        </Typography>
-                    </Box>
+                    {news.length > 0 ? (
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                            {news.map((item) => (
+                                <Box key={item.id} sx={{ p: 2.5, borderRadius: 3, bgcolor: '#fafafa', border: '1px solid #eee', transition: 'all 0.2s', '&:hover': { bgcolor: '#f0f7ff', borderColor: '#1976d2' } }}>
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+                                        <Typography sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744', fontSize: '1.1rem' }}>
+                                            {item.title}
+                                        </Typography>
+                                        <Chip
+                                            label={item.target_audience === 'ALL' ? 'الجميع' : item.target_audience === 'STUDENTS' ? 'الطلاب' : item.target_audience}
+                                            size="small"
+                                            sx={{ fontFamily: 'Cairo', bgcolor: item.target_audience === 'STUDENTS' ? '#e3f2fd' : '#e8f5e9', color: item.target_audience === 'STUDENTS' ? '#1976d2' : '#4CAF50' }}
+                                        />
+                                    </Box>
+                                    <Typography variant="body2" sx={{ fontFamily: 'Cairo', color: '#555', lineHeight: 1.8, mb: 1 }}>
+                                        {item.content?.length > 150 ? item.content.substring(0, 150) + '...' : item.content}
+                                    </Typography>
+                                    {item.image && (
+                                        <Box sx={{ borderRadius: 2, overflow: 'hidden', mt: 1, mb: 1 }}>
+                                            <img src={item.image} alt={item.title} style={{ width: '100%', maxHeight: 200, objectFit: 'cover' }} />
+                                        </Box>
+                                    )}
+                                    <Typography variant="caption" sx={{ fontFamily: 'Cairo', color: '#999' }}>
+                                        {item.created_at ? new Date(item.created_at).toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' }) : ''}
+                                    </Typography>
+                                </Box>
+                            ))}
+                        </Box>
+                    ) : (
+                        <Box sx={{ p: 3, textAlign: 'center', bgcolor: '#fafafa', borderRadius: 3 }}>
+                            <NotificationsActiveIcon sx={{ fontSize: 50, color: '#ddd', mb: 1 }} />
+                            <Typography sx={{ fontFamily: 'Cairo', color: '#999' }}>
+                                لا توجد أخبار جديدة حالياً
+                            </Typography>
+                        </Box>
+                    )}
                 </Paper>
             </Container>
         </Box>

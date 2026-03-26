@@ -55,8 +55,8 @@ export default function StudentQuizzes() {
         total: quizzes.length,
         completed: quizzes.filter(q => q.attempted).length,
         pending: quizzes.filter(q => !q.attempted).length,
-        totalScore: quizzes.filter(q => q.attempted).reduce((acc, q) => acc + (q.score || 0), 0),
-        maxScore: quizzes.filter(q => q.attempted).reduce((acc, q) => acc + (q.total_points || 0), 0),
+        totalScore: quizzes.filter(q => q.attempted && q.score !== null).reduce((acc, q) => acc + (q.score || 0), 0),
+        maxScore: quizzes.filter(q => q.attempted && q.score !== null).reduce((acc, q) => acc + (q.total_points || 0), 0),
     };
 
     const getScorePercentage = () => {
@@ -174,10 +174,11 @@ export default function StudentQuizzes() {
                     <Grid container spacing={3}>
                         {quizzes.map((quiz, idx) => {
                             const isCompleted = quiz.attempted;
-                            const scorePercentage = isCompleted && quiz.total_points > 0
+                            const isPendingGrading = isCompleted && (quiz.score === null || quiz.score === undefined);
+                            const scorePercentage = isCompleted && !isPendingGrading && quiz.total_points > 0
                                 ? Math.round((quiz.score / quiz.total_points) * 100)
                                 : 0;
-                            const scoreColor = scorePercentage >= 75 ? '#4CAF50' : scorePercentage >= 50 ? '#FF9800' : '#f44336';
+                            const scoreColor = isPendingGrading ? '#FF9800' : scorePercentage >= 75 ? '#4CAF50' : scorePercentage >= 50 ? '#FF9800' : '#f44336';
 
                             return (
                                 <Grid item xs={12} sm={6} md={4} key={quiz.id}>
@@ -213,12 +214,21 @@ export default function StudentQuizzes() {
                                                         <QuizIcon sx={{ color: isCompleted ? scoreColor : '#1976d2' }} />
                                                     </Avatar>
                                                     {isCompleted ? (
-                                                        <Chip
-                                                            icon={<CheckCircleIcon />}
-                                                            label={`${quiz.score}/${quiz.total_points}`}
-                                                            size="small"
-                                                            sx={{ bgcolor: `${scoreColor}20`, color: scoreColor, fontFamily: 'Cairo', fontWeight: 'bold' }}
-                                                        />
+                                                        isPendingGrading ? (
+                                                            <Chip
+                                                                icon={<PendingIcon />}
+                                                                label="بانتظار التصحيح"
+                                                                size="small"
+                                                                sx={{ bgcolor: '#fff3e0', color: '#FF9800', fontFamily: 'Cairo', fontWeight: 'bold' }}
+                                                            />
+                                                        ) : (
+                                                            <Chip
+                                                                icon={<CheckCircleIcon />}
+                                                                label={`${quiz.score}/${quiz.total_points}`}
+                                                                size="small"
+                                                                sx={{ bgcolor: `${scoreColor}20`, color: scoreColor, fontFamily: 'Cairo', fontWeight: 'bold' }}
+                                                            />
+                                                        )
                                                     ) : (
                                                         <Chip
                                                             label="لم يُحل"
@@ -267,6 +277,24 @@ export default function StudentQuizzes() {
 
                                             <CardActions sx={{ p: 2, pt: 0 }}>
                                                 {isCompleted ? (
+                                                    isPendingGrading ? (
+                                                        <Button
+                                                            variant="outlined"
+                                                            fullWidth
+                                                            disabled
+                                                            startIcon={<PendingIcon />}
+                                                            sx={{
+                                                                fontFamily: 'Cairo',
+                                                                fontWeight: 'bold',
+                                                                borderRadius: 3,
+                                                                py: 1.5,
+                                                                borderColor: '#FF9800',
+                                                                color: '#FF9800',
+                                                            }}
+                                                        >
+                                                            بانتظار تصحيح الدكتور
+                                                        </Button>
+                                                    ) : (
                                                     <Button
                                                         variant="outlined"
                                                         fullWidth
@@ -287,6 +315,7 @@ export default function StudentQuizzes() {
                                                     >
                                                         عرض النتيجة - {scorePercentage}%
                                                     </Button>
+                                                    )
                                                 ) : (
                                                     <Button
                                                         variant="contained"

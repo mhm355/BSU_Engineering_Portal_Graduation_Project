@@ -19,6 +19,7 @@ import StarIcon from '@mui/icons-material/Star';
 import PersonIcon from '@mui/icons-material/Person';
 import DownloadIcon from '@mui/icons-material/Download';
 import RefreshIcon from '@mui/icons-material/Refresh';
+import EditIcon from '@mui/icons-material/Edit';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 
@@ -296,6 +297,7 @@ export default function QuizResults() {
                                             <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold', fontSize: '1.1rem', textAlign: 'center' }}>التقدير</TableCell>
                                             <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold', fontSize: '1.1rem', textAlign: 'center' }}>الحالة</TableCell>
                                             <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold', fontSize: '1.1rem' }}>تاريخ التسليم</TableCell>
+                                            <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold', fontSize: '1.1rem', textAlign: 'center' }}>تصحيح</TableCell>
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
@@ -408,6 +410,28 @@ export default function QuizResults() {
                                                                 minute: '2-digit'
                                                             }) : '-'}
                                                         </Typography>
+                                                    </TableCell>
+                                                    <TableCell sx={{ textAlign: 'center' }}>
+                                                        {!result.is_graded ? (
+                                                            <Button
+                                                                variant="contained"
+                                                                size="small"
+                                                                startIcon={<EditIcon />}
+                                                                onClick={() => navigate(`/doctor/courses/${courseId}/quiz/${quizId}/grade/${result.attempt_id || result.student_id}`)}
+                                                                sx={{ fontFamily: 'Cairo', fontWeight: 'bold', borderRadius: 2 }}
+                                                                color="warning"
+                                                            >
+                                                                تصحيح
+                                                            </Button>
+                                                        ) : (
+                                                            <Chip
+                                                                icon={<CheckCircleIcon />}
+                                                                label="تم التصحيح"
+                                                                color="success"
+                                                                size="small"
+                                                                sx={{ fontFamily: 'Cairo' }}
+                                                            />
+                                                        )}
                                                     </TableCell>
                                                 </TableRow>
                                             );

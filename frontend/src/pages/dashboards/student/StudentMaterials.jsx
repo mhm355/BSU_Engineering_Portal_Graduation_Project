@@ -23,6 +23,7 @@ import {
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { sanitizeFileUrl } from '../../../utils/urlHelper';
 
 // Animations
 const float = keyframes`
@@ -367,7 +368,7 @@ function SubjectFolder({ subject, index, expanded, onToggle, lectures, getFileIc
                                     variant="contained"
                                     size="small"
                                     startIcon={<DownloadIcon />}
-                                    href={lecture.file ? lecture.file.replace('http://backend:8000', '') : '#'}
+                                    href={sanitizeFileUrl(lecture.file_url || lecture.file)}
                                     target="_blank"
                                     sx={{ fontFamily: 'Cairo', borderRadius: 2, bgcolor: color, '&:hover': { bgcolor: color } }}
                                 >

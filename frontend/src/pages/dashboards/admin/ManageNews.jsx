@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Container, Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Button, IconButton, Dialog, DialogTitle, DialogContent, TextField, DialogActions, Alert, Avatar } from '@mui/material';
+import { Box, Container, Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Button, IconButton, Dialog, DialogTitle, DialogContent, TextField, DialogActions, Alert, Avatar, FormControl, Select, MenuItem } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
@@ -8,7 +8,7 @@ import axios from 'axios';
 export default function ManageNews() {
     const [newsList, setNewsList] = useState([]);
     const [open, setOpen] = useState(false);
-    const [currentNews, setCurrentNews] = useState({ title: '', content: '', image: null });
+    const [currentNews, setCurrentNews] = useState({ title: '', content: '', image: null, target_audience: 'ALL' });
     const [isEdit, setIsEdit] = useState(false);
     const [error, setError] = useState('');
     const [uploading, setUploading] = useState(false);
@@ -47,6 +47,7 @@ export default function ManageNews() {
         const formData = new FormData();
         formData.append('title', currentNews.title);
         formData.append('content', currentNews.content);
+        formData.append('target_audience', currentNews.target_audience || 'ALL');
         if (currentNews.image instanceof File) {
             formData.append('image', currentNews.image);
         }
@@ -187,6 +188,18 @@ export default function ManageNews() {
                                 onChange={(e) => setCurrentNews({ ...currentNews, attachment: e.target.files[0] })}
                             />
                         </Button>
+                        <FormControl fullWidth sx={{ mt: 2 }}>
+                            <Typography variant="body2" sx={{ fontFamily: 'Cairo', mb: 1 }}>الجمهور المستهدف</Typography>
+                            <Select
+                                value={currentNews.target_audience || 'ALL'}
+                                onChange={(e) => setCurrentNews({ ...currentNews, target_audience: e.target.value })}
+                                sx={{ fontFamily: 'Cairo' }}
+                            >
+                                <MenuItem value="ALL">الجميع</MenuItem>
+                                <MenuItem value="STUDENTS">الطلاب فقط</MenuItem>
+                                <MenuItem value="DOCTORS">الأساتذة فقط</MenuItem>
+                            </Select>
+                        </FormControl>
                     </Box>
                 </DialogContent>
                 <DialogActions sx={{ justifyContent: 'flex-start', p: 2 }}>
