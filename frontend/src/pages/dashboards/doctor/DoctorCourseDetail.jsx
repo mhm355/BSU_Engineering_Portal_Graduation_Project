@@ -31,6 +31,7 @@ import DownloadIcon from '@mui/icons-material/Download';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import { exportToExcel, exportAttendanceToExcel } from '../../../utils/excelExport';
+import { sanitizeFileUrl } from '../../../utils/urlHelper';
 
 const float = keyframes`
   0%, 100% { transform: translateY(0px); }
@@ -566,7 +567,7 @@ export default function DoctorCourseDetail() {
                                                     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                                                         <Chip label={lecture.file_type} size="small" sx={{ fontWeight: 'bold' }} />
                                                         <Box>
-                                                            <Button size="small" href={lecture.file_url || lecture.file || '#'} target="_blank" sx={{ fontFamily: 'Cairo' }}>عرض</Button>
+                                                            <Button size="small" href={sanitizeFileUrl(lecture.file_url || lecture.file)} target="_blank" sx={{ fontFamily: 'Cairo' }}>عرض</Button>
                                                             <IconButton color="error" size="small" onClick={() => handleDeleteLecture(lecture.id)}><DeleteIcon /></IconButton>
                                                         </Box>
                                                     </Box>
@@ -896,7 +897,7 @@ export default function DoctorCourseDetail() {
                                     >
                                         تصدير Excel
                                     </Button>
-                                    <Button variant="contained" size="large" startIcon={savingGrades ? <CircularProgress size={24} color="inherit" /> : <SaveIcon />} onClick={handleSaveGrades} disabled={savingGrades || students.length === 0} sx={{ fontFamily: 'Cairo', fontWeight: 'bold', borderRadius: 3, px: 4, background: 'linear-gradient(135deg, #d32f2f, #ef5350)' }}>حفظ الدرجات</Button>
+                                    <Button variant="contained" size="large" startIcon={savingGrades ? <CircularProgress size={24} color="inherit" /> : <SaveIcon />} onClick={handleSaveGrades} disabled={savingGrades || students.length === 0 || course?.academic_year_status === 'CLOSED'} sx={{ fontFamily: 'Cairo', fontWeight: 'bold', borderRadius: 3, px: 4, background: course?.academic_year_status === 'CLOSED' ? '#999' : 'linear-gradient(135deg, #d32f2f, #ef5350)' }}>{course?.academic_year_status === 'CLOSED' ? 'العام الأكاديمي مغلق' : 'حفظ الدرجات'}</Button>
                                 </Box>
                             </Box>
 
@@ -1093,7 +1094,7 @@ export default function DoctorCourseDetail() {
                             <input
                                 type="file"
                                 hidden
-                                accept=".pdf,.ppt,.pptx,application/pdf,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation"
+                                accept=".pdf,.ppt,.pptx,.mp4,.avi,.mov,.mkv,.doc,.docx,.zip,.rar,application/pdf,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,video/*"
                                 onChange={(e) => setUploadData({ ...uploadData, file: e.target.files[0] })}
                             />
                         </Button>

@@ -146,6 +146,7 @@ function App() {
                 <Route path="staff-affairs/academic-structure" element={<ProtectedRoute roles={['STAFF_AFFAIRS']}><StaffAcademicStructure /></ProtectedRoute>} />
                 <Route path="staff-affairs/manage-doctors" element={<ProtectedRoute roles={['STAFF_AFFAIRS']}><ManageDoctors /></ProtectedRoute>} />
                 <Route path="staff-affairs/assignment-history" element={<ProtectedRoute roles={['STAFF_AFFAIRS']}><AssignmentHistory /></ProtectedRoute>} />
+                <Route path="staff-affairs/news" element={<ProtectedRoute roles={['STAFF_AFFAIRS']}><ManageStaffNews /></ProtectedRoute>} />
 
                 {/* Admin Routes */}
                 <Route path="admin/dashboard" element={<ProtectedRoute roles={['ADMIN']}><AdminDashboard /></ProtectedRoute>} />

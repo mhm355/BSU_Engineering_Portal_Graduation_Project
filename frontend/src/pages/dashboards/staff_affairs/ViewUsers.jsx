@@ -46,11 +46,12 @@ const ViewUsers = () => {
         }
     };
 
-    const filteredDoctors = doctors.filter(doc =>
-        doc.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        doc.national_id.includes(searchQuery) ||
-        (doc.email && doc.email.toLowerCase().includes(searchQuery.toLowerCase()))
-    );
+    const filteredDoctors = doctors.filter(doc => {
+        const query = searchQuery.toLowerCase();
+        return (doc.full_name?.toLowerCase().includes(query)) ||
+               (doc.national_id?.includes(query)) ||
+               (doc.email?.toLowerCase().includes(query));
+    });
 
     const withEmailCount = doctors.filter(d => d.email).length;
 

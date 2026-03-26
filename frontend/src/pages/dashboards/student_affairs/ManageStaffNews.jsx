@@ -195,7 +195,7 @@ export default function ManageStaffNews() {
                 <Container maxWidth="lg">
                     <Fade in={true} timeout={800}>
                         <Box>
-                            <Button startIcon={<ArrowBackIcon />} onClick={() => navigate('/student-affairs/dashboard')} sx={{ color: '#fff', mb: 2, fontFamily: 'Cairo', '&:hover': { bgcolor: 'rgba(255,255,255,0.1)' } }}>
+                            <Button startIcon={<ArrowBackIcon />} onClick={() => navigate(user?.role === 'STAFF_AFFAIRS' ? '/staff-affairs/dashboard' : '/student-affairs/dashboard')} sx={{ color: '#fff', mb: 2, fontFamily: 'Cairo', '&:hover': { bgcolor: 'rgba(255,255,255,0.1)' } }}>
                                 العودة للوحة التحكم
                             </Button>
                             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>

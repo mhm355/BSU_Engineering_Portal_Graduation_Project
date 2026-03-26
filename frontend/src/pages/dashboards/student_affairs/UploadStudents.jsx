@@ -87,7 +87,7 @@ export default function UploadStudents() {
                 axios.get('/api/academic/years/', config)
             ]);
             setDepartments(deptRes.data);
-            setAcademicYears(yearRes.data);
+            setAcademicYears(yearRes.data.filter(y => y.status === 'OPEN'));
 
             const currentYear = yearRes.data.find(y => y.is_current);
             if (currentYear) {
@@ -152,7 +152,9 @@ export default function UploadStudents() {
         formData.append('file', file);
         formData.append('department_id', selectedDepartment);
         formData.append('academic_year_id', selectedYear);
-        formData.append('level_id', selectedLevel);
+        if (selectedLevel !== 'multi') {
+            formData.append('level_id', selectedLevel);
+        }
         if (needsSpecialization && selectedSpecialization) {
             formData.append('specialization_id', selectedSpecialization);
         }
@@ -199,7 +201,9 @@ export default function UploadStudents() {
         formData.append('file', file);
         formData.append('department_id', selectedDepartment);
         formData.append('academic_year_id', selectedYear);
-        formData.append('level_id', selectedLevel);
+        if (selectedLevel !== 'multi') {
+            formData.append('level_id', selectedLevel);
+        }
         if (needsSpecialization && selectedSpecialization) {
             formData.append('specialization_id', selectedSpecialization);
         }
@@ -372,6 +376,7 @@ export default function UploadStudents() {
                                             }}
                                         >
                                             <MenuItem value="" disabled sx={{ fontSize: '1.2rem' }}>اختر الفرقة</MenuItem>
+                                            <MenuItem value="multi" sx={{ fontSize: '1.2rem', py: 1.5, fontWeight: 'bold', color: '#1976d2' }}>متعدد (ملف يحتوي على عدة فرق)</MenuItem>
                                             {levels.map((level) => (
                                                 <MenuItem key={level.id} value={level.id} sx={{ fontSize: '1.2rem', py: 1.5 }}>{level.display_name}</MenuItem>
                                             ))}

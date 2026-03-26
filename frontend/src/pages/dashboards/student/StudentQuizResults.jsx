@@ -11,8 +11,10 @@ import QuizIcon from '@mui/icons-material/Quiz';
 import StarIcon from '@mui/icons-material/Star';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import HelpIcon from '@mui/icons-material/Help';
+import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
+import { sanitizeFileUrl } from '../../../utils/urlHelper';
 
 const shimmer = keyframes`
   0% { background-position: -200% 0; }
@@ -92,8 +94,10 @@ export default function StudentQuizResults() {
         );
     }
 
+    const hasEssayQuestions = quiz?.questions?.some(q => q.question_type === 'ESSAY');
+    const hasPendingReview = quiz?.questions?.some(q => q.question_type === 'ESSAY' && q.pending_review);
     const scorePercentage = quiz?.total_points > 0 ? Math.round((quiz.score / quiz.total_points) * 100) : 0;
-    const scoreColor = getScoreColor(scorePercentage);
+    const scoreColor = hasPendingReview ? '#FF9800' : getScoreColor(scorePercentage);
 
     return (
         <Box sx={{ minHeight: '100vh', bgcolor: '#f8fafc' }}>
@@ -193,6 +197,11 @@ export default function StudentQuizResults() {
                         <Typography variant="body2" sx={{ fontFamily: 'Cairo', color: '#666', mt: 1 }}>
                             نسبة النجاح: {scorePercentage}%
                         </Typography>
+                        {hasPendingReview && (
+                            <Alert icon={<HourglassEmptyIcon />} severity="warning" sx={{ mt: 3, fontFamily: 'Cairo', borderRadius: 3, textAlign: 'right' }}>
+                                الدرجة الحالية مبدئية - بعض الأسئلة المقالية لم تتم مراجعتها بعد من الدكتور
+                            </Alert>
+                        )}
                     </Paper>
                 </Grow>
 
@@ -239,8 +248,16 @@ export default function StudentQuizResults() {
                 </Typography>
 
                 {quiz?.questions?.map((question, idx) => {
-                    const isCorrect = question.is_correct;
+                    const isPendingEssay = question.question_type === 'ESSAY' && question.pending_review;
+                    const isCorrect = isPendingEssay ? null : question.is_correct;
                     const userAnswer = question.user_answer;
+                    const borderColor = isPendingEssay ? '#FF980030' : (isCorrect ? '#4CAF5030' : '#f4433630');
+                    const bgGradient = isPendingEssay
+                        ? 'linear-gradient(135deg, #FF980015, #FF980005)'
+                        : isCorrect
+                            ? 'linear-gradient(135deg, #4CAF5015, #4CAF5005)'
+                            : 'linear-gradient(135deg, #f4433615, #f4433605)';
+                    const chipColor = isPendingEssay ? '#FF9800' : (isCorrect ? '#4CAF50' : '#f44336');
 
                     return (
                         <Grow in={true} timeout={300 + idx * 100} key={question.id}>
@@ -248,31 +265,29 @@ export default function StudentQuizResults() {
                                 mb: 3,
                                 borderRadius: 4,
                                 boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-                                border: `2px solid ${isCorrect ? '#4CAF5030' : '#f4433630'}`
+                                border: `2px solid ${borderColor}`
                             }}>
                                 {/* Question Header */}
                                 <Box sx={{
                                     p: 2,
-                                    background: isCorrect
-                                        ? 'linear-gradient(135deg, #4CAF5015, #4CAF5005)'
-                                        : 'linear-gradient(135deg, #f4433615, #f4433605)',
+                                    background: bgGradient,
                                     display: 'flex',
                                     justifyContent: 'space-between',
                                     alignItems: 'center'
                                 }}>
                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                        <Avatar sx={{ bgcolor: isCorrect ? '#4CAF5020' : '#f4433620' }}>
-                                            <Typography sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: isCorrect ? '#4CAF50' : '#f44336' }}>
+                                        <Avatar sx={{ bgcolor: `${chipColor}20` }}>
+                                            <Typography sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: chipColor }}>
                                                 {idx + 1}
                                             </Typography>
                                         </Avatar>
                                         <Chip
-                                            icon={isCorrect ? <CheckCircleIcon /> : <CancelIcon />}
-                                            label={isCorrect ? 'إجابة صحيحة' : 'إجابة خاطئة'}
+                                            icon={isPendingEssay ? <HourglassEmptyIcon /> : isCorrect ? <CheckCircleIcon /> : <CancelIcon />}
+                                            label={isPendingEssay ? 'بانتظار المراجعة' : isCorrect ? 'إجابة صحيحة' : 'إجابة خاطئة'}
                                             size="small"
                                             sx={{
-                                                bgcolor: isCorrect ? '#4CAF5020' : '#f4433620',
-                                                color: isCorrect ? '#4CAF50' : '#f44336',
+                                                bgcolor: `${chipColor}20`,
+                                                color: chipColor,
                                                 fontFamily: 'Cairo',
                                                 fontWeight: 'bold'
                                             }}
@@ -280,7 +295,7 @@ export default function StudentQuizResults() {
                                     </Box>
                                     <Chip
                                         icon={<StarIcon />}
-                                        label={`${question.earned_points || 0}/${question.points} درجة`}
+                                        label={isPendingEssay ? `بانتظار التقييم / ${question.points} درجة` : `${question.earned_points || 0}/${question.points} درجة`}
                                         size="small"
                                         sx={{
                                             bgcolor: '#fff3e0',
@@ -298,20 +313,23 @@ export default function StudentQuizResults() {
                                     </Typography>
 
                                     {/* Question Image */}
-                                    {question.question_image && (
-                                        <Box sx={{ mb: 3, textAlign: 'center' }}>
-                                            <img
-                                                src={question.question_image ? question.question_image.replace('http://backend:8000', window.location.protocol + '//' + window.location.hostname + ':8000') : ''}
-                                                alt="Question"
-                                                style={{
-                                                    maxWidth: '100%',
-                                                    maxHeight: 300,
-                                                    borderRadius: 12,
-                                                    boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
-                                                }}
-                                            />
-                                        </Box>
-                                    )}
+                                    {question.question_image && (() => {
+                                        const imgUrl = sanitizeFileUrl(question.question_image);
+                                        return (
+                                            <Box sx={{ mb: 3, textAlign: 'center' }}>
+                                                <img
+                                                    src={imgUrl}
+                                                    alt="Question"
+                                                    style={{
+                                                        maxWidth: '100%',
+                                                        maxHeight: 300,
+                                                        borderRadius: 12,
+                                                        boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
+                                                    }}
+                                                />
+                                            </Box>
+                                        );
+                                    })()}
 
                                     {/* MCQ Answers */}
                                     {question.question_type === 'MCQ' && question.choices && (
