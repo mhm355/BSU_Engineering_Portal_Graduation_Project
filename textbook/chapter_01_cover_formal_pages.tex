@@ -64,16 +64,16 @@
 \addcontentsline{toc}{chapter}{Abstract}
 \label{chap:abstract}
 
-The Faculty of Engineering at Beni-Suef University (BSU) has historically relied on fragmented, Excel-based workflows for academic management---student registration, grade tracking, course assignments, and administrative reporting. This manual approach created data inconsistency across departments, lacked audit trails for administrative actions, and scaled poorly as enrollment exceeded 4,000 active students.
+The Faculty of Engineering at Beni-Suef University (BSU) has historically relied on fragmented, Excel-based workflows for academic management---student registration, grade tracking, course assignments, and administrative reporting. This manual approach created severe data inconsistencies across departments, lacked any audit trails for critical administrative actions, and scaled poorly as active enrollment exceeded 4,000 students. The absence of a centralized digital infrastructure not only delayed end-of-semester grade processing but also hindered students' self-service access to essential academic information.
 
-\textbf{Release BSU Engineering Portal} addresses these challenges through a modern, decoupled web architecture comprising: (1) a \textbf{Django 5.0} backend with Django REST Framework providing secure, stateless API endpoints with cross-origin Session/CSRF protection; (2) a \textbf{React 19} frontend built via Vite, utilizing Material-UI for responsive interfaces; (3) \textbf{MySQL 8.0} as the relational database ensuring strict ACID compliance for grade and attendance transactions; and (4) \textbf{Docker} containerization enabling deterministic, portable deployments across any cloud or on-premises infrastructure.
+\textbf{Release BSU Engineering Portal} addresses these systemic challenges through a modern, decoupled web architecture comprising: (1) a \textbf{Django 5.0} backend with Django REST Framework providing secure, stateless API endpoints with cross-origin Session/CSRF protection; (2) a \textbf{React 19} frontend built via Vite, utilizing Material-UI to deliver highly responsive, state-driven user interfaces; (3) \textbf{MySQL 8.0} as the relational database ensuring strict ACID compliance for grade and attendance transactions; and (4) \textbf{Docker} containerization enabling deterministic, portable deployments across any cloud or on-premises infrastructure.
 
-Key system capabilities include hierarchical academic entity modeling (departments $\rightarrow$ specializations $\rightarrow$ levels $\rightarrow$ students), transaction-safe batch CSV/Excel import pipelines using Pandas for student enrollment and grade uploads, comprehensive audit logging for all administrative actions, and five distinct user roles (Admin, Doctor, Student, Student Affairs, Staff Affairs) strictly enforced via Role-Based Access Control (RBAC).
+Key system capabilities include hierarchical academic entity modeling (departments $\rightarrow$ specializations $\rightarrow$ levels $\rightarrow$ students), transaction-safe batch CSV/Excel import pipelines using Pandas for student enrollment and grade uploads, and a highly interactive multi-modal quiz engine. To guarantee data integrity and security, the system enforces the principle of least privilege across five distinct user roles (Admin, Doctor, Student, Student Affairs, Staff Affairs) via custom Role-Based Access Control (RBAC) middleware, coupled with comprehensive audit logging for all administrative actions.
 
-The project demonstrates engineering maturity through robust DevOps practices, security-hardened deployment (configured CORS/CSRF boundaries, input validation, rate limiting), and explicitly defined system scope, providing a highly scalable foundation for Beni-Suef University's ongoing digital transformation.
+The project demonstrates engineering maturity through robust DevOps practices, security-hardened deployment strategies (configured CORS/CSRF boundaries, input validation, rate limiting), and explicitly defined system boundaries. By abstracting complex administrative workflows into streamlined digital pipelines, the portal drastically reduces operational overhead, eliminates data silos, and provides a highly scalable foundation for Beni-Suef University's ongoing digital transformation.
 
 \vspace{1cm}
-\noindent\textbf{Keywords:} Academic ERP, Django REST Framework, React, Role-Based Access Control (RBAC), Docker, ACID Transactions, Bulk Data Processing, DevOps
+\noindent\textbf{Keywords:} Academic ERP, Django REST Framework, React, Role-Based Access Control (RBAC), Docker, ACID Transactions, Bulk Data Processing, DevOps, Requirements Engineering
 
 % ============================================================================
 % 1.3 ACKNOWLEDGMENTS
@@ -87,11 +87,11 @@ We express our sincere gratitude to [Supervisor Name], Ph.D., whose guidance and
 
 We extend our appreciation to the Faculty of Engineering administration, particularly the Dean's office and the heads of the Electrical, Mechanical, Civil, and Chemical Engineering departments, for providing domain expertise and access to operational workflows that informed our requirements analysis.
 
-Special thanks to the staff of Student Affairs and Staff Affairs offices for their willingness to articulate pain points in the current Excel-based systems---your candid feedback grounded our design in real-world necessity rather than theoretical abstraction.
+Special thanks to the staff of Student Affairs and Staff Affairs offices for their willingness to articulate pain points in the current Excel-based systems. Your candid feedback, delivered during our iterative Agile sprints, grounded our design in real-world necessity rather than theoretical abstraction and directly inspired critical features such as the batch-upload previews and the two-phase deletion approval workflow.
 
-We acknowledge the open-source community behind Django, React, Docker, and the countless libraries that accelerated our development. Standing on the shoulders of these giants allowed us to focus on domain-specific challenges rather than infrastructure reinvention.
+We acknowledge the robust open-source community behind Django, React, Pandas, and Docker. Standing on the shoulders of these reliable frameworks allowed us to focus heavily on solving domain-specific institutional challenges, rather than spending crucial time reinventing foundational infrastructure.
 
-Finally, we thank our families for their unwavering support throughout our academic journey. Your encouragement sustained us through late debugging sessions and deadline pressures.
+Finally, we thank our families and peers for their unwavering support throughout our academic journey. Your continuous encouragement, patience, and willingness to beta-test early versions of the portal sustained us through late debugging sessions, complex database migrations, and demanding project deadlines.
 
 
 % ============================================================================
