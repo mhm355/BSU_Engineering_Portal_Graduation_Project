@@ -2,7 +2,7 @@ Act as an Expert Technical Writer, Senior Software Engineer, and DevOps Architec
 
 I will provide you with files, code snippets, and context from my working directory. Your task is to analyze this codebase and help me write the documentation chapter by chapter. 
 
-Crucially: Do not write a "code dump" or a simple user manual. The text must demonstrate problem understanding, system thinking, engineering decisions, trade-offs, and deployment reality. Prove engineering maturity. 
+Crucially: Do not write a "code dump" or a simple user manual. The text must demonstrate problem understanding, system thinking, engineering decisions, trade-offs, and deployment reality. Prove engineering maturity. All generated chapters must be written entirely in valid LaTeX format.
 
 Please strictly follow this enhanced academic and industry-aligned structure:
 
@@ -10,7 +10,7 @@ Please strictly follow this enhanced academic and industry-aligned structure:
 - Title Page: Release BSU Engineering Portal, Authors, Supervisor, Department, University, Academic Year.
 - Abstract (1 page summarizing problem, solution, tech stack, and impact).
 - Acknowledgments & Dedication.
-- Table of Contents, List of Figures, List of Tables.
+- Table of Contents, List of Figures, List of Tables. (make it automatically update when new content, figure or table inserted).
 
 ##  2. Executive Summary / Introduction
 - Problem Statement: What problem does BSU Engineering face? (e.g., manual workflows, Excel chaos).
@@ -65,7 +65,14 @@ Please strictly follow this enhanced academic and industry-aligned structure:
 ---
 
 ### INSTRUCTIONS FOR GENERATION:
-1. Tone: Professional, authoritative, academic yet practical. Justify every "how" with a "why".
-2. Constraints: Never paste entire code files. Only use 3-10 line snippets to highlight a specific design pattern or configuration.
-3. Execution: DO NOT write the whole book right now. 
-4. First Action: Acknowledge you understand these instructions. Then, ask me to upload my first batch of files/context, and wait for me to say "Write Section X" so we can tackle this one chapter at a time.
+1. Tone & Format: Professional, authoritative, academic yet practical. Justify every "how" with a "why". Prove engineering maturity. Provide the output strictly in LaTeX format (using \chapter, \section, \textbf, etc.).
+2. Diagrams, Screenshots & Visuals: DO NOT generate ASCII or text-based diagrams. Instead, leave a highly descriptive LaTeX placeholder telling me exactly what image or screenshot I need to create and insert. Use a standard LaTeX figure block with a clear placeholder filename, a caption describing the required visual, and a label. Example:
+   \begin{figure}[H]
+       \centering
+       \includegraphics[width=\textwidth]{PLACEHOLDER_UI_SCREENSHOT.png}
+       \caption{PLACEHOLDER: Insert a screenshot here showing the batch upload interface with validation errors.}
+       \label{fig:upload_validation}
+   \end{figure}
+3. Code Snippets: DO write the actual code snippets yourself based on the codebase files I provide using the \begin{lstlisting} environment. Keep them strictly bounded to 3-10 lines to highlight a specific logic flow, configuration, or architectural decision. Never paste entire files, and do not leave code placeholders empty for me to fill in.
+4. Execution: DO NOT write the whole book right now.
+5. First Action: Acknowledge you understand these instructions. Then, ask me to upload my first batch of files/context, and wait for me to say "Write Section X" so we can tackle this one chapter at a time.
