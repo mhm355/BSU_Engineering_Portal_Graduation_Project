@@ -1,0 +1,269 @@
+% Chapter 3: Problem Definition & Requirements Engineering
+% BSU Engineering Portal Graduation Project
+
+\chapter{Problem Definition \& Requirements Engineering}
+\label{chap:requirements}
+
+\section{Current Situation \& Stakeholder Analysis}
+\label{sec:current-situation}
+
+\subsection{The Pre-System Workflow}
+
+Prior to the introduction of the BSU Engineering Portal, the Faculty of Engineering at Beni-Suef University operated a predominantly paper-based and spreadsheet-driven academic management process. This workflow exhibited the following systemic failures:
+
+\begin{itemize}
+    \item \textbf{Student Records}: Student enrollment data was maintained in Microsoft Excel workbooks, segregated by department and academic year. Adding a single student required manually editing a shared file over the local network, risking data corruption due to concurrent edits.
+    \item \textbf{Grade Management}: Faculty members (doctors) recorded attendance and exam grades on paper forms. These forms were physically transported to Student Affairs, where clerks manually re-entered them into another Excel workbook---introducing a high-latency human transcription layer with zero automated validation.
+    \item \textbf{Course-Doctor Assignment}: The assignment of faculty members to courses each semester was communicated verbally or via internal paper memos, lacking a central digital record mapping doctors to subjects in the current term.
+    \item \textbf{Student Access to Information}: Students lacked a self-service mechanism to view their own grades, attendance records, or exam schedules. They depended entirely on physical notice boards or direct inquiries to Student Affairs, processes that could take days.
+    \item \textbf{Audit Trail}: The absence of digital logs meant there was no record of who uploaded grades, who modified student records, or when these actions occurred, making accountability impossible and dispute resolution arbitrary.
+\end{itemize}
+
+\subsection{Stakeholder Identification}
+
+Identifying the exact users of the system is the first step in requirements engineering. Table~\ref{tab:stakeholders} identifies every actor in the system, their organizational role, their pain points under the legacy process, and their primary interaction with the proposed portal.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{PLACEHOLDER_STAKEHOLDER_DIAGRAM.png}
+    \caption{PLACEHOLDER: Insert a Stakeholder Interaction Diagram showing all five roles (Admin, Doctor, Student, Student Affairs, Staff Affairs) and their primary data flows into the centralized system.}
+    \label{fig:stakeholders}
+\end{figure}
+
+\begin{table}[H]
+    \centering
+    \renewcommand{\arraystretch}{1.3}
+    \begin{tabular}{|p{0.15\textwidth}|p{0.2\textwidth}|p{0.3\textwidth}|p{0.25\textwidth}|}
+        \hline
+        \textbf{Stakeholder} & \textbf{Organization Role} & \textbf{Pre-System Pain Point} & \textbf{System Interaction} \\
+        \hline
+        \textbf{Student} & Undergraduate in any dept/level & No self-service access to grades, attendance, or materials. & View grades, attendance, quizzes, schedule, and download lectures. \\
+        \hline
+        \textbf{Doctor} & Faculty Member teaching courses & No digital tool for recording attendance or publishing quizzes. & Manage courses, record attendance, create quizzes, enter grades. \\
+        \hline
+        \textbf{Student Affairs} & Admin staff managing student lifecycles & Manual Excel-based registration and redundant grade re-entry. & Batch-upload students, view grades, manage certificates. \\
+        \hline
+        \textbf{Staff Affairs} & Admin staff managing HR & No structured system for managing doctor course assignments. & Batch-upload doctors, assign to courses, manage deletions. \\
+        \hline
+        \textbf{Admin} & IT/System Administrator & No central configuration tool; ad-hoc management. & Manage academic years, approve deletions, view audit logs. \\
+        \hline
+    \end{tabular}
+    \caption{Stakeholder Summary and System Interaction Points}
+    \label{tab:stakeholders}
+\end{table}
+
+\subsection{Stakeholder Permission Boundaries}
+
+A critical engineering decision in the system's design is the enforcement of the \textbf{principle of least privilege}. No single stakeholder role has full system access. Even the Admin role cannot directly enter grades or upload students---those operational capabilities are delegated exclusively to the Doctor and Student Affairs roles, respectively. This ensures that operational authority perfectly matches organizational responsibility.
+
+The following code snippet demonstrates how these boundaries are strictly enforced at the API layer using Django REST Framework permission classes:
+
+\begin{lstlisting}[language=Python, caption=Role-based Permission Guard for Student Affairs (\texttt{permissions.py})]
+class IsStudentAffairsRole(permissions.BasePermission):
+    """Student Affairs role - exclusively manages students and grades"""
+    def has_permission(self, request, view):
+        if not request.user or not request.user.is_authenticated:
+            return False
+        # Admin gets fallback read/write access for administrative support
+        return request.user.role in ['STUDENT_AFFAIRS', 'ADMIN']
+\end{lstlisting}
+
+\section{Proposed Methodology}
+\label{sec:methodology}
+
+\subsection{Why Agile?}
+
+The BSU Engineering Portal was developed using an \textbf{iterative, sprint-based Agile methodology}. A traditional Waterfall approach would have mandated locking all requirements prior to implementation. However, stakeholder interviews frequently revealed new requirements throughout the development cycle. For example, the necessity for a multi-modal quiz engine (supporting MCQ, Essay, and Image-based questions) emerged mid-development when faculty expressed frustration over the lack of integrated online assessment tools.
+
+Agile permitted the engineering team to:
+\begin{enumerate}
+    \item \textbf{Deliver working features early}: Students could view grades while the quiz engine was still being actively developed.
+    \item \textbf{Incorporate feedback incrementally}: The grading template logic was fundamentally redesigned after pilot testing revealed the initial model did not accommodate the faculty's official tertiary grading structure (Coursework / Written / Practical-Oral).
+    \item \textbf{Maintain continuous deployment}: Docker containerization ensured every sprint concluded with a highly reproducible, runnable artifact.
+\end{enumerate}
+
+\begin{table}[H]
+    \centering
+    \renewcommand{\arraystretch}{1.2}
+    \begin{tabular}{|p{0.15\textwidth}|p{0.3\textwidth}|p{0.45\textwidth}|}
+        \hline
+        \textbf{Sprint} & \textbf{Focus Area} & \textbf{Key Deliverables} \\
+        \hline
+        Sprint 1 & Auth \& Core Data & 5-Role User model, login/logout, CSRF, Core Academic Models. \\
+        Sprint 2 & Student \& Staff Affairs & Batch Excel uploads (Pandas), student filtering. \\
+        Sprint 3 & Course Management & CourseOffering model, doctor assignments, lecture uploads. \\
+        Sprint 4 & Attendance \& Grading & Bulk attendance recording, grading templates. \\
+        Sprint 5 & Quiz Engine & MCQ/Essay CRUD, auto-grading logic. \\
+        Sprint 6 & Student Portal & Dashboards, schedules, grade views. \\
+        Sprint 7 & Admin \& Operations & Announcements, audit logging, deletion workflows. \\
+        Sprint 8 & DevOps \& Polish & Docker Compose, Nginx proxy, RTL (Arabic) UI support. \\
+        \hline
+    \end{tabular}
+    \caption{Agile Sprint Plan Overview}
+    \label{tab:sprints}
+\end{table}
+
+\section{Functional Requirements}
+\label{sec:functional-reqs}
+
+The following functional requirements are classified using IEEE 830-style prioritization (Must / Should / Could). 
+
+\subsection{Authentication \& User Management}
+
+\begin{itemize}
+    \item \textbf{FR-01 [Must]}: The system shall authenticate users via session-based login using a username (national ID) and password.
+    \item \textbf{FR-02 [Must]}: The system shall enforce a mandatory password change on first login. The default password shall equal the user's national ID.
+    \item \textbf{FR-03 [Must]}: The system shall reject new passwords that match the national ID or are under 6 characters.
+    \item \textbf{FR-04 [Must]}: The system shall enforce isolated UI dashboards for all five defined user roles.
+    \item \textbf{FR-05 [Must]}: Admin and authorized personnel shall be able to reset any user's password, automatically re-triggering the first-login requirement flag.
+\end{itemize}
+
+\begin{lstlisting}[language=Python, caption=Enforcing First-Login Requirement in Model Save (\texttt{models.py})]
+def save(self, *args, **kwargs):
+    is_new = not self.pk
+    if is_new and not self.is_superuser:
+        if not self.password or self.password == '!':
+            self.set_password(self.national_id or self.username)
+        if self.role in ['STUDENT', 'STUDENT_AFFAIRS', 'STAFF_AFFAIRS', 'DOCTOR']:
+            self.first_login_required = True
+    return super().save(*args, **kwargs)
+\end{lstlisting}
+
+\subsection{Student Affairs Operations}
+
+\begin{itemize}
+    \item \textbf{FR-06 [Must]}: Upload students in bulk via Excel/CSV (national\_id, full\_name, department, level).
+    \item \textbf{FR-07 [Should]}: Provide a pre-flight UI preview of the first 5 rows containing validation errors before committing database writes.
+    \item \textbf{FR-08 [Must]}: Validate that Excel data matches dropdown selections (e.g., rejecting a "Mechanical" student uploaded into the "Electrical" form).
+    \item \textbf{FR-09 [Must]}: Perform an "upsert" during batch uploads---updating existing records rather than crashing on duplicate national IDs.
+    \item \textbf{FR-10 [Must]}: View all student grades globally in a read-only matrix grouped by student and subject.
+    \item \textbf{FR-11 [Must]}: Upload zipped PDF graduation certificates, auto-matching filenames (e.g., \texttt{29912...pdf}) to student records.
+    \item \textbf{FR-12 [Must]}: Maintain a permanent \texttt{UploadHistory} summarizing created/updated/failed rows per batch.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{PLACEHOLDER_UPLOAD_PREVIEW.png}
+    \caption{PLACEHOLDER: Insert a screenshot of the Student Affairs Upload Form showing the 5-row preview validation step highlighting row errors.}
+    \label{fig:upload_preview}
+\end{figure}
+
+\subsection{Staff Affairs \& Doctor Operations}
+
+\begin{itemize}
+    \item \textbf{FR-13 [Must]}: Staff Affairs shall batch-upload Doctors and assign them to specific \texttt{CourseOfferings} per term.
+    \item \textbf{FR-14 [Must]}: Staff Affairs shall submit Doctor deletion requests to the Admin rather than deleting them directly, preventing accidental cascading data loss.
+    \item \textbf{FR-15 [Must]}: Doctors shall record bulk attendance for course sessions and export reports.
+    \item \textbf{FR-16 [Must]}: Doctors shall enter bulk grades mapped strictly to the course's \texttt{GradingTemplate}.
+    \item \textbf{FR-17 [Must]}: Doctors shall create Quizzes (MCQ, Essay, Image). MCQ attempts shall be auto-graded; Essay attempts shall queue for manual doctor review.
+\end{itemize}
+
+\section{Non-Functional Requirements}
+\label{sec:non-functional-reqs}
+
+Non-functional requirements dictate the system's operational constraints and quality attributes.
+
+\begin{table}[H]
+    \centering
+    \renewcommand{\arraystretch}{1.3}
+    \begin{tabular}{|p{0.1\textwidth}|p{0.15\textwidth}|p{0.45\textwidth}|p{0.2\textwidth}|}
+        \hline
+        \textbf{ID} & \textbf{Category} & \textbf{Requirement} & \textbf{Target Metric} \\
+        \hline
+        \textbf{NFR-01} & Security & Passwords hashed via PBKDF2-SHA256. & 0 plaintext DB records \\
+        \textbf{NFR-02} & Security & API enforces CSRF protection with \texttt{SameSite=None} cookies for cross-origin integration. & 100\% state mutations verified \\
+        \textbf{NFR-03} & Performance & API responses for list endpoints complete in under 2s for datasets $\leq$ 5,000 rows. & $<2$s response time \\
+        \textbf{NFR-04} & Usability & Full RTL layout support for Arabic text via MUI plugins. & No broken RTL layouts \\
+        \textbf{NFR-05} & Audit & All administrative mutations logged in \texttt{AuditLog}. & 100\% audit coverage \\
+        \hline
+    \end{tabular}
+    \caption{Non-Functional Requirements}
+    \label{tab:nfrs}
+\end{table}
+
+To protect against brute-force and denial-of-service attempts, rate limiting was configured globally in the backend:
+
+\begin{lstlisting}[language=Python, caption=Global API Rate Limiting Configuration (\texttt{settings.py})]
+REST_FRAMEWORK = {
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '100/hour',    # Protects login/public endpoints
+        'user': '1000/hour',   # Accommodates heavy batch operations
+    },
+}
+\end{lstlisting}
+
+\section{Use Case Definitions}
+\label{sec:use-cases}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{PLACEHOLDER_USE_CASE_UML.png}
+    \caption{PLACEHOLDER: Insert a UML Use Case Diagram mapping the 5 actors to their respective grouped use cases (Authentication, Academic Mgmt, Quizzes, etc.).}
+    \label{fig:use_case_uml}
+\end{figure}
+
+\subsection{Detailed Use Case: Batch Student Upload}
+
+This use case outlines the system's most complex data validation pipeline, migrating the faculty away from disjointed Excel hand-offs. A critical engineering decision was made to process rows iteratively inside \texttt{transaction.atomic()} blocks. While Django's \texttt{bulk\_create()} is faster, it fails entirely if a single row errors and obscures row-level validation feedback. The iterative atomic approach allows valid rows to succeed while cleanly capturing exact row indices for failed records.
+
+\textbf{Primary Actor:} Student Affairs\\
+\textbf{Main Flow:}
+\begin{enumerate}
+    \item User selects Department, Academic Year, and Level, then uploads a CSV/Excel file.
+    \item System parses the file via Pandas, validating headers and verifying that the file's payload matches the UI dropdown selections (preventing cross-department contamination).
+    \item System iterates over rows. If a \texttt{national\_id} exists, the record is updated. If not, a new \texttt{User} and \texttt{Student} record are atomically created.
+    \item The system commits an \texttt{UploadHistory} audit log and returns a JSON summary.
+\end{enumerate}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{PLACEHOLDER_SEQUENCE_UPLOAD.png}
+    \caption{PLACEHOLDER: Insert a Sequence Diagram showing the Batch Student Upload flow (Frontend $\rightarrow$ API $\rightarrow$ Pandas Validation $\rightarrow$ Database Transaction $\rightarrow$ AuditLog).}
+    \label{fig:seq_upload}
+\end{figure}
+
+\subsection{Detailed Use Case: Doctor Deletion Approval Workflow}
+
+Deleting a doctor account cascades destructively through the relational database, removing \texttt{CourseOfferings}, \texttt{StudentGrades}, and \texttt{Attendance} records. To mitigate the risk of catastrophic data loss by administrative error, a \textbf{two-phase approval pattern} was implemented.
+
+\textbf{Main Flow:}
+\begin{enumerate}
+    \item Staff Affairs initiates a deletion request, providing a required justification.
+    \item The API generates a \texttt{DoctorDeletionRequest} marked as \texttt{PENDING}. No data is deleted.
+    \item The Admin reviews the request on the Admin Dashboard.
+    \item If approved, the Admin triggers the hard deletion and an \texttt{AuditLog} is captured. If rejected, the request is closed and the account remains untouched.
+\end{enumerate}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{PLACEHOLDER_ADMIN_APPROVAL.png}
+    \caption{PLACEHOLDER: Insert a screenshot of the Admin Approval Center showing pending doctor deletion requests with Approve/Reject actions.}
+    \label{fig:admin_approval}
+\end{figure}
+
+\subsection{Detailed Use Case: Quiz Lifecycle}
+
+The quiz engine represents a fully integrated state machine tracking an assessment from creation to final grading.
+
+\textbf{Main Flow:}
+\begin{enumerate}
+    \item Doctor provisions a quiz, specifying MCQ or Essay questions and a time limit.
+    \item Student starts an attempt; system marks status as \texttt{IN\_PROGRESS}.
+    \item Student submits. For MCQ questions, the system instantly calculates scores by comparing choices against the \texttt{is\_correct} boolean flag.
+    \item For Essay questions, the attempt is flagged as \texttt{SUBMITTED}. The Doctor must manually review the text payload and assign \texttt{points\_earned}, pushing the status to \texttt{GRADED}.
+\end{enumerate}
+
+\begin{lstlisting}[language=Python, caption=Real-time Auto-grading Logic for MCQ Quizzes (\texttt{quiz\_views.py})]
+if question.question_type == 'MCQ':
+    choice = QuizChoice.objects.get(id=choice_id, question=question)
+    answer.selected_choice = choice
+    if choice.is_correct:
+        answer.points_earned = question.points  # Award full points
+        total_score += float(question.points)
+    else:
+        answer.points_earned = 0                # Incorrect choice
+\end{lstlisting}
