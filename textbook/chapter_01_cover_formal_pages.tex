@@ -1,0 +1,107 @@
+% Chapter 1: Cover & Formal Pages
+% BSU Engineering Portal Graduation Project
+% This file contains front matter: Title Page, Abstract, Acknowledgments, TOC setup
+
+% ============================================================================
+% 1.1 TITLE PAGE
+% ============================================================================
+
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    
+    % University Header
+    {\Large \textbf{Beni-Suef University}}\\[0.3cm]
+    {\large Faculty of Engineering}\\[0.3cm]
+    {\large Electronics and Communications Engineering Department}\\[2cm]
+    
+    % Project Title
+    \rule{\textwidth}{1.5pt}\\[0.4cm]
+    {\Huge \textbf{Release BSU Engineering Portal}}\\[0.2cm]
+    {\LARGE A Comprehensive Academic Management System}\\[0.4cm]
+    \rule{\textwidth}{1.5pt}\\[2cm]
+    
+    % Degree Information
+    {\Large Graduation Project Report}\\[0.5cm]
+    {\large Submitted in Partial Fulfillment of the Requirements}\\[0.2cm]
+    {\large for the Degree of Bachelor of Science in}\\[0.2cm]
+    {\large Electronics and Communications Engineering}\\[0.2cm]
+    {\large at Beni-Suef University}\\[2cm]
+    
+    % Academic Year
+    {\Large Academic Year 2025--2026}\\[3cm]
+    
+    % Authors Section
+    \begin{minipage}[t]{0.45\textwidth}
+        \begin{flushleft}
+            \textbf{Prepared by:}\\[0.3cm]
+            Mahmoud Hussein Mahmoud\\
+            Mohamed Gamal Shehata\\
+            Mohamed Essam Sayed\\
+        \end{flushleft}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.45\textwidth}
+        \begin{flushright}
+            \textbf{Supervised by:}\\[0.3cm]
+            Ph.D. Fathy Mostafa \\
+            Electronics and Communications Engineering Department
+        \end{flushright}
+    \end{minipage}
+    
+    \vfill
+    
+    % Date
+    {\large March 2026}
+    
+\end{titlepage}
+
+% ============================================================================
+% 1.2 ABSTRACT
+% ============================================================================
+
+\chapter*{Abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+\label{chap:abstract}
+
+The Faculty of Engineering at Beni-Suef University (BSU) has historically relied on fragmented, Excel-based workflows for academic management---student registration, grade tracking, course assignments, and administrative reporting. This manual approach created data inconsistency across departments, lacked audit trails for administrative actions, and scaled poorly as enrollment exceeded 4,000 active students.
+
+\textbf{Release BSU Engineering Portal} addresses these challenges through a modern, decoupled web architecture comprising: (1) a \textbf{Django 5.0} backend with Django REST Framework providing secure, stateless API endpoints with cross-origin Session/CSRF protection; (2) a \textbf{React 19} frontend built via Vite, utilizing Material-UI for responsive interfaces; (3) \textbf{MySQL 8.0} as the relational database ensuring strict ACID compliance for grade and attendance transactions; and (4) \textbf{Docker} containerization enabling deterministic, portable deployments across any cloud or on-premises infrastructure.
+
+Key system capabilities include hierarchical academic entity modeling (departments $\rightarrow$ specializations $\rightarrow$ levels $\rightarrow$ students), transaction-safe batch CSV/Excel import pipelines using Pandas for student enrollment and grade uploads, comprehensive audit logging for all administrative actions, and five distinct user roles (Admin, Doctor, Student, Student Affairs, Staff Affairs) strictly enforced via Role-Based Access Control (RBAC).
+
+The project demonstrates engineering maturity through robust DevOps practices, security-hardened deployment (configured CORS/CSRF boundaries, input validation, rate limiting), and explicitly defined system scope, providing a highly scalable foundation for Beni-Suef University's ongoing digital transformation.
+
+\vspace{1cm}
+\noindent\textbf{Keywords:} Academic ERP, Django REST Framework, React, Role-Based Access Control (RBAC), Docker, ACID Transactions, Bulk Data Processing, DevOps
+
+% ============================================================================
+% 1.3 ACKNOWLEDGMENTS
+% ============================================================================
+
+\chapter*{Acknowledgments}
+\addcontentsline{toc}{chapter}{Acknowledgments}
+\label{chap:acknowledgments}
+
+We express our sincere gratitude to [Supervisor Name], Ph.D., whose guidance and technical insight shaped the architecture and methodology of this project. Your patience in reviewing our design decisions and your emphasis on engineering rigor have been instrumental in our growth as software engineers.
+
+We extend our appreciation to the Faculty of Engineering administration, particularly the Dean's office and the heads of the Electrical, Mechanical, Civil, and Chemical Engineering departments, for providing domain expertise and access to operational workflows that informed our requirements analysis.
+
+Special thanks to the staff of Student Affairs and Staff Affairs offices for their willingness to articulate pain points in the current Excel-based systems---your candid feedback grounded our design in real-world necessity rather than theoretical abstraction.
+
+We acknowledge the open-source community behind Django, React, Docker, and the countless libraries that accelerated our development. Standing on the shoulders of these giants allowed us to focus on domain-specific challenges rather than infrastructure reinvention.
+
+Finally, we thank our families for their unwavering support throughout our academic journey. Your encouragement sustained us through late debugging sessions and deadline pressures.
+
+
+% ============================================================================
+% 1.4 DEDICATION (Optional but recommended)
+% ============================================================================
+
+\chapter*{Dedication}
+\addcontentsline{toc}{chapter}{Dedication}
+\label{chap:dedication}
+
+\textit{To our parents, whose sacrifices made our education possible.}\\[0.5cm]
+\textit{To our peers who challenged us to build better systems.}\\[0.5cm]
+\textit{And to the students of Beni-Suef University, who deserve efficient, modern tools for their academic journey.}
