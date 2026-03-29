@@ -217,7 +217,7 @@ This use case outlines the system's most complex data validation pipeline, migra
     \item User selects Department, Academic Year, and Level, then uploads a CSV/Excel file.
     \item System parses the file via Pandas, validating headers and verifying that the file's payload matches the UI dropdown selections (preventing cross-department contamination).
     \item System iterates over rows. If a \texttt{national\_id} exists, the record is updated. If not, a new \texttt{User} and \texttt{Student} record are atomically created.
-    \item The system commits an \texttt{UploadHistory} audit log and returns a JSON summary.
+    \item The system commits an \texttt{UploadHistory} audit log and returns a summary.
 \end{enumerate}
 
 \begin{figure}[H]
