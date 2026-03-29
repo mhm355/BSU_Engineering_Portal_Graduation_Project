@@ -15,7 +15,8 @@
 \usepackage{tocbibind} % Automatically adds TOC, LOF, LOT to the Table of Contents
 \usepackage{longtable}
 \usepackage{pifont}
-\usepackage{xcolor}
+\usepackage{needspace} % Prevent page breaks in listings
+\usepackage{rotating} % Landscape tables
 \newcommand{\cmark}{\textcolor{green!80!black}{\ding{51}}}%
 \newcommand{\xmark}{\textcolor{red}{\ding{55}}}%
 
@@ -46,6 +47,46 @@
 }
 \lstset{style=engineeringstyle}
 
+% Define JavaScript and JSON language support
+\lstdefinelanguage{JavaScript}{
+  keywords={break, case, catch, continue, debugger, default, delete, do, else, finally, for, function, if, in, instanceof, new, return, switch, this, throw, try, typeof, var, void, while, with, let, const, class, export, extends, import, super, async, await},
+  morecomment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  morestring=[b]',
+  morestring=[b]",
+  sensitive=true
+}
+
+\lstdefinelanguage{JSON}{
+  keywords={},
+  morestring=[b]",
+  morecomment=[l]{//},
+  morecomment=[s]{/*}{*/}
+}
+
+% Define JSX (React syntax)
+\lstdefinelanguage{jsx}{
+  language=JavaScript,
+  morekeywords={const,return,if,async,await}
+}
+
+% Define nginx configuration
+\lstdefinelanguage{nginx}{
+  keywords={server,location,listen,proxy_pass,proxy_set_header,proxy_read_timeout,client_max_body_size,add_header,try_files},
+  morecomment=[l]{#},
+  morestring=[b]",
+  sensitive=true
+}
+
+% Define YAML
+\lstdefinelanguage{yaml}{
+  keywords={services,image,ports,networks,volumes,environment,depends_on,build,container_name,restart},
+  morecomment=[l]{#},
+  morestring=[b]',
+  morestring=[b]",
+  sensitive=true
+}
+
 % Hyperlink configuration
 \hypersetup{
     colorlinks=true,
@@ -53,6 +94,8 @@
     filecolor=magenta,      
     urlcolor=cyan,
     pdftitle={Release BSU Engineering Portal - Graduation Project},
+    hypertexnames=true,     % Ensure proper link destinations for tables
+    bookmarksnumbered=true, % Include chapter/section numbers in bookmarks
 }
 
 \begin{document}

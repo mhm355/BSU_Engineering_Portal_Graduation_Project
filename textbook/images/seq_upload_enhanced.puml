@@ -1,0 +1,86 @@
+@startuml
+' --- ENHANCED VISIBILITY SETTINGS ---
+skinparam dpi 300
+skinparam backgroundColor transparent
+skinparam defaultFontName sans-serif
+skinparam defaultFontSize 14              ' INCREASED from implicit default
+skinparam sequenceMessageAlign center     ' CENTER text for readability
+
+' --- INCREASE PADDING FOR AIR ---
+skinparam ParticipantPadding 25
+skinparam BoxPadding 20
+
+' --- AUTONUMBERING ---
+autonumber
+
+' --- COLOR SCHEME (UNCHANGED) ---
+skinparam sequence {
+  ArrowColor #00509E
+  ActorBorderColor #00509E
+  LifeLineBorderColor #00509E
+  LifeLineBackgroundColor #F0F8FF
+  
+  ParticipantBorderColor #333333
+  ParticipantBackgroundColor #F0F8FF
+  ParticipantFontColor #333333
+  ParticipantFontStyle bold
+  
+  DatabaseBackgroundColor #F0F8FF
+  DatabaseBorderColor #333333
+}
+
+' --- LOGICAL GROUPING ---
+box "Client Side" #FAFAFA
+    participant "Student Affairs\n(Frontend)" as Frontend
+end box
+
+box "Backend API (Django)" #F4F8FD
+    participant "API Gateway" as API
+    participant "Data Validator\n(Pandas)" as Pandas
+    participant "Audit Service" as Audit
+end box
+
+box "Data Layer" #FAFAFA
+    database "MySQL DB" as DB
+end box
+
+' --- SIMPLIFIED SEQUENCE FLOW ---
+Frontend -> API: POST /upload/\n(Excel File, Dept, Level)
+activate API
+
+API -> Pandas: read_excel(file)\n& validate_headers()
+activate Pandas
+Pandas --> API: DataFrame & Header Result
+deactivate Pandas
+
+API -> Pandas: validate_rows(dept, level)
+activate Pandas
+Pandas --> API: [Valid Rows], [Error Rows]
+deactivate Pandas
+
+' --- DATABASE TRANSACTION ---
+group Database Transaction [transaction.atomic()]
+    loop For each valid row
+        API -> DB: Check National ID
+        activate DB
+        
+        alt Exists
+            DB -> DB: Update Student
+        else New
+            DB -> DB: Create User + Student
+        end
+        
+        DB --> API: Row Processed
+        deactivate DB
+    end
+end
+
+API -> Audit: log_action(Upload Summary)
+activate Audit
+Audit --> API: Log Created
+deactivate Audit
+
+API --> Frontend: HTTP 200\n{created: N, updated: M, errors: [...]}
+deactivate API
+
+@enduml
