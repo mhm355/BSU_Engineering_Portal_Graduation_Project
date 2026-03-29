@@ -25,8 +25,8 @@ Identifying the exact users of the system is the first step in requirements engi
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{PLACEHOLDER_STAKEHOLDER_DIAGRAM.png}
-    \caption{PLACEHOLDER: Insert a Stakeholder Interaction Diagram showing all five roles (Admin, Doctor, Student, Student Affairs, Staff Affairs) and their primary data flows into the centralized system.}
+    \includegraphics[width=\textwidth]{stakeholders.png}
+    \caption{Stakeholder Interaction Diagram showing all five roles (Admin, Doctor, Student, Student Affairs, Staff Affairs) and their primary data flows into the centralized system.}
     \label{fig:stakeholders}
 \end{figure}
 
@@ -143,8 +143,8 @@ def save(self, *args, **kwargs):
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{PLACEHOLDER_UPLOAD_PREVIEW.png}
-    \caption{PLACEHOLDER: Insert a screenshot of the Student Affairs Upload Form showing the 5-row preview validation step highlighting row errors.}
+    \includegraphics[width=\textwidth]{upload_preview.png}
+    \caption{Student Affairs batch upload interface displaying the pre-flight validation preview, highlighting row-level data errors prior to database commit.}
     \label{fig:upload_preview}
 \end{figure}
 
@@ -201,8 +201,8 @@ REST_FRAMEWORK = {
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{PLACEHOLDER_USE_CASE_UML.png}
-    \caption{PLACEHOLDER: Insert a UML Use Case Diagram mapping the 5 actors to their respective grouped use cases (Authentication, Academic Mgmt, Quizzes, etc.).}
+    \includegraphics[width=\textwidth]{use_case_uml.png}
+    \caption{UML Use Case Diagram mapping the five primary system actors to their respective grouped use cases, illustrating the functional scope and permission boundaries of the portal.}
     \label{fig:use_case_uml}
 \end{figure}
 
@@ -221,8 +221,8 @@ This use case outlines the system's most complex data validation pipeline, migra
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{PLACEHOLDER_SEQUENCE_UPLOAD.png}
-    \caption{PLACEHOLDER: Insert a Sequence Diagram showing the Batch Student Upload flow (Frontend $\rightarrow$ API $\rightarrow$ Pandas Validation $\rightarrow$ Database Transaction $\rightarrow$ AuditLog).}
+    \includegraphics[width=\textwidth]{seq_upload.png}
+    \caption{UML Sequence Diagram detailing the Batch Student Upload flow, highlighting Pandas validation, iterative atomic database transactions, and asynchronous audit logging.}
     \label{fig:seq_upload}
 \end{figure}
 
@@ -240,8 +240,8 @@ Deleting a doctor account cascades destructively through the relational database
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{PLACEHOLDER_ADMIN_APPROVAL.png}
-    \caption{PLACEHOLDER: Insert a screenshot of the Admin Approval Center showing pending doctor deletion requests with Approve/Reject actions.}
+    \includegraphics[width=0.8\textwidth]{admin_approval.png}
+    \caption{Admin dashboard interface displaying the two-phase deletion approval workflow, highlighting pending deletion requests with justification reasons and explicit approve/reject actions.}
     \label{fig:admin_approval}
 \end{figure}
 

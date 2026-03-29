@@ -1,4 +1,4 @@
-% Chapter 4: System & Architecture Design
+no i want % Chapter 4: System & Architecture Design
 % BSU Engineering Portal Graduation Project
 
 \chapter{System \& Architecture Design}
@@ -20,8 +20,8 @@ The BSU Engineering Portal follows a \textbf{four-tier architecture} pattern, se
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.95\textwidth]{PLACEHOLDER_FOUR_TIER_ARCH.png}
-    \caption{PLACEHOLDER: Insert a Cloud Architecture Diagram showing Browser $\leftrightarrow$ AWS ALB $\leftrightarrow$ ECS Fargate Tasks (Nginx/React, Django) $\leftrightarrow$ Amazon RDS (MySQL). Emphasize the AWS VPC and public/private subnet boundaries.}
+    \includegraphics[width=0.95\textwidth]{aws_architecture.png}
+    \caption{Cloud Deployment Architecture on AWS, illustrating the use of a Virtual Private Cloud (VPC) with public and private subnets to isolate ECS Fargate compute tasks and the Amazon RDS database instance.}
     \label{fig:four_tier_arch}
 \end{figure}
 
@@ -88,8 +88,8 @@ Because the SPA and API are decoupled, session-based authentication requires a d
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{PLACEHOLDER_AUTH_SEQUENCE.png}
-    \caption{PLACEHOLDER: Insert a Sequence Diagram for Login \& CSRF Handshake (Browser $\rightarrow$ Nginx $\rightarrow$ Django: GET /api/auth/csrf/ $\rightarrow$ POST /api/auth/login/).}
+    \includegraphics[width=\textwidth]{auth_sequence.png}
+    \caption{Sequence diagram detailing the decoupled CSRF handshake and session-based authentication flow between the React SPA and Django API.}
     \label{fig:seq_auth}
 \end{figure}
 
@@ -99,8 +99,8 @@ Batch uploads (e.g., student enrollment, attendance logs) are the system's most 
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{PLACEHOLDER_BATCH_ACTIVITY.png}
-    \caption{PLACEHOLDER: Insert an Activity Diagram for Batch Uploads showing file selection, Pandas parsing, row iteration, isolated database commits, and error aggregation.}
+    \includegraphics[width=\textwidth]{batch_activity.png}
+    \caption{Activity diagram illustrating the fault-tolerant batch processing pipeline. The iterative design ensures isolated failures do not abort the entire batch commit.}
     \label{fig:act_batch}
 \end{figure}
 
@@ -133,8 +133,8 @@ class StudentQuizAttempt(models.Model):
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{PLACEHOLDER_QUIZ_STATE_MACHINE.png}
-    \caption{PLACEHOLDER: Insert a State Machine Diagram for Quiz Lifecycle (IN\_PROGRESS $\rightarrow$ SUBMITTED $\rightarrow$ GRADED, with TIMEOUT branch).}
+    \includegraphics[width=0.8\textwidth]{quiz_state_machine.png}
+    \caption{State machine diagram modeling the lifecycle of a student's quiz attempt, demonstrating the diverging paths for auto-graded MCQ assessments versus manually graded essay submissions.}
     \label{fig:quiz_state}
 \end{figure}
 
@@ -155,8 +155,8 @@ The database is heavily normalized into over 20 tables, organized into five func
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{PLACEHOLDER_ERD_FULL.png}
-    \caption{PLACEHOLDER: Insert the full Entity-Relationship Diagram (ERD) detailing primary keys, foreign keys, and cardinalities across the schema.}
+    \includegraphics[width=\textwidth]{erd_full.png}
+    \caption{Entity-Relationship Diagram detailing the core domains of the system: Identity, Academic Structure, Operations, and Assessment. Demonstrates the central pivot role of the CourseOffering entity.}
     \label{fig:erd_full}
 \end{figure}
 
@@ -260,8 +260,8 @@ Routing is encapsulated under dedicated API namespaces to ensure predictable and
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.75\textwidth]{PLACEHOLDER_BACKEND_MODULES.png}
-    \caption{PLACEHOLDER: Insert a Dependency Diagram showing the modular structure of the Django apps (users $\rightarrow$ academic $\rightarrow$ system).}
+    \includegraphics[width=0.75\textwidth]{backend_modules.png}
+    \caption{Dependency Diagram showing the modular structure of the Django backend. Demonstrates how the academic, content, and system apps rely on the centralized users module for RBAC enforcement.}
     \label{fig:backend_modules}
 \end{figure}
 
@@ -352,8 +352,8 @@ useEffect(() => {
 \end{lstlisting}
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\textwidth]{PLACEHOLDER_REACT_TREE.png}
-    \caption{PLACEHOLDER: Insert a React Component Tree Diagram demonstrating the Context Provider nesting (Theme $\rightarrow$ Auth $\rightarrow$ Router) shielding the functional components.}
+    \includegraphics[width=0.85\textwidth]{react_tree.png}
+    \caption{React Component Tree demonstrating the Context Provider nesting. The Theme and Auth providers wrap the Router, allowing the ProtectedRoute component to securely shield role-specific dashboards.}
     \label{fig:react_tree}
 \end{figure}
 
@@ -396,8 +396,8 @@ Because the faculty requires an Arabic-native interface, the UI was built RTL-fi
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{PLACEHOLDER_THEME_COMPARISON.png}
-    \caption{PLACEHOLDER: Insert a side-by-side screenshot comparing the complex Student Dashboard in Light Mode vs. Dark Mode.}
+    \includegraphics[width=\textwidth]{theme_comparison.png}
+    \caption{Side-by-side comparison of the Student Dashboard illustrating the dynamic theme switching capability (Light Mode vs. Dark Mode), built with Material-UI and tailored for an Arabic RTL layout.}
     \label{fig:theme_compare}
 \end{figure}
 

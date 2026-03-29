@@ -13,6 +13,11 @@
 \usepackage{listings}
 \usepackage{titlesec}
 \usepackage{tocbibind} % Automatically adds TOC, LOF, LOT to the Table of Contents
+\usepackage{longtable}
+\usepackage{pifont}
+\usepackage{xcolor}
+\newcommand{\cmark}{\textcolor{green!80!black}{\ding{51}}}%
+\newcommand{\xmark}{\textcolor{red}{\ding{55}}}%
 
 % Custom color definitions for clean code listings
 \definecolor{codegreen}{rgb}{0,0.6,0}
@@ -65,10 +70,9 @@
 
 % Main Content Chapters
 \pagenumbering{arabic}
-\input{chapter_02_executive_summary}
-
-% Future chapters will be included here
- \input{chapter_03_problem_definition}
-% \input{chapter_04_system_architecture}
+\include{chapter_02_executive_summary}
+\include{chapter_03_problem_definition}
+\include{chapter_04_architecture_design}
+\include{chapter_05_security_design}
 
 \end{document}
