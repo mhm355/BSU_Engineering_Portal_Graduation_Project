@@ -9,7 +9,7 @@
 
 \subsection{The Operational Reality}
 
-The Faculty of Engineering at Beni-Suef University (BSU) accommodates approximately \textbf{2,000+ students} distributed across five academic departments: Preparatory (الفرقة الإعدادية), Electrical Engineering (with specializations in Electronics \& Communications and Power \& Machines), Mechanical Engineering, Civil Engineering, and Architectural Engineering. Each department operates across up to four academic levels, two semesters per year, and manages dozens of courses per term.
+The Faculty of Engineering at Beni-Suef University (BSU) accommodates approximately \textbf{2,000+ students} distributed across five academic departments: Preparatory, Electrical Engineering (with specializations in Electronics \& Communications and Power \& Machines), Mechanical Engineering, Civil Engineering, and Architectural Engineering. Each department operates across up to four academic levels, two semesters per year, and manages dozens of courses per term.
 
 The administrative machinery supporting this academic structure relies on a patchwork of \textbf{manual processes, disconnected spreadsheets, and informal communication channels}. This is not merely an inconvenience---it is a systemic risk to data integrity, operational efficiency, and academic governance.
 
@@ -66,9 +66,9 @@ The Egyptian engineering grading structure does not map cleanly to Western softw
 
 \begin{lstlisting}[language=Python, caption=Custom Grading Template Seeds mapping to Faculty Rules]
 # From seed_production.py - Configurable Templates
-("نموذج المواد النظرية (40-60-0)", 40, 60, 0),    # Theoretical
-("نموذج المواد العملية (30-50-20)", 30, 50, 20),   # Practical
-("نموذج المعامل (20-40-40)", 20, 40, 40),          # Lab-heavy
+("Theoretical Subjects (40-60-0)", 40, 60, 0),    # Theoretical
+("Practical Subjects (30-50-20)", 30, 50, 20),   # Practical
+("Lab Subjects (20-40-40)", 20, 40, 40),          # Lab-heavy
 \end{lstlisting}
 
 Furthermore, the institution requires a strict authentication flow where a student's National ID serves as their initial credential, forcing an immediate password change upon first login.
@@ -117,7 +117,7 @@ The system utilizes a three-tier containerized architecture, separating presenta
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\textwidth]{images/system_architecture.png}
+    \includegraphics[width=0.9\textwidth]{aws_architecture.png}
     \caption{High-Level Three-Tier Containerized Architecture of the BSU Engineering Portal, demonstrating presentation decoupling and database network isolation.}
     \label{fig:arch_overview}
 \end{figure}

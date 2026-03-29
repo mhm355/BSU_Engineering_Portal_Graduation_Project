@@ -1,4 +1,4 @@
-no i want % Chapter 4: System & Architecture Design
+% Chapter 4: System & Architecture Design
 % BSU Engineering Portal Graduation Project
 
 \chapter{System \& Architecture Design}
@@ -123,10 +123,10 @@ The assessment subsystem treats quizzes as a state machine. A student attempt tr
 \begin{lstlisting}[language=Python, caption=Quiz Attempt State Machine in Django Model (\texttt{academic/models.py})]
 class StudentQuizAttempt(models.Model):
     class AttemptStatus(models.TextChoices):
-        IN_PROGRESS = 'IN_PROGRESS', 'جاري الحل'
-        SUBMITTED   = 'SUBMITTED', 'تم التسليم'
-        TIMEOUT     = 'TIMEOUT', 'انتهى الوقت'
-        GRADED      = 'GRADED', 'تم التصحيح'
+        IN_PROGRESS = 'IN_PROGRESS', 'In Progress'
+        SUBMITTED   = 'SUBMITTED', 'Submitted'
+        TIMEOUT     = 'TIMEOUT', 'Timeout'
+        GRADED      = 'GRADED', 'Graded'
 
     status = models.CharField(max_length=20, choices=AttemptStatus.choices)
 \end{lstlisting}
@@ -249,11 +249,11 @@ The backend follows a modular monolith structure, organized into four distinct D
 
 \begin{verbatim}
 backend/
-├── bsu_backend/  # Project settings, WSGI, root URL config
-├── users/        # Authentication, user models, RBAC permissions
-├── academic/     # Core academic operations (largest module)
-├── content/      # CMS-like features (News, Announcements)
-└── system/       # System-level operations (Audit Logs)
+|-- bsu_backend/  # Project settings, WSGI, root URL config
+|-- users/        # Authentication, user models, RBAC permissions
+|-- academic/     # Core academic operations (largest module)
+|-- content/      # CMS-like features (News, Announcements)
+`-- system/       # System-level operations (Audit Logs)
 \end{verbatim}
 
 Routing is encapsulated under dedicated API namespaces to ensure predictable and maintainable URL structures. For instance, all 120+ endpoints handling faculty workflows live under the \texttt{/api/academic/} boundary, while authentication endpoints are grouped under \texttt{/api/auth/}.
@@ -359,7 +359,7 @@ useEffect(() => {
 
 \subsection{Route Protection}
 
-A custom \texttt{<ProtectedRoute>} wrapper component enforces client-side authorization barriers. It sequentially validates three conditions before rendering a protected page:
+A custom \texttt{\textless ProtectedRoute\textgreater} wrapper component enforces client-side authorization barriers. It sequentially validates three conditions before rendering a protected page:
 \begin{enumerate}
     \item \textbf{Authentication}: Is a user object present in the \texttt{AuthContext}?
     \item \textbf{First Login}: Is the user's \texttt{first\_login\_required} flag set to true?

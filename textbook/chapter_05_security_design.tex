@@ -83,7 +83,7 @@ class IsStudentAffairsRole(permissions.BasePermission):
 
 \subsection{Frontend Route Protection vs. Backend Enforcement}
 
-Authorization operates at two distinct layers. The frontend utilizes a \texttt{<ProtectedRoute>} wrapper to route users away from unauthorized views and handle the mandatory password change redirect.
+Authorization operates at two distinct layers. The frontend utilizes a \texttt{\textless ProtectedRoute\textgreater} wrapper to route users away from unauthorized views and handle the mandatory password change redirect.
 
 However, the architectural principle holds that \textbf{frontend route protection is merely a UX convenience}. A determined attacker can bypass client-side JavaScript. True security relies on the backend endpoints evaluating the session's role payload against the requested resource.
 
