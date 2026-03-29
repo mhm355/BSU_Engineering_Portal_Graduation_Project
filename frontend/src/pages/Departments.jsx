@@ -26,7 +26,7 @@ export default function Departments() {
 
     return (
         <Container maxWidth="lg" sx={{ py: 8 }}>
-            <Typography variant="h3" gutterBottom sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342', textAlign: 'center', mb: 6 }}>
+            <Typography variant="h3" gutterBottom sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B', textAlign: 'center', mb: 6 }}>
                 الأقسام العلمية
             </Typography>
 
@@ -41,7 +41,7 @@ export default function Departments() {
                                 alt={dept.name}
                             />
                             <CardContent sx={{ flexGrow: 1, textAlign: 'center' }}>
-                                <Typography variant="h5" component="h2" gutterBottom sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342' }}>
+                                <Typography variant="h5" component="h2" gutterBottom sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B' }}>
                                     {dept.name}
                                 </Typography>
                                 <Typography variant="body2" color="text.secondary" sx={{ fontFamily: 'Cairo', mb: 3 }}>

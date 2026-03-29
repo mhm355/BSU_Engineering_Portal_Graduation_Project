@@ -60,7 +60,7 @@ const NavItem = ({ label, hasMenu, onClick, isActive, sx = {} }) => (
       fontFamily: 'Cairo',
       fontWeight: 600,
       fontSize: '0.95rem',
-      color: isActive ? '#FFC107' : '#fff',
+      color: isActive ? '#4F46E5' : '#fff',
       px: 2.5,
       py: 1,
       borderRadius: 2,
@@ -75,13 +75,13 @@ const NavItem = ({ label, hasMenu, onClick, isActive, sx = {} }) => (
         transform: isActive ? 'translateX(-50%) scaleX(1)' : 'translateX(-50%) scaleX(0)',
         width: '80%',
         height: 3,
-        background: 'linear-gradient(90deg, #FFC107, #FFD54F)',
+        background: 'linear-gradient(90deg, #4F46E5, #14B8A6)',
         borderRadius: 2,
         transition: 'transform 0.3s ease',
       },
       '&:hover': {
-        color: '#FFC107',
-        bgcolor: 'rgba(255, 193, 7, 0.1)',
+        color: '#4F46E5',
+        bgcolor: 'rgba(79, 70, 229, 0.1)',
         '&::before': {
           transform: 'translateX(-50%) scaleX(1)',
         },
@@ -154,7 +154,7 @@ const StyledMenu = ({ anchorEl, open, onClose, items }) => (
             bgcolor: 'rgba(10, 35, 66, 0.08)',
             transform: 'translateX(-4px)',
             '& .menu-icon': {
-              color: '#0A2342',
+              color: '#4F46E5',
               transform: 'scale(1.1)',
             }
           }
@@ -240,7 +240,7 @@ export default function Header() {
       <Box
         sx={{
           height: 4,
-          background: 'linear-gradient(90deg, #0A2342 0%, #1a4a7a 25%, #FFC107 50%, #1a4a7a 75%, #0A2342 100%)',
+          background: 'linear-gradient(90deg, #4F46E5 0%, #7C3AED 25%, #14B8A6 50%, #7C3AED 75%, #4F46E5 100%)',
           backgroundSize: '200% 100%',
           animation: `${shimmer} 8s linear infinite`,
         }}
@@ -251,11 +251,11 @@ export default function Header() {
         elevation={scrolled ? 8 : 0}
         sx={{
           background: scrolled
-            ? 'linear-gradient(135deg, rgba(10, 35, 66, 0.98) 0%, rgba(26, 58, 92, 0.98) 100%)'
-            : 'linear-gradient(135deg, #0A2342 0%, #1a3a5c 50%, #0A2342 100%)',
+            ? 'linear-gradient(135deg, rgba(79, 70, 229, 0.98) 0%, rgba(124, 58, 237, 0.98) 100%)'
+            : 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 50%, #4F46E5 100%)',
           backdropFilter: scrolled ? 'blur(20px)' : 'none',
           transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-          borderBottom: scrolled ? '1px solid rgba(255,193,7,0.3)' : 'none',
+          borderBottom: scrolled ? '1px solid rgba(20, 184, 166, 0.3)' : 'none',
         }}
       >
         <Container maxWidth="xl">
@@ -281,7 +281,7 @@ export default function Header() {
                     position: 'absolute',
                     inset: -3,
                     borderRadius: '50%',
-                    background: 'linear-gradient(135deg, #FFC107, #FFD54F)',
+                    background: 'linear-gradient(135deg, #4F46E5, #14B8A6)',
                     opacity: 0.3,
                     animation: `${pulse} 2s ease-in-out infinite`,
                   }
@@ -293,12 +293,12 @@ export default function Header() {
                   sx={{
                     width: { xs: 50, md: 60 },
                     height: { xs: 50, md: 60 },
-                    border: '3px solid rgba(255,193,7,0.5)',
-                    boxShadow: '0 8px 32px rgba(255,193,7,0.3)',
+                    border: '3px solid rgba(79, 70, 229, 0.5)',
+                    boxShadow: '0 8px 32px rgba(79, 70, 229, 0.3)',
                     transition: 'all 0.3s ease',
                     '&:hover': {
                       transform: 'scale(1.05)',
-                      borderColor: '#FFC107',
+                      borderColor: '#4F46E5',
                     }
                   }}
                 />
@@ -335,9 +335,9 @@ export default function Header() {
                       height: 20,
                       fontSize: '0.65rem',
                       fontWeight: 600,
-                      bgcolor: 'rgba(255,193,7,0.2)',
-                      color: '#FFC107',
-                      border: '1px solid rgba(255,193,7,0.3)',
+                      bgcolor: 'rgba(79, 70, 229, 0.2)',
+                      color: '#4F46E5',
+                      border: '1px solid rgba(79, 70, 229, 0.3)',
                     }}
                   />
                 </Box>
@@ -361,14 +361,14 @@ export default function Header() {
             <IconButton
               onClick={() => setSearchOpen(true)}
               sx={{
-                color: '#FFC107',
-                bgcolor: 'rgba(255,193,7,0.1)',
-                border: '1px solid rgba(255,193,7,0.3)',
+                color: '#4F46E5',
+                bgcolor: 'rgba(79, 70, 229, 0.1)',
+                border: '1px solid rgba(79, 70, 229, 0.3)',
                 borderRadius: 2,
                 p: 1,
                 transition: 'all 0.3s ease',
                 '&:hover': {
-                  bgcolor: 'rgba(255,193,7,0.2)',
+                  bgcolor: 'rgba(79, 70, 229, 0.2)',
                 }
               }}
             >
@@ -379,14 +379,14 @@ export default function Header() {
             <IconButton
               onClick={toggleMode}
               sx={{
-                color: '#FFC107',
-                bgcolor: 'rgba(255,193,7,0.1)',
-                border: '1px solid rgba(255,193,7,0.3)',
+                color: '#14B8A6',
+                bgcolor: 'rgba(20, 184, 166, 0.1)',
+                border: '1px solid rgba(20, 184, 166, 0.3)',
                 borderRadius: 2,
                 p: 1,
                 transition: 'all 0.3s ease',
                 '&:hover': {
-                  bgcolor: 'rgba(255,193,7,0.2)',
+                  bgcolor: 'rgba(20, 184, 166, 0.2)',
                   transform: 'rotate(30deg)',
                 }
               }}
@@ -406,8 +406,8 @@ export default function Header() {
                 p: 1,
                 transition: 'all 0.3s ease',
                 '&:hover': {
-                  bgcolor: 'rgba(255,193,7,0.2)',
-                  borderColor: '#FFC107',
+                  bgcolor: 'rgba(79, 70, 229, 0.2)',
+                  borderColor: '#4F46E5',
                 }
               }}
             >
@@ -432,8 +432,8 @@ export default function Header() {
           PaperProps={{
             sx: {
               width: 320,
-              background: 'linear-gradient(180deg, #0A2342 0%, #1a3a5c 100%)',
-              borderLeft: '3px solid #FFC107',
+              background: 'linear-gradient(180deg, #4F46E5 0%, #7C3AED 100%)',
+              borderLeft: '3px solid #14B8A6',
             }
           }}
         >
@@ -442,7 +442,7 @@ export default function Header() {
             <Box
               sx={{
                 p: 3,
-                background: 'linear-gradient(135deg, rgba(255,193,7,0.15) 0%, transparent 100%)',
+                background: 'linear-gradient(135deg, rgba(20, 184, 166, 0.15) 0%, transparent 100%)',
                 borderBottom: '1px solid rgba(255,255,255,0.1)',
               }}
             >
@@ -452,7 +452,7 @@ export default function Header() {
                 </IconButton>
               </Box>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                <Avatar src="/logo.jpg" sx={{ width: 60, height: 60, border: '2px solid #FFC107' }} />
+                <Avatar src="/logo.jpg" sx={{ width: 60, height: 60, border: '2px solid #14B8A6' }} />
                 <Box>
                   <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff' }}>
                     كلية الهندسة
@@ -474,10 +474,10 @@ export default function Header() {
                 sx={{
                   py: 1.5,
                   px: 3,
-                  '&:hover': { bgcolor: 'rgba(255,193,7,0.1)' }
+                  '&:hover': { bgcolor: 'rgba(79, 70, 229, 0.1)' }
                 }}
               >
-                <ListItemIcon><HomeIcon sx={{ color: '#FFC107' }} /></ListItemIcon>
+                <ListItemIcon><HomeIcon sx={{ color: '#14B8A6' }} /></ListItemIcon>
                 <ListItemText
                   primary="الرئيسية"
                   primaryTypographyProps={{ fontFamily: 'Cairo', fontWeight: 600, color: '#fff' }}
@@ -486,7 +486,7 @@ export default function Header() {
 
               {/* About Menu */}
               <ListItem button onClick={() => toggleMobileSubmenu('about')} sx={{ py: 1.5, px: 3 }}>
-                <ListItemIcon><InfoIcon sx={{ color: '#FFC107' }} /></ListItemIcon>
+                <ListItemIcon><InfoIcon sx={{ color: '#14B8A6' }} /></ListItemIcon>
                 <ListItemText
                   primary="عن الكلية"
                   primaryTypographyProps={{ fontFamily: 'Cairo', fontWeight: 600, color: '#fff' }}
@@ -516,7 +516,7 @@ export default function Header() {
 
               {/* Departments Menu */}
               <ListItem button onClick={() => toggleMobileSubmenu('departments')} sx={{ py: 1.5, px: 3 }}>
-                <ListItemIcon><EngineeringIcon sx={{ color: '#FFC107' }} /></ListItemIcon>
+                <ListItemIcon><EngineeringIcon sx={{ color: '#14B8A6' }} /></ListItemIcon>
                 <ListItemText
                   primary="الأقسام"
                   primaryTypographyProps={{ fontFamily: 'Cairo', fontWeight: 600, color: '#fff' }}
@@ -546,7 +546,7 @@ export default function Header() {
 
               {/* Students Menu */}
               <ListItem button onClick={() => toggleMobileSubmenu('students')} sx={{ py: 1.5, px: 3 }}>
-                <ListItemIcon><SchoolIcon sx={{ color: '#FFC107' }} /></ListItemIcon>
+                <ListItemIcon><SchoolIcon sx={{ color: '#14B8A6' }} /></ListItemIcon>
                 <ListItemText
                   primary="الطلاب"
                   primaryTypographyProps={{ fontFamily: 'Cairo', fontWeight: 600, color: '#fff' }}
@@ -583,7 +583,7 @@ export default function Header() {
                 onClick={handleDrawerToggle}
                 sx={{ py: 1.5, px: 3 }}
               >
-                <ListItemIcon><ContactPhoneIcon sx={{ color: '#FFC107' }} /></ListItemIcon>
+                <ListItemIcon><ContactPhoneIcon sx={{ color: '#14B8A6' }} /></ListItemIcon>
                 <ListItemText
                   primary="اتصل بنا"
                   primaryTypographyProps={{ fontFamily: 'Cairo', fontWeight: 600, color: '#fff' }}

@@ -64,7 +64,7 @@ const FeatureCard = ({ icon: Icon, title, description, delay = 0 }) => (
                     boxShadow: '0 25px 50px rgba(10, 35, 66, 0.15)',
                     '& .feature-icon': {
                         transform: 'scale(1.1) rotate(5deg)',
-                        background: 'linear-gradient(135deg, #0A2342, #1a4a7a)',
+                        background: 'linear-gradient(135deg, #4F46E5, #7C3AED)',
                     }
                 }
             }}
@@ -75,21 +75,21 @@ const FeatureCard = ({ icon: Icon, title, description, delay = 0 }) => (
                     width: 70,
                     height: 70,
                     borderRadius: 3,
-                    background: 'linear-gradient(135deg, #FFC107, #FFD54F)',
+                    background: 'linear-gradient(135deg, #4F46E5, #7C3AED)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     mb: 3,
-                    boxShadow: '0 10px 30px rgba(255,193,7,0.3)',
+                    boxShadow: '0 10px 30px rgba(79, 70, 229, 0.3)',
                     transition: 'all 0.4s ease',
                 }}
             >
-                <Icon sx={{ fontSize: 35, color: '#0A2342' }} />
+                <Icon sx={{ fontSize: 35, color: '#fff' }} />
             </Box>
-            <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342', mb: 1.5 }}>
+            <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B', mb: 1.5 }}>
                 {title}
             </Typography>
-            <Typography variant="body2" sx={{ fontFamily: 'Cairo', color: '#666', lineHeight: 1.8 }}>
+            <Typography variant="body2" sx={{ fontFamily: 'Cairo', color: '#64748B', lineHeight: 1.8 }}>
                 {description}
             </Typography>
         </Paper>
@@ -116,7 +116,7 @@ const NewsCard = ({ news, onReadMore, getImageUrl, delay = 0 }) => (
                         transform: 'scale(1.05)',
                     },
                     '& .read-more-btn': {
-                        background: 'linear-gradient(135deg, #0A2342, #1a4a7a)',
+                        background: 'linear-gradient(135deg, #4F46E5, #7C3AED)',
                         color: '#fff',
                     }
                 }
@@ -166,7 +166,7 @@ const NewsCard = ({ news, onReadMore, getImageUrl, delay = 0 }) => (
                     sx={{
                         fontFamily: 'Cairo',
                         fontWeight: 'bold',
-                        color: '#0A2342',
+                        color: '#1E293B',
                         mb: 2,
                         lineHeight: 1.4,
                         display: '-webkit-box',
@@ -219,7 +219,7 @@ const NewsCard = ({ news, onReadMore, getImageUrl, delay = 0 }) => (
                         py: 1.5,
                         borderRadius: 3,
                         bgcolor: 'rgba(10,35,66,0.05)',
-                        color: '#0A2342',
+                        color: '#1E293B',
                         transition: 'all 0.3s ease',
                     }}
                 >
@@ -295,15 +295,15 @@ export default function Home() {
                     display: 'flex',
                     alignItems: 'center',
                     overflow: 'hidden',
-                    background: 'linear-gradient(135deg, #0A2342 0%, #1a3a5c 50%, #0A2342 100%)',
+                    background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 50%, #4F46E5 100%)',
                     backgroundSize: '200% 200%',
                     animation: `${gradientMove} 15s ease infinite`,
                 }}
             >
                 {/* Animated Background Elements */}
-                <Box sx={{ position: 'absolute', top: -100, right: -100, width: 400, height: 400, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,193,7,0.15) 0%, transparent 70%)', animation: `${float} 8s ease-in-out infinite` }} />
+                <Box sx={{ position: 'absolute', top: -100, right: -100, width: 400, height: 400, borderRadius: '50%', background: 'radial-gradient(circle, rgba(79, 70, 229, 0.15) 0%, transparent 70%)', animation: `${float} 8s ease-in-out infinite` }} />
                 <Box sx={{ position: 'absolute', bottom: -150, left: -100, width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%)', animation: `${float} 10s ease-in-out infinite`, animationDelay: '2s' }} />
-                <Box sx={{ position: 'absolute', top: '30%', left: '10%', width: 200, height: 200, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,193,7,0.1) 0%, transparent 70%)', animation: `${float} 6s ease-in-out infinite`, animationDelay: '1s' }} />
+                <Box sx={{ position: 'absolute', top: '30%', left: '10%', width: 200, height: 200, borderRadius: '50%', background: 'radial-gradient(circle, rgba(20, 184, 166, 0.1) 0%, transparent 70%)', animation: `${float} 6s ease-in-out infinite`, animationDelay: '1s' }} />
                 <Box sx={{ position: 'absolute', top: '60%', right: '15%', width: 150, height: 150, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%)', animation: `${float} 7s ease-in-out infinite`, animationDelay: '3s' }} />
 
                 {/* Grid Pattern Overlay */}
@@ -326,11 +326,11 @@ export default function Home() {
                                         label="مرحباً بكم في بوابة كلية الهندسة"
                                         sx={{
                                             mb: 3,
-                                            bgcolor: 'rgba(255,193,7,0.15)',
-                                            color: '#FFC107',
+                                            bgcolor: 'rgba(79, 70, 229, 0.15)',
+                                            color: '#818CF8',
                                             fontFamily: 'Cairo',
                                             fontWeight: 'bold',
-                                            border: '1px solid rgba(255,193,7,0.3)',
+                                            border: '1px solid rgba(79, 70, 229, 0.3)',
                                             py: 2.5,
                                             px: 1,
                                         }}
@@ -354,7 +354,7 @@ export default function Home() {
                                         sx={{
                                             fontFamily: 'Cairo',
                                             fontWeight: 600,
-                                            color: '#FFC107',
+                                            color: '#14B8A6',
                                             mb: 3,
                                             fontSize: { xs: '1.5rem', md: '2rem' },
                                         }}
@@ -382,20 +382,20 @@ export default function Home() {
                                             size="large"
                                             startIcon={<LoginIcon />}
                                             sx={{
-                                                bgcolor: '#FFC107',
-                                                color: '#0A2342',
+                                                bgcolor: '#4F46E5',
+                                                color: '#fff',
                                                 fontFamily: 'Cairo',
                                                 fontWeight: 'bold',
                                                 px: 5,
                                                 py: 2,
                                                 fontSize: '1.1rem',
                                                 borderRadius: 3,
-                                                boxShadow: '0 10px 40px rgba(255,193,7,0.4)',
+                                                boxShadow: '0 10px 40px rgba(79, 70, 229, 0.4)',
                                                 animation: `${pulse} 3s ease-in-out infinite`,
                                                 '&:hover': {
-                                                    bgcolor: '#FFD54F',
+                                                    bgcolor: '#4338CA',
                                                     transform: 'translateY(-3px)',
-                                                    boxShadow: '0 15px 50px rgba(255,193,7,0.5)',
+                                                    boxShadow: '0 15px 50px rgba(79, 70, 229, 0.5)',
                                                 }
                                             }}
                                         >
@@ -415,8 +415,8 @@ export default function Home() {
                                                 py: 2,
                                                 borderRadius: 3,
                                                 '&:hover': {
-                                                    borderColor: '#FFC107',
-                                                    bgcolor: 'rgba(255,193,7,0.1)',
+                                                    borderColor: '#4F46E5',
+                                                    bgcolor: 'rgba(79, 70, 229, 0.1)',
                                                 }
                                             }}
                                         >
@@ -490,8 +490,8 @@ export default function Home() {
                             label="آخر المستجدات"
                             sx={{
                                 mb: 2,
-                                bgcolor: 'rgba(10,35,66,0.08)',
-                                color: '#0A2342',
+                                bgcolor: 'rgba(79, 70, 229, 0.08)',
+                                color: '#4F46E5',
                                 fontFamily: 'Cairo',
                                 fontWeight: 'bold',
                             }}
@@ -501,7 +501,7 @@ export default function Home() {
                             sx={{
                                 fontFamily: 'Cairo',
                                 fontWeight: 'bold',
-                                color: '#0A2342',
+                                color: '#1E293B',
                                 mb: 2,
                             }}
                         >
@@ -511,7 +511,7 @@ export default function Home() {
                             variant="body1"
                             sx={{
                                 fontFamily: 'Cairo',
-                                color: '#666',
+                                color: '#64748B',
                                 maxWidth: 600,
                                 mx: 'auto',
                             }}
@@ -604,7 +604,7 @@ export default function Home() {
                                 sx={{
                                     fontFamily: 'Cairo',
                                     fontWeight: 'bold',
-                                    color: '#0A2342',
+                                    color: '#1E293B',
                                     mb: 3,
                                 }}
                             >
@@ -617,7 +617,7 @@ export default function Home() {
                                     lineHeight: 2,
                                     fontSize: '1.1rem',
                                     whiteSpace: 'pre-line',
-                                    color: '#444',
+                                    color: '#475569',
                                 }}
                             >
                                 {selectedNews.content}
@@ -632,7 +632,7 @@ export default function Home() {
                                         sx={{
                                             fontFamily: 'Cairo',
                                             fontWeight: 'bold',
-                                            bgcolor: '#0A2342',
+                                            bgcolor: '#4F46E5',
                                             borderRadius: 3,
                                             px: 4,
                                             py: 1.5,

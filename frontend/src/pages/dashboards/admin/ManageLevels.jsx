@@ -121,7 +121,7 @@ export default function ManageLevels() {
 
     return (
         <Container maxWidth="lg" sx={{ py: 4 }}>
-            <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342', mb: 4 }}>
+            <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B', mb: 4 }}>
                 إدارة الفرق الدراسية
             </Typography>
 
@@ -168,7 +168,7 @@ export default function ManageLevels() {
                             onClick={() => handleOpen()}
                             disabled={!selectedDept || !selectedYear}
                             fullWidth
-                            sx={{ fontFamily: 'Cairo', fontWeight: 'bold', bgcolor: '#0A2342', height: '56px' }}
+                            sx={{ fontFamily: 'Cairo', fontWeight: 'bold', bgcolor: '#4F46E5', height: '56px' }}
                         >
                             إضافة فرقة
                         </Button>
@@ -279,7 +279,7 @@ export default function ManageLevels() {
                 </DialogContent>
                 <DialogActions sx={{ justifyContent: 'flex-start', p: 2 }}>
                     <Button onClick={handleClose} sx={{ fontFamily: 'Cairo' }}>إلغاء</Button>
-                    <Button onClick={handleSave} variant="contained" sx={{ fontFamily: 'Cairo', bgcolor: '#0A2342' }}>
+                    <Button onClick={handleSave} variant="contained" sx={{ fontFamily: 'Cairo', bgcolor: '#4F46E5' }}>
                         حفظ
                     </Button>
                 </DialogActions>

@@ -126,7 +126,7 @@ export default function Announcements() {
             </Button>
 
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-                <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342' }}>
+                <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B' }}>
                     <CampaignIcon sx={{ mr: 1, verticalAlign: 'bottom', fontSize: 36 }} />
                     إدارة الإعلانات
                 </Typography>
@@ -149,7 +149,7 @@ export default function Announcements() {
                 <TableContainer component={Paper}>
                     <Table>
                         <TableHead>
-                            <TableRow sx={{ bgcolor: '#0A2342' }}>
+                            <TableRow sx={{ bgcolor: '#4F46E5' }}>
                                 <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff' }}>العنوان</TableCell>
                                 <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff' }}>الأولوية</TableCell>
                                 <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff' }}>الفئة المستهدفة</TableCell>

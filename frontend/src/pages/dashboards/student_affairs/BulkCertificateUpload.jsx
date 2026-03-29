@@ -70,7 +70,7 @@ export default function BulkCertificateUpload() {
                 عودة للوحة التحكم
             </Button>
 
-            <Typography variant="h4" gutterBottom sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342' }}>
+            <Typography variant="h4" gutterBottom sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B' }}>
                 رفع الشهادات بالجملة
             </Typography>
 

@@ -51,7 +51,7 @@ export default function ElectricalDepartmentPage() {
 
     const getRankColor = (rank) => {
         switch (rank) {
-            case 'head': return { bg: '#FFC107', text: '#000' };
+            case 'head': return { bg: '#4F46E5', text: '#fff' };
             case 'professor': return { bg: '#f57c00', text: '#fff' };
             case 'assistant': return { bg: '#ff9800', text: '#fff' };
             case 'lecturer': return { bg: '#ffb74d', text: '#000' };
@@ -299,7 +299,7 @@ export default function ElectricalDepartmentPage() {
                     <Box sx={{ bgcolor: '#f57c00', p: 1.5, borderRadius: 2, mr: 2 }}>
                         <ElectricalServicesIcon sx={{ fontSize: 30, color: 'white' }} />
                     </Box>
-                    <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342' }}>
+                    <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B' }}>
                         نبذة عن القسم
                     </Typography>
                 </Box>
@@ -316,7 +316,7 @@ export default function ElectricalDepartmentPage() {
                             <Box sx={{ bgcolor: '#e3f2fd', p: 1.5, borderRadius: 2, mr: 2 }}>
                                 <SettingsInputAntennaIcon sx={{ color: '#2196f3', fontSize: 28 }} />
                             </Box>
-                            <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342' }}>
+                            <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B' }}>
                                 برنامج هندسة الإلكترونيات والاتصالات
                             </Typography>
                         </Box>
@@ -335,7 +335,7 @@ export default function ElectricalDepartmentPage() {
                             <Box sx={{ bgcolor: '#e8f5e9', p: 1.5, borderRadius: 2, mr: 2 }}>
                                 <BoltIcon sx={{ color: '#4caf50', fontSize: 28 }} />
                             </Box>
-                            <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342' }}>
+                            <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B' }}>
                                 برنامج هندسة القوى والآلات الكهربية
                             </Typography>
                         </Box>
@@ -356,7 +356,7 @@ export default function ElectricalDepartmentPage() {
                     <Box sx={{ bgcolor: '#fff3e0', p: 1.5, borderRadius: 2, mr: 2 }}>
                         <MenuBookIcon sx={{ fontSize: 30, color: '#f57c00' }} />
                     </Box>
-                    <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342' }}>
+                    <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B' }}>
                         المواد الدراسية
                     </Typography>
                 </Box>
@@ -456,7 +456,7 @@ export default function ElectricalDepartmentPage() {
                             <PersonIcon sx={{ fontSize: 30, color: '#f57c00' }} />
                         </Box>
                         <Box>
-                            <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342' }}>
+                            <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B' }}>
                                 أعضاء هيئة التدريس
                             </Typography>
                             <Typography variant="body2" sx={{ fontFamily: 'Cairo', color: '#666' }}>
@@ -527,7 +527,7 @@ export default function ElectricalDepartmentPage() {
 
                     <Divider sx={{ my: 3 }} />
 
-                    <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342', mb: 2 }}>
+                    <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B', mb: 2 }}>
                         أعضاء الهيئة المعاونة
                     </Typography>
                     <Grid container spacing={2}>
@@ -567,7 +567,7 @@ export default function ElectricalDepartmentPage() {
                     <Box sx={{ bgcolor: '#f57c00', p: 1.5, borderRadius: 2, mr: 2 }}>
                         <ScienceIcon sx={{ fontSize: 30, color: 'white' }} />
                     </Box>
-                    <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342' }}>
+                    <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B' }}>
                         معامل القسم
                     </Typography>
                 </Box>

@@ -65,14 +65,14 @@ export default function ManageDepartments() {
     return (
         <Container maxWidth="lg" sx={{ py: 4 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-                <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342' }}>
+                <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B' }}>
                     إدارة الأقسام العلمية
                 </Typography>
                 <Button
                     variant="contained"
                     startIcon={<AddIcon sx={{ ml: 1 }} />}
                     onClick={() => handleOpen()}
-                    sx={{ fontFamily: 'Cairo', fontWeight: 'bold', bgcolor: '#0A2342' }}
+                    sx={{ fontFamily: 'Cairo', fontWeight: 'bold', bgcolor: '#4F46E5' }}
                 >
                     إضافة قسم جديد
                 </Button>
@@ -143,7 +143,7 @@ export default function ManageDepartments() {
                 </DialogContent>
                 <DialogActions sx={{ justifyContent: 'flex-start', p: 2 }}>
                     <Button onClick={handleClose} sx={{ fontFamily: 'Cairo' }}>إلغاء</Button>
-                    <Button onClick={handleSave} variant="contained" sx={{ fontFamily: 'Cairo', bgcolor: '#0A2342' }}>
+                    <Button onClick={handleSave} variant="contained" sx={{ fontFamily: 'Cairo', bgcolor: '#4F46E5' }}>
                         حفظ
                     </Button>
                 </DialogActions>

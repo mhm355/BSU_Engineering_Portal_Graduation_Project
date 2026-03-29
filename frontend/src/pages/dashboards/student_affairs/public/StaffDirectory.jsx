@@ -50,7 +50,7 @@ export default function StaffDirectory() {
     return (
         <Container maxWidth="lg" sx={{ py: 8 }}>
             <Box sx={{ textAlign: 'center', mb: 4 }}>
-                <Typography variant="h3" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342', mb: 2 }}>
+                <Typography variant="h3" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B', mb: 2 }}>
                     أعضاء هيئة التدريس
                 </Typography>
                 <Typography variant="h6" color="textSecondary" sx={{ fontFamily: 'Cairo', mb: 3 }}>
@@ -109,7 +109,7 @@ export default function StaffDirectory() {
             ) : (
                 <TableContainer component={Paper} elevation={3}>
                     <Table>
-                        <TableHead sx={{ bgcolor: '#0A2342' }}>
+                        <TableHead sx={{ bgcolor: '#4F46E5' }}>
                             <TableRow>
                                 <TableCell sx={{ color: 'white', fontFamily: 'Cairo', fontWeight: 'bold', width: 50 }}>#</TableCell>
                                 <TableCell sx={{ color: 'white', fontFamily: 'Cairo', fontWeight: 'bold' }}>الاسم</TableCell>

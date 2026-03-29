@@ -23,8 +23,8 @@ const float = keyframes`
 `;
 
 const pulse = keyframes`
-  0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,193,7,0.4); }
-  50% { transform: scale(1.02); box-shadow: 0 0 30px 10px rgba(255,193,7,0.2); }
+  0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.4); }
+  50% { transform: scale(1.02); box-shadow: 0 0 30px 10px rgba(79, 70, 229, 0.2); }
 `;
 
 const shimmer = keyframes`
@@ -106,16 +106,16 @@ export default function Login() {
                 justifyContent: 'center',
                 position: 'relative',
                 overflow: 'hidden',
-                background: 'linear-gradient(135deg, #0A2342 0%, #1a3a5c 50%, #0A2342 100%)',
+                background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 50%, #4F46E5 100%)',
                 backgroundSize: '200% 200%',
                 animation: `${gradientMove} 15s ease infinite`,
                 py: 4,
             }}
         >
             {/* Animated Background Elements */}
-            <Box sx={{ position: 'absolute', top: -100, right: -100, width: 400, height: 400, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,193,7,0.15) 0%, transparent 70%)', animation: `${float} 8s ease-in-out infinite` }} />
+            <Box sx={{ position: 'absolute', top: -100, right: -100, width: 400, height: 400, borderRadius: '50%', background: 'radial-gradient(circle, rgba(79, 70, 229, 0.15) 0%, transparent 70%)', animation: `${float} 8s ease-in-out infinite` }} />
             <Box sx={{ position: 'absolute', bottom: -150, left: -100, width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%)', animation: `${float} 10s ease-in-out infinite`, animationDelay: '2s' }} />
-            <Box sx={{ position: 'absolute', top: '20%', left: '5%', width: 200, height: 200, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,193,7,0.1) 0%, transparent 70%)', animation: `${float} 6s ease-in-out infinite`, animationDelay: '1s' }} />
+            <Box sx={{ position: 'absolute', top: '20%', left: '5%', width: 200, height: 200, borderRadius: '50%', background: 'radial-gradient(circle, rgba(20, 184, 166, 0.1) 0%, transparent 70%)', animation: `${float} 6s ease-in-out infinite`, animationDelay: '1s' }} />
             <Box sx={{ position: 'absolute', bottom: '20%', right: '10%', width: 150, height: 150, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%)', animation: `${float} 7s ease-in-out infinite`, animationDelay: '3s' }} />
 
             {/* Grid Pattern Overlay */}
@@ -135,7 +135,7 @@ export default function Login() {
                     width: 600,
                     height: 600,
                     borderRadius: '50%',
-                    border: '1px dashed rgba(255,193,7,0.15)',
+                    border: '1px dashed rgba(79, 70, 229, 0.15)',
                     animation: `${rotate} 60s linear infinite`,
                 }}
             />
@@ -191,7 +191,7 @@ export default function Login() {
                                 left: 0,
                                 right: 0,
                                 height: 5,
-                                background: 'linear-gradient(90deg, transparent, #FFC107, #0A2342, #FFC107, transparent)',
+                                background: 'linear-gradient(90deg, transparent, #4F46E5, #14B8A6, #4F46E5, transparent)',
                                 backgroundSize: '200% 100%',
                                 animation: `${shimmer} 3s linear infinite`,
                             }}
@@ -208,7 +208,7 @@ export default function Login() {
                                     position: 'absolute',
                                     inset: -15,
                                     borderRadius: '50%',
-                                    background: 'radial-gradient(circle, rgba(255,193,7,0.3), transparent 70%)',
+                                    background: 'radial-gradient(circle, rgba(79, 70, 229, 0.3), transparent 70%)',
                                     animation: `${pulse} 3s ease-in-out infinite`,
                                 }
                             }}
@@ -218,8 +218,8 @@ export default function Login() {
                                 sx={{
                                     width: 100,
                                     height: 100,
-                                    border: '4px solid #FFC107',
-                                    boxShadow: '0 10px 40px rgba(255,193,7,0.3)',
+                                    border: '4px solid #4F46E5',
+                                    boxShadow: '0 10px 40px rgba(79, 70, 229, 0.3)',
                                     animation: `${float} 4s ease-in-out infinite`,
                                 }}
                             />
@@ -232,8 +232,8 @@ export default function Login() {
                             size="small"
                             sx={{
                                 mb: 2,
-                                bgcolor: 'rgba(10,35,66,0.08)',
-                                color: '#0A2342',
+                                bgcolor: 'rgba(79, 70, 229, 0.08)',
+                                color: '#4F46E5',
                                 fontFamily: 'Cairo',
                                 fontWeight: 'bold',
                             }}
@@ -244,7 +244,7 @@ export default function Login() {
                             sx={{
                                 fontFamily: 'Cairo',
                                 fontWeight: 'bold',
-                                color: '#0A2342',
+                                color: '#1E293B',
                                 mb: 1,
                             }}
                         >
@@ -255,7 +255,7 @@ export default function Login() {
                             variant="body1"
                             sx={{
                                 fontFamily: 'Cairo',
-                                color: '#666',
+                                color: '#64748B',
                                 mb: 4,
                             }}
                         >
@@ -293,7 +293,7 @@ export default function Login() {
                                     InputProps={{
                                         startAdornment: (
                                             <InputAdornment position="start">
-                                                <PersonIcon sx={{ color: '#0A2342' }} />
+                                                <PersonIcon sx={{ color: '#4F46E5' }} />
                                             </InputAdornment>
                                         ),
                                     }}
@@ -304,12 +304,12 @@ export default function Login() {
                                             transition: 'all 0.3s ease',
                                             '&:hover': {
                                                 '& .MuiOutlinedInput-notchedOutline': {
-                                                    borderColor: '#FFC107',
+                                                    borderColor: '#4F46E5',
                                                 }
                                             },
                                             '&.Mui-focused': {
                                                 '& .MuiOutlinedInput-notchedOutline': {
-                                                    borderColor: '#0A2342',
+                                                    borderColor: '#4F46E5',
                                                     borderWidth: 2,
                                                 }
                                             }
@@ -329,7 +329,7 @@ export default function Login() {
                                     InputProps={{
                                         startAdornment: (
                                             <InputAdornment position="start">
-                                                <LockIcon sx={{ color: '#0A2342' }} />
+                                                <LockIcon sx={{ color: '#4F46E5' }} />
                                             </InputAdornment>
                                         ),
                                         endAdornment: (
@@ -341,8 +341,8 @@ export default function Login() {
                                                     sx={{
                                                         transition: 'all 0.3s ease',
                                                         '&:hover': {
-                                                            bgcolor: 'rgba(255,193,7,0.1)',
-                                                            color: '#0A2342',
+                                                            bgcolor: 'rgba(79, 70, 229, 0.1)',
+                                                            color: '#4F46E5',
                                                         }
                                                     }}
                                                 >
@@ -358,12 +358,12 @@ export default function Login() {
                                             transition: 'all 0.3s ease',
                                             '&:hover': {
                                                 '& .MuiOutlinedInput-notchedOutline': {
-                                                    borderColor: '#FFC107',
+                                                    borderColor: '#4F46E5',
                                                 }
                                             },
                                             '&.Mui-focused': {
                                                 '& .MuiOutlinedInput-notchedOutline': {
-                                                    borderColor: '#0A2342',
+                                                    borderColor: '#4F46E5',
                                                     borderWidth: 2,
                                                 }
                                             }
@@ -379,24 +379,24 @@ export default function Login() {
                                     fullWidth
                                     disabled={loading}
                                     sx={{
-                                        bgcolor: '#0A2342',
+                                        bgcolor: '#4F46E5',
                                         fontFamily: 'Cairo',
                                         fontWeight: 'bold',
                                         py: 2,
                                         fontSize: '1.1rem',
                                         borderRadius: 3,
-                                        boxShadow: '0 10px 30px rgba(10,35,66,0.3)',
+                                        boxShadow: '0 10px 30px rgba(79, 70, 229, 0.3)',
                                         transition: 'all 0.3s ease',
                                         '&:hover': {
-                                            bgcolor: '#1a4a7a',
+                                            bgcolor: '#4338CA',
                                             transform: 'translateY(-3px)',
-                                            boxShadow: '0 15px 40px rgba(10,35,66,0.4)',
+                                            boxShadow: '0 15px 40px rgba(79, 70, 229, 0.4)',
                                         },
                                         '&:active': {
                                             transform: 'translateY(0)',
                                         },
                                         '&.Mui-disabled': {
-                                            bgcolor: 'rgba(10,35,66,0.5)',
+                                            bgcolor: 'rgba(79, 70, 229, 0.5)',
                                             color: '#fff',
                                         }
                                     }}
@@ -416,12 +416,12 @@ export default function Login() {
                         {/* Footer Info */}
                         <Box sx={{ mt: 4, pt: 3, borderTop: '1px solid #eee' }}>
                             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
-                                <SchoolIcon sx={{ color: '#FFC107', fontSize: 20 }} />
+                                <SchoolIcon sx={{ color: '#4F46E5', fontSize: 20 }} />
                                 <Typography
                                     variant="body2"
                                     sx={{
                                         fontFamily: 'Cairo',
-                                        color: '#999',
+                                        color: '#94A3B8',
                                     }}
                                 >
                                     كلية الهندسة - جامعة بني سويف
@@ -457,10 +457,10 @@ export default function Login() {
                             label="2024-2025"
                             size="small"
                             sx={{
-                                bgcolor: 'rgba(255,193,7,0.2)',
-                                color: '#FFC107',
+                                bgcolor: 'rgba(79, 70, 229, 0.2)',
+                                color: '#818CF8',
                                 fontFamily: 'Cairo',
-                                border: '1px solid rgba(255,193,7,0.3)',
+                                border: '1px solid rgba(79, 70, 229, 0.3)',
                             }}
                         />
                     </Box>

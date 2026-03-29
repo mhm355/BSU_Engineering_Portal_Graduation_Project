@@ -219,7 +219,7 @@ export default function CreateQuiz() {
                 عودة
             </Button>
 
-            <Typography variant="h4" gutterBottom sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342' }}>
+            <Typography variant="h4" gutterBottom sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B' }}>
                 إنشاء كويز جديد
             </Typography>
 

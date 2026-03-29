@@ -11,7 +11,7 @@ export default function DeanWordPage() {
                 sx={{
                     p: 4,
                     mb: 4,
-                    background: 'linear-gradient(135deg, #0A2342 0%, #1a4a7a 100%)',
+                    background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)',
                     color: 'white',
                     borderRadius: 3
                 }}
@@ -23,14 +23,14 @@ export default function DeanWordPage() {
 
             {/* Dean's Word */}
             <Paper elevation={3} sx={{ p: 4, borderRadius: 3, position: 'relative' }}>
-                <FormatQuoteIcon sx={{ fontSize: 60, color: '#FFC107', opacity: 0.3, position: 'absolute', top: 20, right: 20 }} />
+                <FormatQuoteIcon sx={{ fontSize: 60, color: '#4F46E5', opacity: 0.3, position: 'absolute', top: 20, right: 20 }} />
 
                 <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 4 }}>
                     <Avatar
                         sx={{
                             width: 120,
                             height: 120,
-                            bgcolor: '#0A2342',
+                            bgcolor: '#4F46E5',
                             fontSize: '2rem',
                             fontFamily: 'Cairo',
                             mb: 2
@@ -38,7 +38,7 @@ export default function DeanWordPage() {
                     >
                         أ.د
                     </Avatar>
-                    <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342' }}>
+                    <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B' }}>
                         أ.د. أحمد محمد حسن
                     </Typography>
                     <Typography variant="subtitle1" sx={{ fontFamily: 'Cairo', color: 'text.secondary' }}>
@@ -68,7 +68,7 @@ export default function DeanWordPage() {
                     </Typography>
                 </Box>
 
-                <FormatQuoteIcon sx={{ fontSize: 60, color: '#FFC107', opacity: 0.3, position: 'absolute', bottom: 20, left: 20, transform: 'rotate(180deg)' }} />
+                <FormatQuoteIcon sx={{ fontSize: 60, color: '#4F46E5', opacity: 0.3, position: 'absolute', bottom: 20, left: 20, transform: 'rotate(180deg)' }} />
             </Paper>
         </Container>
     );

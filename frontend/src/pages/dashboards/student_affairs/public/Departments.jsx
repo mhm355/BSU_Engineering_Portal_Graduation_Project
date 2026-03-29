@@ -25,7 +25,7 @@ export default function Departments() {
     return (
         <Container maxWidth="lg" sx={{ py: 8 }}>
             <Box sx={{ textAlign: 'center', mb: 6 }}>
-                <Typography variant="h3" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342', mb: 2 }}>
+                <Typography variant="h3" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B', mb: 2 }}>
                     الأقسام الأكاديمية
                 </Typography>
                 <Typography variant="h6" color="textSecondary" sx={{ fontFamily: 'Cairo' }}>
@@ -43,7 +43,7 @@ export default function Departments() {
                                 <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
                                     <CardContent sx={{ flex: '1 0 auto' }}>
                                         <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                                            <SchoolIcon sx={{ color: '#0A2342', fontSize: 30, ml: 1 }} />
+                                            <SchoolIcon sx={{ color: '#4F46E5', fontSize: 30, ml: 1 }} />
                                             <Typography component="h5" variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
                                                 {dept.name}
                                             </Typography>

@@ -43,7 +43,7 @@ export default function DepartmentsPage() {
                 sx={{
                     p: 4,
                     mb: 4,
-                    background: 'linear-gradient(135deg, #0A2342 0%, #1a4a7a 100%)',
+                    background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)',
                     color: 'white',
                     borderRadius: 3
                 }}
@@ -115,8 +115,8 @@ export default function DepartmentsPage() {
             </Grid>
 
             {/* Info Box */}
-            <Paper elevation={2} sx={{ p: 4, mt: 4, borderRight: '4px solid #FFC107' }}>
-                <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342', mb: 2 }}>
+            <Paper elevation={2} sx={{ p: 4, mt: 4, borderRight: '4px solid #4F46E5' }}>
+                <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B', mb: 2 }}>
                     نظام الدراسة
                 </Typography>
                 <Typography variant="body1" sx={{ fontFamily: 'Cairo', lineHeight: 1.8 }}>

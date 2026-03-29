@@ -23,7 +23,7 @@ export default function VisionMissionPage() {
                 sx={{
                     p: 4,
                     mb: 4,
-                    background: 'linear-gradient(135deg, #0A2342 0%, #1a4a7a 100%)',
+                    background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)',
                     color: 'white',
                     borderRadius: 3
                 }}
@@ -44,15 +44,15 @@ export default function VisionMissionPage() {
                         sx={{
                             p: 4,
                             height: '100%',
-                            borderTop: '5px solid #FFC107',
+                            borderTop: '5px solid #4F46E5',
                             borderRadius: 2,
                             transition: 'box-shadow 0.3s',
                             '&:hover': { boxShadow: 8 }
                         }}
                     >
                         <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-                            <VisibilityIcon sx={{ fontSize: 50, color: '#0A2342', mr: 2 }} />
-                            <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342' }}>
+                            <VisibilityIcon sx={{ fontSize: 50, color: '#4F46E5', mr: 2 }} />
+                            <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B' }}>
                                 رؤية الكلية
                             </Typography>
                         </Box>
@@ -69,15 +69,15 @@ export default function VisionMissionPage() {
                         sx={{
                             p: 4,
                             height: '100%',
-                            borderTop: '5px solid #FFC107',
+                            borderTop: '5px solid #4F46E5',
                             borderRadius: 2,
                             transition: 'box-shadow 0.3s',
                             '&:hover': { boxShadow: 8 }
                         }}
                     >
                         <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-                            <TrackChangesIcon sx={{ fontSize: 50, color: '#0A2342', mr: 2 }} />
-                            <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342' }}>
+                            <TrackChangesIcon sx={{ fontSize: 50, color: '#14B8A6', mr: 2 }} />
+                            <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B' }}>
                                 رسالة الكلية
                             </Typography>
                         </Box>
@@ -93,13 +93,13 @@ export default function VisionMissionPage() {
                         elevation={3}
                         sx={{
                             p: 4,
-                            borderTop: '5px solid #0A2342',
+                            borderTop: '5px solid #14B8A6',
                             borderRadius: 2
                         }}
                     >
                         <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-                            <FlagIcon sx={{ fontSize: 50, color: '#FFC107', mr: 2 }} />
-                            <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342' }}>
+                            <FlagIcon sx={{ fontSize: 50, color: '#F59E0B', mr: 2 }} />
+                            <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B' }}>
                                 الأهداف الاستراتيجية
                             </Typography>
                         </Box>

@@ -467,7 +467,7 @@ export default function AdminDashboard() {
             {/* Hero Section */}
             <Box
                 sx={{
-                    background: 'linear-gradient(135deg, #0A2342 0%, #1a3a5c 50%, #2d5a87 100%)',
+                    background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 50%, #06B6D4 100%)',
                     pt: 4,
                     pb: 6,
                     mb: 4,
@@ -496,7 +496,7 @@ export default function AdminDashboard() {
                         width: 500,
                         height: 500,
                         borderRadius: '50%',
-                        background: 'radial-gradient(circle, rgba(255, 193, 7, 0.08) 0%, transparent 70%)',
+                        background: 'radial-gradient(circle, rgba(20, 184, 166, 0.15) 0%, transparent 70%)',
                         animation: `${float} 8s ease-in-out infinite`,
                         animationDelay: '2s',
                     }}
@@ -514,8 +514,8 @@ export default function AdminDashboard() {
                                     border: '4px solid rgba(255,255,255,0.3)',
                                     boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
                                     fontSize: 40,
-                                    bgcolor: '#FFC107',
-                                    color: '#0A2342',
+                                    bgcolor: '#4F46E5',
+                                    color: '#fff',
                                 }}
                             >
                                 {user.first_name?.charAt(0)}{user.last_name?.charAt(0)}
@@ -536,11 +536,11 @@ export default function AdminDashboard() {
                                 </Typography>
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
                                     <Chip
-                                        icon={<AdminPanelSettingsIcon sx={{ color: '#0A2342 !important' }} />}
+                                        icon={<AdminPanelSettingsIcon sx={{ color: '#fff !important' }} />}
                                         label="مدير النظام"
                                         sx={{
-                                            bgcolor: '#FFC107',
-                                            color: '#0A2342',
+                                            bgcolor: '#14B8A6',
+                                            color: '#fff',
                                             fontFamily: 'Cairo',
                                             fontWeight: 'bold',
                                             px: 1,
@@ -642,7 +642,7 @@ export default function AdminDashboard() {
                         sx={{
                             fontFamily: 'Cairo',
                             fontWeight: 'bold',
-                            color: '#0A2342',
+                            color: '#1E293B',
                             mb: 1,
                         }}
                     >
@@ -652,7 +652,7 @@ export default function AdminDashboard() {
                         variant="body1"
                         sx={{
                             fontFamily: 'Cairo',
-                            color: '#666',
+                            color: '#64748B',
                         }}
                     >
                         إدارة جميع جوانب النظام الأكاديمي

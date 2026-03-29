@@ -116,7 +116,7 @@ const MaterialsTab = ({ courseId }) => {
                             <Grid item xs={12} md={6} lg={4} key={material.id}>
                                 <Card>
                                     <CardContent>
-                                        <Typography variant="h6" sx={{ fontFamily: 'Cairo' }}>{material.title}</Typography>
+                                        <Button onClick={handleSave} variant="contained" sx={{ fontFamily: 'Cairo', bgcolor: '#4F46E5' }}>{material.title}</Button>
                                         <Typography variant="caption" display="block" sx={{ mb: 2, fontFamily: 'Cairo' }}>
                                             {new Date(material.uploaded_at).toLocaleDateString('ar-EG')}
                                         </Typography>
@@ -545,7 +545,7 @@ export default function DoctorCourseManager() {
 
     return (
         <Container maxWidth="lg" sx={{ py: 4 }}>
-            <Paper sx={{ p: 3, mb: 4, bgcolor: '#0A2342', color: 'white' }}>
+            <Paper sx={{ p: 3, mb: 4, bgcolor: '#4F46E5', color: 'white' }}>
                 <Typography variant="h4" gutterBottom sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
                     {course.name}
                 </Typography>

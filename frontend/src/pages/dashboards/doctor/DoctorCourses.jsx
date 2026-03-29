@@ -63,7 +63,7 @@ export default function DoctorCourses() {
     return (
         <Box sx={{ minHeight: '100vh', background: 'linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%)', pb: 6 }}>
             {/* Hero Header */}
-            <Box sx={{ background: 'linear-gradient(135deg, #0A2342 0%, #1a3a6e 100%)', pt: 4, pb: 5, mb: 4, position: 'relative', overflow: 'hidden' }}>
+            <Box sx={{ background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)', pt: 4, pb: 5, mb: 4, position: 'relative', overflow: 'hidden' }}>
                 <Box sx={{ position: 'absolute', top: -60, right: -60, width: 250, height: 250, borderRadius: '50%', background: 'rgba(255,255,255,0.05)' }} />
                 <Container maxWidth="xl">
                     <Fade in timeout={600}>
@@ -138,7 +138,7 @@ export default function DoctorCourses() {
                                         <CardContent sx={{ flexGrow: 1, p: 3 }}>
                                             {/* Header */}
                                             <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
-                                                <Avatar sx={{ bgcolor: course.academic_year_status === 'OPEN' ? '#0A2342' : '#9e9e9e', width: 48, height: 48 }}>
+                                                <Avatar sx={{ bgcolor: course.academic_year_status === 'OPEN' ? '#4F46E5' : '#9e9e9e', width: 48, height: 48 }}>
                                                     <MenuBookIcon />
                                                 </Avatar>
                                                 <Box sx={{ flex: 1 }}>
@@ -192,7 +192,7 @@ export default function DoctorCourses() {
                                                 sx={{
                                                     fontFamily: 'Cairo', fontWeight: 'bold', borderRadius: 3,
                                                     background: course.academic_year_status === 'OPEN'
-                                                        ? 'linear-gradient(135deg, #0A2342, #1a3a6e)'
+                                                        ? 'linear-gradient(135deg, #4F46E5, #7C3AED)'
                                                         : 'linear-gradient(135deg, #757575, #9e9e9e)',
                                                 }}
                                             >

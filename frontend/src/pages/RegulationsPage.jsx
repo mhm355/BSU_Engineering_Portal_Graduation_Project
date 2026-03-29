@@ -76,7 +76,7 @@ export default function RegulationsPage() {
                 sx={{
                     p: 4,
                     mb: 4,
-                    background: 'linear-gradient(135deg, #0A2342 0%, #1a4a7a 100%)',
+                    background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)',
                     color: 'white',
                     borderRadius: 3
                 }}
@@ -93,8 +93,8 @@ export default function RegulationsPage() {
             </Paper>
 
             {/* Introduction */}
-            <Paper elevation={2} sx={{ p: 4, mb: 4, borderRight: '4px solid #FFC107' }}>
-                <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342', mb: 2 }}>
+            <Paper elevation={2} sx={{ p: 4, mb: 4, borderRight: '4px solid #4F46E5' }}>
+                <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B', mb: 2 }}>
                     مقدمة
                 </Typography>
                 <Typography variant="body1" sx={{ fontFamily: 'Cairo', lineHeight: 2, textAlign: 'justify' }}>
@@ -104,13 +104,13 @@ export default function RegulationsPage() {
 
             {/* Grading Table */}
             <Paper elevation={2} sx={{ p: 4, mb: 4 }}>
-                <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342', mb: 3 }}>
+                <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B', mb: 3 }}>
                     نظام التقديرات (مادة 16)
                 </Typography>
                 <TableContainer>
                     <Table sx={{ minWidth: 400 }}>
                         <TableHead>
-                            <TableRow sx={{ bgcolor: '#0A2342' }}>
+                            <TableRow sx={{ bgcolor: '#4F46E5' }}>
                                 <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: 'white', textAlign: 'center' }}>التقدير</TableCell>
                                 <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: 'white', textAlign: 'center' }}>النسبة المئوية</TableCell>
                             </TableRow>
@@ -137,7 +137,7 @@ export default function RegulationsPage() {
             </Paper>
 
             {/* Regulation Sections */}
-            <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342', mb: 3 }}>
+            <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B', mb: 3 }}>
                 مواد اللائحة
             </Typography>
             {sections.map((section, index) => (
@@ -146,11 +146,11 @@ export default function RegulationsPage() {
                         expandIcon={<ExpandMoreIcon />}
                         sx={{
                             bgcolor: '#f8f9fa',
-                            borderRight: '4px solid #FFC107',
+                            borderRight: '4px solid #4F46E5',
                             '&:hover': { bgcolor: '#e9ecef' }
                         }}
                     >
-                        <Typography sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342' }}>
+                        <Typography sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B' }}>
                             {section.title}
                         </Typography>
                     </AccordionSummary>
