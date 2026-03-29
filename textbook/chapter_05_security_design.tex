@@ -87,49 +87,41 @@ Authorization operates at two distinct layers. The frontend utilizes a \texttt{\
 
 However, the architectural principle holds that \textbf{frontend route protection is merely a UX convenience}. A determined attacker can bypass client-side JavaScript. True security relies on the backend endpoints evaluating the session's role payload against the requested resource.
 
-% The following table requires the longtable, pifont, and xcolor packages in your main .tex file.
-\begin{longtable}{|p{0.28\textwidth}|c|p{0.12\textwidth}|c|p{0.12\textwidth}|p{0.12\textwidth}|}
+\begin{sidewaystable}
+    \centering
+    \renewcommand{\arraystretch}{1.2}
     \caption{Role-Based Access Control (RBAC) Permission Matrix}
-    \label{tab:rbac_matrix} \\
-    \hline
-    \textbf{Operation} & \textbf{Admin} & \textbf{Doctor} & \textbf{Student} & \textbf{Student Affairs} & \textbf{Staff Affairs} \\
-    \hline
-    \endfirsthead
-    \multicolumn{6}{c}%
-    {{\bfseries \tablename\ \thetable{} -- continued from previous page}} \\
-    \hline
-    \textbf{Operation} & \textbf{Admin} & \textbf{Doctor} & \textbf{Student} & \textbf{Student Affairs} & \textbf{Staff Affairs} \\
-    \hline
-    \endhead
-    \hline \multicolumn{6}{|r|}{{Continued on next page}} \\ \hline
-    \endfoot
-    \hline
-    \endlastfoot
-
-    User Management & \cmark & \xmark & \xmark & \xmark & \xmark \\ \hline
-    Academic Year CRUD & \cmark & \xmark & \xmark & \xmark & \xmark \\ \hline
-    Grading Template CRUD & \cmark & \xmark & \xmark & \xmark & \xmark \\ \hline
-    Department CRUD & \cmark & \xmark & \xmark & \xmark & \xmark \\ \hline
-    Upload Students (Excel) & \cmark & \xmark & \xmark & \cmark & \xmark \\ \hline
-    Upload Doctors (Excel) & \cmark & \xmark & \xmark & \xmark & \cmark \\ \hline
-    Assign Doctor to Course & \cmark & \xmark & \xmark & \xmark & \cmark \\ \hline
-    Record Attendance & \cmark & \cmark \newline (Own courses) & \xmark & \xmark & \xmark \\ \hline
-    Enter Grades & \cmark & \cmark \newline (Own courses) & \xmark & \xmark & \xmark \\ \hline
-    Upload Exam Grades & \cmark & \xmark & \xmark & \cmark & \xmark \\ \hline
-    Approve Exam Grades & \cmark & \xmark & \xmark & \xmark & \xmark \\ \hline
-    Create Quizzes & \cmark & \cmark \newline (Own courses) & \xmark & \xmark & \xmark \\ \hline
-    Take Quizzes & \xmark & \xmark & \cmark & \xmark & \xmark \\ \hline
-    View Own Grades & \xmark & \xmark & \cmark & \xmark & \xmark \\ \hline
-    View Own Attendance & \xmark & \xmark & \cmark & \xmark & \xmark \\ \hline
-    Upload Lectures & \cmark & \cmark \newline (Own courses) & \xmark & \xmark & \xmark \\ \hline
-    Download Lectures & \xmark & \xmark & \cmark & \xmark & \xmark \\ \hline
-    Manage News & \cmark & \xmark & \xmark & \cmark & \cmark \\ \hline
-    Send Announcements & \cmark & \xmark & \xmark & \xmark & \xmark \\ \hline
-    View Audit Logs & \cmark & \xmark & \xmark & \xmark & \xmark \\ \hline
-    Approve Deletion Requests & \cmark & \xmark & \xmark & \xmark & \xmark \\ \hline
-    Reset User Passwords & \cmark & \xmark & \xmark & \cmark \newline (Students only) & \xmark \\ \hline
-    Manage Certificates & \cmark & \xmark & \xmark & \cmark & \xmark \\
-\end{longtable}
+    \label{tab:rbac_matrix}
+    \begin{tabular}{|p{0.28\textwidth}|c|p{0.12\textwidth}|c|p{0.12\textwidth}|p{0.12\textwidth}|}
+        \hline
+        \textbf{Operation} & \textbf{Admin} & \textbf{Doctor} & \textbf{Student} & \textbf{Student Affairs} & \textbf{Staff Affairs} \\
+        \hline
+        User Management & \cmark & \xmark & \xmark & \xmark & \xmark \\ \hline
+        Academic Year CRUD & \cmark & \xmark & \xmark & \xmark & \xmark \\ \hline
+        Grading Template CRUD & \cmark & \xmark & \xmark & \xmark & \xmark \\ \hline
+        Department CRUD & \cmark & \xmark & \xmark & \xmark & \xmark \\ \hline
+        Upload Students (Excel) & \cmark & \xmark & \xmark & \cmark & \xmark \\ \hline
+        Upload Doctors (Excel) & \cmark & \xmark & \xmark & \xmark & \cmark \\ \hline
+        Assign Doctor to Course & \cmark & \xmark & \xmark & \xmark & \cmark \\ \hline
+        Record Attendance & \cmark & \cmark (Own) & \xmark & \xmark & \xmark \\ \hline
+        Enter Grades & \cmark & \cmark (Own) & \xmark & \xmark & \xmark \\ \hline
+        Upload Exam Grades & \cmark & \xmark & \xmark & \cmark & \xmark \\ \hline
+        Approve Exam Grades & \cmark & \xmark & \xmark & \xmark & \xmark \\ \hline
+        Create Quizzes & \cmark & \cmark (Own) & \xmark & \xmark & \xmark \\ \hline
+        Take Quizzes & \xmark & \xmark & \cmark & \xmark & \xmark \\ \hline
+        View Own Grades & \xmark & \xmark & \cmark & \xmark & \xmark \\ \hline
+        View Own Attendance & \xmark & \xmark & \cmark & \xmark & \xmark \\ \hline
+        Upload Lectures & \cmark & \cmark (Own) & \xmark & \xmark & \xmark \\ \hline
+        Download Lectures & \xmark & \xmark & \cmark & \xmark & \xmark \\ \hline
+        Manage News & \cmark & \xmark & \xmark & \cmark & \cmark \\ \hline
+        Send Announcements & \cmark & \xmark & \xmark & \xmark & \xmark \\ \hline
+        View Audit Logs & \cmark & \xmark & \xmark & \xmark & \xmark \\ \hline
+        Approve Deletion Requests & \cmark & \xmark & \xmark & \xmark & \xmark \\ \hline
+        Reset User Passwords & \cmark & \xmark & \xmark & \cmark (Students) & \xmark \\ \hline
+        Manage Certificates & \cmark & \xmark & \xmark & \cmark & \xmark \\
+        \hline
+    \end{tabular}
+\end{sidewaystable}
 
 \section{Password Security}
 \label{sec:password-security}

@@ -43,7 +43,7 @@ Managing database persistence, backups, and OS patching within standard Docker c
         \hline
         \textbf{Layer} & \textbf{Technology} & \textbf{Engineering Justification} \\
         \hline
-        \textbf{Frontend} & React 18 & Component-based UI, robust state handling. \\
+        \textbf{Frontend} & React 19 & Component-based UI, robust state handling. \\
         \textbf{UI Library} & Material UI v5 & Native RTL capability, Cairo font integration. \\
         \textbf{Backend} & Django 5.x & Mature ORM, session management, reliable auth. \\
         \textbf{API Framework} & DRF 3.x & Seamless serialization, extensible permission classes. \\
@@ -104,6 +104,7 @@ Batch uploads (e.g., student enrollment, attendance logs) are the system's most 
     \label{fig:act_batch}
 \end{figure}
 
+\needspace{12\baselineskip}
 \begin{lstlisting}[language=Python, caption=Row-level Fault Tolerance during Batch Insert (\texttt{academic/views.py})]
 for idx, item in enumerate(attendance_list):
     try:
@@ -201,7 +202,8 @@ The quiz subsystem follows a nested composition pattern, where a \texttt{Quiz} c
 \begin{table}[H]
     \centering
     \renewcommand{\arraystretch}{1.3}
-    \begin{tabular}{|l|l|l|}
+    \small  % Smaller font for wide table
+    \begin{tabular}{|p{0.18\textwidth}|p{0.42\textwidth}|p{0.3\textwidth}|}
         \hline
         \textbf{Table} & \textbf{Key Columns} & \textbf{Purpose} \\ \hline
         \texttt{Quiz} & \texttt{course\_offering\_id, quiz\_type, total\_points} & Defines the assessment container. \\
@@ -260,7 +262,7 @@ Routing is encapsulated under dedicated API namespaces to ensure predictable and
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.75\textwidth]{backend_modules.png}
+    \includegraphics[width=0.95\textwidth]{backend_modules.png}
     \caption{Dependency Diagram showing the modular structure of the Django backend. Demonstrates how the academic, content, and system apps rely on the centralized users module for RBAC enforcement.}
     \label{fig:backend_modules}
 \end{figure}
@@ -359,14 +361,7 @@ useEffect(() => {
 
 \subsection{Route Protection}
 
-A custom \texttt{\textless ProtectedRoute\textgreater} wrapper component enforces client-side authorization barriers. It sequentially validates three conditions before rendering a protected page:
-\begin{enumerate}
-    \item \textbf{Authentication}: Is a user object present in the \texttt{AuthContext}?
-    \item \textbf{First Login}: Is the user's \texttt{first\_login\_required} flag set to true?
-    \item \textbf{Role Authorization}: Does the user's role exist in the route's allowed roles array?
-\end{enumerate}
-If any check fails, the user is redirected to the appropriate page (\texttt{/login}, \texttt{/change-password}, or the home page).
-
+\needspace{10\baselineskip}
 \begin{lstlisting}[language=jsx, caption=ProtectedRoute Component Logic]
 const ProtectedRoute = ({ children, roles }) => {
     const { user } = useAuth();
@@ -422,7 +417,7 @@ server {
     }
 
     # Route for Django API
-location /api/ {
+    location /api/ {
         proxy_pass http://backend:8000; # Forward to backend service
         proxy_set_header X-Real-IP $remote_addr;
         proxy_read_timeout 300s; # Accommodate long-running batch uploads
