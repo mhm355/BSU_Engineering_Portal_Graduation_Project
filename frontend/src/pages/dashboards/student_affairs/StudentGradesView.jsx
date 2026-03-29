@@ -56,6 +56,13 @@ export default function StudentGradesView() {
         }
     }, [selectedDepartment, selectedYear]);
 
+    // Auto-fetch grades when all filters are selected
+    useEffect(() => {
+        if (isSelectionComplete) {
+            fetchGrades();
+        }
+    }, [selectedDepartment, selectedYear, selectedLevel, selectedSpecialization]);
+
     // Check if specialization is needed (Electrical Engineering, level 2-4)
     const selectedDeptData = departments.find(d => d.id === selectedDepartment);
     const selectedLevelData = levels.find(l => l.id === selectedLevel);
