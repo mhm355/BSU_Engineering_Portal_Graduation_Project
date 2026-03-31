@@ -32,7 +32,7 @@ export default function Departments() {
 
             <Grid container spacing={4}>
                 {departments.map((dept) => (
-                    <Grid item xs={12} md={4} key={dept.id}>
+                    <Grid item xs={12} key={dept.id}>
                         <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', transition: '0.3s', '&:hover': { transform: 'translateY(-5px)', boxShadow: 6 } }}>
                             <CardMedia
                                 component="img"

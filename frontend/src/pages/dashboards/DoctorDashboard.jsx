@@ -117,101 +117,6 @@ export default function DoctorDashboard() {
   const totalStudents = courses.reduce((sum, c) => sum + (c.student_count || 0), 0);
   const avgStudents = courses.length > 0 ? Math.round(totalStudents / courses.length) : 0;
 
-  const CourseCard = ({ course, index }) => (
-    <Grow in={true} timeout={400 + index * 100}>
-      <Card
-        sx={{
-          width: '100%',
-          bgcolor: '#fff',
-          borderRadius: 4,
-          boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-          transition: 'all 0.3s',
-          overflow: 'hidden',
-          '&:hover': {
-            boxShadow: '0 10px 40px rgba(0,0,0,0.15)',
-            transform: 'translateY(-8px)',
-          }
-        }}
-      >
-        {/* Card Header with Gradient */}
-        <Box sx={{
-          background: 'linear-gradient(135deg, #0288d1, #03a9f4)',
-          p: 2.5,
-          color: '#fff'
-        }}>
-          <Typography variant="caption" sx={{ opacity: 0.9, fontWeight: 'bold' }}>
-            {course.subject_code}
-          </Typography>
-          <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', mt: 0.5, lineHeight: 1.3 }}>
-            {course.subject_name}
-          </Typography>
-        </Box>
-
-        <CardContent sx={{ p: 3 }}>
-          {/* Course Details */}
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, mb: 2.5 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-              <Avatar sx={{ width: 32, height: 32, bgcolor: '#e3f2fd' }}>
-                <SchoolIcon fontSize="small" sx={{ color: '#1976d2' }} />
-              </Avatar>
-              <Typography variant="body1" sx={{ fontFamily: 'Cairo', fontWeight: 500 }}>
-                {course.department_name}
-              </Typography>
-            </Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-              <Avatar sx={{ width: 32, height: 32, bgcolor: '#f3e5f5' }}>
-                <CalendarMonthIcon fontSize="small" sx={{ color: '#9c27b0' }} />
-              </Avatar>
-              <Typography variant="body1" sx={{ fontFamily: 'Cairo', fontWeight: 500 }}>
-                {course.level_name}
-              </Typography>
-            </Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-              <Avatar sx={{ width: 32, height: 32, bgcolor: '#e8f5e9' }}>
-                <GroupIcon fontSize="small" sx={{ color: '#4caf50' }} />
-              </Avatar>
-              <Typography variant="body1" sx={{ fontFamily: 'Cairo', fontWeight: 500 }}>
-                {course.student_count} طالب
-              </Typography>
-            </Box>
-          </Box>
-
-          {/* Grading Template Badge */}
-          {course.grading_template && (
-            <Chip
-              icon={<AssignmentIcon sx={{ fontSize: 16 }} />}
-              label={`قالب: ${course.grading_template}`}
-              size="small"
-              sx={{ mb: 2.5, fontFamily: 'Cairo', bgcolor: '#fff3e0', color: '#e65100' }}
-            />
-          )}
-
-          {/* Action Button */}
-          <Button
-            variant="contained"
-            fullWidth
-            endIcon={<ArrowForwardIcon />}
-            onClick={() => navigate(`/doctor/courses/${course.id}`)}
-            sx={{
-              fontFamily: 'Cairo',
-              fontWeight: 'bold',
-              py: 1.5,
-              borderRadius: 3,
-              fontSize: '1.05rem',
-              background: 'linear-gradient(135deg, #0288d1, #03a9f4)',
-              boxShadow: '0 4px 15px rgba(2, 136, 209, 0.3)',
-              '&:hover': {
-                background: 'linear-gradient(135deg, #0277bd, #0288d1)',
-              }
-            }}
-          >
-            إدارة المقرر
-          </Button>
-        </CardContent>
-      </Card>
-    </Grow>
-  );
-
   const TermSection = ({ title, courses, color, icon, defaultExpanded }) => (
     <Accordion
       defaultExpanded={defaultExpanded}
@@ -247,7 +152,7 @@ export default function DoctorDashboard() {
         {courses.length > 0 ? (
           <Grid container spacing={3}>
             {courses.map((course, index) => (
-              <Grid item xs={12} sm={6} md={4} key={course.id}>
+              <Grid item xs={12} key={course.id}>
                 <CourseCard course={course} index={index} />
               </Grid>
             ))}

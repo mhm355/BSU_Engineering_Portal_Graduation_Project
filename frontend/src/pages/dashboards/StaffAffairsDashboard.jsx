@@ -26,6 +26,7 @@ import axios from 'axios';
 import SearchIcon from '@mui/icons-material/Search';
 import DownloadIcon from '@mui/icons-material/Download';
 import { exportToCsv } from '../../utils/exportCsv';
+import DashboardCard from '../../components/DashboardCard';
 
 // Animations
 const float = keyframes`
@@ -84,51 +85,58 @@ const StaffAffairsDashboard = () => {
         {
             title: 'رفع الدكاترة',
             description: 'رفع ملف Excel للدكاترة الجدد',
-            icon: <UploadIcon sx={{ fontSize: 40 }} />,
-            gradient: 'linear-gradient(135deg, #1976d2, #42a5f5)',
-            path: '/staff-affairs/upload-doctors',
+            icon: UploadIcon,
+            buttonText: 'رفع الدكاترة',
+            onClick: () => navigate('/staff-affairs/upload-doctors'),
+            color: 'primary',
         },
         {
             title: 'إدارة الأعضاء',
             description: 'تعديل، حذف، إعادة تعيين كلمة المرور',
-            icon: <ManageAccountsIcon sx={{ fontSize: 40 }} />,
-            gradient: 'linear-gradient(135deg, #d32f2f, #ef5350)',
-            path: '/staff-affairs/manage-doctors',
+            icon: ManageAccountsIcon,
+            buttonText: 'إدارة الأعضاء',
+            onClick: () => navigate('/staff-affairs/manage-doctors'),
+            color: 'error',
         },
         {
             title: 'تعيين الدكاترة',
             description: 'تعيين دكتور لمادة معينة',
-            icon: <AssignmentIcon sx={{ fontSize: 40 }} />,
-            gradient: 'linear-gradient(135deg, #ed6c02, #ff9800)',
-            path: '/staff-affairs/assign-doctors',
+            icon: AssignmentIcon,
+            buttonText: 'تعيين الدكاترة',
+            onClick: () => navigate('/staff-affairs/assign-doctors'),
+            color: 'warning',
         },
         {
             title: 'عرض الدكاترة',
             description: 'عرض قائمة الدكاترة المسجلين',
-            icon: <PeopleIcon sx={{ fontSize: 40 }} />,
-            gradient: 'linear-gradient(135deg, #9c27b0, #ba68c8)',
-            path: '/staff-affairs/view-users',
+            icon: PeopleIcon,
+            buttonText: 'عرض الدكاترة',
+            onClick: () => navigate('/staff-affairs/view-users'),
+            color: 'purple',
         },
         {
             title: 'الهيكل الأكاديمي',
             description: 'عرض الأقسام والفرق والمواد',
-            icon: <SchoolIcon sx={{ fontSize: 40 }} />,
-            gradient: 'linear-gradient(135deg, #0288d1, #03a9f4)',
-            path: '/staff-affairs/academic-structure',
+            icon: SchoolIcon,
+            buttonText: 'الهيكل الأكاديمي',
+            onClick: () => navigate('/staff-affairs/academic-structure'),
+            color: 'info',
         },
         {
             title: 'سجل التعيينات',
             description: 'تتبع جميع عمليات تعيين وإلغاء تعيين الدكاترة',
-            icon: <HistoryIcon sx={{ fontSize: 40 }} />,
-            gradient: 'linear-gradient(135deg, #607D8B, #90A4AE)',
-            path: '/staff-affairs/assignment-history',
+            icon: HistoryIcon,
+            buttonText: 'سجل التعيينات',
+            onClick: () => navigate('/staff-affairs/assignment-history'),
+            color: 'secondary',
         },
         {
             title: 'الأخبار والإعلانات',
             description: 'نشر وإدارة الأخبار الخاصة بشئون العاملين',
-            icon: <NewspaperIcon sx={{ fontSize: 40 }} />,
-            gradient: 'linear-gradient(135deg, #E91E63, #F06292)',
-            path: '/staff-affairs/news',
+            icon: NewspaperIcon,
+            buttonText: 'الأخبار والإعلانات',
+            onClick: () => navigate('/staff-affairs/news'),
+            color: 'primary',
         },
     ];
 
@@ -332,44 +340,17 @@ const StaffAffairsDashboard = () => {
                 <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744', mb: 3 }}>
                     الإجراءات السريعة
                 </Typography>
-                <Grid container spacing={3}>
+                <Grid container spacing={2}>
                     {dashboardCards.map((card, index) => (
-                        <Grid item xs={12} sm={6} md={4} key={index}>
-                            <Grow in={true} timeout={400 + index * 100}>
-                                <Card
-                                    elevation={0}
-                                    sx={{
-                                        height: '100%',
-                                        borderRadius: 4,
-                                        boxShadow: '0 4px 25px rgba(0,0,0,0.08)',
-                                        transition: 'all 0.3s ease',
-                                        overflow: 'hidden',
-                                        border: '2px solid transparent',
-                                        '&:hover': {
-                                            transform: 'translateY(-8px)',
-                                            boxShadow: '0 15px 40px rgba(0,0,0,0.15)',
-                                            borderColor: '#667eea',
-                                        },
-                                    }}
-                                >
-                                    <CardActionArea onClick={() => navigate(card.path)} sx={{ height: '100%' }}>
-                                        <Box sx={{ height: 8, background: card.gradient }} />
-                                        <CardContent sx={{ p: 4 }}>
-                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-                                                <Avatar sx={{ width: 65, height: 65, background: card.gradient, boxShadow: '0 8px 25px rgba(0,0,0,0.15)' }}>
-                                                    {card.icon}
-                                                </Avatar>
-                                                <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>
-                                                    {card.title}
-                                                </Typography>
-                                            </Box>
-                                            <Typography variant="body1" sx={{ fontFamily: 'Cairo', color: '#666', lineHeight: 1.7 }}>
-                                                {card.description}
-                                            </Typography>
-                                        </CardContent>
-                                    </CardActionArea>
-                                </Card>
-                            </Grow>
+                        <Grid item xs={12} key={index}>
+                            <DashboardCard
+                                icon={card.icon}
+                                title={card.title}
+                                description={card.description}
+                                buttonText={card.buttonText}
+                                onClick={card.onClick}
+                                color={card.color}
+                            />
                         </Grid>
                     ))}
                 </Grid>

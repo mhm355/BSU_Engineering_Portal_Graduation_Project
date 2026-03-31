@@ -28,103 +28,103 @@ export function ThemeProvider({ children }) {
             mode,
             ...(mode === 'light' ? {
                 primary: {
-                    main: '#4F46E5',
-                    light: '#818CF8',
-                    dark: '#3730A3',
+                    main: '#1E88E5',
+                    light: '#42A5F5',
+                    dark: '#1565C0',
                     contrastText: '#FFFFFF',
                 },
                 secondary: {
-                    main: '#14B8A6',
-                    light: '#5EEAD4',
-                    dark: '#0F766E',
+                    main: '#43A047',
+                    light: '#66BB6A',
+                    dark: '#2E7D32',
                     contrastText: '#FFFFFF',
                 },
                 background: {
-                    default: '#F8FAFC',
+                    default: '#F5F7FA',
                     paper: '#FFFFFF',
-                    elevated: '#F1F5F9',
+                    elevated: '#FFFFFF',
                 },
                 text: {
-                    primary: '#1E293B',
-                    secondary: '#64748B',
-                    disabled: '#94A3B8',
+                    primary: '#1A202C',
+                    secondary: '#4A5568',
+                    disabled: '#A0AEC0',
                 },
-                divider: 'rgba(148, 163, 184, 0.2)',
+                divider: 'rgba(160, 174, 192, 0.2)',
                 error: {
-                    main: '#EF4444',
-                    light: '#FCA5A5',
-                    dark: '#DC2626',
+                    main: '#E53E3E',
+                    light: '#FC8181',
+                    dark: '#C53030',
                 },
                 warning: {
-                    main: '#F59E0B',
-                    light: '#FCD34D',
-                    dark: '#D97706',
+                    main: '#DD6B20',
+                    light: '#F6AD55',
+                    dark: '#C05621',
                 },
                 info: {
-                    main: '#3B82F6',
-                    light: '#93C5FD',
-                    dark: '#2563EB',
+                    main: '#3182CE',
+                    light: '#63B3ED',
+                    dark: '#2B6CB0',
                 },
                 success: {
-                    main: '#10B981',
-                    light: '#6EE7B7',
-                    dark: '#059669',
+                    main: '#38A169',
+                    light: '#68D391',
+                    dark: '#276749',
                 },
                 gradient: {
-                    primary: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)',
-                    secondary: 'linear-gradient(135deg, #14B8A6 0%, #06B6D4 100%)',
-                    accent: 'linear-gradient(135deg, #F59E0B 0%, #EF4444 100%)',
-                    dark: 'linear-gradient(135deg, #1E293B 0%, #334155 100%)',
+                    primary: 'linear-gradient(135deg, #1E88E5 0%, #1565C0 100%)',
+                    secondary: 'linear-gradient(135deg, #43A047 0%, #2E7D32 100%)',
+                    accent: 'linear-gradient(135deg, #ED8936 0%, #DD6B20 100%)',
+                    hero: 'linear-gradient(135deg, #1E88E5 0%, #43A047 100%)',
                 },
             } : {
                 primary: {
-                    main: '#818CF8',
-                    light: '#A5B4FC',
-                    dark: '#6366F1',
+                    main: '#4299E1',
+                    light: '#63B3ED',
+                    dark: '#3182CE',
                     contrastText: '#FFFFFF',
                 },
                 secondary: {
-                    main: '#5EEAD4',
-                    light: '#99F6E4',
-                    dark: '#2DD4BF',
-                    contrastText: '#0F172A',
+                    main: '#48BB78',
+                    light: '#68D391',
+                    dark: '#38A169',
+                    contrastText: '#FFFFFF',
                 },
                 background: {
-                    default: '#0F172A',
-                    paper: '#1E293B',
-                    elevated: '#334155',
+                    default: '#171923',
+                    paper: '#232836',
+                    elevated: '#2D3748',
                 },
                 text: {
-                    primary: '#F8FAFC',
-                    secondary: '#94A3B8',
-                    disabled: '#64748B',
+                    primary: '#F7FAFC',
+                    secondary: '#A0AEC0',
+                    disabled: '#718096',
                 },
-                divider: 'rgba(148, 163, 184, 0.1)',
+                divider: 'rgba(160, 174, 192, 0.1)',
                 error: {
-                    main: '#F87171',
-                    light: '#FCA5A5',
-                    dark: '#EF4444',
+                    main: '#FC8181',
+                    light: '#FEB2B2',
+                    dark: '#F56565',
                 },
                 warning: {
-                    main: '#FBBF24',
-                    light: '#FCD34D',
-                    dark: '#F59E0B',
+                    main: '#F6AD55',
+                    light: '#FBD38D',
+                    dark: '#ED8936',
                 },
                 info: {
-                    main: '#60A5FA',
-                    light: '#93C5FD',
-                    dark: '#3B82F6',
+                    main: '#63B3ED',
+                    light: '#90CDF4',
+                    dark: '#4299E1',
                 },
                 success: {
-                    main: '#34D399',
-                    light: '#6EE7B7',
-                    dark: '#10B981',
+                    main: '#68D391',
+                    light: '#9AE6B4',
+                    dark: '#48BB78',
                 },
                 gradient: {
-                    primary: 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)',
-                    secondary: 'linear-gradient(135deg, #14B8A6 0%, #06B6D4 100%)',
-                    accent: 'linear-gradient(135deg, #FBBF24 0%, #F87171 100%)',
-                    dark: 'linear-gradient(135deg, #0F172A 0%, #1E293B 100%)',
+                    primary: 'linear-gradient(135deg, #4299E1 0%, #3182CE 100%)',
+                    secondary: 'linear-gradient(135deg, #48BB78 0%, #38A169 100%)',
+                    accent: 'linear-gradient(135deg, #ED8936 0%, #DD6B20 100%)',
+                    hero: 'linear-gradient(135deg, #4299E1 0%, #48BB78 100%)',
                 },
             }),
         },
@@ -213,19 +213,19 @@ export function ThemeProvider({ children }) {
                         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                         '&:hover': {
                             transform: 'translateY(-2px)',
-                            boxShadow: '0 10px 20px -10px rgba(79, 70, 229, 0.5)',
+                            boxShadow: '0 10px 20px -10px rgba(30, 136, 229, 0.4)',
                         },
                     },
                     containedPrimary: {
-                        background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)',
+                        background: 'linear-gradient(135deg, #1E88E5 0%, #1565C0 100%)',
                         '&:hover': {
-                            background: 'linear-gradient(135deg, #4338CA 0%, #6D28D9 100%)',
+                            background: 'linear-gradient(135deg, #1976D2 0%, #0D47A1 100%)',
                         },
                     },
                     containedSecondary: {
-                        background: 'linear-gradient(135deg, #14B8A6 0%, #06B6D4 100%)',
+                        background: 'linear-gradient(135deg, #43A047 0%, #2E7D32 100%)',
                         '&:hover': {
-                            background: 'linear-gradient(135deg, #0D9488 0%, #0891B2 100%)',
+                            background: 'linear-gradient(135deg, #388E3C 0%, #1B5E20 100%)',
                         },
                     },
                     outlined: {
@@ -239,16 +239,19 @@ export function ThemeProvider({ children }) {
             MuiCard: {
                 styleOverrides: {
                     root: {
-                        borderRadius: 20,
+                        borderRadius: 16,
                         boxShadow: mode === 'light' 
-                            ? '0 4px 20px rgba(0, 0, 0, 0.08)'
-                            : '0 4px 20px rgba(0, 0, 0, 0.3)',
-                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                            ? '0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.1)'
+                            : '0 1px 3px rgba(0, 0, 0, 0.2)',
+                        border: mode === 'light' 
+                            ? '1px solid rgba(0, 0, 0, 0.04)' 
+                            : '1px solid rgba(255, 255, 255, 0.05)',
+                        transition: 'all 0.2s ease',
                         '&:hover': {
-                            transform: 'translateY(-4px)',
+                            transform: 'translateY(-2px)',
                             boxShadow: mode === 'light'
-                                ? '0 20px 40px rgba(0, 0, 0, 0.12)'
-                                : '0 20px 40px rgba(0, 0, 0, 0.4)',
+                                ? '0 4px 12px rgba(0, 0, 0, 0.1)'
+                                : '0 4px 12px rgba(0, 0, 0, 0.3)',
                         },
                     },
                 },
@@ -260,8 +263,8 @@ export function ThemeProvider({ children }) {
                     },
                     elevation1: {
                         boxShadow: mode === 'light'
-                            ? '0 4px 20px rgba(0, 0, 0, 0.08)'
-                            : '0 4px 20px rgba(0, 0, 0, 0.3)',
+                            ? '0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.1)'
+                            : '0 1px 3px rgba(0, 0, 0, 0.2)',
                     },
                 },
             },
@@ -294,12 +297,12 @@ export function ThemeProvider({ children }) {
                         transition: 'all 0.3s ease',
                         '&.Mui-selected': {
                             background: mode === 'light'
-                                ? 'linear-gradient(135deg, rgba(79, 70, 229, 0.1) 0%, rgba(124, 58, 237, 0.1) 100%)'
-                                : 'linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(139, 92, 246, 0.2) 100%)',
-                            color: mode === 'light' ? '#4F46E5' : '#818CF8',
+                                ? 'rgba(30, 136, 229, 0.08)'
+                                : 'rgba(66, 153, 225, 0.15)',
+                            color: mode === 'light' ? '#1E88E5' : '#4299E1',
                         },
                         '&:hover': {
-                            backgroundColor: mode === 'light' ? 'rgba(79, 70, 229, 0.05)' : 'rgba(99, 102, 241, 0.1)',
+                            backgroundColor: mode === 'light' ? 'rgba(30, 136, 229, 0.04)' : 'rgba(66, 153, 225, 0.08)',
                         },
                     },
                 },
@@ -314,7 +317,7 @@ export function ThemeProvider({ children }) {
                                 borderWidth: 2,
                             },
                             '&:hover fieldset': {
-                                borderColor: mode === 'light' ? '#4F46E5' : '#818CF8',
+                                borderColor: mode === 'light' ? '#1E88E5' : '#4299E1',
                             },
                             '&.Mui-focused fieldset': {
                                 borderWidth: 2,
@@ -334,8 +337,8 @@ export function ThemeProvider({ children }) {
             MuiAvatar: {
                 styleOverrides: {
                     root: {
-                        border: `2px solid ${mode === 'light' ? '#FFFFFF' : '#334155'}`,
-                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+                        border: `2px solid ${mode === 'light' ? '#FFFFFF' : '#2D3748'}`,
+                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
                     },
                 },
             },
@@ -343,7 +346,7 @@ export function ThemeProvider({ children }) {
                 styleOverrides: {
                     root: {
                         borderRadius: 16,
-                        boxShadow: '0 8px 24px rgba(79, 70, 229, 0.4)',
+                        boxShadow: '0 8px 24px rgba(30, 136, 229, 0.35)',
                     },
                 },
             },

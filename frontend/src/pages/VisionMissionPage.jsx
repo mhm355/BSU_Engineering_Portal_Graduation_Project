@@ -38,7 +38,7 @@ export default function VisionMissionPage() {
 
             <Grid container spacing={4}>
                 {/* Vision */}
-                <Grid item xs={12} md={6}>
+                <Grid item xs={12}>
                     <Paper
                         elevation={3}
                         sx={{
@@ -63,7 +63,7 @@ export default function VisionMissionPage() {
                 </Grid>
 
                 {/* Mission */}
-                <Grid item xs={12} md={6}>
+                <Grid item xs={12}>
                     <Paper
                         elevation={3}
                         sx={{

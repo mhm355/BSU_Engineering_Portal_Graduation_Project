@@ -21,6 +21,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import DomainIcon from '@mui/icons-material/Domain';
 import axios from 'axios';
+import DashboardCard from '../../components/DashboardCard';
 
 // Animations
 const float = keyframes`
@@ -194,50 +195,57 @@ export default function StudentAffairsDashboard() {
             icon: AccountTreeIcon,
             title: 'الهيكل الأكاديمي',
             description: 'تصفح الطلاب حسب القسم والسنة والفرقة الدراسية',
-            path: '/student-affairs/hierarchy',
-            gradient: 'linear-gradient(135deg, #2196F3, #21CBF3)',
+            buttonText: 'الهيكل الأكاديمي',
+            onClick: () => navigate('/student-affairs/hierarchy'),
+            color: 'primary',
         },
         {
             icon: UploadFileIcon,
             title: 'رفع بيانات الطلاب',
             description: 'رفع ملفات Excel/CSV لإضافة بيانات الطلاب الجدد',
-            path: '/student-affairs/upload-students',
-            gradient: 'linear-gradient(135deg, #FF9800, #FFD93D)',
+            buttonText: 'رفع البيانات',
+            onClick: () => navigate('/student-affairs/upload-students'),
+            color: 'warning',
         },
         {
             icon: EmojiEventsIcon,
             title: 'الشهادات',
             description: 'رفع وإدارة شهادات التخرج للطلاب',
-            path: '/student-affairs/certificates',
-            gradient: 'linear-gradient(135deg, #4CAF50, #8BC34A)',
+            buttonText: 'الشهادات',
+            onClick: () => navigate('/student-affairs/certificates'),
+            color: 'secondary',
         },
         {
             icon: CampaignIcon,
             title: 'الأخبار والإعلانات',
             description: 'نشر الأخبار والإعلانات الهامة للطلاب',
-            path: '/student-affairs/news',
-            gradient: 'linear-gradient(135deg, #E91E63, #FF4081)',
+            buttonText: 'الأخبار والإعلانات',
+            onClick: () => navigate('/student-affairs/news'),
+            color: 'error',
         },
         {
             icon: GradingIcon,
             title: 'عرض درجات الطلاب',
             description: 'عرض درجات كل فرقة (للقراءة فقط)',
-            path: '/student-affairs/grades',
-            gradient: 'linear-gradient(135deg, #00BCD4, #00E5FF)',
+            buttonText: 'عرض الدرجات',
+            onClick: () => navigate('/student-affairs/grades'),
+            color: 'info',
         },
         {
             icon: HistoryIcon,
             title: 'سجل عمليات الرفع',
             description: 'تتبع جميع عمليات الرفع السابقة وتحميل تقارير الأخطاء',
-            path: '/student-affairs/upload-history',
-            gradient: 'linear-gradient(135deg, #607D8B, #90A4AE)',
+            buttonText: 'سجل الرفع',
+            onClick: () => navigate('/student-affairs/upload-history'),
+            color: 'secondary',
         },
         {
             icon: CloudUploadIcon,
             title: 'رفع شهادات بالجملة',
             description: 'رفع ملف ZIP يحتوي على شهادات PDF للطلاب',
-            path: '/student-affairs/bulk-certificates',
-            gradient: 'linear-gradient(135deg, #9C27B0, #CE93D8)',
+            buttonText: 'رفع الشهادات',
+            onClick: () => navigate('/student-affairs/bulk-certificates'),
+            color: 'purple',
         },
     ];
 
@@ -400,16 +408,16 @@ export default function StudentAffairsDashboard() {
                 </Paper>
 
                 {/* Navigation Cards */}
-                <Grid container spacing={3}>
+                <Grid container spacing={2}>
                     {navigationCards.map((card, idx) => (
-                        <Grid item xs={12} md={6} key={idx}>
-                            <NavCard
+                        <Grid item xs={12} key={idx}>
+                            <DashboardCard
                                 icon={card.icon}
                                 title={card.title}
                                 description={card.description}
-                                onClick={() => navigate(card.path)}
-                                gradient={card.gradient}
-                                delay={idx * 100}
+                                buttonText={card.buttonText}
+                                onClick={card.onClick}
+                                color={card.color}
                             />
                         </Grid>
                     ))}

@@ -3,7 +3,6 @@ import {
     Box, Container, Typography, Grid, Card, CardContent, CardMedia, Button, Paper,
     Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Chip, Avatar, Fade, Grow, Zoom
 } from '@mui/material';
-import { keyframes } from '@mui/system';
 import { Link } from 'react-router-dom';
 import NewspaperIcon from '@mui/icons-material/Newspaper';
 import CloseIcon from '@mui/icons-material/Close';
@@ -17,33 +16,6 @@ import ScienceIcon from '@mui/icons-material/Science';
 import GroupsIcon from '@mui/icons-material/Groups';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import AutoStoriesIcon from '@mui/icons-material/AutoStories';
-
-// Animations
-const float = keyframes`
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-20px); }
-`;
-
-const pulse = keyframes`
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.05); opacity: 0.9; }
-`;
-
-const shimmer = keyframes`
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-`;
-
-const gradientMove = keyframes`
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-`;
-
-const slideUp = keyframes`
-  0% { opacity: 0; transform: translateY(30px); }
-  100% { opacity: 1; transform: translateY(0); }
-`;
 
 // Feature Card Component
 const FeatureCard = ({ icon: Icon, title, description, delay = 0 }) => (
@@ -286,7 +258,7 @@ export default function Home() {
     ];
 
     return (
-        <Box sx={{ bgcolor: '#fafbfc' }}>
+        <Box sx={{ bgcolor: 'background.default' }}>
             {/* Hero Section */}
             <Box
                 sx={{
@@ -295,24 +267,19 @@ export default function Home() {
                     display: 'flex',
                     alignItems: 'center',
                     overflow: 'hidden',
-                    background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 50%, #4F46E5 100%)',
-                    backgroundSize: '200% 200%',
-                    animation: `${gradientMove} 15s ease infinite`,
+                    background: (theme) => `linear-gradient(135deg, ${theme.palette.primary.dark} 0%, ${theme.palette.primary.main} 100%)`,
                 }}
             >
-                {/* Animated Background Elements */}
-                <Box sx={{ position: 'absolute', top: -100, right: -100, width: 400, height: 400, borderRadius: '50%', background: 'radial-gradient(circle, rgba(79, 70, 229, 0.15) 0%, transparent 70%)', animation: `${float} 8s ease-in-out infinite` }} />
-                <Box sx={{ position: 'absolute', bottom: -150, left: -100, width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%)', animation: `${float} 10s ease-in-out infinite`, animationDelay: '2s' }} />
-                <Box sx={{ position: 'absolute', top: '30%', left: '10%', width: 200, height: 200, borderRadius: '50%', background: 'radial-gradient(circle, rgba(20, 184, 166, 0.1) 0%, transparent 70%)', animation: `${float} 6s ease-in-out infinite`, animationDelay: '1s' }} />
-                <Box sx={{ position: 'absolute', top: '60%', right: '15%', width: 150, height: 150, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%)', animation: `${float} 7s ease-in-out infinite`, animationDelay: '3s' }} />
-
-                {/* Grid Pattern Overlay */}
+                {/* Subtle decorative element */}
                 <Box
                     sx={{
                         position: 'absolute',
-                        inset: 0,
-                        backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.03) 1px, transparent 0)',
-                        backgroundSize: '40px 40px',
+                        top: -100,
+                        right: -100,
+                        width: 400,
+                        height: 400,
+                        borderRadius: '50%',
+                        background: (theme) => `radial-gradient(circle, ${theme.palette.primary.light}20 0%, transparent 70%)`,
                     }}
                 />
 
@@ -326,23 +293,18 @@ export default function Home() {
                                         label="مرحباً بكم في بوابة كلية الهندسة"
                                         sx={{
                                             mb: 3,
-                                            bgcolor: 'rgba(79, 70, 229, 0.15)',
-                                            color: '#818CF8',
-                                            fontFamily: 'Cairo',
-                                            fontWeight: 'bold',
-                                            border: '1px solid rgba(79, 70, 229, 0.3)',
-                                            py: 2.5,
-                                            px: 1,
+                                            bgcolor: (theme) => `${theme.palette.primary.light}30`,
+                                            color: 'white',
+                                            fontWeight: 600,
+                                            border: (theme) => `1px solid ${theme.palette.primary.light}50`,
                                         }}
                                     />
                                     <Typography
                                         variant="h2"
                                         sx={{
-                                            fontFamily: 'Cairo',
                                             fontWeight: 800,
                                             color: '#fff',
                                             mb: 2,
-                                            textShadow: '0 4px 30px rgba(0,0,0,0.3)',
                                             lineHeight: 1.2,
                                             fontSize: { xs: '2.5rem', md: '3.5rem' },
                                         }}
@@ -352,9 +314,8 @@ export default function Home() {
                                     <Typography
                                         variant="h4"
                                         sx={{
-                                            fontFamily: 'Cairo',
                                             fontWeight: 600,
-                                            color: '#14B8A6',
+                                            color: (theme) => theme.palette.secondary.light,
                                             mb: 3,
                                             fontSize: { xs: '1.5rem', md: '2rem' },
                                         }}
@@ -364,7 +325,6 @@ export default function Home() {
                                     <Typography
                                         variant="h6"
                                         sx={{
-                                            fontFamily: 'Cairo',
                                             color: 'rgba(255,255,255,0.85)',
                                             mb: 5,
                                             maxWidth: 600,
@@ -382,20 +342,17 @@ export default function Home() {
                                             size="large"
                                             startIcon={<LoginIcon />}
                                             sx={{
-                                                bgcolor: '#4F46E5',
-                                                color: '#fff',
-                                                fontFamily: 'Cairo',
-                                                fontWeight: 'bold',
+                                                bgcolor: 'white',
+                                                color: 'primary.main',
+                                                fontWeight: 700,
                                                 px: 5,
                                                 py: 2,
                                                 fontSize: '1.1rem',
-                                                borderRadius: 3,
-                                                boxShadow: '0 10px 40px rgba(79, 70, 229, 0.4)',
-                                                animation: `${pulse} 3s ease-in-out infinite`,
+                                                borderRadius: 2,
+                                                boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
                                                 '&:hover': {
-                                                    bgcolor: '#4338CA',
-                                                    transform: 'translateY(-3px)',
-                                                    boxShadow: '0 15px 50px rgba(79, 70, 229, 0.5)',
+                                                    bgcolor: 'rgba(255,255,255,0.9)',
+                                                    transform: 'translateY(-2px)',
                                                 }
                                             }}
                                         >
@@ -408,15 +365,14 @@ export default function Home() {
                                             size="large"
                                             sx={{
                                                 color: '#fff',
-                                                borderColor: 'rgba(255,255,255,0.3)',
-                                                fontFamily: 'Cairo',
-                                                fontWeight: 'bold',
+                                                borderColor: 'rgba(255,255,255,0.5)',
+                                                fontWeight: 600,
                                                 px: 4,
                                                 py: 2,
-                                                borderRadius: 3,
+                                                borderRadius: 2,
                                                 '&:hover': {
-                                                    borderColor: '#4F46E5',
-                                                    bgcolor: 'rgba(79, 70, 229, 0.1)',
+                                                    borderColor: '#fff',
+                                                    bgcolor: 'rgba(255,255,255,0.1)',
                                                 }
                                             }}
                                         >
@@ -428,19 +384,7 @@ export default function Home() {
                         </Grid>
                         <Grid item xs={12} md={5} sx={{ display: { xs: 'none', md: 'flex' }, justifyContent: 'center' }}>
                             <Zoom in={true} timeout={1200}>
-                                <Box
-                                    sx={{
-                                        position: 'relative',
-                                        '&::before': {
-                                            content: '""',
-                                            position: 'absolute',
-                                            inset: -20,
-                                            borderRadius: '50%',
-                                            background: 'linear-gradient(135deg, rgba(255,193,7,0.2), transparent)',
-                                            animation: `${pulse} 3s ease-in-out infinite`,
-                                        }
-                                    }}
-                                >
+                                <Box>
                                     <Avatar
                                         src="/logo.jpg"
                                         sx={{
@@ -448,7 +392,6 @@ export default function Home() {
                                             height: 280,
                                             border: '6px solid rgba(255,255,255,0.2)',
                                             boxShadow: '0 30px 80px rgba(0,0,0,0.4)',
-                                            animation: `${float} 5s ease-in-out infinite`,
                                         }}
                                     />
                                 </Box>
@@ -474,7 +417,7 @@ export default function Home() {
             <Container maxWidth="lg" sx={{ py: 10, mt: -8, position: 'relative', zIndex: 3 }}>
                 <Grid container spacing={4}>
                     {features.map((feature, index) => (
-                        <Grid item xs={12} sm={6} md={3} key={index}>
+                        <Grid item xs={12} key={index}>
                             <FeatureCard {...feature} delay={index * 100} />
                         </Grid>
                     ))}
@@ -482,7 +425,7 @@ export default function Home() {
             </Container>
 
             {/* News Section */}
-            <Box sx={{ bgcolor: '#fff', py: 10 }}>
+            <Box sx={{ bgcolor: 'background.paper', py: 10 }}>
                 <Container maxWidth="lg">
                     <Box sx={{ textAlign: 'center', mb: 6 }}>
                         <Chip
@@ -490,18 +433,16 @@ export default function Home() {
                             label="آخر المستجدات"
                             sx={{
                                 mb: 2,
-                                bgcolor: 'rgba(79, 70, 229, 0.08)',
-                                color: '#4F46E5',
-                                fontFamily: 'Cairo',
-                                fontWeight: 'bold',
+                                bgcolor: (theme) => `${theme.palette.primary.main}08`,
+                                color: 'primary.main',
+                                fontWeight: 600,
                             }}
                         />
                         <Typography
                             variant="h3"
                             sx={{
-                                fontFamily: 'Cairo',
-                                fontWeight: 'bold',
-                                color: '#1E293B',
+                                fontWeight: 700,
+                                color: 'text.primary',
                                 mb: 2,
                             }}
                         >
@@ -510,8 +451,7 @@ export default function Home() {
                         <Typography
                             variant="body1"
                             sx={{
-                                fontFamily: 'Cairo',
-                                color: '#64748B',
+                                color: 'text.secondary',
                                 maxWidth: 600,
                                 mx: 'auto',
                             }}
@@ -529,18 +469,18 @@ export default function Home() {
                                         p: 8,
                                         textAlign: 'center',
                                         borderRadius: 4,
-                                        bgcolor: 'rgba(0,0,0,0.02)',
+                                        bgcolor: 'action.hover',
                                     }}
                                 >
-                                    <NewspaperIcon sx={{ fontSize: 80, color: '#ddd', mb: 2 }} />
-                                    <Typography variant="h6" sx={{ fontFamily: 'Cairo', color: '#999' }}>
+                                    <NewspaperIcon sx={{ fontSize: 80, color: 'text.disabled', mb: 2 }} />
+                                    <Typography variant="h6" sx={{ color: 'text.secondary' }}>
                                         لا توجد أخبار حالياً
                                     </Typography>
                                 </Paper>
                             </Grid>
                         )}
                         {newsList.map((news, index) => (
-                            <Grid item xs={12} md={4} key={news.id}>
+                            <Grid item xs={12} key={news.id}>
                                 <NewsCard
                                     news={news}
                                     onReadMore={() => setSelectedNews(news)}
@@ -602,9 +542,8 @@ export default function Home() {
                             <Typography
                                 variant="h4"
                                 sx={{
-                                    fontFamily: 'Cairo',
-                                    fontWeight: 'bold',
-                                    color: '#1E293B',
+                                    fontWeight: 700,
+                                    color: 'text.primary',
                                     mb: 3,
                                 }}
                             >
@@ -613,11 +552,10 @@ export default function Home() {
                             <Typography
                                 variant="body1"
                                 sx={{
-                                    fontFamily: 'Cairo',
                                     lineHeight: 2,
                                     fontSize: '1.1rem',
                                     whiteSpace: 'pre-line',
-                                    color: '#475569',
+                                    color: 'text.secondary',
                                 }}
                             >
                                 {selectedNews.content}
@@ -643,10 +581,10 @@ export default function Home() {
                                 </Box>
                             )}
                         </DialogContent>
-                        <DialogActions sx={{ p: 3, borderTop: '1px solid #eee' }}>
+                        <DialogActions sx={{ p: 3, borderTop: (theme) => `1px solid ${theme.palette.divider}` }}>
                             <Button
                                 onClick={() => setSelectedNews(null)}
-                                sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}
+                                sx={{ fontWeight: 600 }}
                             >
                                 إغلاق
                             </Button>

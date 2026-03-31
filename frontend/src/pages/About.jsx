@@ -9,7 +9,7 @@ export default function About() {
             </Typography>
 
             <Grid container spacing={4}>
-                <Grid item xs={12} md={6}>
+                <Grid item xs={12}>
                     <Paper elevation={3} sx={{ p: 4, height: '100%', borderRadius: 4 }}>
                         <Typography variant="h5" gutterBottom sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#4F46E5' }}>
                             الرؤية
@@ -20,7 +20,7 @@ export default function About() {
                     </Paper>
                 </Grid>
 
-                <Grid item xs={12} md={6}>
+                <Grid item xs={12}>
                     <Paper elevation={3} sx={{ p: 4, height: '100%', borderRadius: 4 }}>
                         <Typography variant="h5" gutterBottom sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#14B8A6' }}>
                             الرسالة

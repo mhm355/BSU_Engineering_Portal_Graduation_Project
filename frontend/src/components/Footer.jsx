@@ -1,6 +1,5 @@
 import React from 'react';
 import { Box, Container, Grid, Typography, Link as MuiLink, IconButton, Divider, Chip, Avatar } from '@mui/material';
-import { keyframes } from '@mui/system';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import TwitterIcon from '@mui/icons-material/Twitter';
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
@@ -16,22 +15,6 @@ import ContactMailIcon from '@mui/icons-material/ContactMail';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import { Link } from 'react-router-dom';
-
-// Animations
-const float = keyframes`
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-5px); }
-`;
-
-const pulse = keyframes`
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
-`;
-
-const shimmer = keyframes`
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-`;
 
 // Quick Link Component
 const QuickLink = ({ to, icon: Icon, children }) => (
@@ -149,25 +132,25 @@ export default function Footer() {
             {/* Decorative Top Wave */}
             <Box
                 sx={{
-                    height: 6,
-                    background: 'linear-gradient(90deg, #4F46E5 0%, #7C3AED 25%, #14B8A6 50%, #7C3AED 75%, #4F46E5 100%)',
-                    backgroundSize: '200% 100%',
-                    animation: `${shimmer} 8s linear infinite`,
+                    height: 3,
+                    background: (theme) => `linear-gradient(90deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
                 }}
             />
 
             {/* Main Footer Content */}
             <Box
                 sx={{
-                    background: 'linear-gradient(180deg, #0F172A 0%, #1E293B 100%)',
+                    background: (theme) => theme.palette.mode === 'dark'
+                        ? 'linear-gradient(180deg, #171923 0%, #0F172A 100%)'
+                        : 'linear-gradient(180deg, #1E293B 0%, #0F172A 100%)',
                     color: 'white',
-                    pt: 8,
-                    pb: 4,
+                    pt: 6,
+                    pb: 3,
                     position: 'relative',
                     overflow: 'hidden',
                 }}
             >
-                {/* Decorative Elements */}
+                {/* Decorative Elements - subtle static gradients */}
                 <Box
                     sx={{
                         position: 'absolute',
@@ -176,8 +159,7 @@ export default function Footer() {
                         width: 300,
                         height: 300,
                         borderRadius: '50%',
-                        background: 'radial-gradient(circle, rgba(79, 70, 229, 0.15) 0%, transparent 70%)',
-                        animation: `${float} 8s ease-in-out infinite`,
+                        background: (theme) => `radial-gradient(circle, ${theme.palette.primary.main}15 0%, transparent 70%)`,
                     }}
                 />
                 <Box
@@ -188,9 +170,7 @@ export default function Footer() {
                         width: 200,
                         height: 200,
                         borderRadius: '50%',
-                        background: 'radial-gradient(circle, rgba(20, 184, 166, 0.1) 0%, transparent 70%)',
-                        animation: `${float} 6s ease-in-out infinite`,
-                        animationDelay: '2s',
+                        background: (theme) => `radial-gradient(circle, ${theme.palette.secondary.main}10 0%, transparent 70%)`,
                     }}
                 />
 
@@ -205,12 +185,12 @@ export default function Footer() {
                                         sx={{
                                             width: 60,
                                             height: 60,
-                                            border: '3px solid rgba(79, 70, 229, 0.3)',
-                                            boxShadow: '0 4px 20px rgba(79, 70, 229, 0.2)',
+                                            border: (theme) => `3px solid ${theme.palette.primary.main}50`,
+                                            boxShadow: (theme) => `0 4px 20px ${theme.palette.primary.main}30`,
                                         }}
                                     />
                                     <Box>
-                                        <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#818CF8' }}>
+                                        <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: 'primary.light' }}>
                                             كلية الهندسة
                                         </Typography>
                                         <Typography variant="caption" sx={{ fontFamily: 'Cairo', color: 'rgba(255,255,255,0.7)' }}>
@@ -232,17 +212,18 @@ export default function Footer() {
                             </Box>
 
                             {/* Social Media */}
-                            <Box>
-                                <Typography variant="subtitle2" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', mb: 2, color: 'rgba(255,255,255,0.9)' }}>
-                                    تابعنا على
-                                </Typography>
-                                <Box sx={{ display: 'flex', gap: 1.5 }}>
-                                    <SocialButton icon={FacebookIcon} href="#" color="#1877F2" />
-                                    <SocialButton icon={TwitterIcon} href="#" color="#1DA1F2" />
-                                    <SocialButton icon={LinkedInIcon} href="#" color="#0A66C2" />
-                                    <SocialButton icon={YouTubeIcon} href="#" color="#FF0000" />
-                                    <SocialButton icon={InstagramIcon} href="#" color="#E4405F" />
-                                </Box>
+                            <Typography
+                                variant="subtitle2"
+                                sx={{ fontFamily: 'Cairo', fontWeight: 'bold', mb: 2, color: 'secondary.light' }}
+                            >
+                                تابعنا على
+                            </Typography>
+                            <Box sx={{ display: 'flex', gap: 1.5 }}>
+                                <SocialButton icon={FacebookIcon} href="#" color="#1877F2" />
+                                <SocialButton icon={TwitterIcon} href="#" color="#1DA1F2" />
+                                <SocialButton icon={LinkedInIcon} href="#" color="#0A66C2" />
+                                <SocialButton icon={YouTubeIcon} href="#" color="#FF0000" />
+                                <SocialButton icon={InstagramIcon} href="#" color="#E4405F" />
                             </Box>
                         </Grid>
 
@@ -253,7 +234,7 @@ export default function Footer() {
                                 sx={{
                                     fontFamily: 'Cairo',
                                     fontWeight: 'bold',
-                                    color: '#14B8A6',
+                                    color: 'secondary.light',
                                     mb: 3,
                                     display: 'flex',
                                     alignItems: 'center',
@@ -264,7 +245,7 @@ export default function Footer() {
                                     sx={{
                                         width: 4,
                                         height: 24,
-                                        bgcolor: '#14B8A6',
+                                        bgcolor: 'secondary.main',
                                         borderRadius: 2,
                                     }}
                                 />
@@ -285,7 +266,7 @@ export default function Footer() {
                                 sx={{
                                     fontFamily: 'Cairo',
                                     fontWeight: 'bold',
-                                    color: '#14B8A6',
+                                    color: 'secondary.light',
                                     mb: 3,
                                     display: 'flex',
                                     alignItems: 'center',
@@ -296,7 +277,7 @@ export default function Footer() {
                                     sx={{
                                         width: 4,
                                         height: 24,
-                                        bgcolor: '#14B8A6',
+                                        bgcolor: 'secondary.main',
                                         borderRadius: 2,
                                     }}
                                 />
@@ -356,7 +337,7 @@ export default function Footer() {
                                         gap: 0.5,
                                     }}
                                 >
-                                    صُنع بـ <FavoriteIcon sx={{ fontSize: 16, color: '#EF4444', animation: `${pulse} 1.5s ease-in-out infinite` }} /> في مصر
+                                    صُنع بـ <FavoriteIcon sx={{ fontSize: 16, color: '#EF4444' }} /> في مصر
                                     <Chip
                                         label="v2.0"
                                         size="small"
@@ -364,9 +345,9 @@ export default function Footer() {
                                             ml: 1,
                                             height: 20,
                                             fontSize: '0.65rem',
-                                            bgcolor: 'rgba(79, 70, 229, 0.15)',
-                                            color: '#818CF8',
-                                            border: '1px solid rgba(79, 70, 229, 0.3)',
+                                            bgcolor: (theme) => `${theme.palette.primary.main}20`,
+                                            color: 'primary.light',
+                                            border: (theme) => `1px solid ${theme.palette.primary.main}40`,
                                         }}
                                     />
                                 </Typography>

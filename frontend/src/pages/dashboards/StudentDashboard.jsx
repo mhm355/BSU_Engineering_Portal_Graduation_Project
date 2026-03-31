@@ -29,6 +29,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
 
+import DashboardCard from '../../components/DashboardCard';
+
 // Animations
 const float = keyframes`
   0%, 100% { transform: translateY(0px); }
@@ -505,49 +507,15 @@ export default function StudentDashboard() {
                 </Typography>
                 <Grid container spacing={3} sx={{ mb: 4 }}>
                     {quickActions.map((action, index) => (
-                        <Grid item xs={12} sm={6} md={4} lg={2.4} key={index}>
-                            <Grow in={true} timeout={400 + index * 100}>
-                                <Card
-                                    onClick={() => navigate(action.path)}
-                                    sx={{
-                                        height: '100%',
-                                        cursor: 'pointer',
-                                        borderRadius: 4,
-                                        overflow: 'hidden',
-                                        position: 'relative',
-                                        background: action.gradient,
-                                        color: '#fff',
-                                        transition: 'all 0.3s ease',
-                                        boxShadow: '0 8px 25px rgba(0,0,0,0.15)',
-                                        '&:hover': {
-                                            transform: 'translateY(-8px) scale(1.02)',
-                                            boxShadow: '0 15px 40px rgba(0,0,0,0.25)',
-                                        }
-                                    }}
-                                >
-                                    <CardContent sx={{ textAlign: 'center', p: 3 }}>
-                                        <Box sx={{
-                                            width: 70,
-                                            height: 70,
-                                            borderRadius: '50%',
-                                            bgcolor: 'rgba(255,255,255,0.2)',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            mx: 'auto',
-                                            mb: 2,
-                                        }}>
-                                            {action.icon}
-                                        </Box>
-                                        <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', mb: 1 }}>
-                                            {action.title}
-                                        </Typography>
-                                        <Typography variant="body2" sx={{ fontFamily: 'Cairo', opacity: 0.9 }}>
-                                            {action.description}
-                                        </Typography>
-                                    </CardContent>
-                                </Card>
-                            </Grow>
+                        <Grid item xs={12} key={index}>
+                            <DashboardCard
+                                icon={action.icon}
+                                title={action.title}
+                                description={action.description}
+                                buttonText={action.buttonText}
+                                onClick={action.onClick}
+                                color={action.color}
+                            />
                         </Grid>
                     ))}
                 </Grid>

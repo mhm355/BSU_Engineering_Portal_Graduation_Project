@@ -332,7 +332,7 @@ export default function CivilDepartmentPage() {
                         {faculty.map((member, index) => {
                             const colors = getRankColor(member.rank);
                             return (
-                                <Grid item xs={12} sm={6} md={4} key={index}>
+                                <Grid item xs={12} key={index}>
                                     <Paper
                                         elevation={2}
                                         sx={{

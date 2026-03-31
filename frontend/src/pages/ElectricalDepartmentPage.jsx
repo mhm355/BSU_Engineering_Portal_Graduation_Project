@@ -310,7 +310,7 @@ export default function ElectricalDepartmentPage() {
 
             {/* Programs Section */}
             <Grid container spacing={3} sx={{ mb: 4 }}>
-                <Grid item xs={12} md={6}>
+                <Grid item xs={12}>
                     <Paper elevation={3} sx={{ p: 4, height: '100%', borderTop: '5px solid #2196f3', borderRadius: 3, transition: 'all 0.3s', '&:hover': { transform: 'translateY(-5px)', boxShadow: 6 } }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                             <Box sx={{ bgcolor: '#e3f2fd', p: 1.5, borderRadius: 2, mr: 2 }}>
@@ -329,7 +329,7 @@ export default function ElectricalDepartmentPage() {
                         </Box>
                     </Paper>
                 </Grid>
-                <Grid item xs={12} md={6}>
+                <Grid item xs={12}>
                     <Paper elevation={3} sx={{ p: 4, height: '100%', borderTop: '5px solid #4caf50', borderRadius: 3, transition: 'all 0.3s', '&:hover': { transform: 'translateY(-5px)', boxShadow: 6 } }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                             <Box sx={{ bgcolor: '#e8f5e9', p: 1.5, borderRadius: 2, mr: 2 }}>
@@ -485,7 +485,7 @@ export default function ElectricalDepartmentPage() {
                         {faculty.map((member, index) => {
                             const colors = getRankColor(member.rank);
                             return (
-                                <Grid item xs={12} sm={6} md={4} key={index}>
+                                <Grid item xs={12} key={index}>
                                     <Paper
                                         elevation={2}
                                         sx={{
@@ -532,7 +532,7 @@ export default function ElectricalDepartmentPage() {
                     </Typography>
                     <Grid container spacing={2}>
                         {assistants.map((member, index) => (
-                            <Grid item xs={12} sm={6} md={4} key={index}>
+                            <Grid item xs={12} key={index}>
                                 <Paper
                                     elevation={2}
                                     sx={{
@@ -573,7 +573,7 @@ export default function ElectricalDepartmentPage() {
                 </Box>
                 <Grid container spacing={2}>
                     {labs.map((lab, index) => (
-                        <Grid item xs={12} sm={6} md={4} key={index}>
+                        <Grid item xs={12} key={index}>
                             <Paper
                                 elevation={1}
                                 sx={{

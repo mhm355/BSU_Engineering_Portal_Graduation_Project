@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   AppBar, Toolbar, Typography, Button, IconButton, Menu, MenuItem, Box, Container,
   Drawer, List, ListItem, ListItemText, ListItemIcon, Divider, Avatar, Chip, Fade, Grow, Collapse
 } from '@mui/material';
-import { keyframes } from '@mui/system';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import ExpandLess from '@mui/icons-material/ExpandLess';
@@ -35,22 +34,6 @@ import LightModeIcon from '@mui/icons-material/LightMode';
 import GlobalSearch from './GlobalSearch';
 import SearchIcon from '@mui/icons-material/Search';
 
-// Animations
-const shimmer = keyframes`
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-`;
-
-const float = keyframes`
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-3px); }
-`;
-
-const pulse = keyframes`
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
-`;
-
 // Navigation Item Component
 const NavItem = ({ label, hasMenu, onClick, isActive, sx = {} }) => (
   <Button
@@ -60,31 +43,18 @@ const NavItem = ({ label, hasMenu, onClick, isActive, sx = {} }) => (
       fontFamily: 'Cairo',
       fontWeight: 600,
       fontSize: '0.95rem',
-      color: isActive ? '#4F46E5' : '#fff',
+      color: (theme) => isActive 
+        ? theme.palette.primary.main 
+        : theme.palette.text.primary,
       px: 2.5,
       py: 1,
       borderRadius: 2,
       position: 'relative',
       overflow: 'hidden',
       transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-      '&::before': {
-        content: '""',
-        position: 'absolute',
-        bottom: 0,
-        left: '50%',
-        transform: isActive ? 'translateX(-50%) scaleX(1)' : 'translateX(-50%) scaleX(0)',
-        width: '80%',
-        height: 3,
-        background: 'linear-gradient(90deg, #4F46E5, #14B8A6)',
-        borderRadius: 2,
-        transition: 'transform 0.3s ease',
-      },
       '&:hover': {
-        color: '#4F46E5',
-        bgcolor: 'rgba(79, 70, 229, 0.1)',
-        '&::before': {
-          transform: 'translateX(-50%) scaleX(1)',
-        },
+        color: 'primary.main',
+        bgcolor: 'action.hover',
         '& .MuiSvgIcon-root': {
           transform: 'rotate(180deg)',
         }
@@ -111,7 +81,7 @@ const StyledMenu = ({ anchorEl, open, onClose, items }) => (
         minWidth: 240,
         borderRadius: 3,
         overflow: 'visible',
-        background: 'linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%)',
+        bgcolor: 'background.paper',
         border: '1px solid rgba(0,0,0,0.08)',
         boxShadow: '0 20px 60px rgba(0,0,0,0.15), 0 8px 25px rgba(0,0,0,0.1)',
         '&::before': {
@@ -122,7 +92,7 @@ const StyledMenu = ({ anchorEl, open, onClose, items }) => (
           right: 24,
           width: 12,
           height: 12,
-          bgcolor: '#fff',
+          bgcolor: 'background.paper',
           transform: 'translateY(-50%) rotate(45deg)',
           border: '1px solid rgba(0,0,0,0.08)',
           borderBottom: 'none',
@@ -178,17 +148,8 @@ export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const [currentMenu, setCurrentMenu] = useState(null);
-  const [scrolled, setScrolled] = useState(false);
   const [expandedMobile, setExpandedMobile] = useState(null);
   const [searchOpen, setSearchOpen] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -239,23 +200,21 @@ export default function Header() {
       {/* Top Accent Bar */}
       <Box
         sx={{
-          height: 4,
-          background: 'linear-gradient(90deg, #4F46E5 0%, #7C3AED 25%, #14B8A6 50%, #7C3AED 75%, #4F46E5 100%)',
-          backgroundSize: '200% 100%',
-          animation: `${shimmer} 8s linear infinite`,
+          height: 3,
+          background: (theme) => theme.palette.mode === 'dark' 
+            ? 'linear-gradient(90deg, #3182CE 0%, #38A169 100%)'
+            : 'linear-gradient(90deg, #1E88E5 0%, #43A047 100%)',
         }}
       />
 
       <AppBar
-        position="sticky"
-        elevation={scrolled ? 8 : 0}
+        position="static"
+        elevation={0}
         sx={{
-          background: scrolled
-            ? 'linear-gradient(135deg, rgba(79, 70, 229, 0.98) 0%, rgba(124, 58, 237, 0.98) 100%)'
-            : 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 50%, #4F46E5 100%)',
-          backdropFilter: scrolled ? 'blur(20px)' : 'none',
-          transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-          borderBottom: scrolled ? '1px solid rgba(20, 184, 166, 0.3)' : 'none',
+          background: (theme) => theme.palette.mode === 'dark'
+            ? 'linear-gradient(180deg, #171923 0%, #232836 100%)'
+            : 'linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%)',
+          borderBottom: (theme) => `1px solid ${theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)'}`,
         }}
       >
         <Container maxWidth="xl">
@@ -270,21 +229,11 @@ export default function Header() {
                 gap: 2,
                 textDecoration: 'none',
                 flexGrow: { xs: 1, lg: 0 },
-                animation: `${float} 4s ease-in-out infinite`,
               }}
             >
               <Box
                 sx={{
                   position: 'relative',
-                  '&::after': {
-                    content: '""',
-                    position: 'absolute',
-                    inset: -3,
-                    borderRadius: '50%',
-                    background: 'linear-gradient(135deg, #4F46E5, #14B8A6)',
-                    opacity: 0.3,
-                    animation: `${pulse} 2s ease-in-out infinite`,
-                  }
                 }}
               >
                 <Avatar
@@ -293,12 +242,11 @@ export default function Header() {
                   sx={{
                     width: { xs: 50, md: 60 },
                     height: { xs: 50, md: 60 },
-                    border: '3px solid rgba(79, 70, 229, 0.5)',
-                    boxShadow: '0 8px 32px rgba(79, 70, 229, 0.3)',
+                    border: (theme) => `3px solid ${theme.palette.primary.main}`,
+                    boxShadow: (theme) => `0 4px 12px ${theme.palette.primary.main}30`,
                     transition: 'all 0.3s ease',
                     '&:hover': {
                       transform: 'scale(1.05)',
-                      borderColor: '#4F46E5',
                     }
                   }}
                 />
@@ -309,8 +257,7 @@ export default function Header() {
                   sx={{
                     fontFamily: 'Cairo',
                     fontWeight: 800,
-                    color: '#fff',
-                    textShadow: '0 2px 10px rgba(0,0,0,0.3)',
+                    color: 'text.primary',
                     lineHeight: 1.2,
                     letterSpacing: 0.5,
                   }}
@@ -322,36 +269,33 @@ export default function Header() {
                     variant="body2"
                     sx={{
                       fontFamily: 'Cairo',
-                      color: 'rgba(255,255,255,0.85)',
+                      color: 'text.secondary',
                       fontWeight: 500,
                     }}
                   >
                     جامعة بني سويف
                   </Typography>
-                  <Chip
-                    label="Faculty of Engineering"
-                    size="small"
-                    sx={{
-                      height: 20,
-                      fontSize: '0.65rem',
-                      fontWeight: 600,
-                      bgcolor: 'rgba(79, 70, 229, 0.2)',
-                      color: '#4F46E5',
-                      border: '1px solid rgba(79, 70, 229, 0.3)',
-                    }}
-                  />
                 </Box>
               </Box>
             </Box>
 
             {/* Desktop Navigation */}
-            <Box sx={{ display: { xs: 'none', lg: 'flex' }, alignItems: 'center', gap: 0.5, flexGrow: 1, justifyContent: 'center' }}>
+            <Box sx={{ 
+              display: { xs: 'none', lg: 'flex' }, 
+              alignItems: 'center', 
+              gap: 1, 
+              flexGrow: 1, 
+              justifyContent: 'center' 
+            }}>
               <Box component={Link} to="/" style={{ textDecoration: 'none' }}>
                 <NavItem label="الرئيسية" isActive={isActive('/')} />
               </Box>
-              <NavItem label="عن الكلية" hasMenu onClick={(e) => handleMenuOpen(e, 'about')} />
-              <NavItem label="الأقسام" hasMenu onClick={(e) => handleMenuOpen(e, 'departments')} />
-              <NavItem label="الطلاب" hasMenu onClick={(e) => handleMenuOpen(e, 'students')} />
+              <Box component={Link} to="/about" style={{ textDecoration: 'none' }}>
+                <NavItem label="عن الكلية" isActive={isActive('/about')} />
+              </Box>
+              <Box component={Link} to="/departments" style={{ textDecoration: 'none' }}>
+                <NavItem label="الأقسام" isActive={isActive('/departments')} />
+              </Box>
               <Box component={Link} to="/contact" style={{ textDecoration: 'none' }}>
                 <NavItem label="اتصل بنا" isActive={isActive('/contact')} />
               </Box>
@@ -361,14 +305,13 @@ export default function Header() {
             <IconButton
               onClick={() => setSearchOpen(true)}
               sx={{
-                color: '#4F46E5',
-                bgcolor: 'rgba(79, 70, 229, 0.1)',
-                border: '1px solid rgba(79, 70, 229, 0.3)',
+                color: 'text.primary',
+                bgcolor: 'action.hover',
                 borderRadius: 2,
                 p: 1,
                 transition: 'all 0.3s ease',
                 '&:hover': {
-                  bgcolor: 'rgba(79, 70, 229, 0.2)',
+                  bgcolor: 'action.selected',
                 }
               }}
             >
@@ -379,14 +322,13 @@ export default function Header() {
             <IconButton
               onClick={toggleMode}
               sx={{
-                color: '#14B8A6',
-                bgcolor: 'rgba(20, 184, 166, 0.1)',
-                border: '1px solid rgba(20, 184, 166, 0.3)',
+                color: 'primary.main',
+                bgcolor: 'action.hover',
                 borderRadius: 2,
                 p: 1,
                 transition: 'all 0.3s ease',
                 '&:hover': {
-                  bgcolor: 'rgba(20, 184, 166, 0.2)',
+                  bgcolor: 'action.selected',
                   transform: 'rotate(30deg)',
                 }
               }}
@@ -399,15 +341,13 @@ export default function Header() {
               onClick={handleDrawerToggle}
               sx={{
                 display: { lg: 'none' },
-                color: '#fff',
-                bgcolor: 'rgba(255,255,255,0.1)',
-                border: '1px solid rgba(255,255,255,0.2)',
+                color: 'text.primary',
+                bgcolor: 'action.hover',
                 borderRadius: 2,
                 p: 1,
                 transition: 'all 0.3s ease',
                 '&:hover': {
-                  bgcolor: 'rgba(79, 70, 229, 0.2)',
-                  borderColor: '#4F46E5',
+                  bgcolor: 'action.selected',
                 }
               }}
             >
@@ -432,8 +372,10 @@ export default function Header() {
           PaperProps={{
             sx: {
               width: 320,
-              background: 'linear-gradient(180deg, #4F46E5 0%, #7C3AED 100%)',
-              borderLeft: '3px solid #14B8A6',
+              background: (theme) => theme.palette.mode === 'dark'
+                ? theme.palette.background.paper
+                : theme.palette.background.default,
+              borderLeft: (theme) => `1px solid ${theme.palette.divider}`,
             }
           }}
         >
@@ -442,22 +384,22 @@ export default function Header() {
             <Box
               sx={{
                 p: 3,
-                background: 'linear-gradient(135deg, rgba(20, 184, 166, 0.15) 0%, transparent 100%)',
-                borderBottom: '1px solid rgba(255,255,255,0.1)',
+                background: (theme) => `linear-gradient(135deg, ${theme.palette.primary.main}15 0%, transparent 100%)`,
+                borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
               }}
             >
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                <IconButton onClick={handleDrawerToggle} sx={{ color: '#fff' }}>
+                <IconButton onClick={handleDrawerToggle} sx={{ color: 'text.primary' }}>
                   <CloseIcon />
                 </IconButton>
               </Box>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                <Avatar src="/logo.jpg" sx={{ width: 60, height: 60, border: '2px solid #14B8A6' }} />
+                <Avatar src="/logo.jpg" sx={{ width: 60, height: 60, border: (theme) => `2px solid ${theme.palette.primary.main}` }} />
                 <Box>
-                  <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff' }}>
+                  <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: 'text.primary' }}>
                     كلية الهندسة
                   </Typography>
-                  <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.7)', fontFamily: 'Cairo' }}>
+                  <Typography variant="caption" sx={{ color: 'text.secondary', fontFamily: 'Cairo' }}>
                     جامعة بني سويف
                   </Typography>
                 </Box>
@@ -474,27 +416,27 @@ export default function Header() {
                 sx={{
                   py: 1.5,
                   px: 3,
-                  '&:hover': { bgcolor: 'rgba(79, 70, 229, 0.1)' }
+                  '&:hover': { bgcolor: 'action.hover' }
                 }}
               >
-                <ListItemIcon><HomeIcon sx={{ color: '#14B8A6' }} /></ListItemIcon>
+                <ListItemIcon><HomeIcon sx={{ color: 'primary.main' }} /></ListItemIcon>
                 <ListItemText
                   primary="الرئيسية"
-                  primaryTypographyProps={{ fontFamily: 'Cairo', fontWeight: 600, color: '#fff' }}
+                  primaryTypographyProps={{ fontFamily: 'Cairo', fontWeight: 600, color: 'text.primary' }}
                 />
               </ListItem>
 
               {/* About Menu */}
               <ListItem button onClick={() => toggleMobileSubmenu('about')} sx={{ py: 1.5, px: 3 }}>
-                <ListItemIcon><InfoIcon sx={{ color: '#14B8A6' }} /></ListItemIcon>
+                <ListItemIcon><InfoIcon sx={{ color: 'primary.main' }} /></ListItemIcon>
                 <ListItemText
                   primary="عن الكلية"
-                  primaryTypographyProps={{ fontFamily: 'Cairo', fontWeight: 600, color: '#fff' }}
+                  primaryTypographyProps={{ fontFamily: 'Cairo', fontWeight: 600, color: 'text.primary' }}
                 />
-                {expandedMobile === 'about' ? <ExpandLess sx={{ color: '#fff' }} /> : <ExpandMore sx={{ color: '#fff' }} />}
+                {expandedMobile === 'about' ? <ExpandLess sx={{ color: 'text.secondary' }} /> : <ExpandMore sx={{ color: 'text.secondary' }} />}
               </ListItem>
               <Collapse in={expandedMobile === 'about'} timeout="auto" unmountOnExit>
-                <List component="div" disablePadding sx={{ bgcolor: 'rgba(0,0,0,0.2)' }}>
+                <List component="div" disablePadding sx={{ bgcolor: 'action.hover' }}>
                   {menuItems.about.map((item, idx) => (
                     <ListItem
                       key={idx}
@@ -504,10 +446,10 @@ export default function Header() {
                       onClick={handleDrawerToggle}
                       sx={{ py: 1.2, px: 5 }}
                     >
-                      <ListItemIcon sx={{ minWidth: 36 }}>{React.cloneElement(item.icon, { sx: { color: 'rgba(255,255,255,0.7)' } })}</ListItemIcon>
+                      <ListItemIcon sx={{ minWidth: 36 }}>{React.cloneElement(item.icon, { sx: { color: 'text.secondary' } })}</ListItemIcon>
                       <ListItemText
                         primary={item.text}
-                        primaryTypographyProps={{ fontFamily: 'Cairo', fontSize: '0.9rem', color: 'rgba(255,255,255,0.85)' }}
+                        primaryTypographyProps={{ fontFamily: 'Cairo', fontSize: '0.9rem', color: 'text.secondary' }}
                       />
                     </ListItem>
                   ))}
@@ -516,15 +458,15 @@ export default function Header() {
 
               {/* Departments Menu */}
               <ListItem button onClick={() => toggleMobileSubmenu('departments')} sx={{ py: 1.5, px: 3 }}>
-                <ListItemIcon><EngineeringIcon sx={{ color: '#14B8A6' }} /></ListItemIcon>
+                <ListItemIcon><EngineeringIcon sx={{ color: 'primary.main' }} /></ListItemIcon>
                 <ListItemText
                   primary="الأقسام"
-                  primaryTypographyProps={{ fontFamily: 'Cairo', fontWeight: 600, color: '#fff' }}
+                  primaryTypographyProps={{ fontFamily: 'Cairo', fontWeight: 600, color: 'text.primary' }}
                 />
-                {expandedMobile === 'departments' ? <ExpandLess sx={{ color: '#fff' }} /> : <ExpandMore sx={{ color: '#fff' }} />}
+                {expandedMobile === 'departments' ? <ExpandLess sx={{ color: 'text.secondary' }} /> : <ExpandMore sx={{ color: 'text.secondary' }} />}
               </ListItem>
               <Collapse in={expandedMobile === 'departments'} timeout="auto" unmountOnExit>
-                <List component="div" disablePadding sx={{ bgcolor: 'rgba(0,0,0,0.2)' }}>
+                <List component="div" disablePadding sx={{ bgcolor: 'action.hover' }}>
                   {menuItems.departments.map((item, idx) => (
                     <ListItem
                       key={idx}
@@ -534,10 +476,10 @@ export default function Header() {
                       onClick={handleDrawerToggle}
                       sx={{ py: 1.2, px: 5 }}
                     >
-                      <ListItemIcon sx={{ minWidth: 36 }}>{React.cloneElement(item.icon, { sx: { color: 'rgba(255,255,255,0.7)' } })}</ListItemIcon>
+                      <ListItemIcon sx={{ minWidth: 36 }}>{React.cloneElement(item.icon, { sx: { color: 'text.secondary' } })}</ListItemIcon>
                       <ListItemText
                         primary={item.text}
-                        primaryTypographyProps={{ fontFamily: 'Cairo', fontSize: '0.9rem', color: 'rgba(255,255,255,0.85)' }}
+                        primaryTypographyProps={{ fontFamily: 'Cairo', fontSize: '0.9rem', color: 'text.secondary' }}
                       />
                     </ListItem>
                   ))}
@@ -546,15 +488,15 @@ export default function Header() {
 
               {/* Students Menu */}
               <ListItem button onClick={() => toggleMobileSubmenu('students')} sx={{ py: 1.5, px: 3 }}>
-                <ListItemIcon><SchoolIcon sx={{ color: '#14B8A6' }} /></ListItemIcon>
+                <ListItemIcon><SchoolIcon sx={{ color: 'primary.main' }} /></ListItemIcon>
                 <ListItemText
                   primary="الطلاب"
-                  primaryTypographyProps={{ fontFamily: 'Cairo', fontWeight: 600, color: '#fff' }}
+                  primaryTypographyProps={{ fontFamily: 'Cairo', fontWeight: 600, color: 'text.primary' }}
                 />
-                {expandedMobile === 'students' ? <ExpandLess sx={{ color: '#fff' }} /> : <ExpandMore sx={{ color: '#fff' }} />}
+                {expandedMobile === 'students' ? <ExpandLess sx={{ color: 'text.secondary' }} /> : <ExpandMore sx={{ color: 'text.secondary' }} />}
               </ListItem>
               <Collapse in={expandedMobile === 'students'} timeout="auto" unmountOnExit>
-                <List component="div" disablePadding sx={{ bgcolor: 'rgba(0,0,0,0.2)' }}>
+                <List component="div" disablePadding sx={{ bgcolor: 'action.hover' }}>
                   {menuItems.students.map((item, idx) => (
                     <ListItem
                       key={idx}
@@ -566,10 +508,10 @@ export default function Header() {
                       onClick={handleDrawerToggle}
                       sx={{ py: 1.2, px: 5 }}
                     >
-                      <ListItemIcon sx={{ minWidth: 36 }}>{React.cloneElement(item.icon, { sx: { color: 'rgba(255,255,255,0.7)' } })}</ListItemIcon>
+                      <ListItemIcon sx={{ minWidth: 36 }}>{React.cloneElement(item.icon, { sx: { color: 'text.secondary' } })}</ListItemIcon>
                       <ListItemText
                         primary={item.text}
-                        primaryTypographyProps={{ fontFamily: 'Cairo', fontSize: '0.9rem', color: 'rgba(255,255,255,0.85)' }}
+                        primaryTypographyProps={{ fontFamily: 'Cairo', fontSize: '0.9rem', color: 'text.secondary' }}
                       />
                     </ListItem>
                   ))}
@@ -583,18 +525,18 @@ export default function Header() {
                 onClick={handleDrawerToggle}
                 sx={{ py: 1.5, px: 3 }}
               >
-                <ListItemIcon><ContactPhoneIcon sx={{ color: '#14B8A6' }} /></ListItemIcon>
+                <ListItemIcon><ContactPhoneIcon sx={{ color: 'primary.main' }} /></ListItemIcon>
                 <ListItemText
                   primary="اتصل بنا"
-                  primaryTypographyProps={{ fontFamily: 'Cairo', fontWeight: 600, color: '#fff' }}
+                  primaryTypographyProps={{ fontFamily: 'Cairo', fontWeight: 600, color: 'text.primary' }}
                 />
               </ListItem>
             </List>
 
             {/* Footer */}
-            <Box sx={{ p: 3, borderTop: '1px solid rgba(255,255,255,0.1)', textAlign: 'center' }}>
-              <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.5)', fontFamily: 'Cairo' }}>
-                © 2025 كلية الهندسة - جامعة بني سويف
+            <Box sx={{ p: 3, borderTop: (theme) => `1px solid ${theme.palette.divider}`, textAlign: 'center' }}>
+              <Typography variant="caption" sx={{ color: 'text.disabled', fontFamily: 'Cairo' }}>
+                2025 كلية الهندسة - جامعة بني سويف
               </Typography>
             </Box>
           </Box>

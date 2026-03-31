@@ -62,7 +62,7 @@ export default function DepartmentsPage() {
             {/* Departments Grid */}
             <Grid container spacing={4}>
                 {departments.map((dept, index) => (
-                    <Grid item xs={12} md={4} key={index}>
+                    <Grid item xs={12} key={index}>
                         <Card
                             elevation={4}
                             sx={{

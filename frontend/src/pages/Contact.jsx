@@ -526,9 +526,9 @@ export default function Contact() {
 
             {/* Contact Info Cards */}
             <Container maxWidth="lg" sx={{ mt: -8, position: 'relative', zIndex: 3 }}>
-                <Grid container spacing={3}>
+                <Grid container spacing={4}>
                     {contactInfo.map((info, index) => (
-                        <Grid item xs={12} sm={6} md={3} key={index}>
+                        <Grid item xs={12} key={index}>
                             <ContactCard info={info} index={index} />
                         </Grid>
                     ))}

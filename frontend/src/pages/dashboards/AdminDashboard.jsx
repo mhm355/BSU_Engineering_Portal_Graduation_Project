@@ -662,10 +662,16 @@ export default function AdminDashboard() {
                 {/* Navigation Cards Grid */}
                 <Grid container spacing={4}>
                     {navigationCards.map((card, index) => (
-                        <Grid item xs={12} sm={6} lg={4} key={index}>
-                            <NavCard
-                                {...card}
-                                delay={index * 100}
+                        <Grid item xs={12} key={index}>
+                            <DashboardCard
+                                icon={card.icon}
+                                title={card.title}
+                                description={card.description}
+                                buttonText={card.buttonText}
+                                onClick={card.onClick}
+                                color={card.color}
+                                count={card.badge > 0 ? card.badge : null}
+                                disabled={card.disabled}
                             />
                         </Grid>
                     ))}

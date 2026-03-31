@@ -68,7 +68,7 @@ export default function AboutPage() {
             {/* Info Cards */}
             <Grid container spacing={3} sx={{ mb: 4 }}>
                 {/* Degrees */}
-                <Grid item xs={12} md={6}>
+                <Grid item xs={12}>
                     <Card elevation={4} sx={{ height: '100%', borderTop: '5px solid #4F46E5', borderRadius: 3, transition: 'transform 0.3s, box-shadow 0.3s', '&:hover': { transform: 'translateY(-5px)', boxShadow: 8 } }}>
                         <CardContent sx={{ p: 3 }}>
                             <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
@@ -102,7 +102,7 @@ export default function AboutPage() {
                 </Grid>
 
                 {/* Duration & Language */}
-                <Grid item xs={12} md={6}>
+                <Grid item xs={12}>
                     <Card elevation={4} sx={{ height: '100%', borderTop: '5px solid #14B8A6', borderRadius: 3, transition: 'transform 0.3s, box-shadow 0.3s', '&:hover': { transform: 'translateY(-5px)', boxShadow: 8 } }}>
                         <CardContent sx={{ p: 3 }}>
                             <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
@@ -147,7 +147,7 @@ export default function AboutPage() {
                 </Box>
                 <Grid container spacing={3}>
                     {departments.map((dept, index) => (
-                        <Grid item xs={12} sm={4} key={index}>
+                        <Grid item xs={12} key={index}>
                             <Paper
                                 component={Link}
                                 to={dept.link}
