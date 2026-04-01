@@ -4,13 +4,13 @@
 
 services:
   db:
-    image: mysql:8.0
-    container_name: bsu_db_1
+    image: docker.io/mysql:8.0
+    container_name: bsu_db
     restart: always
     env_file:
       - .env.production
     volumes:
-      - db_data_1:/var/lib/mysql
+      - db_data:/var/lib/mysql
     # DB port NOT exposed to host — only accessible within Docker network
     healthcheck:
       test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
@@ -21,8 +21,8 @@ services:
       - bsu_network
 
   backend:
-    image: mhmdocker1/bsu_backend:v2.8.2
-    container_name: bsu_backend_1
+    image: docker.io/mhmdocker1/bsu_backend:v2.8.3
+    container_name: bsu_backend
     volumes:
       - media_data:/app/media
     ports:
@@ -43,8 +43,8 @@ services:
       - bsu_network
 
   frontend:
-    image: mhmdocker1/bsu_frontend:v2.8.2
-    container_name: bsu_frontend_1
+    image: docker.io/mhmdocker1/bsu_frontend:v2.8.5
+    container_name: bsu_frontend
     volumes:
       - media_data:/usr/share/nginx/html/media
     ports:
@@ -56,7 +56,7 @@ services:
       - bsu_network
 
 volumes:
-  db_data_1:
+  db_data:
   media_data:
 
 
