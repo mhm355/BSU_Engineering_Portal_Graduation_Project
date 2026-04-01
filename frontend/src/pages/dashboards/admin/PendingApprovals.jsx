@@ -132,7 +132,8 @@ export default function PendingApprovals() {
         <Box sx={{ minHeight: '100vh', background: 'linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%)', pb: 6 }}>
             {/* Header */}
             <Box sx={{ background: 'linear-gradient(135deg, #FFD93D 0%, #FF9800 100%)', pt: 4, pb: 6, mb: 4, position: 'relative', overflow: 'hidden' }}>
-                <Box sx={{ position: 'absolute', top: -50, right: -50, width: 200, height: 200, borderRadius: '50%', background: 'rgba(255,255,255,0.15)', animation: `${float} 6s ease-in-out infinite` }} />
+                {/* Decorative circles - REMOVED */}
+                {/* <Box sx={{ position: 'absolute', top: -50, right: -50, width: 200, height: 200, borderRadius: '50%', background: 'rgba(255,255,255,0.15)', animation: `${float} 6s ease-in-out infinite` }} /> */}
                 <Container maxWidth="xl">
                     <Fade in={true} timeout={800}>
                         <Box>

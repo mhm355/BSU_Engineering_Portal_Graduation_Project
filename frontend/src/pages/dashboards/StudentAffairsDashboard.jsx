@@ -165,7 +165,13 @@ export default function StudentAffairsDashboard() {
         }
     }, [user, navigate]);
 
-    if (!user) return null;
+    if (!user) {
+        return (
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
+                <CircularProgress size={60} />
+            </Box>
+        );
+    }
 
     const [stats, setStats] = useState({ students: 0, departments: 0, certificates: 0, levels: 0 });
 
@@ -255,52 +261,17 @@ export default function StudentAffairsDashboard() {
             <Box
                 sx={{
                     background: 'linear-gradient(135deg, #1976D2 0%, #42A5F5 100%)',
-                    pt: 4,
-                    pb: 6,
-                    mb: 4,
+                    pt: 3,
+                    pb: 4,
+                    mb: 3,
                     position: 'relative',
                     overflow: 'hidden',
                 }}
             >
-                {/* Floating Elements */}
-                <Box
-                    sx={{
-                        position: 'absolute',
-                        top: -50,
-                        right: -50,
-                        width: 200,
-                        height: 200,
-                        borderRadius: '50%',
-                        background: 'rgba(255,255,255,0.1)',
-                        animation: `${float} 6s ease-in-out infinite`,
-                    }}
-                />
-                <Box
-                    sx={{
-                        position: 'absolute',
-                        bottom: -80,
-                        left: -80,
-                        width: 300,
-                        height: 300,
-                        borderRadius: '50%',
-                        background: 'rgba(255,255,255,0.08)',
-                        animation: `${float} 8s ease-in-out infinite`,
-                        animationDelay: '2s',
-                    }}
-                />
-                <Box
-                    sx={{
-                        position: 'absolute',
-                        top: 60,
-                        left: '30%',
-                        width: 100,
-                        height: 100,
-                        borderRadius: '50%',
-                        background: 'rgba(255,255,255,0.05)',
-                        animation: `${float} 5s ease-in-out infinite`,
-                        animationDelay: '1s',
-                    }}
-                />
+                {/* Floating Elements - REMOVED */}
+                {/* <Box sx={{ position: 'absolute', top: -50, right: -50, width: 200, height: 200, borderRadius: '50%', background: 'rgba(255,255,255,0.1)', animation: `${float} 6s ease-in-out infinite` }} />
+                <Box sx={{ position: 'absolute', bottom: -80, left: -80, width: 300, height: 300, borderRadius: '50%', background: 'rgba(255,255,255,0.08)', animation: `${float} 8s ease-in-out infinite`, animationDelay: '2s' }} />
+                <Box sx={{ position: 'absolute', top: 60, left: '30%', width: 100, height: 100, borderRadius: '50%', background: 'rgba(255,255,255,0.05)', animation: `${float} 5s ease-in-out infinite`, animationDelay: '1s' }} /> */}
 
                 <Container maxWidth="xl">
                     <Fade in={true} timeout={800}>
@@ -309,11 +280,11 @@ export default function StudentAffairsDashboard() {
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
                                     <Avatar
                                         sx={{
-                                            width: 80,
-                                            height: 80,
+                                            width: 70,
+                                            height: 70,
                                             bgcolor: 'rgba(255,255,255,0.2)',
                                             backdropFilter: 'blur(10px)',
-                                            fontSize: 32,
+                                            fontSize: 28,
                                             fontFamily: 'Cairo',
                                             fontWeight: 'bold',
                                         }}
@@ -321,7 +292,7 @@ export default function StudentAffairsDashboard() {
                                         {user.first_name?.charAt(0)}{user.last_name?.charAt(0)}
                                     </Avatar>
                                     <Box>
-                                        <Typography variant="h3" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff', textShadow: '0 4px 20px rgba(0,0,0,0.2)' }}>
+                                        <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff', textShadow: '0 2px 10px rgba(0,0,0,0.2)' }}>
                                             مرحباً، {user.first_name} {user.last_name}
                                         </Typography>
                                         <Typography variant="h6" sx={{ fontFamily: 'Cairo', color: 'rgba(255,255,255,0.9)' }}>
@@ -349,7 +320,7 @@ export default function StudentAffairsDashboard() {
 
             <Container maxWidth="xl">
                 {/* Stats Row */}
-                <Grid container spacing={3} sx={{ mb: 4 }}>
+                <Grid container spacing={2} sx={{ mb: 3 }}>
                     <Grid item xs={12} sm={6} md={3}>
                         <StatCard
                             icon={PeopleIcon}

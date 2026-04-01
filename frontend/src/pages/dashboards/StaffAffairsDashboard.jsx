@@ -166,16 +166,17 @@ const StaffAffairsDashboard = () => {
             <Box
                 sx={{
                     background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                    pt: 4,
-                    pb: 6,
-                    mb: 4,
+                    pt: 3,
+                    pb: 4,
+                    mb: 3,
                     position: 'relative',
                     overflow: 'hidden',
                 }}
             >
-                <Box sx={{ position: 'absolute', top: -50, right: -50, width: 200, height: 200, borderRadius: '50%', background: 'rgba(255,255,255,0.15)', animation: `${float} 6s ease-in-out infinite` }} />
+                {/* Decorative circles - REMOVED */}
+                {/* <Box sx={{ position: 'absolute', top: -50, right: -50, width: 200, height: 200, borderRadius: '50%', background: 'rgba(255,255,255,0.15)', animation: `${float} 6s ease-in-out infinite` }} />
                 <Box sx={{ position: 'absolute', bottom: -80, left: -80, width: 300, height: 300, borderRadius: '50%', background: 'rgba(255,255,255,0.1)', animation: `${float} 8s ease-in-out infinite`, animationDelay: '2s' }} />
-                <Box sx={{ position: 'absolute', top: 100, left: '50%', width: 150, height: 150, borderRadius: '50%', background: 'rgba(255,255,255,0.08)', animation: `${float} 7s ease-in-out infinite`, animationDelay: '1s' }} />
+                <Box sx={{ position: 'absolute', top: 100, left: '50%', width: 150, height: 150, borderRadius: '50%', background: 'rgba(255,255,255,0.08)', animation: `${float} 7s ease-in-out infinite`, animationDelay: '1s' }} /> */}
 
                 <Container maxWidth="lg">
                     <Fade in={true} timeout={800}>
@@ -183,17 +184,17 @@ const StaffAffairsDashboard = () => {
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
                                 <Avatar
                                     sx={{
-                                        width: 90,
-                                        height: 90,
+                                        width: 70,
+                                        height: 70,
                                         bgcolor: 'rgba(255,255,255,0.2)',
                                         backdropFilter: 'blur(10px)',
-                                        border: '3px solid rgba(255,255,255,0.3)',
+                                        border: '2px solid rgba(255,255,255,0.3)',
                                     }}
                                 >
-                                    <AccountCircleIcon sx={{ fontSize: 55, color: '#fff' }} />
+                                    <AccountCircleIcon sx={{ fontSize: 40, color: '#fff' }} />
                                 </Avatar>
                                 <Box>
-                                    <Typography variant="h3" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff', textShadow: '0 4px 20px rgba(0,0,0,0.2)' }}>
+                                    <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff', textShadow: '0 2px 10px rgba(0,0,0,0.2)' }}>
                                         مرحباً، {user.first_name || 'شئون العاملين'}
                                     </Typography>
                                     <Typography variant="h6" sx={{ fontFamily: 'Cairo', color: 'rgba(255,255,255,0.9)' }}>
@@ -220,59 +221,59 @@ const StaffAffairsDashboard = () => {
 
             <Container maxWidth="lg">
                 {/* Stats Row */}
-                <Grid container spacing={3} sx={{ mb: 4 }}>
+                <Grid container spacing={2} sx={{ mb: 3 }}>
                     <Grid item xs={12} sm={6} md={3}>
                         <Grow in={true} timeout={400}>
-                            <Paper elevation={0} sx={{ p: 3, borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.08)', display: 'flex', alignItems: 'center', gap: 2 }}>
-                                <Box sx={{ width: 60, height: 60, borderRadius: 3, background: 'linear-gradient(135deg, #667eea, #764ba2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                    <BadgeIcon sx={{ fontSize: 30, color: '#fff' }} />
+                            <Paper elevation={0} sx={{ p: 2, borderRadius: 3, boxShadow: '0 2px 10px rgba(0,0,0,0.08)', display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                                <Box sx={{ width: 45, height: 45, borderRadius: 2, background: 'linear-gradient(135deg, #667eea, #764ba2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <BadgeIcon sx={{ fontSize: 22, color: '#fff' }} />
                                 </Box>
                                 <Box>
-                                    <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>
-                                        {loading ? <CircularProgress size={24} /> : doctorCount}
+                                    <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>
+                                        {loading ? <CircularProgress size={20} /> : doctorCount}
                                     </Typography>
-                                    <Typography variant="body1" sx={{ fontFamily: 'Cairo', color: '#666' }}>عدد الدكاترة</Typography>
+                                    <Typography variant="caption" sx={{ fontFamily: 'Cairo', color: '#666' }}>عدد الدكاترة</Typography>
                                 </Box>
                             </Paper>
                         </Grow>
                     </Grid>
                     <Grid item xs={12} sm={6} md={3}>
                         <Grow in={true} timeout={500}>
-                            <Paper elevation={0} sx={{ p: 3, borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.08)', display: 'flex', alignItems: 'center', gap: 2 }}>
-                                <Box sx={{ width: 60, height: 60, borderRadius: 3, background: 'linear-gradient(135deg, #ed6c02, #ff9800)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                    <AssignmentIcon sx={{ fontSize: 30, color: '#fff' }} />
+                            <Paper elevation={0} sx={{ p: 2, borderRadius: 3, boxShadow: '0 2px 10px rgba(0,0,0,0.08)', display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                                <Box sx={{ width: 45, height: 45, borderRadius: 2, background: 'linear-gradient(135deg, #ed6c02, #ff9800)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <AssignmentIcon sx={{ fontSize: 22, color: '#fff' }} />
                                 </Box>
                                 <Box>
-                                    <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>
-                                        {loading ? <CircularProgress size={24} /> : assignmentCount}
+                                    <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>
+                                        {loading ? <CircularProgress size={20} /> : assignmentCount}
                                     </Typography>
-                                    <Typography variant="body1" sx={{ fontFamily: 'Cairo', color: '#666' }}>التعيينات</Typography>
+                                    <Typography variant="caption" sx={{ fontFamily: 'Cairo', color: '#666' }}>التعيينات</Typography>
                                 </Box>
                             </Paper>
                         </Grow>
                     </Grid>
                     <Grid item xs={12} sm={6} md={3}>
                         <Grow in={true} timeout={600}>
-                            <Paper elevation={0} sx={{ p: 3, borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.08)', display: 'flex', alignItems: 'center', gap: 2 }}>
-                                <Box sx={{ width: 60, height: 60, borderRadius: 3, background: 'linear-gradient(135deg, #4CAF50, #8BC34A)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                    <TrendingUpIcon sx={{ fontSize: 30, color: '#fff' }} />
+                            <Paper elevation={0} sx={{ p: 2, borderRadius: 3, boxShadow: '0 2px 10px rgba(0,0,0,0.08)', display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                                <Box sx={{ width: 45, height: 45, borderRadius: 2, background: 'linear-gradient(135deg, #4CAF50, #8BC34A)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <TrendingUpIcon sx={{ fontSize: 22, color: '#fff' }} />
                                 </Box>
                                 <Box>
-                                    <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>{loading ? <CircularProgress size={24} /> : departmentCount}</Typography>
-                                    <Typography variant="body1" sx={{ fontFamily: 'Cairo', color: '#666' }}>الأقسام</Typography>
+                                    <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>{loading ? <CircularProgress size={20} /> : departmentCount}</Typography>
+                                    <Typography variant="caption" sx={{ fontFamily: 'Cairo', color: '#666' }}>الأقسام</Typography>
                                 </Box>
                             </Paper>
                         </Grow>
                     </Grid>
                     <Grid item xs={12} sm={6} md={3}>
                         <Grow in={true} timeout={700}>
-                            <Paper elevation={0} sx={{ p: 3, borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.08)', display: 'flex', alignItems: 'center', gap: 2 }}>
-                                <Box sx={{ width: 60, height: 60, borderRadius: 3, background: 'linear-gradient(135deg, #9c27b0, #ba68c8)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                    <GroupsIcon sx={{ fontSize: 30, color: '#fff' }} />
+                            <Paper elevation={0} sx={{ p: 2, borderRadius: 3, boxShadow: '0 2px 10px rgba(0,0,0,0.08)', display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                                <Box sx={{ width: 45, height: 45, borderRadius: 2, background: 'linear-gradient(135deg, #9c27b0, #ba68c8)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <GroupsIcon sx={{ fontSize: 22, color: '#fff' }} />
                                 </Box>
                                 <Box>
-                                    <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>{loading ? <CircularProgress size={24} /> : specCount}</Typography>
-                                    <Typography variant="body1" sx={{ fontFamily: 'Cairo', color: '#666' }}>التخصصات</Typography>
+                                    <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>{loading ? <CircularProgress size={20} /> : specCount}</Typography>
+                                    <Typography variant="caption" sx={{ fontFamily: 'Cairo', color: '#666' }}>التخصصات</Typography>
                                 </Box>
                             </Paper>
                         </Grow>
@@ -337,7 +338,7 @@ const StaffAffairsDashboard = () => {
                 </Paper>
 
                 {/* Navigation Cards */}
-                <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744', mb: 3 }}>
+                <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744', mb: 2 }}>
                     الإجراءات السريعة
                 </Typography>
                 <Grid container spacing={2}>

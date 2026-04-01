@@ -100,7 +100,13 @@ export default function DoctorDashboard() {
     }
   };
 
-  if (!user) return null;
+  if (!user) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
+        <CircularProgress size={60} />
+      </Box>
+    );
+  }
 
   // Group courses by term, applying search filter
   const filteredCourses = courses.filter(c => {
@@ -172,9 +178,10 @@ export default function DoctorDashboard() {
   return (
     <Box sx={{ minHeight: '100vh', background: 'linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%)', pb: 6 }}>
       {/* Hero Header */}
-      <Box sx={{ background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)', pt: 4, pb: 6, mb: 4, position: 'relative', overflow: 'hidden' }}>
-        <Box sx={{ position: 'absolute', top: -50, right: -50, width: 200, height: 200, borderRadius: '50%', background: 'rgba(255,255,255,0.1)', animation: `${float} 6s ease-in-out infinite` }} />
-        <Box sx={{ position: 'absolute', bottom: -80, left: -80, width: 300, height: 300, borderRadius: '50%', background: 'rgba(255,255,255,0.08)', animation: `${float} 8s ease-in-out infinite`, animationDelay: '2s' }} />
+      <Box sx={{ background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)', pt: 3, pb: 4, mb: 3, position: 'relative', overflow: 'hidden' }}>
+        {/* Decorative circles - REMOVED */}
+        {/* <Box sx={{ position: 'absolute', top: -50, right: -50, width: 200, height: 200, borderRadius: '50%', background: 'rgba(255,255,255,0.1)', animation: `${float} 6s ease-in-out infinite` }} />
+        <Box sx={{ position: 'absolute', bottom: -80, left: -80, width: 300, height: 300, borderRadius: '50%', background: 'rgba(255,255,255,0.08)', animation: `${float} 8s ease-in-out infinite`, animationDelay: '2s' }} /> */}
 
         <Container maxWidth="xl">
           <Fade in={true} timeout={800}>
@@ -183,12 +190,12 @@ export default function DoctorDashboard() {
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
                   <Avatar
                     src={user.profile_picture}
-                    sx={{ width: 100, height: 100, border: '4px solid rgba(255,255,255,0.3)', boxShadow: '0 10px 30px rgba(0,0,0,0.3)' }}
+                    sx={{ width: 70, height: 70, border: '3px solid rgba(255,255,255,0.3)', boxShadow: '0 8px 20px rgba(0,0,0,0.3)' }}
                   >
-                    <PersonIcon sx={{ fontSize: 50 }} />
+                    <PersonIcon sx={{ fontSize: 35 }} />
                   </Avatar>
                   <Box>
-                    <Typography variant="h3" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff', textShadow: '0 4px 20px rgba(0,0,0,0.3)' }}>
+                    <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff', textShadow: '0 2px 10px rgba(0,0,0,0.3)' }}>
                       مرحباً، د. {user.first_name} {user.last_name}
                     </Typography>
                     <Typography variant="h6" sx={{ fontFamily: 'Cairo', color: 'rgba(255,255,255,0.85)', mt: 0.5 }}>
@@ -247,55 +254,55 @@ export default function DoctorDashboard() {
         {error && <Alert severity="error" sx={{ mb: 3, fontFamily: 'Cairo', borderRadius: 3, fontSize: '1.1rem' }} onClose={() => setError('')}>{error}</Alert>}
 
         {/* Stats Row */}
-        <Grid container spacing={3} sx={{ mb: 4 }}>
+        <Grid container spacing={2} sx={{ mb: 3 }}>
           <Grid item xs={12} sm={6} md={3}>
             <Grow in={true} timeout={400}>
-              <Paper elevation={0} sx={{ p: 3, borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.08)', display: 'flex', alignItems: 'center', gap: 2 }}>
-                <Avatar sx={{ width: 60, height: 60, background: 'linear-gradient(135deg, #0288d1, #03a9f4)' }}>
-                  <MenuBookIcon sx={{ fontSize: 30 }} />
+              <Paper elevation={0} sx={{ p: 2, borderRadius: 3, boxShadow: '0 2px 10px rgba(0,0,0,0.08)', display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                <Avatar sx={{ width: 45, height: 45, background: 'linear-gradient(135deg, #0288d1, #03a9f4)' }}>
+                  <MenuBookIcon sx={{ fontSize: 22 }} />
                 </Avatar>
                 <Box>
-                  <Typography variant="h3" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>{courses.length}</Typography>
-                  <Typography variant="body1" sx={{ fontFamily: 'Cairo', color: '#666', fontSize: '1.1rem' }}>إجمالي المقررات</Typography>
+                  <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>{courses.length}</Typography>
+                  <Typography variant="caption" sx={{ fontFamily: 'Cairo', color: '#666' }}>إجمالي المقررات</Typography>
                 </Box>
               </Paper>
             </Grow>
           </Grid>
           <Grid item xs={12} sm={6} md={3}>
             <Grow in={true} timeout={500}>
-              <Paper elevation={0} sx={{ p: 3, borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.08)', display: 'flex', alignItems: 'center', gap: 2 }}>
-                <Avatar sx={{ width: 60, height: 60, background: 'linear-gradient(135deg, #4CAF50, #8BC34A)' }}>
-                  <GroupIcon sx={{ fontSize: 30 }} />
+              <Paper elevation={0} sx={{ p: 2, borderRadius: 3, boxShadow: '0 2px 10px rgba(0,0,0,0.08)', display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                <Avatar sx={{ width: 45, height: 45, background: 'linear-gradient(135deg, #4CAF50, #8BC34A)' }}>
+                  <GroupIcon sx={{ fontSize: 22 }} />
                 </Avatar>
                 <Box>
-                  <Typography variant="h3" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>{totalStudents}</Typography>
-                  <Typography variant="body1" sx={{ fontFamily: 'Cairo', color: '#666', fontSize: '1.1rem' }}>إجمالي الطلاب</Typography>
+                  <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>{totalStudents}</Typography>
+                  <Typography variant="caption" sx={{ fontFamily: 'Cairo', color: '#666' }}>إجمالي الطلاب</Typography>
                 </Box>
               </Paper>
             </Grow>
           </Grid>
           <Grid item xs={12} sm={6} md={3}>
             <Grow in={true} timeout={600}>
-              <Paper elevation={0} sx={{ p: 3, borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.08)', display: 'flex', alignItems: 'center', gap: 2 }}>
-                <Avatar sx={{ width: 60, height: 60, background: 'linear-gradient(135deg, #9c27b0, #ba68c8)' }}>
-                  <ClassIcon sx={{ fontSize: 30 }} />
+              <Paper elevation={0} sx={{ p: 2, borderRadius: 3, boxShadow: '0 2px 10px rgba(0,0,0,0.08)', display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                <Avatar sx={{ width: 45, height: 45, background: 'linear-gradient(135deg, #9c27b0, #ba68c8)' }}>
+                  <ClassIcon sx={{ fontSize: 22 }} />
                 </Avatar>
                 <Box>
-                  <Typography variant="h3" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>{avgStudents}</Typography>
-                  <Typography variant="body1" sx={{ fontFamily: 'Cairo', color: '#666', fontSize: '1.1rem' }}>متوسط الطلاب / مقرر</Typography>
+                  <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>{avgStudents}</Typography>
+                  <Typography variant="caption" sx={{ fontFamily: 'Cairo', color: '#666' }}>متوسط الطلاب / مقرر</Typography>
                 </Box>
               </Paper>
             </Grow>
           </Grid>
           <Grid item xs={12} sm={6} md={3}>
             <Grow in={true} timeout={700}>
-              <Paper elevation={0} sx={{ p: 3, borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.08)', display: 'flex', alignItems: 'center', gap: 2 }}>
-                <Avatar sx={{ width: 60, height: 60, background: 'linear-gradient(135deg, #FF9800, #FFD93D)' }}>
-                  <QuizIcon sx={{ fontSize: 30 }} />
+              <Paper elevation={0} sx={{ p: 2, borderRadius: 3, boxShadow: '0 2px 10px rgba(0,0,0,0.08)', display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                <Avatar sx={{ width: 45, height: 45, background: 'linear-gradient(135deg, #FF9800, #FFD93D)' }}>
+                  <QuizIcon sx={{ fontSize: 22 }} />
                 </Avatar>
                 <Box>
-                  <Typography variant="h3" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>{quizCount}</Typography>
-                  <Typography variant="body1" sx={{ fontFamily: 'Cairo', color: '#666', fontSize: '1.1rem' }}>الاختبارات</Typography>
+                  <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>{quizCount}</Typography>
+                  <Typography variant="caption" sx={{ fontFamily: 'Cairo', color: '#666' }}>الاختبارات</Typography>
                 </Box>
               </Paper>
             </Grow>

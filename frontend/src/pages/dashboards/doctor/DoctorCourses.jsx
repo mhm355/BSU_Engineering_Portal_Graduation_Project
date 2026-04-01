@@ -64,7 +64,8 @@ export default function DoctorCourses() {
         <Box sx={{ minHeight: '100vh', background: 'linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%)', pb: 6 }}>
             {/* Hero Header */}
             <Box sx={{ background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)', pt: 4, pb: 5, mb: 4, position: 'relative', overflow: 'hidden' }}>
-                <Box sx={{ position: 'absolute', top: -60, right: -60, width: 250, height: 250, borderRadius: '50%', background: 'rgba(255,255,255,0.05)' }} />
+                {/* Decorative circle - REMOVED */}
+                {/* <Box sx={{ position: 'absolute', top: -60, right: -60, width: 250, height: 250, borderRadius: '50%', background: 'rgba(255,255,255,0.05)' }} /> */}
                 <Container maxWidth="xl">
                     <Fade in timeout={600}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>

@@ -270,8 +270,8 @@ export default function Home() {
                     background: (theme) => `linear-gradient(135deg, ${theme.palette.primary.dark} 0%, ${theme.palette.primary.main} 100%)`,
                 }}
             >
-                {/* Subtle decorative element */}
-                <Box
+                {/* Subtle decorative element - REMOVED white circle */}
+                {/* <Box
                     sx={{
                         position: 'absolute',
                         top: -100,
@@ -281,7 +281,7 @@ export default function Home() {
                         borderRadius: '50%',
                         background: (theme) => `radial-gradient(circle, ${theme.palette.primary.light}20 0%, transparent 70%)`,
                     }}
-                />
+                /> */}
 
                 <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 2 }}>
                     <Grid container spacing={6} alignItems="center">
@@ -388,10 +388,10 @@ export default function Home() {
                                     <Avatar
                                         src="/logo.jpg"
                                         sx={{
-                                            width: 280,
-                                            height: 280,
-                                            border: '6px solid rgba(255,255,255,0.2)',
-                                            boxShadow: '0 30px 80px rgba(0,0,0,0.4)',
+                                            width: 180,
+                                            height: 180,
+                                            border: '4px solid rgba(255,255,255,0.2)',
+                                            boxShadow: '0 20px 50px rgba(0,0,0,0.3)',
                                         }}
                                     />
                                 </Box>
@@ -414,8 +414,8 @@ export default function Home() {
             </Box>
 
             {/* Features Section */}
-            <Container maxWidth="lg" sx={{ py: 10, mt: -8, position: 'relative', zIndex: 3 }}>
-                <Grid container spacing={4}>
+            <Container maxWidth="lg" sx={{ py: 6, mt: -6, position: 'relative', zIndex: 3 }}>
+                <Grid container spacing={3}>
                     {features.map((feature, index) => (
                         <Grid item xs={12} key={index}>
                             <FeatureCard {...feature} delay={index * 100} />
@@ -425,9 +425,9 @@ export default function Home() {
             </Container>
 
             {/* News Section */}
-            <Box sx={{ bgcolor: 'background.paper', py: 10 }}>
+            <Box sx={{ bgcolor: 'background.paper', py: 6 }}>
                 <Container maxWidth="lg">
-                    <Box sx={{ textAlign: 'center', mb: 6 }}>
+                    <Box sx={{ textAlign: 'center', mb: 4 }}>
                         <Chip
                             icon={<NewspaperIcon />}
                             label="آخر المستجدات"
@@ -460,19 +460,19 @@ export default function Home() {
                         </Typography>
                     </Box>
 
-                    <Grid container spacing={4}>
+                    <Grid container spacing={3}>
                         {newsList.length === 0 && (
                             <Grid item xs={12}>
                                 <Paper
                                     elevation={0}
                                     sx={{
-                                        p: 8,
+                                        p: 4,
                                         textAlign: 'center',
                                         borderRadius: 4,
                                         bgcolor: 'action.hover',
                                     }}
                                 >
-                                    <NewspaperIcon sx={{ fontSize: 80, color: 'text.disabled', mb: 2 }} />
+                                    <NewspaperIcon sx={{ fontSize: 60, color: 'text.disabled', mb: 2 }} />
                                     <Typography variant="h6" sx={{ color: 'text.secondary' }}>
                                         لا توجد أخبار حالياً
                                     </Typography>

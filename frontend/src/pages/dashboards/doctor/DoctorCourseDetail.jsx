@@ -413,8 +413,9 @@ export default function DoctorCourseDetail() {
         <Box sx={{ minHeight: '100vh', background: 'linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%)', pb: 6 }}>
             {/* Hero Header */}
             <Box sx={{ background: 'linear-gradient(135deg, #0288d1 0%, #03a9f4 100%)', pt: 4, pb: 6, mb: 4, position: 'relative', overflow: 'hidden' }}>
-                <Box sx={{ position: 'absolute', top: -50, right: -50, width: 200, height: 200, borderRadius: '50%', background: 'rgba(255,255,255,0.15)', animation: `${float} 6s ease-in-out infinite` }} />
-                <Box sx={{ position: 'absolute', bottom: -80, left: -80, width: 300, height: 300, borderRadius: '50%', background: 'rgba(255,255,255,0.1)', animation: `${float} 8s ease-in-out infinite`, animationDelay: '2s' }} />
+                {/* Decorative circles - REMOVED */}
+                {/* <Box sx={{ position: 'absolute', top: -50, right: -50, width: 200, height: 200, borderRadius: '50%', background: 'rgba(255,255,255,0.15)', animation: `${float} 6s ease-in-out infinite` }} />
+                <Box sx={{ position: 'absolute', bottom: -80, left: -80, width: 300, height: 300, borderRadius: '50%', background: 'rgba(255,255,255,0.1)', animation: `${float} 8s ease-in-out infinite`, animationDelay: '2s' }} /> */}
 
                 <Container maxWidth="xl">
                     <Fade in={true} timeout={800}>

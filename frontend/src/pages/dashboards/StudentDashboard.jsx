@@ -173,7 +173,13 @@ export default function StudentDashboard() {
         }
     }, [studentInfo]);
 
-    if (!user) return null;
+    if (!user) {
+        return (
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
+                <CircularProgress size={60} />
+            </Box>
+        );
+    }
 
     const isPreparatory = studentInfo?.level === 'PREPARATORY';
     const isFourthYear = studentInfo?.level === 'FOURTH';
@@ -239,15 +245,15 @@ export default function StudentDashboard() {
                 backgroundSize: '200% 200%',
                 animation: `${shimmer} 15s ease infinite`,
                 color: '#fff',
-                py: 6,
+                py: 4,
                 px: 3,
                 position: 'relative',
                 overflow: 'hidden',
                 borderRadius: { xs: 0, md: '0 0 40px 40px' },
             }}>
-                {/* Decorative circles */}
-                <Box sx={{ position: 'absolute', top: -100, right: -100, width: 300, height: 300, borderRadius: '50%', bgcolor: 'rgba(255,255,255,0.05)' }} />
-                <Box sx={{ position: 'absolute', bottom: -50, left: -50, width: 200, height: 200, borderRadius: '50%', bgcolor: 'rgba(255,255,255,0.05)' }} />
+                {/* Decorative circles - REMOVED */}
+                {/* <Box sx={{ position: 'absolute', top: -100, right: -100, width: 300, height: 300, borderRadius: '50%', bgcolor: 'rgba(255,255,255,0.05)' }} />
+                <Box sx={{ position: 'absolute', bottom: -50, left: -50, width: 200, height: 200, borderRadius: '50%', bgcolor: 'rgba(255,255,255,0.05)' }} /> */}
 
                 <Container maxWidth="lg">
                     <Fade in={true} timeout={800}>
@@ -255,20 +261,19 @@ export default function StudentDashboard() {
                             <Avatar
                                 src={user.profile_picture}
                                 sx={{
-                                    width: 100,
-                                    height: 100,
-                                    border: '4px solid rgba(255,255,255,0.3)',
-                                    boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
-                                    animation: `${float} 3s ease-in-out infinite`,
+                                    width: 70,
+                                    height: 70,
+                                    border: '3px solid rgba(255,255,255,0.3)',
+                                    boxShadow: '0 8px 20px rgba(0,0,0,0.2)',
                                 }}
                             >
-                                <PersonIcon sx={{ fontSize: 50 }} />
+                                <PersonIcon sx={{ fontSize: 35 }} />
                             </Avatar>
                             <Box sx={{ flex: 1 }}>
                                 <Typography variant="h6" sx={{ fontFamily: 'Cairo', opacity: 0.9, mb: 0.5 }}>
                                     {greeting} 👋
                                 </Typography>
-                                <Typography variant="h3" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', mb: 1 }}>
+                                <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', mb: 1 }}>
                                     {user.first_name} {user.last_name}
                                 </Typography>
                                 <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
@@ -317,9 +322,9 @@ export default function StudentDashboard() {
                 </Container>
             </Box>
 
-            <Container maxWidth="lg" sx={{ mt: -4, pb: 6, position: 'relative', zIndex: 10 }}>
+            <Container maxWidth="lg" sx={{ mt: -3, pb: 4, position: 'relative', zIndex: 10 }}>
                 {/* Stats Cards Row */}
-                <Grid container spacing={3} sx={{ mb: 4 }}>
+                <Grid container spacing={2} sx={{ mb: 3 }}>
                     <Grid item xs={6} md={3}>
                         <Grow in={true} timeout={400}>
                             <Paper elevation={0} sx={{
@@ -502,10 +507,10 @@ export default function StudentDashboard() {
                 )}
 
                 {/* Quick Actions Grid */}
-                <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744', mb: 3, display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744', mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
                     <StarIcon sx={{ color: '#FFD700' }} /> الوصول السريع
                 </Typography>
-                <Grid container spacing={3} sx={{ mb: 4 }}>
+                <Grid container spacing={2} sx={{ mb: 3 }}>
                     {quickActions.map((action, index) => (
                         <Grid item xs={12} key={index}>
                             <DashboardCard

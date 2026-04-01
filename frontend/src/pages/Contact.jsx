@@ -390,14 +390,14 @@ export default function Contact() {
                     overflow: 'hidden',
                 }}
             >
-                {/* Animated Background Elements */}
-                <Box sx={{ position: 'absolute', top: -100, right: -100, width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,193,7,0.12) 0%, transparent 70%)', animation: `${float} 8s ease-in-out infinite` }} />
+                {/* Animated Background Elements - REMOVED */}
+                {/* <Box sx={{ position: 'absolute', top: -100, right: -100, width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,193,7,0.12) 0%, transparent 70%)', animation: `${float} 8s ease-in-out infinite` }} />
                 <Box sx={{ position: 'absolute', bottom: -150, left: -100, width: 600, height: 600, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%)', animation: `${float} 10s ease-in-out infinite`, animationDelay: '2s' }} />
-                <Box sx={{ position: 'absolute', top: '30%', left: '10%', width: 200, height: 200, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,193,7,0.08) 0%, transparent 70%)', animation: `${float} 6s ease-in-out infinite`, animationDelay: '1s' }} />
+                <Box sx={{ position: 'absolute', top: '30%', left: '10%', width: 200, height: 200, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,193,7,0.08) 0%, transparent 70%)', animation: `${float} 6s ease-in-out infinite`, animationDelay: '1s' }} /> */}
 
-                {/* Rotating Rings */}
-                <Box sx={{ position: 'absolute', top: '10%', right: '-20%', width: 600, height: 600, borderRadius: '50%', border: '2px dashed rgba(255,193,7,0.15)', animation: `${rotate} 60s linear infinite` }} />
-                <Box sx={{ position: 'absolute', bottom: '-30%', left: '-10%', width: 400, height: 400, borderRadius: '50%', border: '2px dashed rgba(255,255,255,0.1)', animation: `${rotateReverse} 50s linear infinite` }} />
+                {/* Rotating Rings - REMOVED */}
+                {/* <Box sx={{ position: 'absolute', top: '10%', right: '-20%', width: 600, height: 600, borderRadius: '50%', border: '2px dashed rgba(255,193,7,0.15)', animation: `${rotate} 60s linear infinite` }} />
+                <Box sx={{ position: 'absolute', bottom: '-30%', left: '-10%', width: 400, height: 400, borderRadius: '50%', border: '2px dashed rgba(255,255,255,0.1)', animation: `${rotateReverse} 50s linear infinite` }} /> */}
 
                 {/* Grid Pattern */}
                 <Box
@@ -1031,9 +1031,9 @@ export default function Contact() {
                     overflow: 'hidden',
                 }}
             >
-                {/* Background Elements */}
-                <Box sx={{ position: 'absolute', top: -50, right: -50, width: 300, height: 300, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,193,7,0.1) 0%, transparent 70%)' }} />
-                <Box sx={{ position: 'absolute', bottom: -50, left: -50, width: 250, height: 250, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%)' }} />
+                {/* Background Elements - REMOVED */}
+                {/* <Box sx={{ position: 'absolute', top: -50, right: -50, width: 300, height: 300, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,193,7,0.1) 0%, transparent 70%)' }} />
+                <Box sx={{ position: 'absolute', bottom: -50, left: -50, width: 250, height: 250, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%)' }} /> */}
 
                 <Container maxWidth="md" sx={{ position: 'relative', zIndex: 2, textAlign: 'center' }}>
                     <Box

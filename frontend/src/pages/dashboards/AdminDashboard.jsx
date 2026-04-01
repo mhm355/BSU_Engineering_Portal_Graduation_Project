@@ -13,7 +13,8 @@ import {
     IconButton,
     Chip,
     Fade,
-    Grow
+    Grow,
+    CircularProgress,
 } from '@mui/material';
 import { keyframes } from '@mui/system';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
@@ -58,37 +59,37 @@ const StatCard = ({ icon: Icon, value, label, color, delay = 0 }) => (
         <Paper
             elevation={0}
             sx={{
-                p: 3,
-                borderRadius: 4,
+                p: 2,
+                borderRadius: 3,
                 background: '#fff',
-                boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                boxShadow: '0 2px 10px rgba(0,0,0,0.08)',
                 border: '1px solid rgba(0,0,0,0.06)',
                 transition: 'all 0.3s ease',
                 cursor: 'pointer',
                 '&:hover': {
-                    transform: 'translateY(-5px)',
-                    boxShadow: `0 20px 40px ${color}25`,
+                    transform: 'translateY(-3px)',
+                    boxShadow: `0 10px 20px ${color}25`,
                 }
             }}
         >
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                 <Box
                     sx={{
-                        width: 60,
-                        height: 60,
-                        borderRadius: 3,
+                        width: 45,
+                        height: 45,
+                        borderRadius: 2,
                         background: `linear-gradient(135deg, ${color}, ${color}cc)`,
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        boxShadow: `0 8px 24px ${color}40`,
+                        boxShadow: `0 4px 12px ${color}40`,
                     }}
                 >
-                    <Icon sx={{ fontSize: 30, color: '#fff' }} />
+                    <Icon sx={{ fontSize: 22, color: '#fff' }} />
                 </Box>
                 <Box>
                     <Typography
-                        variant="h4"
+                        variant="h5"
                         sx={{
                             fontWeight: 'bold',
                             color: '#1a2744',
@@ -99,7 +100,7 @@ const StatCard = ({ icon: Icon, value, label, color, delay = 0 }) => (
                         {value}
                     </Typography>
                     <Typography
-                        variant="body2"
+                        variant="caption"
                         sx={{
                             color: '#666',
                             fontFamily: 'Cairo'
@@ -119,22 +120,22 @@ const NavCard = ({ icon: Icon, title, description, buttonText, onClick, gradient
         <Card
             sx={{
                 height: '100%',
-                borderRadius: 4,
+                borderRadius: 3,
                 background: '#fff',
-                boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                boxShadow: '0 2px 10px rgba(0,0,0,0.08)',
                 border: '1px solid rgba(0,0,0,0.06)',
                 overflow: 'hidden',
                 position: 'relative',
-                transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                 cursor: 'pointer',
                 '&:hover': {
-                    transform: 'translateY(-8px) scale(1.02)',
-                    boxShadow: '0 30px 60px rgba(0,0,0,0.15)',
+                    transform: 'translateY(-4px)',
+                    boxShadow: '0 15px 30px rgba(0,0,0,0.12)',
                     '& .card-icon': {
-                        transform: 'scale(1.1) rotate(5deg)',
+                        transform: 'scale(1.05) rotate(3deg)',
                     },
                     '& .card-arrow': {
-                        transform: 'translateX(-10px)',
+                        transform: 'translateX(-5px)',
                         opacity: 1,
                     },
                     '& .card-gradient': {
@@ -155,11 +156,11 @@ const NavCard = ({ icon: Icon, title, description, buttonText, onClick, gradient
                     bottom: 0,
                     background: gradient,
                     opacity: 0.03,
-                    transition: 'opacity 0.4s ease',
+                    transition: 'opacity 0.3s ease',
                 }}
             />
 
-            <CardContent sx={{ p: 4, position: 'relative', zIndex: 1 }}>
+            <CardContent sx={{ p: 2.5, position: 'relative', zIndex: 1 }}>
                 {/* Badge */}
                 {badge > 0 && (
                     <Badge
@@ -168,14 +169,13 @@ const NavCard = ({ icon: Icon, title, description, buttonText, onClick, gradient
                         max={99}
                         sx={{
                             position: 'absolute',
-                            top: 20,
-                            left: 20,
+                            top: 16,
+                            left: 16,
                             '& .MuiBadge-badge': {
-                                animation: `${pulse} 2s infinite`,
-                                fontSize: 14,
-                                height: 26,
-                                minWidth: 26,
-                                borderRadius: 13,
+                                fontSize: 12,
+                                height: 20,
+                                minWidth: 20,
+                                borderRadius: 10,
                             }
                         }}
                     >
@@ -187,29 +187,29 @@ const NavCard = ({ icon: Icon, title, description, buttonText, onClick, gradient
                 <Box
                     className="card-icon"
                     sx={{
-                        width: 80,
-                        height: 80,
-                        borderRadius: 4,
+                        width: 55,
+                        height: 55,
+                        borderRadius: 3,
                         background: gradient,
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        mb: 3,
-                        boxShadow: '0 15px 35px rgba(0,0,0,0.15)',
-                        transition: 'transform 0.4s ease',
+                        mb: 2,
+                        boxShadow: '0 8px 20px rgba(0,0,0,0.12)',
+                        transition: 'transform 0.3s ease',
                     }}
                 >
-                    <Icon sx={{ fontSize: 40, color: '#fff' }} />
+                    <Icon sx={{ fontSize: 28, color: '#fff' }} />
                 </Box>
 
                 {/* Title */}
                 <Typography
-                    variant="h5"
+                    variant="h6"
                     sx={{
                         fontFamily: 'Cairo',
                         fontWeight: 'bold',
                         color: '#1a2744',
-                        mb: 1,
+                        mb: 0.5,
                     }}
                 >
                     {title}
@@ -217,12 +217,12 @@ const NavCard = ({ icon: Icon, title, description, buttonText, onClick, gradient
 
                 {/* Description */}
                 <Typography
-                    variant="body1"
+                    variant="body2"
                     sx={{
                         fontFamily: 'Cairo',
                         color: '#666',
-                        mb: 3,
-                        minHeight: 48,
+                        mb: 2,
+                        minHeight: 40,
                     }}
                 >
                     {description}
@@ -232,20 +232,20 @@ const NavCard = ({ icon: Icon, title, description, buttonText, onClick, gradient
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <Button
                         variant="contained"
-                        size="large"
+                        size="medium"
                         sx={{
                             background: gradient,
                             fontFamily: 'Cairo',
                             fontWeight: 'bold',
-                            px: 4,
-                            py: 1.5,
-                            borderRadius: 3,
+                            px: 3,
+                            py: 1,
+                            borderRadius: 2,
                             textTransform: 'none',
-                            fontSize: '1rem',
-                            boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
+                            fontSize: '0.9rem',
+                            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
                             '&:hover': {
                                 background: gradient,
-                                boxShadow: '0 12px 32px rgba(0,0,0,0.2)',
+                                boxShadow: '0 6px 16px rgba(0,0,0,0.15)',
                             }
                         }}
                     >
@@ -255,8 +255,8 @@ const NavCard = ({ icon: Icon, title, description, buttonText, onClick, gradient
                         className="card-arrow"
                         sx={{
                             color: '#ccc',
-                            fontSize: 28,
-                            transition: 'all 0.4s ease',
+                            fontSize: 20,
+                            transition: 'all 0.3s ease',
                             opacity: 0,
                             transform: 'translateX(0)',
                         }}
@@ -339,7 +339,13 @@ export default function AdminDashboard() {
         return () => clearInterval(timer);
     }, [navigate]);
 
-    if (!user) return null;
+    if (!user) {
+        return (
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
+                <CircularProgress size={60} />
+            </Box>
+        );
+    }
 
     const formatDate = (date) => {
         const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -475,8 +481,8 @@ export default function AdminDashboard() {
                     overflow: 'hidden',
                 }}
             >
-                {/* Animated Background Elements */}
-                <Box
+                {/* Decorative elements - REMOVED floating white circles */}
+                {/* <Box
                     sx={{
                         position: 'absolute',
                         top: -100,
@@ -500,7 +506,7 @@ export default function AdminDashboard() {
                         animation: `${float} 8s ease-in-out infinite`,
                         animationDelay: '2s',
                     }}
-                />
+                /> */}
 
                 <Container maxWidth="xl">
                     <Fade in={true} timeout={800}>
@@ -509,11 +515,11 @@ export default function AdminDashboard() {
                             <Avatar
                                 src={user.profile_picture || undefined}
                                 sx={{
-                                    width: 100,
-                                    height: 100,
-                                    border: '4px solid rgba(255,255,255,0.3)',
-                                    boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
-                                    fontSize: 40,
+                                    width: 70,
+                                    height: 70,
+                                    border: '3px solid rgba(255,255,255,0.3)',
+                                    boxShadow: '0 8px 20px rgba(0,0,0,0.3)',
+                                    fontSize: 28,
                                     bgcolor: '#4F46E5',
                                     color: '#fff',
                                 }}
@@ -523,12 +529,12 @@ export default function AdminDashboard() {
 
                             <Box sx={{ flexGrow: 1 }}>
                                 <Typography
-                                    variant="h3"
+                                    variant="h4"
                                     sx={{
                                         fontFamily: 'Cairo',
                                         fontWeight: 'bold',
                                         color: '#fff',
-                                        textShadow: '0 4px 20px rgba(0,0,0,0.3)',
+                                        textShadow: '0 2px 10px rgba(0,0,0,0.3)',
                                         mb: 0.5,
                                     }}
                                 >
@@ -594,9 +600,9 @@ export default function AdminDashboard() {
                 </Container>
             </Box>
 
-            <Container maxWidth="xl">
+            <Container maxWidth="xl" sx={{ pb: 4 }}>
                 {/* Stats Row */}
-                <Grid container spacing={3} sx={{ mb: 5 }}>
+                <Grid container spacing={2} sx={{ mb: 3 }}>
                     <Grid item xs={12} sm={6} md={3}>
                         <StatCard
                             icon={GroupIcon}
@@ -636,9 +642,9 @@ export default function AdminDashboard() {
                 </Grid>
 
                 {/* Section Title */}
-                <Box sx={{ mb: 4 }}>
+                <Box sx={{ mb: 3 }}>
                     <Typography
-                        variant="h4"
+                        variant="h5"
                         sx={{
                             fontFamily: 'Cairo',
                             fontWeight: 'bold',
@@ -649,7 +655,7 @@ export default function AdminDashboard() {
                         لوحة التحكم
                     </Typography>
                     <Typography
-                        variant="body1"
+                        variant="body2"
                         sx={{
                             fontFamily: 'Cairo',
                             color: '#64748B',
@@ -660,18 +666,18 @@ export default function AdminDashboard() {
                 </Box>
 
                 {/* Navigation Cards Grid */}
-                <Grid container spacing={4}>
+                <Grid container spacing={2}>
                     {navigationCards.map((card, index) => (
                         <Grid item xs={12} key={index}>
-                            <DashboardCard
+                            <NavCard
                                 icon={card.icon}
                                 title={card.title}
                                 description={card.description}
                                 buttonText={card.buttonText}
                                 onClick={card.onClick}
-                                color={card.color}
-                                count={card.badge > 0 ? card.badge : null}
-                                disabled={card.disabled}
+                                gradient={card.gradient}
+                                delay={index * 100}
+                                badge={card.badge}
                             />
                         </Grid>
                     ))}
