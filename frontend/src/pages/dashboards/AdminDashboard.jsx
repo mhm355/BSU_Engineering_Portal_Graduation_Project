@@ -666,7 +666,7 @@ export default function AdminDashboard() {
                 </Box>
 
                 {/* Navigation Cards Grid */}
-                <Grid container spacing={2}>
+                <Grid container spacing={2} direction="column">
                     {navigationCards.map((card, index) => (
                         <Grid item xs={12} key={index}>
                             <NavCard

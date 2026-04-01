@@ -379,7 +379,7 @@ export default function StudentAffairsDashboard() {
                 </Paper>
 
                 {/* Navigation Cards */}
-                <Grid container spacing={2}>
+                <Grid container spacing={2} direction="column">
                     {navigationCards.map((card, idx) => (
                         <Grid item xs={12} key={idx}>
                             <DashboardCard

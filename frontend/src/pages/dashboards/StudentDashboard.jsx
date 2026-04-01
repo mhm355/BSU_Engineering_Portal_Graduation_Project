@@ -510,7 +510,7 @@ export default function StudentDashboard() {
                 <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744', mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
                     <StarIcon sx={{ color: '#FFD700' }} /> الوصول السريع
                 </Typography>
-                <Grid container spacing={2} sx={{ mb: 3 }}>
+                <Grid container spacing={2} sx={{ mb: 3 }} direction="column">
                     {quickActions.map((action, index) => (
                         <Grid item xs={12} key={index}>
                             <DashboardCard

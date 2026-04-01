@@ -156,7 +156,7 @@ export default function DoctorDashboard() {
       </AccordionSummary>
       <AccordionDetails sx={{ p: 4, bgcolor: '#fafafa' }}>
         {courses.length > 0 ? (
-          <Grid container spacing={3}>
+          <Grid container spacing={3} direction="column">
             {courses.map((course, index) => (
               <Grid item xs={12} key={course.id}>
                 <CourseCard course={course} index={index} />

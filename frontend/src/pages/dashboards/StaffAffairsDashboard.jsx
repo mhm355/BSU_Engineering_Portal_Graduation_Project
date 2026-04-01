@@ -341,7 +341,7 @@ const StaffAffairsDashboard = () => {
                 <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744', mb: 2 }}>
                     الإجراءات السريعة
                 </Typography>
-                <Grid container spacing={2}>
+                <Grid container spacing={2} direction="column">
                     {dashboardCards.map((card, index) => (
                         <Grid item xs={12} key={index}>
                             <DashboardCard

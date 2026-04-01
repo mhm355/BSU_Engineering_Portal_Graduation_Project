@@ -263,11 +263,13 @@ export default function Home() {
             <Box
                 sx={{
                     position: 'relative',
-                    minHeight: { xs: '90vh', md: '85vh' },
+                    minHeight: { xs: '100vh', md: '95vh' },
                     display: 'flex',
                     alignItems: 'center',
                     overflow: 'hidden',
                     background: (theme) => `linear-gradient(135deg, ${theme.palette.primary.dark} 0%, ${theme.palette.primary.main} 100%)`,
+                    pt: 4,
+                    pb: 12,
                 }}
             >
                 {/* Subtle decorative element - REMOVED white circle */}
@@ -407,7 +409,7 @@ export default function Home() {
                         bottom: 0,
                         left: 0,
                         right: 0,
-                        height: 100,
+                        height: 60,
                         background: 'linear-gradient(to top, #fafbfc, transparent)',
                     }}
                 />
@@ -415,7 +417,7 @@ export default function Home() {
 
             {/* Features Section */}
             <Container maxWidth="lg" sx={{ py: 6, mt: -6, position: 'relative', zIndex: 3 }}>
-                <Grid container spacing={3}>
+                <Grid container spacing={3} direction="column">
                     {features.map((feature, index) => (
                         <Grid item xs={12} key={index}>
                             <FeatureCard {...feature} delay={index * 100} />

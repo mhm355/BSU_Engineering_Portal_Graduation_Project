@@ -311,9 +311,9 @@ export default function ManageStaffNews() {
                         </Button>
                     </Paper>
                 ) : (
-                    <Grid container spacing={3}>
+                    <Grid container spacing={3} direction="column">
                         {news.map((item, index) => (
-                            <Grid item xs={12} md={6} key={item.id}>
+                            <Grid item xs={12} key={item.id}>
                                 <Grow in={true} timeout={400 + index * 100}>
                                     <Card elevation={0} sx={{
                                         borderRadius: 4,
