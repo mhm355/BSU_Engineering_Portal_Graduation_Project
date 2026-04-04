@@ -337,6 +337,14 @@ class PreviewStudentsUploadView(APIView):
                 if row_errors:
                     validation_errors.extend([f"صف {index + 2}: {', '.join(row_errors)}"])
 
+            # Validate specialization column - REQUIRED for Electrical department
+            if department.code == 'ELECT' or department.name == 'الهندسة الكهربية':
+                if 'specialization' not in df.columns:
+                    validation_errors.append(
+                        'عمود specialization إلزامي للهندسة الكهربية. ' 
+                        'يجب إضافة عمود specialization بقيم ece (هندسة اتصالات) أو epm (هندسة قوى)'
+                    )
+
             # Summary statistics
             total_rows = len(df)
             unique_departments = df['department'].dropna().astype(str).str.strip().unique().tolist()
@@ -491,24 +499,46 @@ class UploadStudentsView(APIView):
                         if not level_exists:
                             validation_errors.append(f'فرقة غير موجودة: "{csv_level}"')
             
-            # Validate specialization column - optional but must match if provided
-            if 'specialization' in df.columns:
-                csv_specializations = df['specialization'].dropna().astype(str).str.strip().unique()
-                for csv_spec in csv_specializations:
-                    if csv_spec:
-                        if specialization:
-                            # Check if CSV specialization matches UI selection using helper
-                            if not match_specialization(csv_spec, specialization):
+            # Validate specialization column - REQUIRED for Electrical department
+            if department.code == 'ELECT' or department.name == 'الهندسة الكهربية':
+                if 'specialization' not in df.columns:
+                    validation_errors.append(
+                        'عمود specialization إلزامي للهندسة الكهربية. ' 
+                        'يجب إضافة عمود specialization بقيم ece (هندسة اتصالات) أو epm (هندسة قوى)'
+                    )
+                else:
+                    csv_specializations = df['specialization'].dropna().astype(str).str.strip().unique()
+                    for csv_spec in csv_specializations:
+                        if csv_spec:
+                            if specialization:
+                                # Check if CSV specialization matches UI selection using helper
+                                if not match_specialization(csv_spec, specialization):
+                                    validation_errors.append(
+                                        f'تخصص في الملف "{csv_spec}" لا يطابق التخصص المحدد في الواجهة "{specialization.name}". '
+                                        f'يرجى التحقق من اختيار التخصص الصحيح'
+                                    )
+                            else:
+                                # No specialization selected in UI but CSV has specialization column
                                 validation_errors.append(
-                                    f'تخصص في الملف "{csv_spec}" لا يطابق التخصص المحدد في الواجهة "{specialization.name}". '
-                                    f'يرجى التحقق من اختيار التخصص الصحيح أو إزالة عمود specialization من الملف'
+                                    f'لم يتم اختيار تخصص في الواجهة. يرجى اختيار التخصص أولاً'
                                 )
-                        else:
-                            # No specialization selected in UI but CSV has specialization column
-                            validation_errors.append(
-                                f'عمود specialization موجود في الملف ("{csv_spec}") ولكن لم يتم اختيار تخصص في الواجهة. '
-                                f'يرجى اختيار التخصص في الواجهة أولاً أو إزالة عمود specialization من الملف'
-                            )
+            else:
+                # For non-electrical departments, specialization is optional but must match if provided
+                if 'specialization' in df.columns:
+                    csv_specializations = df['specialization'].dropna().astype(str).str.strip().unique()
+                    for csv_spec in csv_specializations:
+                        if csv_spec:
+                            if specialization:
+                                if not match_specialization(csv_spec, specialization):
+                                    validation_errors.append(
+                                        f'تخصص في الملف "{csv_spec}" لا يطابق التخصص المحدد في الواجهة "{specialization.name}". '
+                                        f'يرجى التحقق من اختيار التخصص الصحيح أو إزالة عمود specialization من الملف'
+                                    )
+                            else:
+                                validation_errors.append(
+                                    f'عمود specialization موجود في الملف ("{csv_spec}") ولكن لم يتم اختيار تخصص في الواجهة. '
+                                    f'يرجى اختيار التخصص في الواجهة أولاً أو إزالة عمود specialization من الملف'
+                                )
             
             if validation_errors:
                 return Response(
