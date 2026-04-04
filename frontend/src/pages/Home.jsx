@@ -336,7 +336,7 @@ export default function Home() {
                                     >
                                         صرح تعليمي رائد لإعداد مهندسين مبتكرين يساهمون في بناء المستقبل وتطوير المجتمع من خلال التعليم والبحث العلمي.
                                     </Typography>
-                                    <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                                    <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', position: 'relative', zIndex: 10 }}>
                                         <Button
                                             component={Link}
                                             to="/login"
@@ -344,17 +344,19 @@ export default function Home() {
                                             size="large"
                                             startIcon={<LoginIcon />}
                                             sx={{
-                                                bgcolor: 'white',
-                                                color: 'primary.main',
+                                                bgcolor: '#fff',
+                                                color: '#1e3c72',
                                                 fontWeight: 700,
-                                                px: 5,
-                                                py: 2,
-                                                fontSize: '1.1rem',
+                                                px: 4,
+                                                py: 1.5,
+                                                fontSize: '1rem',
                                                 borderRadius: 2,
-                                                boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
+                                                boxShadow: '0 4px 15px rgba(0,0,0,0.3)',
+                                                border: '2px solid #fff',
                                                 '&:hover': {
                                                     bgcolor: 'rgba(255,255,255,0.9)',
                                                     transform: 'translateY(-2px)',
+                                                    boxShadow: '0 6px 20px rgba(0,0,0,0.4)',
                                                 }
                                             }}
                                         >

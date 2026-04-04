@@ -517,9 +517,9 @@ export default function StudentDashboard() {
                                 icon={action.icon}
                                 title={action.title}
                                 description={action.description}
-                                buttonText={action.buttonText}
-                                onClick={action.onClick}
-                                color={action.color}
+                                buttonText="عرض"
+                                onClick={() => navigate(action.path)}
+                                color={index === 0 ? 'primary' : index === 1 ? 'secondary' : index === 2 ? 'info' : index === 3 ? 'warning' : 'purple'}
                             />
                         </Grid>
                     ))}
