@@ -500,6 +500,8 @@ class UploadStudentsView(APIView):
                             validation_errors.append(f'فرقة غير موجودة: "{csv_level}"')
             
             # Validate specialization column - REQUIRED for Electrical department
+            # Support mixed specializations: if CSV has specialization column, use it per-row
+            allow_mixed_specializations = False
             if department.code == 'ELECT' or department.name == 'الهندسة الكهربية':
                 if 'specialization' not in df.columns:
                     validation_errors.append(
@@ -507,21 +509,28 @@ class UploadStudentsView(APIView):
                         'يجب إضافة عمود specialization بقيم ece (هندسة اتصالات) أو epm (هندسة قوى)'
                     )
                 else:
+                    # Check if all specializations in CSV are valid
+                    from .models import Specialization
                     csv_specializations = df['specialization'].dropna().astype(str).str.strip().unique()
+                    valid_specs = Specialization.objects.filter(department=department)
                     for csv_spec in csv_specializations:
                         if csv_spec:
-                            if specialization:
-                                # Check if CSV specialization matches UI selection using helper
-                                if not match_specialization(csv_spec, specialization):
-                                    validation_errors.append(
-                                        f'تخصص في الملف "{csv_spec}" لا يطابق التخصص المحدد في الواجهة "{specialization.name}". '
-                                        f'يرجى التحقق من اختيار التخصص الصحيح'
-                                    )
-                            else:
-                                # No specialization selected in UI but CSV has specialization column
+                            # Check if this specialization exists for this department
+                            spec_exists = any(
+                                match_specialization(csv_spec, spec) for spec in valid_specs
+                            )
+                            if not spec_exists:
                                 validation_errors.append(
-                                    f'لم يتم اختيار تخصص في الواجهة. يرجى اختيار التخصص أولاً'
+                                    f'تخصص "{csv_spec}" في الملف غير موجود في قسم {department.name}'
                                 )
+                            elif specialization:
+                                # If UI specialization selected, check if CSV value matches
+                                if not match_specialization(csv_spec, specialization):
+                                    # Allow mixed - don't error, just note it
+                                    allow_mixed_specializations = True
+                            else:
+                                # No UI specialization but CSV has it - allow mixed
+                                allow_mixed_specializations = True
             else:
                 # For non-electrical departments, specialization is optional but must match if provided
                 if 'specialization' in df.columns:
@@ -546,15 +555,15 @@ class UploadStudentsView(APIView):
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
-            # Process students with multi-level support
-            results = self._process_students(df, department, academic_year, level, specialization, request.user)
+            # Process students with multi-level and multi-specialization support
+            results = self._process_students(df, department, academic_year, level, specialization, request.user, allow_mixed_specializations)
             return Response(results, status=status.HTTP_201_CREATED)
 
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    def _process_students(self, df, department, academic_year, default_level, specialization, performed_by):
-        """Process student data and create accounts with multi-level support"""
+    def _process_students(self, df, department, academic_year, default_level, default_specialization, performed_by, allow_mixed_specializations=False):
+        """Process student data and create accounts with multi-level and multi-specialization support"""
         created_count = 0
         updated_count = 0
         errors = []
@@ -588,6 +597,29 @@ class UploadStudentsView(APIView):
                             errors.append(f"صف {index + 2}: الفرقة '{level_value}' غير موجودة")
                             continue
 
+                    # Determine specialization for this row (supports mixed specializations)
+                    row_specialization = default_specialization
+                    if allow_mixed_specializations and 'specialization' in df.columns:
+                        spec_value = str(row['specialization']).strip()
+                        # Try to find specialization by code or name
+                        from .models import Specialization
+                        try:
+                            # Try by code first (ece, epm)
+                            row_specialization = Specialization.objects.get(
+                                Q(code__iexact=spec_value) | Q(name__iexact=spec_value),
+                                department=department
+                            )
+                        except Specialization.DoesNotExist:
+                            # Try matching with helper function
+                            all_specs = Specialization.objects.filter(department=department)
+                            for spec in all_specs:
+                                if match_specialization(spec_value, spec):
+                                    row_specialization = spec
+                                    break
+                            else:
+                                errors.append(f"صف {index + 2}: التخصص '{spec_value}' غير موجود")
+                                continue
+
                     # Check if student exists
                     student_exists = Student.objects.filter(national_id=national_id).exists()
                     user_exists = User.objects.filter(username=national_id).exists()
@@ -599,8 +631,8 @@ class UploadStudentsView(APIView):
                         student.level = row_level
                         student.academic_year = academic_year
                         student.department = department
-                        if specialization:
-                            student.specialization = specialization
+                        if row_specialization:
+                            student.specialization = row_specialization
                         student.save()
                         
                         # Update user email if provided
@@ -626,7 +658,7 @@ class UploadStudentsView(APIView):
                             level=row_level,
                             academic_year=academic_year,
                             department=department,
-                            specialization=specialization
+                            specialization=row_specialization
                         )
                         updated_count += 1
                     else:
@@ -649,7 +681,7 @@ class UploadStudentsView(APIView):
                             level=row_level,
                             academic_year=academic_year,
                             department=department,
-                            specialization=specialization
+                            specialization=row_specialization
                         )
                         created_count += 1
 
