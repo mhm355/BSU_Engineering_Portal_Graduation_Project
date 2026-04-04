@@ -365,13 +365,14 @@ class PreviewStudentsUploadView(APIView):
 
             # Validate specialization column for Electrical department (only for levels with specializations)
             if department.code == 'ELECT' or department.name == 'الهندسة الكهربية':
-                # Check if any row in CSV is from a level that requires specialization
-                levels_with_specializations = ['SECOND', 'THIRD', 'FOURTH', 'الفرقة الثانية', 'الفرقة الثالثة', 'الفرقة الرابعة']
+                # Check if any row in CSV is from a level that requires specialization (not FIRST/PREP)
+                levels_without_specializations = ['FIRST', 'الفرقة الأولى', 'PREPARATORY', 'الفرقة الإعدادية', 'PREP']
                 
                 has_level_requiring_spec = False
                 if 'level' in df.columns:
                     for lvl in df['level'].dropna().astype(str).str.strip().unique():
-                        if any(ls in lvl.upper() or ls in lvl for ls in levels_with_specializations):
+                        lvl_upper = lvl.upper()
+                        if lvl and not any(ls in lvl_upper or ls in lvl for ls in levels_without_specializations):
                             has_level_requiring_spec = True
                             break
                 
