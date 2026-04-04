@@ -261,9 +261,9 @@ export default function StudentAffairsDashboard() {
             <Box
                 sx={{
                     background: 'linear-gradient(135deg, #1976D2 0%, #42A5F5 100%)',
-                    pt: 3,
-                    pb: 4,
-                    mb: 3,
+                    pt: 2.5,
+                    pb: 3,
+                    mb: 2.5,
                     position: 'relative',
                     overflow: 'hidden',
                 }}
@@ -280,11 +280,11 @@ export default function StudentAffairsDashboard() {
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
                                     <Avatar
                                         sx={{
-                                            width: 70,
-                                            height: 70,
+                                            width: 50,
+                                            height: 50,
                                             bgcolor: 'rgba(255,255,255,0.2)',
                                             backdropFilter: 'blur(10px)',
-                                            fontSize: 28,
+                                            fontSize: 24,
                                             fontFamily: 'Cairo',
                                             fontWeight: 'bold',
                                         }}
@@ -292,10 +292,10 @@ export default function StudentAffairsDashboard() {
                                         {user.first_name?.charAt(0)}{user.last_name?.charAt(0)}
                                     </Avatar>
                                     <Box>
-                                        <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff', textShadow: '0 2px 10px rgba(0,0,0,0.2)' }}>
+                                        <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff', textShadow: '0 2px 10px rgba(0,0,0,0.2)' }}>
                                             مرحباً، {user.first_name} {user.last_name}
                                         </Typography>
-                                        <Typography variant="h6" sx={{ fontFamily: 'Cairo', color: 'rgba(255,255,255,0.9)' }}>
+                                        <Typography variant="subtitle1" sx={{ fontFamily: 'Cairo', color: 'rgba(255,255,255,0.9)' }}>
                                             لوحة تحكم شؤون الطلاب
                                         </Typography>
                                     </Box>
@@ -363,14 +363,14 @@ export default function StudentAffairsDashboard() {
                 <Paper
                     elevation={0}
                     sx={{
-                        p: 3,
-                        mb: 3,
+                        p: 2.5,
+                        mb: 2.5,
                         borderRadius: 4,
                         background: '#fff',
                         boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
                     }}
                 >
-                    <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>
+                    <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>
                         الخدمات المتاحة
                     </Typography>
                     <Typography variant="body2" sx={{ fontFamily: 'Cairo', color: '#666' }}>

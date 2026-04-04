@@ -108,7 +108,7 @@ const AcademicStructure = () => {
     return (
         <Box sx={{ minHeight: '100vh', background: 'linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%)', pb: 6 }}>
             {/* Hero Header */}
-            <Box sx={{ background: 'linear-gradient(135deg, #0288d1 0%, #03a9f4 100%)', pt: 4, pb: 6, mb: 4, position: 'relative', overflow: 'hidden' }}>
+            <Box sx={{ background: 'linear-gradient(135deg, #0288d1 0%, #03a9f4 100%)', pt: 3, pb: 4, mb: 3, position: 'relative', overflow: 'hidden' }}>
                 {/* Decorative circles - REMOVED */}
                 {/* <Box sx={{ position: 'absolute', top: -50, right: -50, width: 200, height: 200, borderRadius: '50%', background: 'rgba(255,255,255,0.15)', animation: `${float} 6s ease-in-out infinite` }} />
                 <Box sx={{ position: 'absolute', bottom: -80, left: -80, width: 300, height: 300, borderRadius: '50%', background: 'rgba(255,255,255,0.1)', animation: `${float} 8s ease-in-out infinite`, animationDelay: '2s' }} /> */}
@@ -120,14 +120,14 @@ const AcademicStructure = () => {
                                 العودة للوحة التحكم
                             </Button>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-                                <Avatar sx={{ width: 80, height: 80, bgcolor: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(10px)' }}>
-                                    <TreeIcon sx={{ fontSize: 45, color: '#fff' }} />
+                                <Avatar sx={{ width: 55, height: 55, bgcolor: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(10px)' }}>
+                                    <TreeIcon sx={{ fontSize: 30, color: '#fff' }} />
                                 </Avatar>
                                 <Box>
-                                    <Typography variant="h3" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff', textShadow: '0 4px 20px rgba(0,0,0,0.2)' }}>
+                                    <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff', textShadow: '0 4px 20px rgba(0,0,0,0.2)' }}>
                                         الهيكل الأكاديمي
                                     </Typography>
-                                    <Typography variant="h6" sx={{ fontFamily: 'Cairo', color: 'rgba(255,255,255,0.9)' }}>
+                                    <Typography variant="subtitle1" sx={{ fontFamily: 'Cairo', color: 'rgba(255,255,255,0.9)' }}>
                                         عرض الأقسام والفرق والمواد (للقراءة فقط)
                                     </Typography>
                                 </Box>
@@ -141,7 +141,7 @@ const AcademicStructure = () => {
                 {error && <Alert severity="error" sx={{ mb: 3, fontFamily: 'Cairo', borderRadius: 3, fontSize: '1.1rem' }} onClose={() => setError(null)}>{error}</Alert>}
 
                 {/* Stats Row */}
-                <Grid container spacing={3} sx={{ mb: 4 }}>
+                <Grid container spacing={2} sx={{ mb: 3 }}>
                     <Grid item xs={12} sm={4}>
                         <Grow in={true} timeout={400}>
                             <Paper elevation={0} sx={{ p: 3, borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.08)', display: 'flex', alignItems: 'center', gap: 2 }}>

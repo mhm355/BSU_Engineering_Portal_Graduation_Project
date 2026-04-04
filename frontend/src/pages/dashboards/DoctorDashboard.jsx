@@ -178,7 +178,7 @@ export default function DoctorDashboard() {
   return (
     <Box sx={{ minHeight: '100vh', background: 'linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%)', pb: 6 }}>
       {/* Hero Header */}
-      <Box sx={{ background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)', pt: 3, pb: 4, mb: 3, position: 'relative', overflow: 'hidden' }}>
+      <Box sx={{ background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)', pt: 2.5, pb: 3, mb: 2.5, position: 'relative', overflow: 'hidden' }}>
         {/* Decorative circles - REMOVED */}
         {/* <Box sx={{ position: 'absolute', top: -50, right: -50, width: 200, height: 200, borderRadius: '50%', background: 'rgba(255,255,255,0.1)', animation: `${float} 6s ease-in-out infinite` }} />
         <Box sx={{ position: 'absolute', bottom: -80, left: -80, width: 300, height: 300, borderRadius: '50%', background: 'rgba(255,255,255,0.08)', animation: `${float} 8s ease-in-out infinite`, animationDelay: '2s' }} /> */}
@@ -190,15 +190,15 @@ export default function DoctorDashboard() {
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
                   <Avatar
                     src={user.profile_picture}
-                    sx={{ width: 70, height: 70, border: '3px solid rgba(255,255,255,0.3)', boxShadow: '0 8px 20px rgba(0,0,0,0.3)' }}
+                    sx={{ width: 50, height: 50, border: '3px solid rgba(255,255,255,0.3)', boxShadow: '0 8px 20px rgba(0,0,0,0.3)' }}
                   >
-                    <PersonIcon sx={{ fontSize: 35 }} />
+                    <PersonIcon sx={{ fontSize: 28 }} />
                   </Avatar>
                   <Box>
-                    <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff', textShadow: '0 2px 10px rgba(0,0,0,0.3)' }}>
+                    <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff', textShadow: '0 2px 10px rgba(0,0,0,0.3)' }}>
                       مرحباً، د. {user.first_name} {user.last_name}
                     </Typography>
-                    <Typography variant="h6" sx={{ fontFamily: 'Cairo', color: 'rgba(255,255,255,0.85)', mt: 0.5 }}>
+                    <Typography variant="subtitle1" sx={{ fontFamily: 'Cairo', color: 'rgba(255,255,255,0.85)', mt: 0.5 }}>
                       عضو هيئة تدريس - كلية الهندسة
                     </Typography>
                   </Box>
@@ -357,15 +357,15 @@ export default function DoctorDashboard() {
         )}
 
         {loading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}><CircularProgress size={60} /></Box>
+          <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}><CircularProgress size={50} /></Box>
         ) : courses.length === 0 ? (
           <Grow in={true} timeout={700}>
-            <Paper elevation={0} sx={{ p: 6, textAlign: 'center', borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}>
-              <MenuBookIcon sx={{ fontSize: 100, color: '#ddd', mb: 3 }} />
-              <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#666', mb: 2 }}>
+            <Paper elevation={0} sx={{ p: 5, textAlign: 'center', borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}>
+              <MenuBookIcon sx={{ fontSize: 80, color: '#ddd', mb: 2 }} />
+              <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#666', mb: 1.5 }}>
                 لا توجد مقررات معينة لك في هذا العام
               </Typography>
-              <Typography variant="h6" sx={{ fontFamily: 'Cairo', color: '#999' }}>
+              <Typography variant="subtitle1" sx={{ fontFamily: 'Cairo', color: '#999' }}>
                 سيقوم شئون العاملين بتعيين المقررات لك
               </Typography>
             </Paper>

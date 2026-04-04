@@ -412,7 +412,7 @@ export default function DoctorCourseDetail() {
     return (
         <Box sx={{ minHeight: '100vh', background: 'linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%)', pb: 6 }}>
             {/* Hero Header */}
-            <Box sx={{ background: 'linear-gradient(135deg, #0288d1 0%, #03a9f4 100%)', pt: 4, pb: 6, mb: 4, position: 'relative', overflow: 'hidden' }}>
+            <Box sx={{ background: 'linear-gradient(135deg, #0288d1 0%, #03a9f4 100%)', pt: 3, pb: 4, mb: 3, position: 'relative', overflow: 'hidden' }}>
                 {/* Decorative circles - REMOVED */}
                 {/* <Box sx={{ position: 'absolute', top: -50, right: -50, width: 200, height: 200, borderRadius: '50%', background: 'rgba(255,255,255,0.15)', animation: `${float} 6s ease-in-out infinite` }} />
                 <Box sx={{ position: 'absolute', bottom: -80, left: -80, width: 300, height: 300, borderRadius: '50%', background: 'rgba(255,255,255,0.1)', animation: `${float} 8s ease-in-out infinite`, animationDelay: '2s' }} /> */}
@@ -424,11 +424,11 @@ export default function DoctorCourseDetail() {
                                 العودة للوحة التحكم
                             </Button>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-                                <Avatar sx={{ width: 90, height: 90, bgcolor: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(10px)' }}>
-                                    <MenuBookIcon sx={{ fontSize: 50, color: '#fff' }} />
+                                <Avatar sx={{ width: 55, height: 55, bgcolor: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(10px)' }}>
+                                    <MenuBookIcon sx={{ fontSize: 30, color: '#fff' }} />
                                 </Avatar>
                                 <Box>
-                                    <Typography variant="h3" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff', textShadow: '0 4px 20px rgba(0,0,0,0.2)' }}>
+                                    <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff', textShadow: '0 4px 20px rgba(0,0,0,0.2)' }}>
                                         {course?.subject_name || 'المقرر'}
                                     </Typography>
                                     <Box sx={{ display: 'flex', gap: 1.5, mt: 1.5, flexWrap: 'wrap' }}>
@@ -578,9 +578,9 @@ export default function DoctorCourseDetail() {
                                     ))}
                                 </Grid>
                             ) : (
-                                <Box sx={{ textAlign: 'center', py: 8 }}>
-                                    <VideoLibraryIcon sx={{ fontSize: 80, color: '#ddd', mb: 2 }} />
-                                    <Typography variant="h5" sx={{ fontFamily: 'Cairo', color: '#999' }}>
+                                <Box sx={{ textAlign: 'center', py: 6 }}>
+                                    <VideoLibraryIcon sx={{ fontSize: 60, color: '#ddd', mb: 2 }} />
+                                    <Typography variant="h6" sx={{ fontFamily: 'Cairo', color: '#999' }}>
                                         {lectureFileTypeFilter ? 'لا توجد محاضرات من هذا النوع' : 'لم يتم رفع أي محاضرات بعد'}
                                     </Typography>
                                 </Box>

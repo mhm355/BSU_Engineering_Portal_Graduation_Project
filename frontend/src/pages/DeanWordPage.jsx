@@ -16,22 +16,22 @@ export default function DeanWordPage() {
                     borderRadius: 3
                 }}
             >
-                <Typography variant="h3" component="h1" gutterBottom sx={{ fontFamily: 'Cairo', fontWeight: 'bold', textAlign: 'center' }}>
+                <Typography variant="h4" component="h1" gutterBottom sx={{ fontFamily: 'Cairo', fontWeight: 'bold', textAlign: 'center' }}>
                     كلمة عميد الكلية
                 </Typography>
             </Paper>
 
             {/* Dean's Word */}
             <Paper elevation={3} sx={{ p: 4, borderRadius: 3, position: 'relative' }}>
-                <FormatQuoteIcon sx={{ fontSize: 60, color: '#4F46E5', opacity: 0.3, position: 'absolute', top: 20, right: 20 }} />
+                <FormatQuoteIcon sx={{ fontSize: 40, color: '#4F46E5', opacity: 0.3, position: 'absolute', top: 20, right: 20 }} />
 
                 <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 4 }}>
                     <Avatar
                         sx={{
-                            width: 120,
-                            height: 120,
+                            width: 80,
+                            height: 80,
                             bgcolor: '#4F46E5',
-                            fontSize: '2rem',
+                            fontSize: '1.5rem',
                             fontFamily: 'Cairo',
                             mb: 2
                         }}
@@ -68,7 +68,7 @@ export default function DeanWordPage() {
                     </Typography>
                 </Box>
 
-                <FormatQuoteIcon sx={{ fontSize: 60, color: '#4F46E5', opacity: 0.3, position: 'absolute', bottom: 20, left: 20, transform: 'rotate(180deg)' }} />
+                <FormatQuoteIcon sx={{ fontSize: 40, color: '#4F46E5', opacity: 0.3, position: 'absolute', bottom: 20, left: 20, transform: 'rotate(180deg)' }} />
             </Paper>
         </Container>
     );

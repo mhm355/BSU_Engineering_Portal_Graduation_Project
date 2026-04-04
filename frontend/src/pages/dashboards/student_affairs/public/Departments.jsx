@@ -24,11 +24,11 @@ export default function Departments() {
 
     return (
         <Container maxWidth="lg" sx={{ py: 8 }}>
-            <Box sx={{ textAlign: 'center', mb: 6 }}>
-                <Typography variant="h3" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B', mb: 2 }}>
+            <Box sx={{ textAlign: 'center', mb: 4 }}>
+                <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B', mb: 1.5 }}>
                     الأقسام الأكاديمية
                 </Typography>
-                <Typography variant="h6" color="textSecondary" sx={{ fontFamily: 'Cairo' }}>
+                <Typography variant="subtitle1" color="textSecondary" sx={{ fontFamily: 'Cairo' }}>
                     تضم كليتنا مجموعة من الأقسام المتميزة
                 </Typography>
             </Box>
@@ -36,7 +36,7 @@ export default function Departments() {
             {loading ? (
                 <Box sx={{ display: 'flex', justifyContent: 'center' }}><CircularProgress /></Box>
             ) : (
-                <Grid container spacing={4}>
+                <Grid container spacing={3}>
                     {departments.map((dept) => (
                         <Grid item xs={12} md={6} key={dept.id}>
                             <Card sx={{ display: 'flex', height: '100%', transition: '0.3s', '&:hover': { boxShadow: 6 } }}>

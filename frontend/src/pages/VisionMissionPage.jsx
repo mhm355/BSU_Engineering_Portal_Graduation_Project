@@ -28,10 +28,10 @@ export default function VisionMissionPage() {
                     borderRadius: 3
                 }}
             >
-                <Typography variant="h3" component="h1" gutterBottom sx={{ fontFamily: 'Cairo', fontWeight: 'bold', textAlign: 'center' }}>
+                <Typography variant="h4" component="h1" gutterBottom sx={{ fontFamily: 'Cairo', fontWeight: 'bold', textAlign: 'center' }}>
                     الرؤية والرسالة
                 </Typography>
-                <Typography variant="h6" sx={{ fontFamily: 'Cairo', textAlign: 'center', opacity: 0.9 }}>
+                <Typography variant="subtitle1" sx={{ fontFamily: 'Cairo', textAlign: 'center', opacity: 0.9 }}>
                     كلية الهندسة - جامعة بني سويف
                 </Typography>
             </Paper>
@@ -51,8 +51,8 @@ export default function VisionMissionPage() {
                         }}
                     >
                         <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-                            <VisibilityIcon sx={{ fontSize: 50, color: '#4F46E5', mr: 2 }} />
-                            <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B' }}>
+                            <VisibilityIcon sx={{ fontSize: 36, color: '#4F46E5', mr: 2 }} />
+                            <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B' }}>
                                 رؤية الكلية
                             </Typography>
                         </Box>
@@ -76,8 +76,8 @@ export default function VisionMissionPage() {
                         }}
                     >
                         <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-                            <TrackChangesIcon sx={{ fontSize: 50, color: '#14B8A6', mr: 2 }} />
-                            <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B' }}>
+                            <TrackChangesIcon sx={{ fontSize: 36, color: '#14B8A6', mr: 2 }} />
+                            <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B' }}>
                                 رسالة الكلية
                             </Typography>
                         </Box>
@@ -98,8 +98,8 @@ export default function VisionMissionPage() {
                         }}
                     >
                         <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-                            <FlagIcon sx={{ fontSize: 50, color: '#F59E0B', mr: 2 }} />
-                            <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B' }}>
+                            <FlagIcon sx={{ fontSize: 36, color: '#F59E0B', mr: 2 }} />
+                            <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B' }}>
                                 الأهداف الاستراتيجية
                             </Typography>
                         </Box>

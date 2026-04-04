@@ -143,14 +143,14 @@ export default function StudentMaterials() {
                                 العودة للوحة التحكم
                             </Button>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-                                <Avatar sx={{ width: 80, height: 80, bgcolor: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(10px)' }}>
-                                    <FolderIcon sx={{ fontSize: 45, color: '#fff' }} />
+                                <Avatar sx={{ width: 55, height: 55, bgcolor: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(10px)' }}>
+                                    <FolderIcon sx={{ fontSize: 30, color: '#fff' }} />
                                 </Avatar>
                                 <Box>
-                                    <Typography variant="h3" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff', textShadow: '0 4px 20px rgba(0,0,0,0.2)' }}>
+                                    <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff', textShadow: '0 4px 20px rgba(0,0,0,0.2)' }}>
                                         المحاضرات والمواد الدراسية
                                     </Typography>
-                                    <Typography variant="h6" sx={{ fontFamily: 'Cairo', color: 'rgba(255,255,255,0.9)' }}>
+                                    <Typography variant="subtitle1" sx={{ fontFamily: 'Cairo', color: 'rgba(255,255,255,0.9)' }}>
                                         {studentInfo?.department_name || ''} - {studentInfo?.level_display || ''}
                                         {studentInfo?.specialization_name ? ` - ${studentInfo.specialization_name}` : ''}
                                     </Typography>
@@ -209,8 +209,8 @@ export default function StudentMaterials() {
 
                 {subjects.length === 0 ? (
                     <Paper sx={{ p: 6, textAlign: 'center', borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}>
-                        <FolderIcon sx={{ fontSize: 80, color: '#ddd', mb: 2 }} />
-                        <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#666', mb: 1 }}>
+                        <FolderIcon sx={{ fontSize: 60, color: '#ddd', mb: 2 }} />
+                        <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#666', mb: 1 }}>
                             لا توجد مقررات متاحة حالياً
                         </Typography>
                         <Typography variant="body1" sx={{ fontFamily: 'Cairo', color: '#999' }}>

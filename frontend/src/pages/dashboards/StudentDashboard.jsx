@@ -245,11 +245,11 @@ export default function StudentDashboard() {
                 backgroundSize: '200% 200%',
                 animation: `${shimmer} 15s ease infinite`,
                 color: '#fff',
-                py: 4,
+                py: 3,
                 px: 3,
                 position: 'relative',
                 overflow: 'hidden',
-                borderRadius: { xs: 0, md: '0 0 40px 40px' },
+                borderRadius: { xs: 0, md: '0 0 30px 30px' },
             }}>
                 {/* Decorative circles - REMOVED */}
                 {/* <Box sx={{ position: 'absolute', top: -100, right: -100, width: 300, height: 300, borderRadius: '50%', bgcolor: 'rgba(255,255,255,0.05)' }} />
@@ -261,19 +261,19 @@ export default function StudentDashboard() {
                             <Avatar
                                 src={user.profile_picture}
                                 sx={{
-                                    width: 70,
-                                    height: 70,
+                                    width: 50,
+                                    height: 50,
                                     border: '3px solid rgba(255,255,255,0.3)',
                                     boxShadow: '0 8px 20px rgba(0,0,0,0.2)',
                                 }}
                             >
-                                <PersonIcon sx={{ fontSize: 35 }} />
+                                <PersonIcon sx={{ fontSize: 28 }} />
                             </Avatar>
                             <Box sx={{ flex: 1 }}>
-                                <Typography variant="h6" sx={{ fontFamily: 'Cairo', opacity: 0.9, mb: 0.5 }}>
+                                <Typography variant="subtitle1" sx={{ fontFamily: 'Cairo', opacity: 0.9, mb: 0.5 }}>
                                     {greeting} 👋
                                 </Typography>
-                                <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', mb: 1 }}>
+                                <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', mb: 1 }}>
                                     {user.first_name} {user.last_name}
                                 </Typography>
                                 <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
@@ -300,7 +300,7 @@ export default function StudentDashboard() {
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                                 <Box sx={{ textAlign: 'center', display: { xs: 'none', md: 'block' } }}>
                                     <Typography variant="body2" sx={{ fontFamily: 'Cairo', opacity: 0.8 }}>العام الأكاديمي</Typography>
-                                    <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
+                                    <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
                                         {studentInfo?.academicYear || '2024/2025'}
                                     </Typography>
                                 </Box>

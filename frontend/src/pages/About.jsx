@@ -3,8 +3,8 @@ import { Box, Container, Typography, Paper, Grid } from '@mui/material';
 
 export default function About() {
     return (
-        <Container maxWidth="lg" sx={{ py: 8 }}>
-            <Typography variant="h3" gutterBottom sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B', textAlign: 'center', mb: 6 }}>
+        <Container maxWidth="lg" sx={{ py: 4 }}>
+            <Typography variant="h4" gutterBottom sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B', textAlign: 'center', mb: 4 }}>
                 عن الكلية
             </Typography>
 

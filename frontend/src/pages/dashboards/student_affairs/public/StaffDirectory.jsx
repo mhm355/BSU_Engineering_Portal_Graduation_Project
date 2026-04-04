@@ -49,11 +49,11 @@ export default function StaffDirectory() {
 
     return (
         <Container maxWidth="lg" sx={{ py: 8 }}>
-            <Box sx={{ textAlign: 'center', mb: 4 }}>
-                <Typography variant="h3" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B', mb: 2 }}>
+            <Box sx={{ textAlign: 'center', mb: 3 }}>
+                <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B', mb: 1.5 }}>
                     أعضاء هيئة التدريس
                 </Typography>
-                <Typography variant="h6" color="textSecondary" sx={{ fontFamily: 'Cairo', mb: 3 }}>
+                <Typography variant="subtitle1" color="textSecondary" sx={{ fontFamily: 'Cairo', mb: 2 }}>
                     نخبة من أفضل الأساتذة والمحاضرين
                 </Typography>
 

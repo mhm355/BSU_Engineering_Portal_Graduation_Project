@@ -184,20 +184,20 @@ const StaffAffairsDashboard = () => {
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
                                 <Avatar
                                     sx={{
-                                        width: 70,
-                                        height: 70,
+                                        width: 50,
+                                        height: 50,
                                         bgcolor: 'rgba(255,255,255,0.2)',
                                         backdropFilter: 'blur(10px)',
                                         border: '2px solid rgba(255,255,255,0.3)',
                                     }}
                                 >
-                                    <AccountCircleIcon sx={{ fontSize: 40, color: '#fff' }} />
+                                    <AccountCircleIcon sx={{ fontSize: 28, color: '#fff' }} />
                                 </Avatar>
                                 <Box>
-                                    <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff', textShadow: '0 2px 10px rgba(0,0,0,0.2)' }}>
+                                    <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff', textShadow: '0 2px 10px rgba(0,0,0,0.2)' }}>
                                         مرحباً، {user.first_name || 'شئون العاملين'}
                                     </Typography>
-                                    <Typography variant="h6" sx={{ fontFamily: 'Cairo', color: 'rgba(255,255,255,0.9)' }}>
+                                    <Typography variant="subtitle1" sx={{ fontFamily: 'Cairo', color: 'rgba(255,255,255,0.9)' }}>
                                         لوحة تحكم شئون العاملين - إدارة الدكاترة والموظفين
                                     </Typography>
                                 </Box>
@@ -281,7 +281,7 @@ const StaffAffairsDashboard = () => {
                 </Grid>
 
                 {/* Doctor Search & Export */}
-                <Paper elevation={0} sx={{ p: 3, borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.08)', mb: 4 }}>
+                <Paper elevation={0} sx={{ p: 2.5, borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.08)', mb: 3 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
                         <TextField
                             placeholder="ابحث عن دكتور بالاسم أو البريد..."

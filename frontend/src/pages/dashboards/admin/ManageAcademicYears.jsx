@@ -382,15 +382,15 @@ export default function ManageAcademicYears() {
             <Box
                 sx={{
                     background: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)',
-                    pt: 4,
-                    pb: 6,
-                    mb: 4,
+                    pt: 3,
+                    pb: 4,
+                    mb: 3,
                     position: 'relative',
                     overflow: 'hidden',
                 }}
             >
-                {/* Floating Elements */}
-                <Box
+                {/* Floating Elements - REMOVED */}
+                {/* <Box
                     sx={{
                         position: 'absolute',
                         top: -50,
@@ -414,7 +414,7 @@ export default function ManageAcademicYears() {
                         animation: `${float} 8s ease-in-out infinite`,
                         animationDelay: '2s',
                     }}
-                />
+                /> */}
 
                 <Container maxWidth="xl">
                     <Fade in={true} timeout={800}>
@@ -434,19 +434,19 @@ export default function ManageAcademicYears() {
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
                                 <Avatar
                                     sx={{
-                                        width: 80,
-                                        height: 80,
+                                        width: 55,
+                                        height: 55,
                                         bgcolor: 'rgba(255,255,255,0.2)',
                                         backdropFilter: 'blur(10px)',
                                     }}
                                 >
-                                    <CalendarMonthIcon sx={{ fontSize: 45, color: '#fff' }} />
+                                    <CalendarMonthIcon sx={{ fontSize: 30, color: '#fff' }} />
                                 </Avatar>
                                 <Box>
-                                    <Typography variant="h3" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff', textShadow: '0 4px 20px rgba(0,0,0,0.2)' }}>
+                                    <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff', textShadow: '0 4px 20px rgba(0,0,0,0.2)' }}>
                                         إدارة الأعوام الدراسية
                                     </Typography>
-                                    <Typography variant="h6" sx={{ fontFamily: 'Cairo', color: 'rgba(255,255,255,0.9)' }}>
+                                    <Typography variant="subtitle1" sx={{ fontFamily: 'Cairo', color: 'rgba(255,255,255,0.9)' }}>
                                         إضافة وتعديل وإدارة الأعوام الأكاديمية
                                     </Typography>
                                 </Box>
@@ -575,15 +575,15 @@ export default function ManageAcademicYears() {
                     <Paper
                         elevation={0}
                         sx={{
-                            p: 8,
+                            p: 6,
                             borderRadius: 4,
                             background: '#fff',
                             boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
                             textAlign: 'center',
                         }}
                     >
-                        <CalendarMonthIcon sx={{ fontSize: 80, color: '#ddd', mb: 2 }} />
-                        <Typography variant="h5" sx={{ fontFamily: 'Cairo', color: '#999', mb: 1 }}>
+                        <CalendarMonthIcon sx={{ fontSize: 60, color: '#ddd', mb: 2 }} />
+                        <Typography variant="h6" sx={{ fontFamily: 'Cairo', color: '#999', mb: 1 }}>
                             لا توجد أعوام دراسية
                         </Typography>
                         <Typography variant="body1" sx={{ fontFamily: 'Cairo', color: '#bbb', mb: 3 }}>

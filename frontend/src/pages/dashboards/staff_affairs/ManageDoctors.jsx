@@ -142,7 +142,7 @@ export default function ManageDoctors() {
     return (
         <Box sx={{ minHeight: '100vh', background: 'linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%)', pb: 6 }}>
             {/* Hero Header */}
-            <Box sx={{ background: 'linear-gradient(135deg, #d32f2f 0%, #ef5350 100%)', pt: 4, pb: 6, mb: 4, position: 'relative', overflow: 'hidden' }}>
+            <Box sx={{ background: 'linear-gradient(135deg, #d32f2f 0%, #ef5350 100%)', pt: 3, pb: 4, mb: 3, position: 'relative', overflow: 'hidden' }}>
                 {/* Decorative circles - REMOVED */}
                 {/* <Box sx={{ position: 'absolute', top: -50, right: -50, width: 200, height: 200, borderRadius: '50%', background: 'rgba(255,255,255,0.15)', animation: `${float} 6s ease-in-out infinite` }} />
                 <Box sx={{ position: 'absolute', bottom: -80, left: -80, width: 300, height: 300, borderRadius: '50%', background: 'rgba(255,255,255,0.1)', animation: `${float} 8s ease-in-out infinite`, animationDelay: '2s' }} /> */}
@@ -155,14 +155,14 @@ export default function ManageDoctors() {
                             </Button>
                             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-                                    <Avatar sx={{ width: 80, height: 80, bgcolor: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(10px)' }}>
-                                        <ManageAccountsIcon sx={{ fontSize: 45, color: '#fff' }} />
+                                    <Avatar sx={{ width: 55, height: 55, bgcolor: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(10px)' }}>
+                                        <ManageAccountsIcon sx={{ fontSize: 30, color: '#fff' }} />
                                     </Avatar>
                                     <Box>
-                                        <Typography variant="h3" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff', textShadow: '0 4px 20px rgba(0,0,0,0.2)' }}>
+                                        <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff', textShadow: '0 4px 20px rgba(0,0,0,0.2)' }}>
                                             إدارة أعضاء هيئة التدريس
                                         </Typography>
-                                        <Typography variant="h6" sx={{ fontFamily: 'Cairo', color: 'rgba(255,255,255,0.9)' }}>
+                                        <Typography variant="subtitle1" sx={{ fontFamily: 'Cairo', color: 'rgba(255,255,255,0.9)' }}>
                                             تعديل البيانات، إعادة تعيين كلمة المرور، طلب الحذف
                                         </Typography>
                                     </Box>

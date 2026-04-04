@@ -63,17 +63,17 @@ export default function DoctorCourses() {
     return (
         <Box sx={{ minHeight: '100vh', background: 'linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%)', pb: 6 }}>
             {/* Hero Header */}
-            <Box sx={{ background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)', pt: 4, pb: 5, mb: 4, position: 'relative', overflow: 'hidden' }}>
+            <Box sx={{ background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)', pt: 3, pb: 4, mb: 3, position: 'relative', overflow: 'hidden' }}>
                 {/* Decorative circle - REMOVED */}
                 {/* <Box sx={{ position: 'absolute', top: -60, right: -60, width: 250, height: 250, borderRadius: '50%', background: 'rgba(255,255,255,0.05)' }} /> */}
                 <Container maxWidth="xl">
                     <Fade in timeout={600}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-                            <Avatar sx={{ width: 72, height: 72, bgcolor: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(10px)' }}>
-                                <MenuBookIcon sx={{ fontSize: 40, color: '#fff' }} />
+                            <Avatar sx={{ width: 55, height: 55, bgcolor: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(10px)' }}>
+                                <MenuBookIcon sx={{ fontSize: 30, color: '#fff' }} />
                             </Avatar>
                             <Box>
-                                <Typography variant="h3" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff' }}>مقرراتي الدراسية</Typography>
+                                <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff' }}>مقرراتي الدراسية</Typography>
                                 <Typography sx={{ fontFamily: 'Cairo', color: 'rgba(255,255,255,0.7)' }}>
                                     {courses.length} مقرر مسند | {filtered.length} ظاهر
                                 </Typography>
@@ -206,9 +206,9 @@ export default function DoctorCourses() {
                         ))}
                     </Grid>
                 ) : (
-                    <Paper elevation={0} sx={{ p: 8, textAlign: 'center', borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.06)' }}>
-                        <MenuBookIcon sx={{ fontSize: 80, color: '#ddd', mb: 2 }} />
-                        <Typography variant="h5" sx={{ fontFamily: 'Cairo', color: '#999' }}>
+                    <Paper elevation={0} sx={{ p: 6, textAlign: 'center', borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.06)' }}>
+                        <MenuBookIcon sx={{ fontSize: 60, color: '#ddd', mb: 2 }} />
+                        <Typography variant="h6" sx={{ fontFamily: 'Cairo', color: '#999' }}>
                             {courses.length === 0 ? 'لا توجد مقررات مسندة إليك حالياً' : 'لا توجد نتائج للفلاتر المحددة'}
                         </Typography>
                     </Paper>

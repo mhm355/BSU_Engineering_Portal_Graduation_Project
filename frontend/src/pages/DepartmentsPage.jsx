@@ -12,7 +12,7 @@ export default function DepartmentsPage() {
             name: 'قسم الهندسة المدنية',
             nameEn: 'Civil Engineering',
             link: '/departments/civil',
-            icon: <ConstructionIcon sx={{ fontSize: 60, color: 'white' }} />,
+            icon: <ConstructionIcon sx={{ fontSize: 40, color: 'white' }} />,
             color: '#1976d2',
             description: 'يهدف إلى تحقيق التميز والريادة في التعليم الهندسي في مجال الهندسة المدنية محلياً وإقليمياً ودولياً'
         },
@@ -20,7 +20,7 @@ export default function DepartmentsPage() {
             name: 'قسم الهندسة المعمارية',
             nameEn: 'Architecture',
             link: '/departments/arch',
-            icon: <ArchitectureIcon sx={{ fontSize: 60, color: 'white' }} />,
+            icon: <ArchitectureIcon sx={{ fontSize: 40, color: 'white' }} />,
             color: '#388e3c',
             description: 'يهدف إلى توفير مستوى تعليمي راق للخريجين من خلال برامج تعليمية وتدريبية وبحثية ذات صلة بالمجتمع'
         },
@@ -28,7 +28,7 @@ export default function DepartmentsPage() {
             name: 'قسم الهندسة الكهربية',
             nameEn: 'Electrical Engineering',
             link: '/departments/electrical',
-            icon: <ElectricalServicesIcon sx={{ fontSize: 60, color: 'white' }} />,
+            icon: <ElectricalServicesIcon sx={{ fontSize: 40, color: 'white' }} />,
             color: '#f57c00',
             description: 'يركز على تخريج مهندسين ذوي كفاءة عالية في هندسة الإلكترونيات والاتصالات وهندسة القوى والآلات الكهربية',
             programs: ['هندسة الإلكترونيات والاتصالات', 'هندسة القوى والآلات الكهربية']
@@ -49,12 +49,12 @@ export default function DepartmentsPage() {
                 }}
             >
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2 }}>
-                    <EngineeringIcon sx={{ fontSize: 50, mr: 2 }} />
-                    <Typography variant="h3" component="h1" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
+                    <EngineeringIcon sx={{ fontSize: 36, mr: 2 }} />
+                    <Typography variant="h4" component="h1" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
                         الأقسام العلمية
                     </Typography>
                 </Box>
-                <Typography variant="h6" sx={{ fontFamily: 'Cairo', textAlign: 'center', opacity: 0.9 }}>
+                <Typography variant="subtitle1" sx={{ fontFamily: 'Cairo', textAlign: 'center', opacity: 0.9 }}>
                     كلية الهندسة - جامعة بني سويف
                 </Typography>
             </Paper>

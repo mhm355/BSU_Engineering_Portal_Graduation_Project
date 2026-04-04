@@ -62,7 +62,7 @@ export default function UserProfile() {
         <Container maxWidth="md" sx={{ py: 4 }}>
             <Paper sx={{ p: 4 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
-                    <Avatar sx={{ width: 80, height: 80, bgcolor: '#4F46E5', fontSize: 32, mr: 2 }}>
+                    <Avatar sx={{ width: 55, height: 55, bgcolor: '#4F46E5', fontSize: 24, mr: 2 }}>
                         {user?.first_name?.[0]}
                     </Avatar>
                     <Box>

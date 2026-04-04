@@ -38,14 +38,14 @@ export default function AboutPage() {
                         left: 0,
                         right: 0,
                         bottom: 0,
-                        background: 'radial-gradient(circle at 20% 80%, rgba(255,193,7,0.1) 0%, transparent 50%)',
+                        background: 'none',
                     }
                 }}
             >
-                <Typography variant="h3" component="h1" gutterBottom sx={{ fontFamily: 'Cairo', fontWeight: 'bold', textAlign: 'center', position: 'relative' }}>
+                <Typography variant="h4" component="h1" gutterBottom sx={{ fontFamily: 'Cairo', fontWeight: 'bold', textAlign: 'center', position: 'relative' }}>
                     نبذة عن الكلية
                 </Typography>
-                <Typography variant="h6" sx={{ fontFamily: 'Cairo', textAlign: 'center', opacity: 0.9 }}>
+                <Typography variant="subtitle1" sx={{ fontFamily: 'Cairo', textAlign: 'center', opacity: 0.9 }}>
                     كلية الهندسة - جامعة بني سويف
                 </Typography>
             </Paper>

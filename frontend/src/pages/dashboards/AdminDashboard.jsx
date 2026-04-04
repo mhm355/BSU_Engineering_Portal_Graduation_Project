@@ -474,9 +474,9 @@ export default function AdminDashboard() {
             <Box
                 sx={{
                     background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 50%, #06B6D4 100%)',
-                    pt: 4,
-                    pb: 6,
-                    mb: 4,
+                    pt: 3,
+                    pb: 4,
+                    mb: 3,
                     position: 'relative',
                     overflow: 'hidden',
                 }}
@@ -515,11 +515,11 @@ export default function AdminDashboard() {
                             <Avatar
                                 src={user.profile_picture || undefined}
                                 sx={{
-                                    width: 70,
-                                    height: 70,
+                                    width: 50,
+                                    height: 50,
                                     border: '3px solid rgba(255,255,255,0.3)',
                                     boxShadow: '0 8px 20px rgba(0,0,0,0.3)',
-                                    fontSize: 28,
+                                    fontSize: 24,
                                     bgcolor: '#4F46E5',
                                     color: '#fff',
                                 }}
@@ -529,7 +529,7 @@ export default function AdminDashboard() {
 
                             <Box sx={{ flexGrow: 1 }}>
                                 <Typography
-                                    variant="h4"
+                                    variant="h5"
                                     sx={{
                                         fontFamily: 'Cairo',
                                         fontWeight: 'bold',
@@ -642,14 +642,14 @@ export default function AdminDashboard() {
                 </Grid>
 
                 {/* Section Title */}
-                <Box sx={{ mb: 3 }}>
+                <Box sx={{ mb: 2 }}>
                     <Typography
-                        variant="h5"
+                        variant="h6"
                         sx={{
                             fontFamily: 'Cairo',
                             fontWeight: 'bold',
                             color: '#1E293B',
-                            mb: 1,
+                            mb: 0.5,
                         }}
                     >
                         لوحة التحكم
@@ -686,8 +686,8 @@ export default function AdminDashboard() {
                 {/* Footer Info */}
                 <Box
                     sx={{
-                        mt: 6,
-                        pt: 4,
+                        mt: 4,
+                        pt: 3,
                         borderTop: '1px solid rgba(0,0,0,0.1)',
                         display: 'flex',
                         justifyContent: 'space-between',

@@ -114,12 +114,12 @@ export default function EthicsPage() {
                 }}
             >
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2 }}>
-                    <BalanceIcon sx={{ fontSize: 50, mr: 2 }} />
-                    <Typography variant="h3" component="h1" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
+                    <BalanceIcon sx={{ fontSize: 36, mr: 2 }} />
+                    <Typography variant="h4" component="h1" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
                         الميثاق الأخلاقي
                     </Typography>
                 </Box>
-                <Typography variant="h6" sx={{ fontFamily: 'Cairo', textAlign: 'center', opacity: 0.9 }}>
+                <Typography variant="subtitle1" sx={{ fontFamily: 'Cairo', textAlign: 'center', opacity: 0.9 }}>
                     ميثاق أخلاقيات ممارسة المهنة لكلية الهندسة
                 </Typography>
             </Paper>

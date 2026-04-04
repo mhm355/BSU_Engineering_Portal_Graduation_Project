@@ -109,10 +109,11 @@ export default function QuizResults() {
             {/* Hero Header */}
             <Box sx={{
                 background: 'linear-gradient(135deg, #9c27b0 0%, #ba68c8 100%)',
-                pt: 4, pb: 6, mb: 4,
+                pt: 3, pb: 4, mb: 3,
                 position: 'relative', overflow: 'hidden'
             }}>
-                <Box sx={{
+                {/* Decorative circles - REMOVED */}
+                {/* <Box sx={{
                     position: 'absolute', top: -50, right: -50, width: 200, height: 200,
                     borderRadius: '50%', background: 'rgba(255,255,255,0.1)',
                     animation: `${float} 6s ease-in-out infinite`
@@ -126,7 +127,7 @@ export default function QuizResults() {
                     position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
                     width: 400, height: 400, borderRadius: '50%',
                     background: 'radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%)'
-                }} />
+                }} /> */}
 
                 <Container maxWidth="xl">
                     <Fade in={true} timeout={800}>
@@ -141,18 +142,18 @@ export default function QuizResults() {
 
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
                                 <Avatar sx={{
-                                    width: 100, height: 100,
+                                    width: 55, height: 55,
                                     bgcolor: 'rgba(255,255,255,0.2)',
                                     backdropFilter: 'blur(10px)',
                                     animation: `${pulse} 3s ease-in-out infinite`
                                 }}>
-                                    <QuizIcon sx={{ fontSize: 55, color: '#fff' }} />
+                                    <QuizIcon sx={{ fontSize: 30, color: '#fff' }} />
                                 </Avatar>
                                 <Box>
-                                    <Typography variant="h3" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff', textShadow: '0 4px 20px rgba(0,0,0,0.2)' }}>
+                                    <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff', textShadow: '0 4px 20px rgba(0,0,0,0.2)' }}>
                                         نتائج الكويز
                                     </Typography>
-                                    <Typography variant="h5" sx={{ fontFamily: 'Cairo', color: 'rgba(255,255,255,0.9)', mt: 0.5 }}>
+                                    <Typography variant="subtitle1" sx={{ fontFamily: 'Cairo', color: 'rgba(255,255,255,0.9)', mt: 0.5 }}>
                                         {quiz?.title || 'الكويز'}
                                     </Typography>
                                     <Box sx={{ display: 'flex', gap: 1.5, mt: 2, flexWrap: 'wrap' }}>
@@ -189,14 +190,14 @@ export default function QuizResults() {
                 )}
 
                 {/* Statistics Cards */}
-                <Grid container spacing={3} sx={{ mb: 4 }}>
+                <Grid container spacing={2} sx={{ mb: 3 }}>
                     <Grid item xs={6} sm={4} md={2}>
                         <Grow in={true} timeout={400}>
                             <Paper elevation={0} sx={{ p: 3, borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.08)', textAlign: 'center' }}>
-                                <Avatar sx={{ width: 60, height: 60, background: 'linear-gradient(135deg, #2196F3, #64B5F6)', mx: 'auto', mb: 1.5 }}>
-                                    <GroupIcon sx={{ fontSize: 30 }} />
+                                <Avatar sx={{ width: 50, height: 50, background: 'linear-gradient(135deg, #2196F3, #64B5F6)', mx: 'auto', mb: 1.5 }}>
+                                    <GroupIcon sx={{ fontSize: 28 }} />
                                 </Avatar>
-                                <Typography variant="h3" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>{stats.totalStudents}</Typography>
+                                <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>{stats.totalStudents}</Typography>
                                 <Typography variant="body2" sx={{ fontFamily: 'Cairo', color: '#666' }}>إجمالي الطلاب</Typography>
                             </Paper>
                         </Grow>
@@ -204,10 +205,10 @@ export default function QuizResults() {
                     <Grid item xs={6} sm={4} md={2}>
                         <Grow in={true} timeout={500}>
                             <Paper elevation={0} sx={{ p: 3, borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.08)', textAlign: 'center' }}>
-                                <Avatar sx={{ width: 60, height: 60, background: 'linear-gradient(135deg, #4CAF50, #8BC34A)', mx: 'auto', mb: 1.5 }}>
-                                    <CheckCircleIcon sx={{ fontSize: 30 }} />
+                                <Avatar sx={{ width: 50, height: 50, background: 'linear-gradient(135deg, #4CAF50, #8BC34A)', mx: 'auto', mb: 1.5 }}>
+                                    <CheckCircleIcon sx={{ fontSize: 28 }} />
                                 </Avatar>
-                                <Typography variant="h3" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>{stats.graded}</Typography>
+                                <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>{stats.graded}</Typography>
                                 <Typography variant="body2" sx={{ fontFamily: 'Cairo', color: '#666' }}>تم التصحيح</Typography>
                             </Paper>
                         </Grow>
@@ -215,10 +216,10 @@ export default function QuizResults() {
                     <Grid item xs={6} sm={4} md={2}>
                         <Grow in={true} timeout={600}>
                             <Paper elevation={0} sx={{ p: 3, borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.08)', textAlign: 'center' }}>
-                                <Avatar sx={{ width: 60, height: 60, background: 'linear-gradient(135deg, #FF9800, #FFB74D)', mx: 'auto', mb: 1.5 }}>
-                                    <TrendingUpIcon sx={{ fontSize: 30 }} />
+                                <Avatar sx={{ width: 50, height: 50, background: 'linear-gradient(135deg, #FF9800, #FFB74D)', mx: 'auto', mb: 1.5 }}>
+                                    <TrendingUpIcon sx={{ fontSize: 28 }} />
                                 </Avatar>
-                                <Typography variant="h3" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>{stats.avgScore}</Typography>
+                                <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>{stats.avgScore}</Typography>
                                 <Typography variant="body2" sx={{ fontFamily: 'Cairo', color: '#666' }}>متوسط الدرجات</Typography>
                             </Paper>
                         </Grow>
@@ -226,10 +227,10 @@ export default function QuizResults() {
                     <Grid item xs={6} sm={4} md={2}>
                         <Grow in={true} timeout={700}>
                             <Paper elevation={0} sx={{ p: 3, borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.08)', textAlign: 'center' }}>
-                                <Avatar sx={{ width: 60, height: 60, background: 'linear-gradient(135deg, #9c27b0, #ba68c8)', mx: 'auto', mb: 1.5 }}>
-                                    <StarIcon sx={{ fontSize: 30 }} />
+                                <Avatar sx={{ width: 50, height: 50, background: 'linear-gradient(135deg, #9c27b0, #ba68c8)', mx: 'auto', mb: 1.5 }}>
+                                    <StarIcon sx={{ fontSize: 28 }} />
                                 </Avatar>
-                                <Typography variant="h3" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>{stats.highestScore}</Typography>
+                                <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>{stats.highestScore}</Typography>
                                 <Typography variant="body2" sx={{ fontFamily: 'Cairo', color: '#666' }}>أعلى درجة</Typography>
                             </Paper>
                         </Grow>
@@ -237,10 +238,10 @@ export default function QuizResults() {
                     <Grid item xs={6} sm={4} md={2}>
                         <Grow in={true} timeout={800}>
                             <Paper elevation={0} sx={{ p: 3, borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.08)', textAlign: 'center' }}>
-                                <Avatar sx={{ width: 60, height: 60, background: 'linear-gradient(135deg, #f44336, #e57373)', mx: 'auto', mb: 1.5 }}>
-                                    <CancelIcon sx={{ fontSize: 30 }} />
+                                <Avatar sx={{ width: 50, height: 50, background: 'linear-gradient(135deg, #f44336, #e57373)', mx: 'auto', mb: 1.5 }}>
+                                    <CancelIcon sx={{ fontSize: 28 }} />
                                 </Avatar>
-                                <Typography variant="h3" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>{stats.lowestScore}</Typography>
+                                <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>{stats.lowestScore}</Typography>
                                 <Typography variant="body2" sx={{ fontFamily: 'Cairo', color: '#666' }}>أدنى درجة</Typography>
                             </Paper>
                         </Grow>
@@ -248,10 +249,10 @@ export default function QuizResults() {
                     <Grid item xs={6} sm={4} md={2}>
                         <Grow in={true} timeout={900}>
                             <Paper elevation={0} sx={{ p: 3, borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.08)', textAlign: 'center' }}>
-                                <Avatar sx={{ width: 60, height: 60, background: 'linear-gradient(135deg, #00bcd4, #4dd0e1)', mx: 'auto', mb: 1.5 }}>
-                                    <EmojiEventsIcon sx={{ fontSize: 30 }} />
+                                <Avatar sx={{ width: 50, height: 50, background: 'linear-gradient(135deg, #00bcd4, #4dd0e1)', mx: 'auto', mb: 1.5 }}>
+                                    <EmojiEventsIcon sx={{ fontSize: 28 }} />
                                 </Avatar>
-                                <Typography variant="h3" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>{stats.passRate}%</Typography>
+                                <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>{stats.passRate}%</Typography>
                                 <Typography variant="body2" sx={{ fontFamily: 'Cairo', color: '#666' }}>نسبة النجاح</Typography>
                             </Paper>
                         </Grow>
@@ -440,12 +441,12 @@ export default function QuizResults() {
                                 </Table>
                             </TableContainer>
                         ) : (
-                            <Box sx={{ textAlign: 'center', py: 10 }}>
-                                <QuizIcon sx={{ fontSize: 100, color: '#ddd', mb: 3 }} />
-                                <Typography variant="h4" sx={{ fontFamily: 'Cairo', color: '#999', mb: 2 }}>
+                            <Box sx={{ textAlign: 'center', py: 8 }}>
+                                <QuizIcon sx={{ fontSize: 60, color: '#ddd', mb: 2 }} />
+                                <Typography variant="h5" sx={{ fontFamily: 'Cairo', color: '#999', mb: 1 }}>
                                     لا توجد نتائج بعد
                                 </Typography>
-                                <Typography variant="h6" sx={{ fontFamily: 'Cairo', color: '#bbb' }}>
+                                <Typography variant="subtitle1" sx={{ fontFamily: 'Cairo', color: '#bbb' }}>
                                     لم يقم أي طالب بحل هذا الكويز حتى الآن
                                 </Typography>
                             </Box>
