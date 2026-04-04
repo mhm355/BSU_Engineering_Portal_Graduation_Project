@@ -21,7 +21,7 @@ services:
       - bsu_network
 
   backend:
-    image: docker.io/mhmdocker1/bsu_backend:v2.9.0
+    image: docker.io/mhmdocker1/bsu_backend:v2.9.1
     container_name: bsu_backend
     volumes:
       - media_data:/app/media
