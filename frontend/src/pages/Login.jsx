@@ -233,6 +233,7 @@ export default function Login() {
                                 <Button
                                     type="submit"
                                     variant="contained"
+                                    color="primary"
                                     size="large"
                                     fullWidth
                                     disabled={loading}
