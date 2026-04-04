@@ -43,6 +43,28 @@ SPECIALIZATION_NAME_MAPPINGS = {
     'قوى': 'هندسة قوى',
 }
 
+# Level name mappings - support both English and Arabic
+LEVEL_NAME_MAPPINGS = {
+    # English to Arabic display names
+    'first': 'الفرقة الأولى',
+    'second': 'الفرقة الثانية',
+    'third': 'الفرقة الثالثة',
+    'fourth': 'الفرقة الرابعة',
+    'preparatory': 'الفرقة الإعدادية',
+    'prep': 'الفرقة الإعدادية',
+    # Database name variations (underscore format)
+    'first_year': 'الفرقة الأولى',
+    'second_year': 'الفرقة الثانية',
+    'third_year': 'الفرقة الثالثة',
+    'fourth_year': 'الفرقة الرابعة',
+    # Arabic to Arabic (pass-through)
+    'الفرقة الأولى': 'الفرقة الأولى',
+    'الفرقة الثانية': 'الفرقة الثانية',
+    'الفرقة الثالثة': 'الفرقة الثالثة',
+    'الفرقة الرابعة': 'الفرقة الرابعة',
+    'الفرقة الإعدادية': 'الفرقة الإعدادية',
+}
+
 
 def normalize_department_name(name):
     """Convert any department name (Arabic/English) to the database standard format"""
@@ -58,6 +80,42 @@ def normalize_specialization_name(name):
         return name
     normalized = str(name).strip().lower()
     return SPECIALIZATION_NAME_MAPPINGS.get(normalized, name)
+
+
+def normalize_level_name(name):
+    """Convert any level name (Arabic/English) to the Arabic display format"""
+    if not name:
+        return name
+    normalized = str(name).strip().lower()
+    return LEVEL_NAME_MAPPINGS.get(normalized, name)
+
+
+def match_level(csv_level, level):
+    """Check if CSV level name matches the selected level (supports both Arabic and English)"""
+    csv_normalized = normalize_level_name(csv_level)
+    
+    # Direct comparison with database name (e.g., FIRST, SECOND)
+    if csv_level.lower() == level.name.lower():
+        return True
+    
+    # Check display name match (Arabic)
+    if csv_normalized == level.get_name_display():
+        return True
+    
+    # Check ID match
+    if csv_level == str(level.id):
+        return True
+    
+    # Check underscore format (first_year -> FIRST)
+    csv_clean = csv_level.lower().replace(' ', '_').replace('_year', '')
+    if csv_clean == level.name.lower():
+        return True
+    
+    # Check if the normalized Arabic name matches
+    if csv_normalized == level.get_name_display():
+        return True
+    
+    return False
 
 
 def match_department(csv_dept, department):
@@ -197,15 +255,9 @@ class PreviewStudentsUploadView(APIView):
                 if not dept_match:
                     row_errors.append(f'القسم "{csv_dept}" لا يطابق "{department.name}"')
 
-                # Validate level match
+                # Validate level match using helper function
                 if level:
-                    level_match = (
-                        csv_level.lower() == level.name.lower() or
-                        csv_level == level.get_name_display() or
-                        csv_level == str(level.id) or
-                        csv_level.lower() == level.name.lower().replace('_', ' ')
-                    )
-                    if not level_match:
+                    if not match_level(csv_level, level):
                         row_errors.append(f'الفرقة "{csv_level}" لا تطابق "{level.get_name_display()}"')
                 else:
                     # Validate level exists
@@ -370,13 +422,7 @@ class UploadStudentsView(APIView):
                 csv_levels = df['level'].dropna().astype(str).str.strip().unique()
                 for csv_level in csv_levels:
                     if level:  # Single level selected in UI
-                        level_match = (
-                            csv_level.lower() == level.name.lower() or 
-                            csv_level == level.get_name_display() or
-                            csv_level == str(level.id) or
-                            csv_level.lower() == level.name.lower().replace('_', ' ')
-                        )
-                        if not level_match:
+                        if not match_level(csv_level, level):
                             validation_errors.append(
                                 f'فرقة في الملف "{csv_level}" لا تطابق الفرقة المحددة "{level.get_name_display()}". '
                                 f'يرجى التحقق من اختيار الفرقة الصحيحة أو تصحيح البيانات في الملف'
