@@ -1,11 +1,11 @@
 national_id,full_name,email,department,level,specialization
-29203150100101,سعيد أحمد محمد,saeed.ahmed@student.eng.bsu.edu.eg,هندسة كهربية,FOURTH,هندسة اتصالات
-29302020100202,أحمد محمد علي,ahmed.mohamed@student.eng.bsu.edu.eg,هندسة كهربية,FOURTH,هندسة اتصالات
-29401110100303,محمد علي سعيد,mohamed.ali@student.eng.bsu.edu.eg,هندسة كهربية,FOURTH,هندسة اتصالات
-29512080100404,علي سعيد أحمد,ali.saeed@student.eng.bsu.edu.eg,هندسة كهربية,FOURTH,هندسة اتصالات
-29203070100505,سعيد أحمد محمد,saeed.ahmed2@student.eng.bsu.edu.eg,هندسة كهربية,FOURTH,هندسة اتصالات
-29304050100606,أحمد محمد علي,ahmed.mohamed2@student.eng.bsu.edu.eg,هندسة كهربية,FOURTH,هندسة اتصالات
-29405030100707,محمد علي سعيد,mohamed.ali2@student.eng.bsu.edu.eg,هندسة كهربية,FOURTH,هندسة اتصالات
-29506110100808,علي سعيد أحمد,ali.saeed2@student.eng.bsu.edu.eg,هندسة كهربية,FOURTH,هندسة اتصالات
-29207090100909,سعيد أحمد محمد,saeed.ahmed3@student.eng.bsu.edu.eg,هندسة كهربية,FOURTH,هندسة اتصالات
-29308070101010,أحمد محمد علي,ahmed.mohamed3@student.eng.bsu.edu.eg,هندسة كهربية,FOURTH,هندسة اتصالات
+29203150100101,سعيد أحمد محمد,saeed.ahmed@student.eng.bsu.edu.eg,electrical,FOURTH,ece
+29302020100202,أحمد محمد علي,ahmed.mohamed@student.eng.bsu.edu.eg,electrical,FOURTH,ece
+29401110100303,محمد علي سعيد,mohamed.ali@student.eng.bsu.edu.eg,electrical,FOURTH,ece
+29512080100404,علي سعيد أحمد,ali.saeed@student.eng.bsu.edu.eg,electrical,FOURTH,ece
+29203070100505,سعيد أحمد محمد,saeed.ahmed2@student.eng.bsu.edu.eg,electrical,FOURTH,ece
+29304050100606,أحمد محمد علي,ahmed.mohamed2@student.eng.bsu.edu.eg,electrical,FOURTH,ece
+29405030100707,محمد علي سعيد,mohamed.ali2@student.eng.bsu.edu.eg,electrical,FOURTH,ece
+29506110100808,علي سعيد أحمد,ali.saeed2@student.eng.bsu.edu.eg,electrical,FOURTH,ece
+29207090100909,سعيد أحمد محمد,saeed.ahmed3@student.eng.bsu.edu.eg,electrical,FOURTH,ece
+29308070101010,أحمد محمد علي,ahmed.mohamed3@student.eng.bsu.edu.eg,electrical,FOURTH,ece
