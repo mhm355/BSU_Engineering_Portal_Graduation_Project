@@ -368,6 +368,7 @@ class PreviewStudentsUploadView(APIView):
             total_rows = len(df)
             unique_departments = df['department'].dropna().astype(str).str.strip().unique().tolist()
             unique_levels = df['level'].dropna().astype(str).str.strip().unique().tolist()
+            unique_specializations = df['specialization'].dropna().astype(str).str.strip().unique().tolist() if 'specialization' in df.columns else []
 
             return Response({
                 'total_rows': total_rows,
@@ -377,6 +378,7 @@ class PreviewStudentsUploadView(APIView):
                 'selected_level': level.get_name_display() if level else 'متعددة',
                 'csv_departments': unique_departments,
                 'csv_levels': unique_levels,
+                'csv_specializations': unique_specializations,
                 'can_upload': len(validation_errors) == 0
             })
 
