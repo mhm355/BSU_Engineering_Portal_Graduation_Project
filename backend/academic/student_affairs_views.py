@@ -25,22 +25,36 @@ DEPARTMENT_NAME_MAPPINGS = {
     'electrical': 'هندسة كهربية',
     'prep': 'الفرقة الإعدادية',
     'preparatory': 'الفرقة الإعدادية',
-    # Arabic variations
+    # Arabic variations without ال
     'هندسة معمارية': 'هندسة معمارية',
     'هندسة مدنية': 'هندسة مدنية',
     'هندسة كهربية': 'هندسة كهربية',
     'الفرقة الإعدادية': 'الفرقة الإعدادية',
+    # Arabic variations with ال
+    'الهندسة المعمارية': 'هندسة معمارية',
+    'الهندسة المدنية': 'هندسة مدنية',
+    'الهندسة الكهربية': 'هندسة كهربية',
+    # Additional variations
+    'معمارية': 'هندسة معمارية',
+    'مدنية': 'هندسة مدنية',
+    'كهربية': 'هندسة كهربية',
+    'الفرقة الاعدادية': 'الفرقة الإعدادية',
 }
 
 SPECIALIZATION_NAME_MAPPINGS = {
     # English to Arabic
     'ece': 'هندسة اتصالات',
     'epm': 'هندسة قوى',
-    # Arabic variations
+    # Arabic variations without prefixes
     'هندسة اتصالات': 'هندسة اتصالات',
     'هندسة قوى': 'هندسة قوى',
     'اتصالات': 'هندسة اتصالات',
     'قوى': 'هندسة قوى',
+    'الهندسة الاتصالات': 'هندسة اتصالات',
+    'الهندسة القوى': 'هندسة قوى',
+    # Short forms
+    'الاتصالات': 'هندسة اتصالات',
+    'القوى': 'هندسة قوى',
 }
 
 # Level name mappings - support both English and Arabic
@@ -57,12 +71,26 @@ LEVEL_NAME_MAPPINGS = {
     'second_year': 'الفرقة الثانية',
     'third_year': 'الفرقة الثالثة',
     'fourth_year': 'الفرقة الرابعة',
+    # Database uppercase format (direct from CSV)
+    'first': 'الفرقة الأولى',
+    'second': 'الفرقة الثانية',
+    'third': 'الفرقة الثالثة',
+    'fourth': 'الفرقة الرابعة',
     # Arabic to Arabic (pass-through)
     'الفرقة الأولى': 'الفرقة الأولى',
     'الفرقة الثانية': 'الفرقة الثانية',
     'الفرقة الثالثة': 'الفرقة الثالثة',
     'الفرقة الرابعة': 'الفرقة الرابعة',
     'الفرقة الإعدادية': 'الفرقة الإعدادية',
+    # Additional Arabic variations
+    'الاولى': 'الفرقة الأولى',
+    'الثانية': 'الفرقة الثانية',
+    'الثالثة': 'الفرقة الثالثة',
+    'الرابعة': 'الفرقة الرابعة',
+    'الاعدادية': 'الفرقة الإعدادية',
+    'الإعدادية': 'الفرقة الإعدادية',
+    'اولى': 'الفرقة الأولى',
+    'إعدادية': 'الفرقة الإعدادية',
 }
 
 
@@ -93,9 +121,11 @@ def normalize_level_name(name):
 def match_level(csv_level, level):
     """Check if CSV level name matches the selected level (supports both Arabic and English)"""
     csv_normalized = normalize_level_name(csv_level)
+    csv_lower = str(csv_level).strip().lower()
+    level_name_lower = level.name.lower()
     
     # Direct comparison with database name (e.g., FIRST, SECOND)
-    if csv_level.lower() == level.name.lower():
+    if csv_lower == level_name_lower:
         return True
     
     # Check display name match (Arabic)
@@ -107,11 +137,17 @@ def match_level(csv_level, level):
         return True
     
     # Check underscore format (first_year -> FIRST)
-    csv_clean = csv_level.lower().replace(' ', '_').replace('_year', '')
-    if csv_clean == level.name.lower():
+    csv_clean = csv_lower.replace(' ', '_').replace('_year', '')
+    if csv_clean == level_name_lower:
         return True
     
-    # Check if the normalized Arabic name matches
+    # Check if normalized Arabic name matches (with or without الفرقة prefix)
+    csv_no_prefix = csv_normalized.replace('الفرقة ', '') if csv_normalized else csv_normalized
+    display_no_prefix = level.get_name_display().replace('الفرقة ', '') if level.get_name_display() else level.get_name_display()
+    if csv_no_prefix == display_no_prefix:
+        return True
+    
+    # Check if the CSV value maps to the level through LEVEL_NAME_MAPPINGS
     if csv_normalized == level.get_name_display():
         return True
     
@@ -121,21 +157,31 @@ def match_level(csv_level, level):
 def match_department(csv_dept, department):
     """Check if CSV department name matches the selected department (supports both Arabic and English)"""
     csv_normalized = normalize_department_name(csv_dept)
+    csv_lower = str(csv_dept).strip().lower()
+    dept_name_lower = department.name.lower()
+    dept_code_lower = department.code.lower() if department.code else ''
     
-    # Direct comparison with database name
-    if csv_normalized.lower() == department.name.lower():
+    # Check code match first (electrical -> ELECT)
+    if csv_lower == dept_code_lower:
         return True
     
-    # Check code match
-    if csv_dept.lower() == department.code.lower():
+    # Check if normalized value (from mapping) matches department name
+    if csv_normalized.lower() == dept_name_lower:
+        return True
+    
+    # Direct comparison with database name
+    if csv_lower == dept_name_lower:
         return True
     
     # Check ID match
     if csv_dept == str(department.id):
         return True
     
-    # Check if the normalized Arabic name matches
-    if csv_normalized == department.name:
+    # Check if the normalized Arabic name matches (with or without ال)
+    # Remove ال prefix for comparison
+    csv_no_al = csv_normalized.replace('ال', '') if csv_normalized else csv_normalized
+    dept_no_al = department.name.replace('ال', '') if department.name else department.name
+    if csv_no_al == dept_no_al:
         return True
     
     return False
@@ -144,21 +190,30 @@ def match_department(csv_dept, department):
 def match_specialization(csv_spec, specialization):
     """Check if CSV specialization name matches the selected specialization (supports both Arabic and English)"""
     csv_normalized = normalize_specialization_name(csv_spec)
+    csv_lower = str(csv_spec).strip().lower()
+    spec_name_lower = specialization.name.lower()
+    spec_code_lower = specialization.code.lower() if specialization.code else ''
     
-    # Direct comparison with database name
-    if csv_normalized.lower() == specialization.name.lower():
+    # Check code match first (ece, epm)
+    if csv_lower == spec_code_lower:
         return True
     
-    # Check code match
-    if csv_spec.lower() == specialization.code.lower():
+    # Check if normalized value matches specialization name
+    if csv_normalized.lower() == spec_name_lower:
+        return True
+    
+    # Direct comparison with database name
+    if csv_lower == spec_name_lower:
         return True
     
     # Check ID match
     if csv_spec == str(specialization.id):
         return True
     
-    # Check if the normalized Arabic name matches
-    if csv_normalized == specialization.name:
+    # Check if the normalized Arabic name matches (with or without ال/هندسة prefix)
+    csv_no_prefix = csv_normalized.replace('ال', '').replace('هندسة ', '') if csv_normalized else csv_normalized
+    spec_no_prefix = specialization.name.replace('ال', '').replace('هندسة ', '') if specialization.name else specialization.name
+    if csv_no_prefix == spec_no_prefix:
         return True
     
     return False
