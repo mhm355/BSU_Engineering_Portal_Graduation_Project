@@ -654,13 +654,13 @@ class UploadStudentsView(APIView):
                         spec_value = str(row['specialization']).strip()
                         # Try to find specialization by code or name
                         from .models import Specialization
-                        try:
-                            # Try by code first (ece, epm)
-                            row_specialization = Specialization.objects.get(
-                                Q(code__iexact=spec_value) | Q(name__iexact=spec_value),
-                                department=department
-                            )
-                        except Specialization.DoesNotExist:
+                        # Try by code first (ece, epm) - use filter to avoid MultipleObjectsReturned
+                        row_specialization = Specialization.objects.filter(
+                            Q(code__iexact=spec_value) | Q(name__iexact=spec_value),
+                            department=department
+                        ).first()
+                        
+                        if not row_specialization:
                             # Try matching with helper function
                             all_specs = Specialization.objects.filter(department=department)
                             for spec in all_specs:
