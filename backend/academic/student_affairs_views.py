@@ -329,12 +329,19 @@ class PreviewStudentsUploadView(APIView):
                     if not level_exists:
                         row_errors.append(f'الفرقة "{csv_level}" غير موجودة')
 
-                # Validate specialization for Electrical department
+                # Validate specialization for Electrical department (only for levels that have specializations)
                 csv_spec = str(row.get('specialization', '')).strip()
+                levels_without_specializations = ['FIRST', 'الفرقة الأولى', 'PREPARATORY', 'الفرقة الإعدادية', 'PREP']
+                
                 if department.code == 'ELECT' or department.name == 'الهندسة الكهربية':
-                    if not csv_spec:
-                        row_errors.append('التخصص مطلوب للهندسة الكهربية')
-                    else:
+                    # Check if this row's level requires specialization (all except FIRST/PREP)
+                    csv_level_upper = csv_level.upper() if csv_level else ''
+                    level_is_first_or_prep = any(ls in csv_level_upper or ls in csv_level for ls in levels_without_specializations)
+                    level_requires_spec = csv_level and not level_is_first_or_prep
+                    
+                    if level_requires_spec and not csv_spec:
+                        row_errors.append('التخصص مطلوب للهندسة الكهربية للفرق الثانية والثالثة والرابعة')
+                    elif csv_spec and level_requires_spec:
                         from .models import Specialization
                         # Check if this specialization exists in the department
                         valid_specs = Specialization.objects.filter(department=department)
@@ -356,11 +363,22 @@ class PreviewStudentsUploadView(APIView):
                 if row_errors:
                     validation_errors.extend([f"صف {index + 2}: {', '.join(row_errors)}"])
 
-            # Validate specialization column - REQUIRED for Electrical department
+            # Validate specialization column for Electrical department (only for levels with specializations)
             if department.code == 'ELECT' or department.name == 'الهندسة الكهربية':
-                if 'specialization' not in df.columns:
+                # Check if any row in CSV is from a level that requires specialization
+                levels_with_specializations = ['SECOND', 'THIRD', 'FOURTH', 'الفرقة الثانية', 'الفرقة الثالثة', 'الفرقة الرابعة']
+                
+                has_level_requiring_spec = False
+                if 'level' in df.columns:
+                    for lvl in df['level'].dropna().astype(str).str.strip().unique():
+                        if any(ls in lvl.upper() or ls in lvl for ls in levels_with_specializations):
+                            has_level_requiring_spec = True
+                            break
+                
+                # Only require specialization column if there are students from levels that need it
+                if has_level_requiring_spec and 'specialization' not in df.columns:
                     validation_errors.append(
-                        'عمود specialization إلزامي للهندسة الكهربية. ' 
+                        'عمود specialization إلزامي للهندسة الكهربية للفرق الثانية والثالثة والرابعة. ' 
                         'يجب إضافة عمود specialization بقيم ece (هندسة اتصالات) أو epm (هندسة قوى)'
                     )
 
@@ -520,17 +538,28 @@ class UploadStudentsView(APIView):
                         if not level_exists:
                             validation_errors.append(f'فرقة غير موجودة: "{csv_level}"')
             
-            # Validate specialization column - REQUIRED for Electrical department
+            # Validate specialization column - REQUIRED for Electrical department (all levels except FIRST/PREP)
             # Support mixed specializations: if CSV has specialization column, use it per-row
             allow_mixed_specializations = False
+            levels_without_specializations = ['FIRST', 'الفرقة الأولى', 'PREPARATORY', 'الفرقة الإعدادية', 'PREP']
+            
             if department.code == 'ELECT' or department.name == 'الهندسة الكهربية':
-                if 'specialization' not in df.columns:
+                # Check if any row in CSV is from a level that requires specialization (not FIRST/PREP)
+                has_level_requiring_spec = False
+                if 'level' in df.columns:
+                    for lvl in df['level'].dropna().astype(str).str.strip().unique():
+                        lvl_upper = lvl.upper()
+                        if lvl and not any(ls in lvl_upper or ls in lvl for ls in levels_without_specializations):
+                            has_level_requiring_spec = True
+                            break
+                
+                if has_level_requiring_spec and 'specialization' not in df.columns:
                     validation_errors.append(
-                        'عمود specialization إلزامي للهندسة الكهربية. ' 
+                        'عمود specialization إلزامي للهندسة الكهربية للفرق الثانية والثالثة والرابعة. ' 
                         'يجب إضافة عمود specialization بقيم ece (هندسة اتصالات) أو epm (هندسة قوى)'
                     )
-                else:
-                    # Check if all specializations in CSV are valid
+                elif 'specialization' in df.columns:
+                    # Check if all specializations in CSV are valid (only for levels that require it)
                     from .models import Specialization
                     csv_specializations = df['specialization'].dropna().astype(str).str.strip().unique()
                     valid_specs = Specialization.objects.filter(department=department)
