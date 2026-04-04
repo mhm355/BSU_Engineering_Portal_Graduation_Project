@@ -611,7 +611,14 @@ class UploadStudentsView(APIView):
             return Response(results, status=status.HTTP_201_CREATED)
 
         except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            import traceback
+            error_detail = traceback.format_exc()
+            print(f"ERROR in UploadStudentsView: {str(e)}")
+            print(error_detail)
+            return Response(
+                {'error': f'Server error: {str(e)}', 'details': error_detail}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
     def _process_students(self, df, department, academic_year, default_level, default_specialization, performed_by, allow_mixed_specializations=False):
         """Process student data and create accounts with multi-level and multi-specialization support"""
@@ -638,13 +645,13 @@ class UploadStudentsView(APIView):
                     row_level = default_level
                     if not default_level and 'level' in df.columns:
                         level_value = str(row['level']).strip()
-                        # Try to find level by name
-                        try:
-                            row_level = Level.objects.get(
-                                Q(name__iexact=level_value) | 
-                                Q(name__iexact=level_value.replace(' ', '_'))
-                            )
-                        except Level.DoesNotExist:
+                        # Try to find level by name - use filter to avoid MultipleObjectsReturned
+                        row_level = Level.objects.filter(
+                            Q(name__iexact=level_value) | 
+                            Q(name__iexact=level_value.replace(' ', '_'))
+                        ).first()
+                        
+                        if not row_level:
                             errors.append(f"صف {index + 2}: الفرقة '{level_value}' غير موجودة")
                             continue
 
@@ -737,7 +744,12 @@ class UploadStudentsView(APIView):
                         created_count += 1
 
             except Exception as e:
-                errors.append(f"صف {index + 2}: {str(e)}")
+                import traceback
+                error_msg = f"صف {index + 2}: {str(e)}"
+                errors.append(error_msg)
+                # Log the full traceback for debugging
+                print(f"ERROR in _process_students row {index + 2}: {str(e)}")
+                print(traceback.format_exc())
 
         # Audit log
         try:
