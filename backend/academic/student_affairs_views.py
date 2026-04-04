@@ -189,17 +189,21 @@ def match_department(csv_dept, department):
 
 def match_specialization(csv_spec, specialization):
     """Check if CSV specialization name matches the selected specialization (supports both Arabic and English)"""
-    csv_normalized = normalize_specialization_name(csv_spec)
     csv_lower = str(csv_spec).strip().lower()
     spec_name_lower = specialization.name.lower()
     spec_code_lower = specialization.code.lower() if specialization.code else ''
     
-    # Check code match first (ece, epm)
+    # Check code match first (ece, epm) - EXACT match only
     if csv_lower == spec_code_lower:
         return True
     
-    # Check if normalized value matches specialization name
-    if csv_normalized.lower() == spec_name_lower:
+    # Check if CSV value is the code (ece or epm)
+    if csv_lower in ['ece', 'epm'] and spec_code_lower == csv_lower:
+        return True
+    
+    # Check normalized value matches specialization name
+    csv_normalized = normalize_specialization_name(csv_spec)
+    if csv_normalized and csv_normalized.lower() == spec_name_lower:
         return True
     
     # Direct comparison with database name
@@ -210,11 +214,12 @@ def match_specialization(csv_spec, specialization):
     if csv_spec == str(specialization.id):
         return True
     
-    # Check if the normalized Arabic name matches (with or without ال/هندسة prefix)
-    csv_no_prefix = csv_normalized.replace('ال', '').replace('هندسة ', '') if csv_normalized else csv_normalized
-    spec_no_prefix = specialization.name.replace('ال', '').replace('هندسة ', '') if specialization.name else specialization.name
-    if csv_no_prefix == spec_no_prefix:
-        return True
+    # Check Arabic variations - only if not a code
+    if csv_lower not in ['ece', 'epm']:
+        csv_no_prefix = csv_normalized.replace('ال', '').replace('هندسة ', '').strip() if csv_normalized else ''
+        spec_no_prefix = specialization.name.replace('ال', '').replace('هندسة ', '').strip() if specialization.name else ''
+        if csv_no_prefix and spec_no_prefix and csv_no_prefix == spec_no_prefix:
+            return True
     
     return False
 
@@ -324,12 +329,26 @@ class PreviewStudentsUploadView(APIView):
                     if not level_exists:
                         row_errors.append(f'الفرقة "{csv_level}" غير موجودة')
 
+                # Validate specialization for Electrical department
+                csv_spec = str(row.get('specialization', '')).strip()
+                if department.code == 'ELECT' or department.name == 'الهندسة الكهربية':
+                    if not csv_spec:
+                        row_errors.append('التخصص مطلوب للهندسة الكهربية')
+                    else:
+                        from .models import Specialization
+                        # Check if this specialization exists in the department
+                        valid_specs = Specialization.objects.filter(department=department)
+                        spec_valid = any(match_specialization(csv_spec, spec) for spec in valid_specs)
+                        if not spec_valid:
+                            row_errors.append(f'التخصص "{csv_spec}" غير موجود في قسم {department.name}')
+
                 preview_rows.append({
                     'row_number': index + 2,
                     'national_id': national_id,
                     'full_name': str(row.get('full_name', '')),
                     'department': csv_dept,
                     'level': csv_level,
+                    'specialization': csv_spec,
                     'email': str(row.get('email', '')) if pd.notna(row.get('email')) else '',
                     'errors': row_errors
                 })

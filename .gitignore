@@ -50,3 +50,6 @@ newfeature*
 *.sqlite3
 .coverage
 htmlcov/
+
+# Local Cache
+.docker-cache
