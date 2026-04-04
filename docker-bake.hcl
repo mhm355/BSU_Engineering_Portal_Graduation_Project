@@ -27,6 +27,7 @@ target "base" {
 
 target "backend" {
   inherits = ["base"]
+  context = "."
   dockerfile = "backend-dockerfile"
   tags = ["mhmdocker1/bsu_backend:latest"]
   cache-to = cache_to("bsu_backend")
