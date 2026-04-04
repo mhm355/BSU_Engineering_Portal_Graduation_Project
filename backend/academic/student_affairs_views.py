@@ -17,6 +17,95 @@ from users.permissions import IsStudentAffairsRole, IsStudentRole
 User = get_user_model()
 
 
+# Mapping dictionaries to support both Arabic and English department/specialization names
+DEPARTMENT_NAME_MAPPINGS = {
+    # English to Arabic mappings
+    'architecture': 'هندسة معمارية',
+    'civil': 'هندسة مدنية',
+    'electrical': 'هندسة كهربية',
+    'prep': 'الفرقة الإعدادية',
+    'preparatory': 'الفرقة الإعدادية',
+    # Arabic variations
+    'هندسة معمارية': 'هندسة معمارية',
+    'هندسة مدنية': 'هندسة مدنية',
+    'هندسة كهربية': 'هندسة كهربية',
+    'الفرقة الإعدادية': 'الفرقة الإعدادية',
+}
+
+SPECIALIZATION_NAME_MAPPINGS = {
+    # English to Arabic
+    'ece': 'هندسة اتصالات',
+    'epm': 'هندسة قوى',
+    # Arabic variations
+    'هندسة اتصالات': 'هندسة اتصالات',
+    'هندسة قوى': 'هندسة قوى',
+    'اتصالات': 'هندسة اتصالات',
+    'قوى': 'هندسة قوى',
+}
+
+
+def normalize_department_name(name):
+    """Convert any department name (Arabic/English) to the database standard format"""
+    if not name:
+        return name
+    normalized = str(name).strip().lower()
+    return DEPARTMENT_NAME_MAPPINGS.get(normalized, name)
+
+
+def normalize_specialization_name(name):
+    """Convert any specialization name (Arabic/English) to the database standard format"""
+    if not name:
+        return name
+    normalized = str(name).strip().lower()
+    return SPECIALIZATION_NAME_MAPPINGS.get(normalized, name)
+
+
+def match_department(csv_dept, department):
+    """Check if CSV department name matches the selected department (supports both Arabic and English)"""
+    csv_normalized = normalize_department_name(csv_dept)
+    
+    # Direct comparison with database name
+    if csv_normalized.lower() == department.name.lower():
+        return True
+    
+    # Check code match
+    if csv_dept.lower() == department.code.lower():
+        return True
+    
+    # Check ID match
+    if csv_dept == str(department.id):
+        return True
+    
+    # Check if the normalized Arabic name matches
+    if csv_normalized == department.name:
+        return True
+    
+    return False
+
+
+def match_specialization(csv_spec, specialization):
+    """Check if CSV specialization name matches the selected specialization (supports both Arabic and English)"""
+    csv_normalized = normalize_specialization_name(csv_spec)
+    
+    # Direct comparison with database name
+    if csv_normalized.lower() == specialization.name.lower():
+        return True
+    
+    # Check code match
+    if csv_spec.lower() == specialization.code.lower():
+        return True
+    
+    # Check ID match
+    if csv_spec == str(specialization.id):
+        return True
+    
+    # Check if the normalized Arabic name matches
+    if csv_normalized == specialization.name:
+        return True
+    
+    return False
+
+
 class PreviewStudentsUploadView(APIView):
     """
     Preview CSV/Excel file before actual upload.
@@ -103,12 +192,8 @@ class PreviewStudentsUploadView(APIView):
                 if not national_id or len(national_id) < 10:
                     row_errors.append('الرقم القومي غير صالح')
 
-                # Validate department match
-                dept_match = (
-                    csv_dept.lower() == department.name.lower() or
-                    csv_dept.lower() == department.code.lower() or
-                    csv_dept == str(department.id)
-                )
+                # Validate department match using helper function
+                dept_match = match_department(csv_dept, department)
                 if not dept_match:
                     row_errors.append(f'القسم "{csv_dept}" لا يطابق "{department.name}"')
 
@@ -265,19 +350,14 @@ class UploadStudentsView(APIView):
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
-            # Validate CSV content matches selected department - now REQUIRED
+            # Validate CSV content matches selected department using helper function
             validation_errors = []
             if 'department' not in df.columns:
                 validation_errors.append('عمود department مطلوب في الملف للتحقق من القسم')
             else:
                 csv_departments = df['department'].dropna().astype(str).str.strip().unique()
                 for csv_dept in csv_departments:
-                    dept_match = (
-                        csv_dept.lower() == department.name.lower() or 
-                        csv_dept.lower() == department.code.lower() or
-                        csv_dept.lower() == str(department.id)
-                    )
-                    if not dept_match:
+                    if not match_department(csv_dept, department):
                         validation_errors.append(
                             f'قسم في الملف "{csv_dept}" لا يطابق القسم المحدد "{department.name}". '
                             f'يرجى التحقق من اختيار القسم الصحيح أو تصحيح البيانات في الملف'
@@ -316,13 +396,8 @@ class UploadStudentsView(APIView):
                 for csv_spec in csv_specializations:
                     if csv_spec:
                         if specialization:
-                            # Check if CSV specialization matches UI selection
-                            spec_match = (
-                                csv_spec.lower() == specialization.name.lower() or 
-                                csv_spec.lower() == specialization.code.lower() or
-                                csv_spec == str(specialization.id)
-                            )
-                            if not spec_match:
+                            # Check if CSV specialization matches UI selection using helper
+                            if not match_specialization(csv_spec, specialization):
                                 validation_errors.append(
                                     f'تخصص في الملف "{csv_spec}" لا يطابق التخصص المحدد في الواجهة "{specialization.name}". '
                                     f'يرجى التحقق من اختيار التخصص الصحيح أو إزالة عمود specialization من الملف'
