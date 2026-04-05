@@ -199,35 +199,35 @@ export default function StudentDashboard() {
     const quickActions = [
         {
             title: 'نتائج الامتحانات',
-            icon: <GradeIcon sx={{ fontSize: 40 }} />,
+            icon: GradeIcon,
             description: 'عرض درجاتك ونتائج الامتحانات',
             gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
             path: '/student/grades'
         },
         {
             title: isPreparatory ? 'المواد العامة' : 'مواد القسم',
-            icon: <MenuBookIcon sx={{ fontSize: 40 }} />,
+            icon: MenuBookIcon,
             description: 'تصفح المحاضرات والمراجع',
             gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
             path: '/student/materials'
         },
         {
             title: 'جدول الامتحانات',
-            icon: <EventIcon sx={{ fontSize: 40 }} />,
+            icon: EventIcon,
             description: 'مواعيد الامتحانات القادمة',
             gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
             path: '/student/exams'
         },
         {
             title: 'سجل الحضور',
-            icon: <AccessTimeIcon sx={{ fontSize: 40 }} />,
+            icon: AccessTimeIcon,
             description: 'متابعة حضورك وغيابك',
             gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
             path: '/student/attendance'
         },
         {
             title: 'الكويزات',
-            icon: <QuizIcon sx={{ fontSize: 40 }} />,
+            icon: QuizIcon,
             description: 'الاختبارات القصيرة والتقييمات',
             gradient: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
             path: '/student/quizzes'
