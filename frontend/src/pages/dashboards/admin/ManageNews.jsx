@@ -91,14 +91,14 @@ export default function ManageNews() {
     return (
         <Container maxWidth="lg" sx={{ py: 4 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-                <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342' }}>
+                <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B' }}>
                     إدارة الأخبار
                 </Typography>
                 <Button
                     variant="contained"
                     startIcon={<AddIcon sx={{ ml: 1 }} />}
                     onClick={() => handleOpen()}
-                    sx={{ fontFamily: 'Cairo', fontWeight: 'bold', bgcolor: '#0A2342' }}
+                    sx={{ bgcolor: '#4F46E5', fontFamily: 'Cairo', fontWeight: 'bold', borderRadius: 3 }}
                 >
                     إضافة خبر جديد
                 </Button>
@@ -208,7 +208,7 @@ export default function ManageNews() {
                         onClick={handleSave}
                         variant="contained"
                         disabled={uploading}
-                        sx={{ fontFamily: 'Cairo', bgcolor: '#0A2342' }}
+                        sx={{ fontFamily: 'Cairo', bgcolor: '#4F46E5' }}
                     >
                         {uploading ? 'جاري الحفظ...' : 'حفظ'}
                     </Button>

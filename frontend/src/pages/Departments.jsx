@@ -25,14 +25,14 @@ export default function Departments() {
     ];
 
     return (
-        <Container maxWidth="lg" sx={{ py: 8 }}>
-            <Typography variant="h3" gutterBottom sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342', textAlign: 'center', mb: 6 }}>
+        <Container maxWidth="lg" sx={{ py: 4 }}>
+            <Typography variant="h4" gutterBottom sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B', textAlign: 'center', mb: 4 }}>
                 الأقسام العلمية
             </Typography>
 
             <Grid container spacing={4}>
                 {departments.map((dept) => (
-                    <Grid item xs={12} md={4} key={dept.id}>
+                    <Grid item xs={12} key={dept.id}>
                         <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', transition: '0.3s', '&:hover': { transform: 'translateY(-5px)', boxShadow: 6 } }}>
                             <CardMedia
                                 component="img"
@@ -41,7 +41,7 @@ export default function Departments() {
                                 alt={dept.name}
                             />
                             <CardContent sx={{ flexGrow: 1, textAlign: 'center' }}>
-                                <Typography variant="h5" component="h2" gutterBottom sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342' }}>
+                                <Typography variant="h5" component="h2" gutterBottom sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B' }}>
                                     {dept.name}
                                 </Typography>
                                 <Typography variant="body2" color="text.secondary" sx={{ fontFamily: 'Cairo', mb: 3 }}>

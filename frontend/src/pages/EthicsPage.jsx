@@ -14,7 +14,7 @@ export default function EthicsPage() {
     const sections = [
         {
             title: 'أولاً: أخلاقيات عضو هيئة التدريس في التدريس',
-            icon: <SchoolIcon sx={{ color: '#0A2342' }} />,
+            icon: <SchoolIcon sx={{ color: '#4F46E5' }} />,
             items: [
                 'التأكد من إتقان المادة التي يقوم بتدريسها ويؤهل نفسه فيها قبل أن يقبل تدريسها',
                 'التحضير الجيد لمادته مع الإحاطة الوافية بمستجداتها ليكون متمكناً من المادة',
@@ -28,7 +28,7 @@ export default function EthicsPage() {
         },
         {
             title: 'ثانياً: أخلاقيات عضو هيئة التدريس في التعامل مع الطلاب',
-            icon: <GroupsIcon sx={{ color: '#0A2342' }} />,
+            icon: <GroupsIcon sx={{ color: '#4F46E5' }} />,
             items: [
                 'الاحترام المتبادل',
                 'عدم التمييز بين الطلاب على أساس المعرفة أو الدين أو النوع',
@@ -40,7 +40,7 @@ export default function EthicsPage() {
         },
         {
             title: 'ثالثاً: أخلاقيات عضو هيئة التدريس في تقييم الطلاب',
-            icon: <AssignmentIcon sx={{ color: '#0A2342' }} />,
+            icon: <AssignmentIcon sx={{ color: '#4F46E5' }} />,
             items: [
                 'التقييم المستمر أو الدوري للطلاب مع إفادتهم بنتائج التقييم',
                 'إخطار ولي الأمر بنتائج التقييم في الحالات التي تستوجب ذلك',
@@ -52,7 +52,7 @@ export default function EthicsPage() {
         },
         {
             title: 'رابعاً: أخلاقيات عضو هيئة التدريس في التعامل مع زملائه',
-            icon: <HandshakeIcon sx={{ color: '#0A2342' }} />,
+            icon: <HandshakeIcon sx={{ color: '#4F46E5' }} />,
             items: [
                 'الاحترام المتبادل',
                 'الالتزام بالصدق والأمانة',
@@ -63,7 +63,7 @@ export default function EthicsPage() {
         },
         {
             title: 'خامساً: أخلاقيات عضو هيئة التدريس كباحث علمي',
-            icon: <ScienceIcon sx={{ color: '#0A2342' }} />,
+            icon: <ScienceIcon sx={{ color: '#4F46E5' }} />,
             items: [
                 'الأمانة والمصداقية في التخطيط للبحث والتعامل مع البيانات',
                 'عدم إجراء تعديلات في البيانات الخام للحصول على نتائج معينة',
@@ -76,7 +76,7 @@ export default function EthicsPage() {
         },
         {
             title: 'سادساً: أخلاقيات المهنة في خدمة الجامعة والمجتمع',
-            icon: <PublicIcon sx={{ color: '#0A2342' }} />,
+            icon: <PublicIcon sx={{ color: '#4F46E5' }} />,
             items: [
                 'ربط ما يعلمه الأستاذ باحتياجات المجتمع',
                 'تقديم الخدمات للقطاعات المختلفة',
@@ -108,25 +108,25 @@ export default function EthicsPage() {
                 sx={{
                     p: 4,
                     mb: 4,
-                    background: 'linear-gradient(135deg, #0A2342 0%, #1a4a7a 100%)',
+                    background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)',
                     color: 'white',
                     borderRadius: 3
                 }}
             >
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2 }}>
-                    <BalanceIcon sx={{ fontSize: 50, mr: 2 }} />
-                    <Typography variant="h3" component="h1" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
+                    <BalanceIcon sx={{ fontSize: 36, mr: 2 }} />
+                    <Typography variant="h4" component="h1" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
                         الميثاق الأخلاقي
                     </Typography>
                 </Box>
-                <Typography variant="h6" sx={{ fontFamily: 'Cairo', textAlign: 'center', opacity: 0.9 }}>
+                <Typography variant="subtitle1" sx={{ fontFamily: 'Cairo', textAlign: 'center', opacity: 0.9 }}>
                     ميثاق أخلاقيات ممارسة المهنة لكلية الهندسة
                 </Typography>
             </Paper>
 
             {/* Introduction */}
-            <Paper elevation={2} sx={{ p: 4, mb: 4, borderRight: '4px solid #FFC107' }}>
-                <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342', mb: 2 }}>
+            <Paper elevation={2} sx={{ p: 4, mb: 4, borderRight: '4px solid #4F46E5' }}>
+                <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B', mb: 2 }}>
                     مصادر المعايير الأخلاقية
                 </Typography>
                 <Typography variant="body1" sx={{ fontFamily: 'Cairo', lineHeight: 2 }}>
@@ -151,7 +151,7 @@ export default function EthicsPage() {
             </Paper>
 
             {/* Faculty Ethics Sections */}
-            <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342', mb: 3 }}>
+            <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B', mb: 3 }}>
                 أخلاقيات أعضاء هيئة التدريس
             </Typography>
             {sections.map((section, index) => (
@@ -160,13 +160,13 @@ export default function EthicsPage() {
                         expandIcon={<ExpandMoreIcon />}
                         sx={{
                             bgcolor: '#f8f9fa',
-                            borderRight: '4px solid #FFC107',
+                            borderRight: '4px solid #4F46E5',
                             '&:hover': { bgcolor: '#e9ecef' }
                         }}
                     >
                         <Box sx={{ display: 'flex', alignItems: 'center' }}>
                             {section.icon}
-                            <Typography sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342', ml: 2 }}>
+                            <Typography sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B', ml: 2 }}>
                                 {section.title}
                             </Typography>
                         </Box>
@@ -192,15 +192,15 @@ export default function EthicsPage() {
             <Divider sx={{ my: 4 }} />
 
             {/* Student Ethics */}
-            <Paper elevation={2} sx={{ p: 4, borderTop: '4px solid #0A2342' }}>
-                <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342', mb: 3 }}>
+            <Paper elevation={2} sx={{ p: 4, borderTop: '4px solid #4F46E5' }}>
+                <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B', mb: 3 }}>
                     أخلاقيات الطالب الجامعي
                 </Typography>
                 <List>
                     {studentEthics.map((item, index) => (
                         <ListItem key={index}>
                             <ListItemIcon>
-                                <CheckCircleOutlineIcon sx={{ color: '#0A2342' }} />
+                                <CheckCircleOutlineIcon sx={{ color: '#4F46E5' }} />
                             </ListItemIcon>
                             <ListItemText
                                 primary={item}

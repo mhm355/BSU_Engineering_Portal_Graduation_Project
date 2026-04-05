@@ -51,7 +51,7 @@ export default function ElectricalDepartmentPage() {
 
     const getRankColor = (rank) => {
         switch (rank) {
-            case 'head': return { bg: '#FFC107', text: '#000' };
+            case 'head': return { bg: '#4F46E5', text: '#fff' };
             case 'professor': return { bg: '#f57c00', text: '#fff' };
             case 'assistant': return { bg: '#ff9800', text: '#fff' };
             case 'lecturer': return { bg: '#ffb74d', text: '#000' };
@@ -278,17 +278,17 @@ export default function ElectricalDepartmentPage() {
                         left: 0,
                         right: 0,
                         bottom: 0,
-                        background: 'radial-gradient(circle at 80% 20%, rgba(255,255,255,0.15) 0%, transparent 50%)',
+                        background: 'none',
                     }
                 }}
             >
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2, position: 'relative' }}>
-                    <ElectricalServicesIcon sx={{ fontSize: 60, mr: 2, opacity: 0.9 }} />
-                    <Typography variant="h3" component="h1" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
+                    <ElectricalServicesIcon sx={{ fontSize: 40, mr: 2, opacity: 0.9 }} />
+                    <Typography variant="h4" component="h1" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
                         قسم الهندسة الكهربية
                     </Typography>
                 </Box>
-                <Typography variant="h6" sx={{ fontFamily: 'Cairo', textAlign: 'center', opacity: 0.85 }}>
+                <Typography variant="subtitle1" sx={{ fontFamily: 'Cairo', textAlign: 'center', opacity: 0.85 }}>
                     Electrical Engineering Department
                 </Typography>
             </Paper>
@@ -299,7 +299,7 @@ export default function ElectricalDepartmentPage() {
                     <Box sx={{ bgcolor: '#f57c00', p: 1.5, borderRadius: 2, mr: 2 }}>
                         <ElectricalServicesIcon sx={{ fontSize: 30, color: 'white' }} />
                     </Box>
-                    <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342' }}>
+                    <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B' }}>
                         نبذة عن القسم
                     </Typography>
                 </Box>
@@ -310,13 +310,13 @@ export default function ElectricalDepartmentPage() {
 
             {/* Programs Section */}
             <Grid container spacing={3} sx={{ mb: 4 }}>
-                <Grid item xs={12} md={6}>
+                <Grid item xs={12}>
                     <Paper elevation={3} sx={{ p: 4, height: '100%', borderTop: '5px solid #2196f3', borderRadius: 3, transition: 'all 0.3s', '&:hover': { transform: 'translateY(-5px)', boxShadow: 6 } }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                             <Box sx={{ bgcolor: '#e3f2fd', p: 1.5, borderRadius: 2, mr: 2 }}>
                                 <SettingsInputAntennaIcon sx={{ color: '#2196f3', fontSize: 28 }} />
                             </Box>
-                            <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342' }}>
+                            <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B' }}>
                                 برنامج هندسة الإلكترونيات والاتصالات
                             </Typography>
                         </Box>
@@ -329,13 +329,13 @@ export default function ElectricalDepartmentPage() {
                         </Box>
                     </Paper>
                 </Grid>
-                <Grid item xs={12} md={6}>
+                <Grid item xs={12}>
                     <Paper elevation={3} sx={{ p: 4, height: '100%', borderTop: '5px solid #4caf50', borderRadius: 3, transition: 'all 0.3s', '&:hover': { transform: 'translateY(-5px)', boxShadow: 6 } }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                             <Box sx={{ bgcolor: '#e8f5e9', p: 1.5, borderRadius: 2, mr: 2 }}>
                                 <BoltIcon sx={{ color: '#4caf50', fontSize: 28 }} />
                             </Box>
-                            <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342' }}>
+                            <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B' }}>
                                 برنامج هندسة القوى والآلات الكهربية
                             </Typography>
                         </Box>
@@ -356,7 +356,7 @@ export default function ElectricalDepartmentPage() {
                     <Box sx={{ bgcolor: '#fff3e0', p: 1.5, borderRadius: 2, mr: 2 }}>
                         <MenuBookIcon sx={{ fontSize: 30, color: '#f57c00' }} />
                     </Box>
-                    <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342' }}>
+                    <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B' }}>
                         المواد الدراسية
                     </Typography>
                 </Box>
@@ -456,7 +456,7 @@ export default function ElectricalDepartmentPage() {
                             <PersonIcon sx={{ fontSize: 30, color: '#f57c00' }} />
                         </Box>
                         <Box>
-                            <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342' }}>
+                            <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B' }}>
                                 أعضاء هيئة التدريس
                             </Typography>
                             <Typography variant="body2" sx={{ fontFamily: 'Cairo', color: '#666' }}>
@@ -485,7 +485,7 @@ export default function ElectricalDepartmentPage() {
                         {faculty.map((member, index) => {
                             const colors = getRankColor(member.rank);
                             return (
-                                <Grid item xs={12} sm={6} md={4} key={index}>
+                                <Grid item xs={12} key={index}>
                                     <Paper
                                         elevation={2}
                                         sx={{
@@ -527,12 +527,12 @@ export default function ElectricalDepartmentPage() {
 
                     <Divider sx={{ my: 3 }} />
 
-                    <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342', mb: 2 }}>
+                    <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B', mb: 2 }}>
                         أعضاء الهيئة المعاونة
                     </Typography>
                     <Grid container spacing={2}>
                         {assistants.map((member, index) => (
-                            <Grid item xs={12} sm={6} md={4} key={index}>
+                            <Grid item xs={12} key={index}>
                                 <Paper
                                     elevation={2}
                                     sx={{
@@ -567,13 +567,13 @@ export default function ElectricalDepartmentPage() {
                     <Box sx={{ bgcolor: '#f57c00', p: 1.5, borderRadius: 2, mr: 2 }}>
                         <ScienceIcon sx={{ fontSize: 30, color: 'white' }} />
                     </Box>
-                    <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342' }}>
+                    <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B' }}>
                         معامل القسم
                     </Typography>
                 </Box>
                 <Grid container spacing={2}>
                     {labs.map((lab, index) => (
-                        <Grid item xs={12} sm={6} md={4} key={index}>
+                        <Grid item xs={12} key={index}>
                             <Paper
                                 elevation={1}
                                 sx={{

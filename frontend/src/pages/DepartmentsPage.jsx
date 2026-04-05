@@ -12,7 +12,7 @@ export default function DepartmentsPage() {
             name: 'قسم الهندسة المدنية',
             nameEn: 'Civil Engineering',
             link: '/departments/civil',
-            icon: <ConstructionIcon sx={{ fontSize: 60, color: 'white' }} />,
+            icon: <ConstructionIcon sx={{ fontSize: 40, color: 'white' }} />,
             color: '#1976d2',
             description: 'يهدف إلى تحقيق التميز والريادة في التعليم الهندسي في مجال الهندسة المدنية محلياً وإقليمياً ودولياً'
         },
@@ -20,7 +20,7 @@ export default function DepartmentsPage() {
             name: 'قسم الهندسة المعمارية',
             nameEn: 'Architecture',
             link: '/departments/arch',
-            icon: <ArchitectureIcon sx={{ fontSize: 60, color: 'white' }} />,
+            icon: <ArchitectureIcon sx={{ fontSize: 40, color: 'white' }} />,
             color: '#388e3c',
             description: 'يهدف إلى توفير مستوى تعليمي راق للخريجين من خلال برامج تعليمية وتدريبية وبحثية ذات صلة بالمجتمع'
         },
@@ -28,7 +28,7 @@ export default function DepartmentsPage() {
             name: 'قسم الهندسة الكهربية',
             nameEn: 'Electrical Engineering',
             link: '/departments/electrical',
-            icon: <ElectricalServicesIcon sx={{ fontSize: 60, color: 'white' }} />,
+            icon: <ElectricalServicesIcon sx={{ fontSize: 40, color: 'white' }} />,
             color: '#f57c00',
             description: 'يركز على تخريج مهندسين ذوي كفاءة عالية في هندسة الإلكترونيات والاتصالات وهندسة القوى والآلات الكهربية',
             programs: ['هندسة الإلكترونيات والاتصالات', 'هندسة القوى والآلات الكهربية']
@@ -43,18 +43,18 @@ export default function DepartmentsPage() {
                 sx={{
                     p: 4,
                     mb: 4,
-                    background: 'linear-gradient(135deg, #0A2342 0%, #1a4a7a 100%)',
+                    background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)',
                     color: 'white',
                     borderRadius: 3
                 }}
             >
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2 }}>
-                    <EngineeringIcon sx={{ fontSize: 50, mr: 2 }} />
-                    <Typography variant="h3" component="h1" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
+                    <EngineeringIcon sx={{ fontSize: 36, mr: 2 }} />
+                    <Typography variant="h4" component="h1" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
                         الأقسام العلمية
                     </Typography>
                 </Box>
-                <Typography variant="h6" sx={{ fontFamily: 'Cairo', textAlign: 'center', opacity: 0.9 }}>
+                <Typography variant="subtitle1" sx={{ fontFamily: 'Cairo', textAlign: 'center', opacity: 0.9 }}>
                     كلية الهندسة - جامعة بني سويف
                 </Typography>
             </Paper>
@@ -62,7 +62,7 @@ export default function DepartmentsPage() {
             {/* Departments Grid */}
             <Grid container spacing={4}>
                 {departments.map((dept, index) => (
-                    <Grid item xs={12} md={4} key={index}>
+                    <Grid item xs={12} key={index}>
                         <Card
                             elevation={4}
                             sx={{
@@ -115,8 +115,8 @@ export default function DepartmentsPage() {
             </Grid>
 
             {/* Info Box */}
-            <Paper elevation={2} sx={{ p: 4, mt: 4, borderRight: '4px solid #FFC107' }}>
-                <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342', mb: 2 }}>
+            <Paper elevation={2} sx={{ p: 4, mt: 4, borderRight: '4px solid #4F46E5' }}>
+                <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B', mb: 2 }}>
                     نظام الدراسة
                 </Typography>
                 <Typography variant="body1" sx={{ fontFamily: 'Cairo', lineHeight: 1.8 }}>

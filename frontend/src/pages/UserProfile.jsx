@@ -62,7 +62,7 @@ export default function UserProfile() {
         <Container maxWidth="md" sx={{ py: 4 }}>
             <Paper sx={{ p: 4 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
-                    <Avatar sx={{ width: 80, height: 80, bgcolor: '#0A2342', fontSize: 32, mr: 2 }}>
+                    <Avatar sx={{ width: 55, height: 55, bgcolor: '#4F46E5', fontSize: 24, mr: 2 }}>
                         {user?.first_name?.[0]}
                     </Avatar>
                     <Box>
@@ -164,7 +164,7 @@ export default function UserProfile() {
                                 variant="contained"
                                 size="large"
                                 disabled={loading}
-                                sx={{ bgcolor: '#0A2342', fontFamily: 'Cairo', mt: 2 }}
+                                sx={{ bgcolor: '#4F46E5', fontFamily: 'Cairo', mt: 2 }}
                             >
                                 {loading ? 'جاري الحفظ...' : 'حفظ التغييرات'}
                             </Button>

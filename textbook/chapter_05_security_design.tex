@@ -1,0 +1,265 @@
+% Chapter 5: Security Design
+% BSU Engineering Portal Graduation Project
+
+\chapter{Security Design}
+\label{chap:security}
+
+Security in the BSU Engineering Portal is not treated as a bolt-on feature, but rather as a structural property woven into every layer of the architecture. From session management at the protocol level to database isolation at the infrastructure level, each design decision was governed by the principle of \textbf{defense in depth}---ensuring that every layer is independently defensible.
+
+\section{Authentication \& Session Management}
+\label{sec:auth-session}
+
+\subsection{Why Session-Based Authentication Over JWT}
+
+The most consequential security decision in the system's design was the selection of \textbf{Session-Based Authentication} over JSON Web Tokens (JWT). While JWT is popular in modern SPA architectures, it was deliberately rejected after an architectural trade-off analysis specific to the faculty's operational requirements.
+
+\begin{table}[H]
+    \centering
+    \renewcommand{\arraystretch}{1.3}
+    \begin{tabular}{|p{0.25\textwidth}|p{0.35\textwidth}|p{0.35\textwidth}|}
+        \hline
+        \textbf{Criterion} & \textbf{Session-Based (Chosen)} & \textbf{JWT (Rejected)} \\
+        \hline
+        \textbf{Server-side invalidation} & Immediate. Destroying the session instantly logs the user out. & Impossible without a Redis blacklist; compromised tokens remain valid until expiry. \\
+        \hline
+        \textbf{Forced password change} & Natural flow. Session is destroyed, forcing immediate re-login. & Requires complex token revocation infrastructure. \\
+        \hline
+        \textbf{Admin password reset} & Simple. Reset password + wipe active session keys. & Old JWT remains valid until expiry, allowing continued unauthorized access. \\
+        \hline
+        \textbf{Token lifecycle} & Managed natively by Django middleware. & Requires access/refresh rotation logic and secure storage handling. \\
+        \hline
+    \end{tabular}
+    \caption{Authentication Architecture Trade-off Analysis}
+    \label{tab:auth_tradeoff}
+\end{table}
+
+The decisive factor was the institution's strict password lifecycle. Administrators frequently reset student passwords to their National ID, forcing a password change on the next login. Sessions allow this to happen instantly and atomically, whereas JWT would require significant additional infrastructure to achieve the same immediate revocation.
+
+\subsection{Cross-Origin Session Configuration}
+
+Because the application utilizes a decoupled SPA architecture (e.g., React on a separate origin or port from Django), the session cookies must traverse origins securely.
+
+\begin{lstlisting}[language=Python, caption=Session Cookie Configuration (\texttt{settings.py})]
+# Required for cross-origin cookie sending in SPA architectures
+SESSION_COOKIE_SAMESITE = 'None'   
+# Required when SameSite=None; ensures cookies are only sent over HTTPS
+SESSION_COOKIE_SECURE = True       
+\end{lstlisting}
+
+\subsection{Login and Logout Flows}
+
+The login endpoint creates a server-side session and returns the user profile, crucially including a \texttt{first\_login\_required} flag which the frontend uses for immediate routing. Conversely, the logout flow emphasizes security by executing a dual-cleanup process.
+
+\begin{lstlisting}[language=JavaScript, caption=Dual-Cleanup Logout Flow (\texttt{AuthContext.jsx})]
+const logout = async () => {
+    try {
+        await api.post('/api/auth/logout/'); // 1. Destroy server-side session
+    } catch {
+        // Continue client-side logout even if backend is unreachable
+    }
+    localStorage.removeItem('user');         // 2. Clear client UI state
+    setUser(null);
+};
+\end{lstlisting}
+
+\section{Role-Based Authorization (RBAC)}
+\label{sec:rbac}
+
+\subsection{The Role Model \& Permission Classes}
+
+The system implements a \textbf{five-role authorization model} (Admin, Student, Doctor, Student Affairs, Staff Affairs). Authorization is enforced at the backend through seven custom Django REST Framework (DRF) permission classes. 
+
+A key design decision was to grant the Admin role inherited capabilities across all administrative views. Rather than relying on a complex hierarchical tree, this inheritance is made explicit in each permission class for strict auditability.
+
+\begin{lstlisting}[language=Python, caption=Explicit Role Inheritance (\texttt{permissions.py})]
+class IsStudentAffairsRole(permissions.BasePermission):
+    """Student Affairs role - manages students and grades"""
+    def has_permission(self, request, view):
+        if not request.user or not request.user.is_authenticated:
+            return False
+        # Admin inherits access explicitly
+        return request.user.role in ['STUDENT_AFFAIRS', 'ADMIN']
+\end{lstlisting}
+
+\subsection{Frontend Route Protection vs. Backend Enforcement}
+
+Authorization operates at two distinct layers. The frontend utilizes a \texttt{\textless ProtectedRoute\textgreater} wrapper to route users away from unauthorized views and handle the mandatory password change redirect.
+
+However, the architectural principle holds that \textbf{frontend route protection is merely a UX convenience}. A determined attacker can bypass client-side JavaScript. True security relies on the backend endpoints evaluating the session's role payload against the requested resource.
+
+\begin{sidewaystable}
+    \centering
+    \renewcommand{\arraystretch}{1.2}
+    \caption{Role-Based Access Control (RBAC) Permission Matrix}
+    \label{tab:rbac_matrix}
+    \begin{tabular}{|p{0.28\textwidth}|c|p{0.12\textwidth}|c|p{0.12\textwidth}|p{0.12\textwidth}|}
+        \hline
+        \textbf{Operation} & \textbf{Admin} & \textbf{Doctor} & \textbf{Student} & \textbf{Student Affairs} & \textbf{Staff Affairs} \\
+        \hline
+        User Management & \cmark & \xmark & \xmark & \xmark & \xmark \\ \hline
+        Academic Year CRUD & \cmark & \xmark & \xmark & \xmark & \xmark \\ \hline
+        Grading Template CRUD & \cmark & \xmark & \xmark & \xmark & \xmark \\ \hline
+        Department CRUD & \cmark & \xmark & \xmark & \xmark & \xmark \\ \hline
+        Upload Students (Excel) & \cmark & \xmark & \xmark & \cmark & \xmark \\ \hline
+        Upload Doctors (Excel) & \cmark & \xmark & \xmark & \xmark & \cmark \\ \hline
+        Assign Doctor to Course & \cmark & \xmark & \xmark & \xmark & \cmark \\ \hline
+        Record Attendance & \cmark & \cmark (Own) & \xmark & \xmark & \xmark \\ \hline
+        Enter Grades & \cmark & \cmark (Own) & \xmark & \xmark & \xmark \\ \hline
+        Upload Exam Grades & \cmark & \xmark & \xmark & \cmark & \xmark \\ \hline
+        Approve Exam Grades & \cmark & \xmark & \xmark & \xmark & \xmark \\ \hline
+        Create Quizzes & \cmark & \cmark (Own) & \xmark & \xmark & \xmark \\ \hline
+        Take Quizzes & \xmark & \xmark & \cmark & \xmark & \xmark \\ \hline
+        View Own Grades & \xmark & \xmark & \cmark & \xmark & \xmark \\ \hline
+        View Own Attendance & \xmark & \xmark & \cmark & \xmark & \xmark \\ \hline
+        Upload Lectures & \cmark & \cmark (Own) & \xmark & \xmark & \xmark \\ \hline
+        Download Lectures & \xmark & \xmark & \cmark & \xmark & \xmark \\ \hline
+        Manage News & \cmark & \xmark & \xmark & \cmark & \cmark \\ \hline
+        Send Announcements & \cmark & \xmark & \xmark & \xmark & \xmark \\ \hline
+        View Audit Logs & \cmark & \xmark & \xmark & \xmark & \xmark \\ \hline
+        Approve Deletion Requests & \cmark & \xmark & \xmark & \xmark & \xmark \\ \hline
+        Reset User Passwords & \cmark & \xmark & \xmark & \cmark (Students) & \xmark \\ \hline
+        Manage Certificates & \cmark & \xmark & \xmark & \cmark & \xmark \\
+        \hline
+    \end{tabular}
+\end{sidewaystable}
+
+\section{Password Security}
+\label{sec:password-security}
+
+\subsection{Hashing \& Validation}
+
+Passwords are never stored in plaintext. The system leverages Django's \texttt{PBKDF2-SHA256} hashing algorithm with a 720,000-iteration key derivation function. Furthermore, four strict validators intercept all password creations:
+
+\begin{itemize}
+    \item \texttt{UserAttributeSimilarityValidator}: Rejects passwords matching the National ID.
+    \item \texttt{MinimumLengthValidator}: Enforces a baseline 8-character length (customized to 6 for legacy compatibility).
+    \item \texttt{CommonPasswordValidator}: Rejects over 20,000 universally breached passwords.
+    \item \texttt{NumericPasswordValidator}: Prohibits strictly numerical inputs.
+\end{itemize}
+
+\subsection{The National ID First-Login Pattern}
+
+To facilitate bulk onboarding, new users (Students and Doctors) are generated with their National ID functioning as their initial password. This acts as a shared institutional secret. To mitigate the risk of these predictable passwords persisting, the system enforces a strict state-machine for initial logins.
+
+\begin{lstlisting}[language=Python, caption=First-Login Enforcement Validations (\texttt{views.py})]
+if user.national_id and new_password == user.national_id:
+    return Response({'error': 'New password cannot match your National ID'}, status=400)
+
+user.set_password(new_password)
+user.first_login_required = False    # State transition complete
+user.save()
+login(request, user)                 # Atomic re-authentication
+\end{lstlisting}
+
+\section{CSRF \& XSS Protection}
+\label{sec:csrf-xss}
+
+\subsection{The Cross-Origin CSRF Challenge}
+
+Traditional Django applications rely on a double-submit cookie pattern for Cross-Site Request Forgery (CSRF) protection. In a decoupled SPA architecture spanning different origins, the browser restricts the frontend from reading the backend-issued CSRF token cookie. 
+
+To maintain functionality without degrading security, the system utilizes a custom \texttt{CsrfExemptSessionAuthentication} class. This decision is fortified by robust \textbf{compensating controls}.
+
+\begin{lstlisting}[language=Python, caption=Documented CSRF Exemption for SPA Architecture (\texttt{authentication.py})]
+class CsrfExemptSessionAuthentication(SessionAuthentication):
+    """
+    SECURITY RATIONALE:
+    In a cross-origin SPA architecture with SameSite=None session cookies,
+    Django's default double-submit CSRF cookie pattern fails. 
+    Instead, CSRF protection is offloaded to strict CORS origin validation.
+    """
+    def enforce_csrf(self, request):
+        return # CSRF bypassed; CORS provides origin verification
+\end{lstlisting}
+
+\subsection{Compensating Controls for CSRF Exemption}
+
+Because explicit CSRF tokens are bypassed, the system relies on the following configurations to neutralize cross-origin forging:
+
+\begin{enumerate}
+    \item \textbf{CORS Origin Whitelist}: \texttt{CORS\_ALLOWED\_ORIGINS} strictly enumerates trusted frontend origins. Requests from unlisted domains are blocked at the preflight stage.
+    \item \textbf{CORS Credentials Restriction}: Combined with \texttt{CORS\_ALLOW\_CREDENTIALS = True}, the browser is instructed to only send the session cookie if the request originates from the explicitly whitelisted domain.
+    \item \textbf{Secure Cookie Flag}: The session cookie can only be transmitted over HTTPS.
+\end{enumerate}
+
+\subsection{XSS Prevention}
+
+Cross-Site Scripting (XSS) is mitigated organically by React's default DOM escaping, which neutralizes injected payload rendering. Additionally, the Nginx reverse proxy injects mandatory security headers on every HTTP response:
+
+\begin{lstlisting}[language=nginx, caption=Mandatory Security Headers (\texttt{nginx.conf})]
+add_header X-Content-Type-Options "nosniff" always;
+add_header X-Frame-Options "SAMEORIGIN" always;
+add_header X-XSS-Protection "1; mode=block" always;
+add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+\end{lstlisting}
+
+\section{Rate Limiting \& Input Validation}
+\label{sec:rate-limiting}
+
+\subsection{Two-Tier API Throttling}
+
+To defend against brute-force credential stuffing and application-layer denial of service (DoS), the API enforces a global two-tier throttling mechanism. 
+
+\begin{table}[H]
+    \centering
+    \renewcommand{\arraystretch}{1.3}
+    \begin{tabular}{|p{0.2\textwidth}|p{0.25\textwidth}|p{0.45\textwidth}|}
+        \hline
+        \textbf{User State} & \textbf{Limit} & \textbf{Engineering Rationale} \\
+        \hline
+        Anonymous & 100 requests / hour & Accommodates normal browsing of public pages while rendering brute-force login attempts computationally useless. \\
+        \hline
+        Authenticated & 1,000 requests / hour & Accommodates legitimate heavy-duty tasks (like bulk grade viewing) while preventing automated data scraping. \\
+        \hline
+    \end{tabular}
+    \caption{API Rate Limiting Thresholds}
+    \label{tab:rate_limits}
+\end{table}
+
+Limits are enforced hourly rather than minutely to accommodate "burst" workflows, such as a Staff Affairs member rapidly submitting multiple Excel batch uploads.
+
+\subsection{Defense-in-Depth Validation}
+
+Data ingress is sanitized at three interconnected layers before persistence:
+
+\begin{enumerate}
+    \item \textbf{Serializer Level}: DRF validates strict types (e.g., rejecting string injections into \texttt{IntegerField}) and constraints (e.g., \texttt{max\_length=200}).
+    \item \textbf{Business Logic Level}: API views evaluate context. For example, \texttt{CourseOffering.objects.filter(doctor=request.user)} ensures doctors cannot mutate grades for subjects they do not teach.
+    \item \textbf{Database Level}: Schema constraints (\texttt{unique\_together}) serve as the final barrier against race conditions and concurrent duplication attacks.
+\end{enumerate}
+
+\section{Infrastructure-Level Security}
+\label{sec:infrastructure-security}
+
+\subsection{Container Isolation Strategy}
+
+Network surface area is minimized through Docker network segregation. Most critically, the MySQL 8.0 database container \textbf{does not expose port 3306 to the host machine}. 
+
+\begin{lstlisting}[language=yaml, caption=Database Port Isolation (\texttt{docker-compose.yml})]
+services:
+  db:
+    image: mysql:8.0
+    # NOTE: No 'ports' declaration. The database is strictly isolated.
+    networks:
+      - bsu_network
+\end{lstlisting}
+
+This guarantees that even if the host machine's firewall is misconfigured, the database remains inaccessible from external networks, accepting traffic exclusively from the internal \texttt{bsu\_backend} container.
+
+\subsection{CI/CD Vulnerability Scanning}
+
+The project's GitHub Actions deployment pipeline integrates **Trivy** to execute static application security testing (SAST) on all generated Docker artifacts. The pipeline is instructed to fail automatically (\texttt{exit-code: '1'}) if any CRITICAL or HIGH severity OS/library vulnerabilities are detected, preventing vulnerable code from reaching production.
+
+\section{Audit Trail Architecture}
+\label{sec:audit-trail}
+
+Administrative trust requires immutable traceability. Every state mutation executed by privileged roles (Admin, Staff Affairs, Student Affairs) generates an asynchronous \texttt{AuditLog} entry.
+
+The table stores 15 distinct action categories (e.g., \texttt{GRADE\_APPROVED}, \texttt{STUDENT\_DELETED}). By utilizing Django's \texttt{JSONField} for the \texttt{details} column, the schema supports highly contextual, variable payloads without requiring constant database migrations when new audit scenarios arise.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{defense_in_depth.png}
+    \caption{Defense-in-Depth architecture mapping the layered security controls from the client browser transport layer down to the isolated database infrastructure.}
+    \label{fig:defense_in_depth}
+\end{figure}

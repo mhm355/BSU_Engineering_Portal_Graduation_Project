@@ -29,6 +29,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
 
+import DashboardCard from '../../components/DashboardCard';
+
 // Animations
 const float = keyframes`
   0%, 100% { transform: translateY(0px); }
@@ -171,7 +173,13 @@ export default function StudentDashboard() {
         }
     }, [studentInfo]);
 
-    if (!user) return null;
+    if (!user) {
+        return (
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
+                <CircularProgress size={60} />
+            </Box>
+        );
+    }
 
     const isPreparatory = studentInfo?.level === 'PREPARATORY';
     const isFourthYear = studentInfo?.level === 'FOURTH';
@@ -191,35 +199,35 @@ export default function StudentDashboard() {
     const quickActions = [
         {
             title: 'نتائج الامتحانات',
-            icon: <GradeIcon sx={{ fontSize: 40 }} />,
+            icon: GradeIcon,
             description: 'عرض درجاتك ونتائج الامتحانات',
             gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
             path: '/student/grades'
         },
         {
             title: isPreparatory ? 'المواد العامة' : 'مواد القسم',
-            icon: <MenuBookIcon sx={{ fontSize: 40 }} />,
+            icon: MenuBookIcon,
             description: 'تصفح المحاضرات والمراجع',
             gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
             path: '/student/materials'
         },
         {
             title: 'جدول الامتحانات',
-            icon: <EventIcon sx={{ fontSize: 40 }} />,
+            icon: EventIcon,
             description: 'مواعيد الامتحانات القادمة',
             gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
             path: '/student/exams'
         },
         {
             title: 'سجل الحضور',
-            icon: <AccessTimeIcon sx={{ fontSize: 40 }} />,
+            icon: AccessTimeIcon,
             description: 'متابعة حضورك وغيابك',
             gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
             path: '/student/attendance'
         },
         {
             title: 'الكويزات',
-            icon: <QuizIcon sx={{ fontSize: 40 }} />,
+            icon: QuizIcon,
             description: 'الاختبارات القصيرة والتقييمات',
             gradient: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
             path: '/student/quizzes'
@@ -237,15 +245,15 @@ export default function StudentDashboard() {
                 backgroundSize: '200% 200%',
                 animation: `${shimmer} 15s ease infinite`,
                 color: '#fff',
-                py: 6,
+                py: 3,
                 px: 3,
                 position: 'relative',
                 overflow: 'hidden',
-                borderRadius: { xs: 0, md: '0 0 40px 40px' },
+                borderRadius: { xs: 0, md: '0 0 30px 30px' },
             }}>
-                {/* Decorative circles */}
-                <Box sx={{ position: 'absolute', top: -100, right: -100, width: 300, height: 300, borderRadius: '50%', bgcolor: 'rgba(255,255,255,0.05)' }} />
-                <Box sx={{ position: 'absolute', bottom: -50, left: -50, width: 200, height: 200, borderRadius: '50%', bgcolor: 'rgba(255,255,255,0.05)' }} />
+                {/* Decorative circles - REMOVED */}
+                {/* <Box sx={{ position: 'absolute', top: -100, right: -100, width: 300, height: 300, borderRadius: '50%', bgcolor: 'rgba(255,255,255,0.05)' }} />
+                <Box sx={{ position: 'absolute', bottom: -50, left: -50, width: 200, height: 200, borderRadius: '50%', bgcolor: 'rgba(255,255,255,0.05)' }} /> */}
 
                 <Container maxWidth="lg">
                     <Fade in={true} timeout={800}>
@@ -253,20 +261,19 @@ export default function StudentDashboard() {
                             <Avatar
                                 src={user.profile_picture}
                                 sx={{
-                                    width: 100,
-                                    height: 100,
-                                    border: '4px solid rgba(255,255,255,0.3)',
-                                    boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
-                                    animation: `${float} 3s ease-in-out infinite`,
+                                    width: 50,
+                                    height: 50,
+                                    border: '3px solid rgba(255,255,255,0.3)',
+                                    boxShadow: '0 8px 20px rgba(0,0,0,0.2)',
                                 }}
                             >
-                                <PersonIcon sx={{ fontSize: 50 }} />
+                                <PersonIcon sx={{ fontSize: 28 }} />
                             </Avatar>
                             <Box sx={{ flex: 1 }}>
-                                <Typography variant="h6" sx={{ fontFamily: 'Cairo', opacity: 0.9, mb: 0.5 }}>
+                                <Typography variant="subtitle1" sx={{ fontFamily: 'Cairo', opacity: 0.9, mb: 0.5 }}>
                                     {greeting} 👋
                                 </Typography>
-                                <Typography variant="h3" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', mb: 1 }}>
+                                <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', mb: 1 }}>
                                     {user.first_name} {user.last_name}
                                 </Typography>
                                 <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
@@ -293,7 +300,7 @@ export default function StudentDashboard() {
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                                 <Box sx={{ textAlign: 'center', display: { xs: 'none', md: 'block' } }}>
                                     <Typography variant="body2" sx={{ fontFamily: 'Cairo', opacity: 0.8 }}>العام الأكاديمي</Typography>
-                                    <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
+                                    <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
                                         {studentInfo?.academicYear || '2024/2025'}
                                     </Typography>
                                 </Box>
@@ -315,9 +322,9 @@ export default function StudentDashboard() {
                 </Container>
             </Box>
 
-            <Container maxWidth="lg" sx={{ mt: -4, pb: 6, position: 'relative', zIndex: 10 }}>
+            <Container maxWidth="lg" sx={{ mt: -3, pb: 4, position: 'relative', zIndex: 10 }}>
                 {/* Stats Cards Row */}
-                <Grid container spacing={3} sx={{ mb: 4 }}>
+                <Grid container spacing={2} sx={{ mb: 3 }}>
                     <Grid item xs={6} md={3}>
                         <Grow in={true} timeout={400}>
                             <Paper elevation={0} sx={{
@@ -500,54 +507,20 @@ export default function StudentDashboard() {
                 )}
 
                 {/* Quick Actions Grid */}
-                <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744', mb: 3, display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744', mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
                     <StarIcon sx={{ color: '#FFD700' }} /> الوصول السريع
                 </Typography>
-                <Grid container spacing={3} sx={{ mb: 4 }}>
+                <Grid container spacing={2} sx={{ mb: 3 }} direction="column">
                     {quickActions.map((action, index) => (
-                        <Grid item xs={12} sm={6} md={4} lg={2.4} key={index}>
-                            <Grow in={true} timeout={400 + index * 100}>
-                                <Card
-                                    onClick={() => navigate(action.path)}
-                                    sx={{
-                                        height: '100%',
-                                        cursor: 'pointer',
-                                        borderRadius: 4,
-                                        overflow: 'hidden',
-                                        position: 'relative',
-                                        background: action.gradient,
-                                        color: '#fff',
-                                        transition: 'all 0.3s ease',
-                                        boxShadow: '0 8px 25px rgba(0,0,0,0.15)',
-                                        '&:hover': {
-                                            transform: 'translateY(-8px) scale(1.02)',
-                                            boxShadow: '0 15px 40px rgba(0,0,0,0.25)',
-                                        }
-                                    }}
-                                >
-                                    <CardContent sx={{ textAlign: 'center', p: 3 }}>
-                                        <Box sx={{
-                                            width: 70,
-                                            height: 70,
-                                            borderRadius: '50%',
-                                            bgcolor: 'rgba(255,255,255,0.2)',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            mx: 'auto',
-                                            mb: 2,
-                                        }}>
-                                            {action.icon}
-                                        </Box>
-                                        <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', mb: 1 }}>
-                                            {action.title}
-                                        </Typography>
-                                        <Typography variant="body2" sx={{ fontFamily: 'Cairo', opacity: 0.9 }}>
-                                            {action.description}
-                                        </Typography>
-                                    </CardContent>
-                                </Card>
-                            </Grow>
+                        <Grid item xs={12} key={index}>
+                            <DashboardCard
+                                icon={action.icon}
+                                title={action.title}
+                                description={action.description}
+                                buttonText="عرض"
+                                onClick={() => navigate(action.path)}
+                                color={index === 0 ? 'primary' : index === 1 ? 'secondary' : index === 2 ? 'info' : index === 3 ? 'warning' : 'purple'}
+                            />
                         </Grid>
                     ))}
                 </Grid>

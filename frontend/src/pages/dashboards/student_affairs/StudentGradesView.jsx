@@ -56,6 +56,13 @@ export default function StudentGradesView() {
         }
     }, [selectedDepartment, selectedYear]);
 
+    // Auto-fetch grades when all filters are selected
+    useEffect(() => {
+        if (isSelectionComplete) {
+            fetchGrades();
+        }
+    }, [selectedDepartment, selectedYear, selectedLevel, selectedSpecialization]);
+
     // Check if specialization is needed (Electrical Engineering, level 2-4)
     const selectedDeptData = departments.find(d => d.id === selectedDepartment);
     const selectedLevelData = levels.find(l => l.id === selectedLevel);
@@ -173,8 +180,9 @@ export default function StudentGradesView() {
                     overflow: 'hidden',
                 }}
             >
-                <Box sx={{ position: 'absolute', top: -50, right: -50, width: 200, height: 200, borderRadius: '50%', background: 'rgba(255,255,255,0.15)', animation: `${float} 6s ease-in-out infinite` }} />
-                <Box sx={{ position: 'absolute', bottom: -80, left: -80, width: 300, height: 300, borderRadius: '50%', background: 'rgba(255,255,255,0.1)', animation: `${float} 8s ease-in-out infinite`, animationDelay: '2s' }} />
+                {/* Decorative circles - REMOVED */}
+                {/* <Box sx={{ position: 'absolute', top: -50, right: -50, width: 200, height: 200, borderRadius: '50%', background: 'rgba(255,255,255,0.15)', animation: `${float} 6s ease-in-out infinite` }} />
+                <Box sx={{ position: 'absolute', bottom: -80, left: -80, width: 300, height: 300, borderRadius: '50%', background: 'rgba(255,255,255,0.1)', animation: `${float} 8s ease-in-out infinite`, animationDelay: '2s' }} /> */}
 
                 <Container maxWidth="xl">
                     <Fade in={true} timeout={800}>
@@ -183,11 +191,11 @@ export default function StudentGradesView() {
                                 العودة للوحة التحكم
                             </Button>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-                                <Avatar sx={{ width: 80, height: 80, bgcolor: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(10px)' }}>
-                                    <AssessmentIcon sx={{ fontSize: 45, color: '#fff' }} />
+                                <Avatar sx={{ width: 70, height: 70, bgcolor: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(10px)' }}>
+                                    <AssessmentIcon sx={{ fontSize: 40, color: '#fff' }} />
                                 </Avatar>
                                 <Box>
-                                    <Typography variant="h3" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff', textShadow: '0 4px 20px rgba(0,0,0,0.2)' }}>
+                                    <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff', textShadow: '0 2px 10px rgba(0,0,0,0.2)' }}>
                                         عرض درجات الطلاب
                                     </Typography>
                                     <Typography variant="h6" sx={{ fontFamily: 'Cairo', color: 'rgba(255,255,255,0.9)' }}>

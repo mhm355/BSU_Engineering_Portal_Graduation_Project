@@ -82,7 +82,7 @@ export default function ComplaintsDashboard() {
     return (
         <Box sx={{ minHeight: '100vh', background: 'linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%)', pb: 6 }}>
             {/* Header */}
-            <Box sx={{ background: 'linear-gradient(135deg, #d32f2f 0%, #f44336 100%)', pt: 4, pb: 6, mb: 4 }}>
+            <Box sx={{ background: 'linear-gradient(135deg, #d32f2f 0%, #f44336 100%)', pt: 3, pb: 4, mb: 3 }}>
                 <Container maxWidth="xl">
                     <Fade in={true} timeout={800}>
                         <Box>
@@ -91,11 +91,11 @@ export default function ComplaintsDashboard() {
                                 العودة للوحة التحكم
                             </Button>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-                                <Avatar sx={{ width: 70, height: 70, bgcolor: 'rgba(255,255,255,0.2)' }}>
-                                    <MailIcon sx={{ fontSize: 40, color: '#fff' }} />
+                                <Avatar sx={{ width: 50, height: 50, bgcolor: 'rgba(255,255,255,0.2)' }}>
+                                    <MailIcon sx={{ fontSize: 28, color: '#fff' }} />
                                 </Avatar>
                                 <Box>
-                                    <Typography variant="h3" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff' }}>
+                                    <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff' }}>
                                         الرسائل والشكاوى
                                     </Typography>
                                     <Box sx={{ display: 'flex', gap: 1.5, mt: 1 }}>
@@ -143,9 +143,9 @@ export default function ComplaintsDashboard() {
                         <CircularProgress size={50} />
                     </Box>
                 ) : messages.length === 0 ? (
-                    <Paper elevation={0} sx={{ p: 8, textAlign: 'center', borderRadius: 3 }}>
-                        <InboxIcon sx={{ fontSize: 80, color: '#ddd', mb: 2 }} />
-                        <Typography variant="h5" sx={{ fontFamily: 'Cairo', color: '#999' }}>
+                    <Paper elevation={0} sx={{ p: 6, textAlign: 'center', borderRadius: 3 }}>
+                        <InboxIcon sx={{ fontSize: 60, color: '#ddd', mb: 2 }} />
+                        <Typography variant="h6" sx={{ fontFamily: 'Cairo', color: '#999' }}>
                             لا توجد رسائل
                         </Typography>
                     </Paper>

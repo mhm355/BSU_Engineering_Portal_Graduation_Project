@@ -126,14 +126,15 @@ export default function GradeQuizAttempt() {
             {/* Hero Header */}
             <Box sx={{
                 background: 'linear-gradient(135deg, #ff9800 0%, #ffb74d 100%)',
-                pt: 4, pb: 6, mb: 4,
+                pt: 3, pb: 4, mb: 3,
                 position: 'relative', overflow: 'hidden'
             }}>
-                <Box sx={{
+                {/* Decorative circles - REMOVED */}
+                {/* <Box sx={{
                     position: 'absolute', top: -50, right: -50, width: 200, height: 200,
                     borderRadius: '50%', background: 'rgba(255,255,255,0.1)',
                     animation: `${float} 6s ease-in-out infinite`
-                }} />
+                }} /> */}
 
                 <Container maxWidth="xl">
                     <Fade in={true} timeout={800}>
@@ -148,17 +149,17 @@ export default function GradeQuizAttempt() {
 
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
                                 <Avatar sx={{
-                                    width: 100, height: 100,
+                                    width: 55, height: 55,
                                     bgcolor: 'rgba(255,255,255,0.2)',
                                     backdropFilter: 'blur(10px)'
                                 }}>
-                                    <EditIcon sx={{ fontSize: 55, color: '#fff' }} />
+                                    <EditIcon sx={{ fontSize: 30, color: '#fff' }} />
                                 </Avatar>
                                 <Box>
-                                    <Typography variant="h3" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff' }}>
+                                    <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff' }}>
                                         تصحيح إجابات الطالب
                                     </Typography>
-                                    <Typography variant="h5" sx={{ fontFamily: 'Cairo', color: 'rgba(255,255,255,0.9)', mt: 0.5 }}>
+                                    <Typography variant="subtitle1" sx={{ fontFamily: 'Cairo', color: 'rgba(255,255,255,0.9)', mt: 0.5 }}>
                                         {attempt?.student_name}
                                     </Typography>
                                     <Box sx={{ display: 'flex', gap: 1.5, mt: 2 }}>

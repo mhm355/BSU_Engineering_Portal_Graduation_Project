@@ -36,10 +36,11 @@ class AcademicYearSerializer(serializers.ModelSerializer):
 class TermSerializer(serializers.ModelSerializer):
     name_display = serializers.CharField(source='get_name_display', read_only=True)
     academic_year_name = serializers.CharField(source='academic_year.name', read_only=True)
+    status_display = serializers.CharField(source='get_status_display', read_only=True)
 
     class Meta:
         model = Term
-        fields = ['id', 'name', 'name_display', 'academic_year', 'academic_year_name']
+        fields = ['id', 'name', 'name_display', 'academic_year', 'academic_year_name', 'status', 'status_display']
 
 
 class LevelSerializer(serializers.ModelSerializer):

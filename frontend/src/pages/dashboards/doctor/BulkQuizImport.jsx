@@ -101,7 +101,7 @@ export default function BulkQuizImport() {
                 عودة للوحة التحكم
             </Button>
 
-            <Typography variant="h4" gutterBottom sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342' }}>
+            <Typography variant="h4" gutterBottom sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B' }}>
                 استيراد كويزات بالجملة
             </Typography>
 
@@ -181,7 +181,7 @@ export default function BulkQuizImport() {
                     fullWidth
                     onClick={handleUpload}
                     disabled={loading || !file || !selectedCourse}
-                    sx={{ mt: 3, fontFamily: 'Cairo', py: 1.5 }}
+                    sx={{ py: 1.5, mb: 2, fontFamily: 'Cairo', bgcolor: '#4F46E5' }}
                     startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <CloudUploadIcon />}
                 >
                     {loading ? 'جاري الاستيراد...' : 'بدء الاستيراد'}

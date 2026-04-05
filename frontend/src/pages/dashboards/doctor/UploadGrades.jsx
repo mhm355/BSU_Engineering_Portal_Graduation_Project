@@ -77,7 +77,7 @@ export default function UploadGrades() {
                     fullWidth
                     onClick={handleUpload}
                     disabled={loading || !file}
-                    sx={{ py: 1.5, mb: 2, fontFamily: 'Cairo', bgcolor: '#0A2342' }}
+                    sx={{ py: 1.5, mb: 2, fontFamily: 'Cairo', bgcolor: '#4F46E5' }}
                 >
                     {loading ? "جاري الرفع..." : "رفع الدرجات"}
                 </Button>

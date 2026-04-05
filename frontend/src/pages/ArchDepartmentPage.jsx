@@ -29,7 +29,7 @@ export default function ArchDepartmentPage() {
 
     const getRankColor = (rank) => {
         switch (rank) {
-            case 'head': return { bg: '#FFC107', text: '#000' };
+            case 'head': return { bg: '#4F46E5', text: '#fff' };
             case 'professor': return { bg: '#388e3c', text: '#fff' };
             case 'assistant': return { bg: '#2e7d32', text: '#fff' };
             case 'lecturer': return { bg: '#66bb6a', text: '#fff' };
@@ -188,17 +188,17 @@ export default function ArchDepartmentPage() {
                         left: 0,
                         right: 0,
                         bottom: 0,
-                        background: 'radial-gradient(circle at 80% 20%, rgba(255,255,255,0.15) 0%, transparent 50%)',
+                        background: 'none',
                     }
                 }}
             >
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2, position: 'relative' }}>
-                    <ArchitectureIcon sx={{ fontSize: 60, mr: 2, opacity: 0.9 }} />
-                    <Typography variant="h3" component="h1" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
+                    <ArchitectureIcon sx={{ fontSize: 40, mr: 2, opacity: 0.9 }} />
+                    <Typography variant="h4" component="h1" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
                         قسم الهندسة المعمارية
                     </Typography>
                 </Box>
-                <Typography variant="h6" sx={{ fontFamily: 'Cairo', textAlign: 'center', opacity: 0.85 }}>
+                <Typography variant="subtitle1" sx={{ fontFamily: 'Cairo', textAlign: 'center', opacity: 0.85 }}>
                     Architecture Department
                 </Typography>
             </Paper>
@@ -209,7 +209,7 @@ export default function ArchDepartmentPage() {
                     <Box sx={{ bgcolor: '#388e3c', p: 1.5, borderRadius: 2, mr: 2 }}>
                         <ArchitectureIcon sx={{ fontSize: 30, color: 'white' }} />
                     </Box>
-                    <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342' }}>
+                    <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B' }}>
                         نبذة عن القسم
                     </Typography>
                 </Box>
@@ -230,7 +230,7 @@ export default function ArchDepartmentPage() {
                     <Box sx={{ bgcolor: '#e8f5e9', p: 1.5, borderRadius: 2, mr: 2 }}>
                         <MenuBookIcon sx={{ fontSize: 30, color: '#388e3c' }} />
                     </Box>
-                    <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342' }}>
+                    <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B' }}>
                         المواد الدراسية
                     </Typography>
                 </Box>
@@ -295,7 +295,7 @@ export default function ArchDepartmentPage() {
                             <PersonIcon sx={{ fontSize: 30, color: '#388e3c' }} />
                         </Box>
                         <Box>
-                            <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342' }}>
+                            <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B' }}>
                                 أعضاء هيئة التدريس
                             </Typography>
                             <Typography variant="body2" sx={{ fontFamily: 'Cairo', color: '#666' }}>
@@ -324,7 +324,7 @@ export default function ArchDepartmentPage() {
                         {faculty.map((member, index) => {
                             const colors = getRankColor(member.rank);
                             return (
-                                <Grid item xs={12} sm={6} md={4} key={index}>
+                                <Grid item xs={12} key={index}>
                                     <Paper
                                         elevation={2}
                                         sx={{
@@ -364,34 +364,6 @@ export default function ArchDepartmentPage() {
                         })}
                     </Grid>
                 </Collapse>
-            </Paper>
-
-            {/* Focus Areas */}
-            <Paper elevation={3} sx={{ p: 4, borderRadius: 3, background: 'linear-gradient(135deg, #f5f5f5 0%, #e8f5e9 100%)' }}>
-                <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342', mb: 3 }}>
-                    مجالات التميز
-                </Typography>
-                <Grid container spacing={2}>
-                    {['التنمية المستدامة', 'تكنولوجيا المعلومات', 'التصميم المعماري', 'التخطيط العمراني'].map((area, index) => (
-                        <Grid item xs={6} sm={3} key={index}>
-                            <Paper
-                                elevation={2}
-                                sx={{
-                                    p: 2,
-                                    textAlign: 'center',
-                                    borderRadius: 2,
-                                    borderTop: '3px solid #388e3c',
-                                    transition: 'all 0.2s',
-                                    '&:hover': { transform: 'translateY(-3px)', boxShadow: 4 }
-                                }}
-                            >
-                                <Typography variant="body2" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#388e3c' }}>
-                                    {area}
-                                </Typography>
-                            </Paper>
-                        </Grid>
-                    ))}
-                </Grid>
             </Paper>
         </Container>
     );

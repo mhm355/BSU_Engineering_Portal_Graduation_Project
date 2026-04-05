@@ -1,0 +1,216 @@
+% Chapter 2: Executive Summary / Introduction
+% BSU Engineering Portal Graduation Project
+
+\chapter{Executive Summary \& Introduction}
+\label{chap:intro}
+
+\section{Problem Statement}
+\label{sec:problem-statement}
+
+\subsection{The Operational Reality}
+
+The Faculty of Engineering at Beni-Suef University (BSU) accommodates approximately \textbf{2,000+ students} distributed across five academic departments: Preparatory, Electrical Engineering (with specializations in Electronics \& Communications and Power \& Machines), Mechanical Engineering, Civil Engineering, and Architectural Engineering. Each department operates across up to four academic levels, two semesters per year, and manages dozens of courses per term.
+
+The administrative machinery supporting this academic structure relies on a patchwork of \textbf{manual processes, disconnected spreadsheets, and informal communication channels}. This is not merely an inconvenience---it is a systemic risk to data integrity, operational efficiency, and academic governance.
+
+\subsection{Specific Pain Points}
+
+The following localized problems were identified through direct observation and stakeholder consultation:
+
+\begin{itemize}
+    \item \textbf{Student Data Management (The Excel Chaos):} Student enrollment and academic records are maintained in standalone Excel files. When a department needs student lists, a manual extraction process begins. This introduces data duplication, version conflicts, and eliminates any single source of truth.
+    \item \textbf{Grade Entry \& Approval (The Paper Trail):} Faculty members record grades on paper or personal spreadsheets, physically submitting them to Student Affairs for manual re-entry. This multi-hop flow creates transcription errors, lacks an audit trail, and severely delays grade visibility for students.
+    \item \textbf{Attendance Tracking (The Paper Register):} Attendance is recorded on printed sheets passed around lecture halls. Records risk physical loss, offer no real-time visibility for students, and provide no analytics capability for early academic intervention.
+    \item \textbf{Material Distribution (The USB Drive Problem):} Lecture slides and notes are distributed via USB drives, personal emails, or social media groups. There is no centralized repository, no access control based on enrollment, and no version management.
+    \item \textbf{Administrative Isolation (The Silo Effect):} Administrative units operate in isolation. There is no shared platform for tracking doctor-to-course assignments, cross-referencing enrollment with grades, or maintaining institutional accountability.
+\end{itemize}
+
+\subsection{The Core Problem Formally Stated}
+
+\begin{quote}
+\textbf{Problem Statement:} The Faculty of Engineering at Beni-Suef University lacks a unified, role-based digital platform for managing its core academic operations---including student enrollment, grade management, attendance tracking, course material distribution, and administrative coordination---resulting in data fragmentation, operational inefficiency, accountability gaps, and delayed information access for all stakeholders.
+\end{quote}
+
+\section{Motivation}
+\label{sec:motivation}
+
+\subsection{Why the Current Solution Is Inadequate}
+
+The existing approach is architecturally incompatible with the operational requirements of a growing engineering faculty. The gap between the current state and the required state is formally analyzed below:
+
+\begin{table}[H]
+    \centering
+    \renewcommand{\arraystretch}{1.3}
+    \begin{tabular}{|p{0.2\textwidth}|p{0.3\textwidth}|p{0.3\textwidth}|p{0.1\textwidth}|}
+        \hline
+        \textbf{Dimension} & \textbf{Current State} & \textbf{Required State} & \textbf{Severity} \\
+        \hline
+        \textbf{Data Integrity} & Multiple inconsistent Excel files. & Single source of truth with referential integrity. & Critical \\
+        \textbf{Access Control} & File-level (all or nothing). & Role-based (5 distinct levels). & Critical \\
+        \textbf{Auditability} & None. Changes are untraceable. & Full audit trail with identity/timestamp. & Critical \\
+        \textbf{Information Latency} & Days to weeks (manual pipelines). & Real-time (sub-second API queries). & High \\
+        \textbf{Error Rate} & 1--5\% per manual transcription. & Near zero (database constraints). & High \\
+        \textbf{Disaster Recovery} & Paper and local files (no backups). & Containerized with persistent volumes. & Medium \\
+        \hline
+    \end{tabular}
+    \caption{Gap Analysis: Current State vs. Required State}
+    \label{tab:gap_analysis}
+\end{table}
+
+\subsection{Why Not Off-the-Shelf Solutions?}
+
+Commercial Learning Management Systems (e.g., Moodle) and Student Information Systems (e.g., Banner) were evaluated but found unsuitable. The decision to build a custom solution was driven by three converging factors:
+
+\textbf{1. Egyptian Academic Workflow Specificity} \\
+The Egyptian engineering grading structure does not map cleanly to Western software models. The three-component system (Coursework / Written / Practical-Oral) with variable weights requires a configurable grading template system.
+
+\begin{lstlisting}[language=Python, caption=Custom Grading Template Seeds mapping to Faculty Rules]
+# From seed_production.py - Configurable Templates
+("Theoretical Subjects (40-60-0)", 40, 60, 0),    # Theoretical
+("Practical Subjects (30-50-20)", 30, 50, 20),   # Practical
+("Lab Subjects (20-40-40)", 20, 40, 40),          # Lab-heavy
+\end{lstlisting}
+
+Furthermore, the institution requires a strict authentication flow where a student's National ID serves as their initial credential, forcing an immediate password change upon first login.
+
+\begin{lstlisting}[language=Python, caption=Institutional Authentication Requirement Enforced in Backend]
+# From users/models.py - First-Login Enforcement
+def save(self, *args, **kwargs):
+    if is_new and not self.is_superuser:
+        if not self.password or self.password == '!':
+            self.set_password(self.national_id or self.username)
+        if self.role in ['STUDENT', 'STUDENT_AFFAIRS', 'STAFF_AFFAIRS', 'DOCTOR']:
+            self.first_login_required = True
+\end{lstlisting}
+
+\textbf{2. Arabic-First Interface Requirement} \\
+The system must function as a native Arabic application with full Right-to-Left (RTL) layout. It leverages the MUI RTL configuration and the "Cairo" font family to ensure optimal legibility, rather than applying a brittle localization layer over an English-first design.
+
+\textbf{3. Deployment Constraints} \\
+The university requires a self-hosted, container-based deployment free from recurring cloud licensing costs or external dependencies (like paid SMS gateways), allowing the system to operate entirely behind institutional firewalls.
+
+\subsection{The Engineering Motivation}
+
+Beyond solving operational issues, this project demonstrates the application of modern software engineering principles:
+\begin{itemize}
+    \item \textbf{System Thinking:} Unifying diverse stakeholders into a coherent architecture.
+    \item \textbf{Trade-off Analysis:} Deliberate architectural choices (e.g., Session Auth over JWT, Monolith over Microservices) driven by context.
+    \item \textbf{DevOps \& Security:} Implementing CI/CD, Docker orchestration, and Trivy security scanning as integral lifecycle components.
+\end{itemize}
+
+\section{Proposed Solution}
+\label{sec:proposed-solution}
+
+\subsection{System Overview}
+
+The \textbf{Release BSU Engineering Portal} is a full-stack, role-based academic management platform. It centralizes core academic operations through four functional pillars:
+\begin{enumerate}
+    \item \textbf{Student Lifecycle Management}: Replaces scattered Excel files with a relational database managing enrollment, grades, and attendance.
+    \item \textbf{Faculty Course Management}: Digital course assignments, lecture uploads, batch attendance, and interactive quiz generation.
+    \item \textbf{Administrative Operations}: Multi-step workflows for Excel batch uploads, grade approvals, and immutable audit logging.
+    \item \textbf{Public Information Portal}: Structured news and contact routing.
+\end{enumerate}
+
+\subsection{High-Level Architecture}
+
+The system utilizes a three-tier containerized architecture, separating presentation, business logic, and data persistence.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{system_architecture.png}
+    \caption{High-Level Three-Tier Containerized Architecture of the BSU Engineering Portal, demonstrating presentation decoupling and database network isolation.}
+    \label{fig:arch_overview}
+\end{figure}
+
+\subsection{Preview of Architectural Decisions}
+
+\begin{itemize}
+    \item \textbf{SPA + REST API:} Complete frontend-backend decoupling allows the React client to iterate independently of the Django API.
+    \item \textbf{Nginx as the Single Entry Point:} The browser never communicates directly with Django. Nginx routes traffic, serves static assets, and injects security headers.
+    \item \textbf{Database Isolation:} The MySQL container maps no ports to the host machine. It exists solely on an internal Docker network, reachable only by the backend worker.
+\end{itemize}
+
+\subsection{Stakeholder Outcomes}
+
+\begin{table}[H]
+    \centering
+    \renewcommand{\arraystretch}{1.3}
+    \begin{tabular}{|p{0.2\textwidth}|p{0.75\textwidth}|}
+        \hline
+        \textbf{Stakeholder} & \textbf{Delivered Capabilities} \\
+        \hline
+        \textbf{Student} & Real-time grade breakdown, attendance tracking, lecture downloads, interactive quizzes, exam schedules, and certificate viewing. \\
+        \hline
+        \textbf{Doctor} & Assigned course views, file-validated lecture uploads, Excel-exported batch attendance, bulk grade entry, and multi-type quiz management. \\
+        \hline
+        \textbf{Student Affairs} & Validated Excel batch uploads for students, exam grade uploads pending admin approval, certificate management, and password resets. \\
+        \hline
+        \textbf{Staff Affairs} & Batch faculty uploads, structured doctor-to-course assignments, and doctor deletion request workflows. \\
+        \hline
+        \textbf{Admin} & Academic year/term generation, department management, grading template configuration, targeted announcements, and full audit log reviews. \\
+        \hline
+    \end{tabular}
+    \caption{System Outcomes per Stakeholder}
+    \label{tab:outcomes}
+\end{table}
+
+\section{Project Scope}
+\label{sec:project-scope}
+
+\subsection{In Scope (Delivered Capabilities)}
+
+The following capabilities are fully implemented in the current release:
+
+\begin{table}[H]
+    \centering
+    \renewcommand{\arraystretch}{1.2}
+    \begin{tabular}{|p{0.08\textwidth}|p{0.3\textwidth}|p{0.55\textwidth}|}
+        \hline
+        \textbf{ID} & \textbf{Capability} & \textbf{Description} \\
+        \hline
+        S1 & Multi-role Auth & Session-based login (Admin, Student, Doctor, Staff/Student Affairs). \\
+        S2 & Password Enforcement & Default National ID password forced to change on first login. \\
+        S3/S4 & Bulk Uploads & Excel-based batch imports with pre-flight validation. \\
+        S5 & Course Offerings & Doctor assignment scoped by year, term, level, and specialization. \\
+        S6 & Grading Engine & 7 templates with customizable weight distributions. \\
+        S7 & Attendance & Bulk tracking with automatic Excel generation. \\
+        S8 & Quiz Engine & MCQ (auto-graded), Essay (manual), Image, and Mixed types. \\
+        S9 & Lecture Management & Validated uploads for PDF, Slides, and Video. \\
+        S11 & Approval Workflows & Exam grades require Admin approval before student visibility. \\
+        S12 & Audit Trail & 15 distinct action types logged with JSON details. \\
+        S16 & UX/UI Theming & Client-side persisted Dark/Light mode and full RTL interface. \\
+        S18 & Containerization & Multi-stage Docker builds and Compose orchestration. \\
+        S19 & CI/CD Pipeline & GitHub Actions: push $\rightarrow$ Trivy security scan $\rightarrow$ deployment. \\
+        \hline
+    \end{tabular}
+    \caption{In-Scope System Capabilities}
+    \label{tab:in_scope}
+\end{table}
+
+\subsection{Out of Scope (Explicit Exclusions)}
+
+The project scope was deliberately bounded by the engineering principle: \textit{"A well-scoped system that works reliably is more valuable than an ambitious system that works partially."} The following features were explicitly excluded:
+
+\begin{table}[H]
+    \centering
+    \renewcommand{\arraystretch}{1.2}
+    \begin{tabular}{|p{0.08\textwidth}|p{0.3\textwidth}|p{0.55\textwidth}|}
+        \hline
+        \textbf{ID} & \textbf{Excluded Capability} & \textbf{Engineering Rationale} \\
+        \hline
+        X1 & Native Mobile App & Responsive web design adequately serves the 2,000+ user base without doubling the codebase maintenance. \\
+        \hline
+        X2 & Real-time Chat & Requires WebSocket infrastructure (Redis/Channels). In-app announcements suffice for broadcasting. \\
+        \hline
+        X4 & Financial Management & Mixing academic and fee data introduces unnecessary security and legal exposure. \\
+        \hline
+        X5 & Horizontal Scaling & The current user load is well within single-server Gunicorn/MySQL capacity. Load balancing adds unneeded complexity. \\
+        \hline
+        X6 & Microservices & A monolithic Django application is architecturally correct for this team size. Microservices multiply deployment costs. \\
+        \hline
+        X9 & Student Self-Registration & Bypasses institutional enrollment validation. Student Affairs must maintain control via batch imports. \\
+        \hline
+    \end{tabular}
+    \caption{Out-of-Scope Capabilities and Rationale}
+    \label{tab:out_of_scope}
+\end{table}

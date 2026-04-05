@@ -259,8 +259,9 @@ export default function UploadStudents() {
                     overflow: 'hidden',
                 }}
             >
-                <Box sx={{ position: 'absolute', top: -50, right: -50, width: 200, height: 200, borderRadius: '50%', background: 'rgba(255,255,255,0.15)', animation: `${float} 6s ease-in-out infinite` }} />
-                <Box sx={{ position: 'absolute', bottom: -80, left: -80, width: 300, height: 300, borderRadius: '50%', background: 'rgba(255,255,255,0.1)', animation: `${float} 8s ease-in-out infinite`, animationDelay: '2s' }} />
+                {/* Decorative circles - REMOVED */}
+                {/* <Box sx={{ position: 'absolute', top: -50, right: -50, width: 200, height: 200, borderRadius: '50%', background: 'rgba(255,255,255,0.15)', animation: `${float} 6s ease-in-out infinite` }} />
+                <Box sx={{ position: 'absolute', bottom: -80, left: -80, width: 300, height: 300, borderRadius: '50%', background: 'rgba(255,255,255,0.1)', animation: `${float} 8s ease-in-out infinite`, animationDelay: '2s' }} /> */}
 
                 <Container maxWidth="xl">
                     <Fade in={true} timeout={800}>
@@ -269,11 +270,11 @@ export default function UploadStudents() {
                                 العودة للوحة التحكم
                             </Button>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-                                <Avatar sx={{ width: 80, height: 80, bgcolor: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(10px)' }}>
-                                    <UploadFileIcon sx={{ fontSize: 45, color: '#fff' }} />
+                                <Avatar sx={{ width: 70, height: 70, bgcolor: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(10px)' }}>
+                                    <UploadFileIcon sx={{ fontSize: 40, color: '#fff' }} />
                                 </Avatar>
                                 <Box>
-                                    <Typography variant="h3" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff', textShadow: '0 4px 20px rgba(0,0,0,0.2)' }}>
+                                    <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff', textShadow: '0 2px 10px rgba(0,0,0,0.2)' }}>
                                         رفع بيانات الطلاب
                                     </Typography>
                                     <Typography variant="h6" sx={{ fontFamily: 'Cairo', color: 'rgba(255,255,255,0.9)' }}>
@@ -403,6 +404,9 @@ export default function UploadStudents() {
                                             }}
                                         >
                                             <MenuItem value="" disabled sx={{ fontSize: '1.2rem' }}>اختر التخصص</MenuItem>
+                                            <MenuItem value="mixed" sx={{ fontSize: '1.2rem', py: 1.5, fontWeight: 'bold', color: '#1976d2' }}>
+                                                متعدد (ملف يحتوي على ece و epm)
+                                            </MenuItem>
                                             {specializations.map((spec) => (
                                                 <MenuItem key={spec.id} value={spec.id} sx={{ fontSize: '1.2rem', py: 1.5 }}>{spec.name}</MenuItem>
                                             ))}
@@ -449,6 +453,9 @@ export default function UploadStudents() {
                                     <Chip label="full_name (الاسم بالكامل)" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', bgcolor: '#ffebee', color: '#c62828', fontSize: '1rem', py: 2.5, px: 1, justifyContent: 'flex-start' }} />
                                     <Chip label="department (القسم)" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', bgcolor: '#ffebee', color: '#c62828', fontSize: '1rem', py: 2.5, px: 1, justifyContent: 'flex-start' }} />
                                     <Chip label="level (الفرقة)" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', bgcolor: '#ffebee', color: '#c62828', fontSize: '1rem', py: 2.5, px: 1, justifyContent: 'flex-start' }} />
+                                    {needsSpecialization && (
+                                        <Chip label="specialization (التخصص: ece أو epm)" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', bgcolor: '#fff3e0', color: '#e65100', fontSize: '1rem', py: 2.5, px: 1, justifyContent: 'flex-start' }} />
+                                    )}
                                 </Box>
 
                                 <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', mb: 2, mt: 2, color: '#1a2744' }}>
@@ -478,6 +485,9 @@ export default function UploadStudents() {
                                                 <TableCell sx={{ fontFamily: 'monospace', fontWeight: 'bold', color: '#c62828', fontSize: '0.9rem' }}>full_name</TableCell>
                                                 <TableCell sx={{ fontFamily: 'monospace', fontWeight: 'bold', color: '#c62828', fontSize: '0.9rem' }}>department</TableCell>
                                                 <TableCell sx={{ fontFamily: 'monospace', fontWeight: 'bold', color: '#c62828', fontSize: '0.9rem' }}>level</TableCell>
+                                                {needsSpecialization && (
+                                                    <TableCell sx={{ fontFamily: 'monospace', fontWeight: 'bold', color: '#e65100', fontSize: '0.9rem' }}>specialization</TableCell>
+                                                )}
                                                 <TableCell sx={{ fontFamily: 'monospace', fontWeight: 'bold', color: '#9C27B0', fontSize: '0.9rem' }}>email</TableCell>
                                             </TableRow>
                                         </TableHead>
@@ -488,6 +498,9 @@ export default function UploadStudents() {
                                                     <TableCell sx={{ fontFamily: 'Cairo', fontSize: '0.9rem' }}>{row.full_name}</TableCell>
                                                     <TableCell sx={{ fontFamily: 'Cairo', fontSize: '0.9rem' }}>{row.department}</TableCell>
                                                     <TableCell sx={{ fontFamily: 'Cairo', fontSize: '0.9rem' }}>{row.level}</TableCell>
+                                                    {needsSpecialization && (
+                                                        <TableCell sx={{ fontFamily: 'monospace', fontSize: '0.9rem', color: '#e65100' }}>{row.specialization || 'ece/epm'}</TableCell>
+                                                    )}
                                                     <TableCell sx={{ color: row.email ? 'inherit' : '#ccc', fontSize: '0.9rem' }}>{row.email || '-'}</TableCell>
                                                 </TableRow>
                                             ))}
@@ -658,6 +671,13 @@ export default function UploadStudents() {
                                     color="info"
                                     sx={{ fontFamily: 'Cairo', fontWeight: 'bold', fontSize: '1rem', py: 1 }}
                                 />
+                                {previewData.csv_specializations && previewData.csv_specializations.length > 0 && (
+                                    <Chip
+                                        label={`التخصصات في الملف: ${previewData.csv_specializations.join(', ')}`}
+                                        color="warning"
+                                        sx={{ fontFamily: 'Cairo', fontWeight: 'bold', fontSize: '1rem', py: 1 }}
+                                    />
+                                )}
                                 <Chip
                                     icon={previewData.can_upload ? <CheckCircleIcon /> : <WarningIcon />}
                                     label={previewData.can_upload ? 'يمكن الرفع' : 'يوجد أخطاء'}
@@ -685,9 +705,14 @@ export default function UploadStudents() {
                                 <Typography variant="subtitle1" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', mb: 1 }}>
                                     الأقسام في الملف: {previewData.csv_departments?.join(', ')}
                                 </Typography>
-                                <Typography variant="subtitle1" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
+                                <Typography variant="subtitle1" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', mb: 1 }}>
                                     الفرق في الملف: {previewData.csv_levels?.join(', ')}
                                 </Typography>
+                                {previewData.csv_specializations && previewData.csv_specializations.length > 0 && (
+                                    <Typography variant="subtitle1" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#e65100' }}>
+                                        التخصصات في الملف: {previewData.csv_specializations.join(', ')}
+                                    </Typography>
+                                )}
                             </Box>
 
                             {/* Preview Table */}
@@ -703,6 +728,7 @@ export default function UploadStudents() {
                                             <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>الاسم</TableCell>
                                             <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>القسم</TableCell>
                                             <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>الفرقة</TableCell>
+                                            <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>التخصص</TableCell>
                                             <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>البريد</TableCell>
                                             <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>الحالة</TableCell>
                                         </TableRow>
@@ -715,6 +741,9 @@ export default function UploadStudents() {
                                                 <TableCell sx={{ fontFamily: 'Cairo' }}>{row.full_name}</TableCell>
                                                 <TableCell sx={{ fontFamily: 'Cairo' }}>{row.department}</TableCell>
                                                 <TableCell sx={{ fontFamily: 'Cairo' }}>{row.level}</TableCell>
+                                                <TableCell sx={{ fontFamily: 'monospace', color: row.specialization ? '#e65100' : 'inherit' }}>
+                                                    {row.specialization || '-'}
+                                                </TableCell>
                                                 <TableCell>{row.email || '-'}</TableCell>
                                                 <TableCell>
                                                     {row.errors.length > 0 ? (

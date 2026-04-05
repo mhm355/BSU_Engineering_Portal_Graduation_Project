@@ -40,7 +40,7 @@ export default function CivilDepartmentPage() {
 
     const getRankColor = (rank) => {
         switch (rank) {
-            case 'head': return { bg: '#FFC107', text: '#000' };
+            case 'head': return { bg: '#4F46E5', text: '#fff' };
             case 'dean': return { bg: '#4caf50', text: '#fff' };
             case 'professor': return { bg: '#1976d2', text: '#fff' };
             case 'assistant': return { bg: '#0288d1', text: '#fff' };
@@ -200,17 +200,17 @@ export default function CivilDepartmentPage() {
                         left: 0,
                         right: 0,
                         bottom: 0,
-                        background: 'radial-gradient(circle at 80% 20%, rgba(255,255,255,0.15) 0%, transparent 50%)',
+                        background: 'none',
                     }
                 }}
             >
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2, position: 'relative' }}>
-                    <ConstructionIcon sx={{ fontSize: 60, mr: 2, opacity: 0.9 }} />
-                    <Typography variant="h3" component="h1" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
+                    <ConstructionIcon sx={{ fontSize: 40, mr: 2, opacity: 0.9 }} />
+                    <Typography variant="h4" component="h1" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
                         قسم الهندسة المدنية
                     </Typography>
                 </Box>
-                <Typography variant="h6" sx={{ fontFamily: 'Cairo', textAlign: 'center', opacity: 0.85 }}>
+                <Typography variant="subtitle1" sx={{ fontFamily: 'Cairo', textAlign: 'center', opacity: 0.85 }}>
                     Civil Engineering Department
                 </Typography>
             </Paper>
@@ -221,7 +221,7 @@ export default function CivilDepartmentPage() {
                     <Box sx={{ bgcolor: '#1976d2', p: 1.5, borderRadius: 2, mr: 2 }}>
                         <ConstructionIcon sx={{ fontSize: 30, color: 'white' }} />
                     </Box>
-                    <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342' }}>
+                    <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B' }}>
                         نبذة عن القسم
                     </Typography>
                 </Box>
@@ -239,7 +239,7 @@ export default function CivilDepartmentPage() {
                     <Box sx={{ bgcolor: '#e3f2fd', p: 1.5, borderRadius: 2, mr: 2 }}>
                         <MenuBookIcon sx={{ fontSize: 30, color: '#1976d2' }} />
                     </Box>
-                    <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342' }}>
+                    <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B' }}>
                         المواد الدراسية
                     </Typography>
                 </Box>
@@ -304,7 +304,7 @@ export default function CivilDepartmentPage() {
                             <PersonIcon sx={{ fontSize: 30, color: '#1976d2' }} />
                         </Box>
                         <Box>
-                            <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342' }}>
+                            <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B' }}>
                                 أعضاء هيئة التدريس
                             </Typography>
                             <Typography variant="body2" sx={{ fontFamily: 'Cairo', color: '#666' }}>
@@ -332,7 +332,7 @@ export default function CivilDepartmentPage() {
                         {faculty.map((member, index) => {
                             const colors = getRankColor(member.rank);
                             return (
-                                <Grid item xs={12} sm={6} md={4} key={index}>
+                                <Grid item xs={12} key={index}>
                                     <Paper
                                         elevation={2}
                                         sx={{
@@ -376,7 +376,7 @@ export default function CivilDepartmentPage() {
 
             {/* Graduate Features */}
             <Paper elevation={3} sx={{ p: 4, borderRadius: 3, background: 'linear-gradient(135deg, #f5f5f5 0%, #e3f2fd 100%)' }}>
-                <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342', mb: 2 }}>
+                <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B', mb: 2 }}>
                     مميزات الخريج
                 </Typography>
                 <Typography variant="body1" sx={{ fontFamily: 'Cairo', lineHeight: 2, color: '#333' }}>

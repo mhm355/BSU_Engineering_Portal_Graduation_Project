@@ -229,7 +229,7 @@ export default function StudentExams() {
                                                             <AccessTimeIcon sx={{ fontSize: 18, color: '#FF9800' }} />
                                                         </Avatar>
                                                         <Typography sx={{ fontFamily: 'Cairo' }}>
-                                                            {exam.start_time} ({exam.duration_minutes} دقيقة)
+                                                            {exam.time || exam.start_time || '-'} ({exam.duration_minutes || '-'} دقيقة)
                                                         </Typography>
                                                     </Box>
 
@@ -238,7 +238,7 @@ export default function StudentExams() {
                                                             <LocationOnIcon sx={{ fontSize: 18, color: '#4CAF50' }} />
                                                         </Avatar>
                                                         <Typography sx={{ fontFamily: 'Cairo' }}>
-                                                            {exam.location}
+                                                            {exam.location || exam.hall || '-'}
                                                         </Typography>
                                                     </Box>
                                                 </Box>

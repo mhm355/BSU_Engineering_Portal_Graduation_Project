@@ -219,7 +219,7 @@ export default function CreateQuiz() {
                 عودة
             </Button>
 
-            <Typography variant="h4" gutterBottom sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342' }}>
+            <Typography variant="h4" gutterBottom sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B' }}>
                 إنشاء كويز جديد
             </Typography>
 
@@ -387,18 +387,20 @@ export default function CreateQuiz() {
                         </Box>
 
                         <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
-                            <FormControl sx={{ minWidth: 150 }}>
-                                <InputLabel>نوع السؤال</InputLabel>
-                                <Select
-                                    value={question.question_type}
-                                    onChange={(e) => updateQuestion(qIndex, 'question_type', e.target.value)}
-                                    label="نوع السؤال"
-                                    size="small"
-                                >
-                                    <MenuItem value="MCQ">اختيار</MenuItem>
-                                    <MenuItem value="ESSAY">مقالي</MenuItem>
-                                </Select>
-                            </FormControl>
+                            {quizData.quiz_type !== 'MCQ' && (
+                                <FormControl sx={{ minWidth: 150 }}>
+                                    <InputLabel>نوع السؤال</InputLabel>
+                                    <Select
+                                        value={question.question_type}
+                                        onChange={(e) => updateQuestion(qIndex, 'question_type', e.target.value)}
+                                        label="نوع السؤال"
+                                        size="small"
+                                    >
+                                        <MenuItem value="MCQ">اختيار</MenuItem>
+                                        <MenuItem value="ESSAY">مقالي</MenuItem>
+                                    </Select>
+                                </FormControl>
+                            )}
 
                             <TextField
                                 label="الدرجة"

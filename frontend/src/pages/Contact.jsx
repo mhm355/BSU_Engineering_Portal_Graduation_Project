@@ -223,7 +223,7 @@ const ContactCard = ({ info, index }) => (
                 sx={{
                     fontFamily: 'Cairo',
                     fontWeight: 'bold',
-                    color: '#0A2342',
+                    color: '#1E293B',
                     mb: 2
                 }}
             >
@@ -355,14 +355,14 @@ export default function Contact() {
                 boxShadow: '0 6px 20px rgba(10, 35, 66, 0.1)',
                 backgroundColor: '#fff',
                 '& .MuiOutlinedInput-notchedOutline': {
-                    borderColor: '#FFC107',
+                    borderColor: '#4F46E5',
                 }
             },
             '&.Mui-focused': {
                 boxShadow: '0 8px 30px rgba(10, 35, 66, 0.15)',
                 backgroundColor: '#fff',
                 '& .MuiOutlinedInput-notchedOutline': {
-                    borderColor: '#0A2342',
+                    borderColor: '#4F46E5',
                     borderWidth: 2,
                 }
             }
@@ -384,20 +384,20 @@ export default function Contact() {
                     minHeight: { xs: '50vh', md: '60vh' },
                     display: 'flex',
                     alignItems: 'center',
-                    background: 'linear-gradient(135deg, #0A2342 0%, #1a3a5c 50%, #0A2342 100%)',
+                    background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 50%, #4F46E5 100%)',
                     backgroundSize: '200% 200%',
                     animation: `${gradientMove} 15s ease infinite`,
                     overflow: 'hidden',
                 }}
             >
-                {/* Animated Background Elements */}
-                <Box sx={{ position: 'absolute', top: -100, right: -100, width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,193,7,0.12) 0%, transparent 70%)', animation: `${float} 8s ease-in-out infinite` }} />
+                {/* Animated Background Elements - REMOVED */}
+                {/* <Box sx={{ position: 'absolute', top: -100, right: -100, width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,193,7,0.12) 0%, transparent 70%)', animation: `${float} 8s ease-in-out infinite` }} />
                 <Box sx={{ position: 'absolute', bottom: -150, left: -100, width: 600, height: 600, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%)', animation: `${float} 10s ease-in-out infinite`, animationDelay: '2s' }} />
-                <Box sx={{ position: 'absolute', top: '30%', left: '10%', width: 200, height: 200, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,193,7,0.08) 0%, transparent 70%)', animation: `${float} 6s ease-in-out infinite`, animationDelay: '1s' }} />
+                <Box sx={{ position: 'absolute', top: '30%', left: '10%', width: 200, height: 200, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,193,7,0.08) 0%, transparent 70%)', animation: `${float} 6s ease-in-out infinite`, animationDelay: '1s' }} /> */}
 
-                {/* Rotating Rings */}
-                <Box sx={{ position: 'absolute', top: '10%', right: '-20%', width: 600, height: 600, borderRadius: '50%', border: '2px dashed rgba(255,193,7,0.15)', animation: `${rotate} 60s linear infinite` }} />
-                <Box sx={{ position: 'absolute', bottom: '-30%', left: '-10%', width: 400, height: 400, borderRadius: '50%', border: '2px dashed rgba(255,255,255,0.1)', animation: `${rotateReverse} 50s linear infinite` }} />
+                {/* Rotating Rings - REMOVED */}
+                {/* <Box sx={{ position: 'absolute', top: '10%', right: '-20%', width: 600, height: 600, borderRadius: '50%', border: '2px dashed rgba(255,193,7,0.15)', animation: `${rotate} 60s linear infinite` }} />
+                <Box sx={{ position: 'absolute', bottom: '-30%', left: '-10%', width: 400, height: 400, borderRadius: '50%', border: '2px dashed rgba(255,255,255,0.1)', animation: `${rotateReverse} 50s linear infinite` }} /> */}
 
                 {/* Grid Pattern */}
                 <Box
@@ -444,8 +444,8 @@ export default function Contact() {
                                 label="نحن هنا لمساعدتك"
                                 sx={{
                                     mb: 3,
-                                    bgcolor: 'rgba(255,193,7,0.15)',
-                                    color: '#FFC107',
+                                    bgcolor: 'rgba(79, 70, 229, 0.15)',
+                                    color: '#818CF8',
                                     fontFamily: 'Cairo',
                                     fontWeight: 'bold',
                                     border: '1px solid rgba(255,193,7,0.3)',
@@ -501,8 +501,8 @@ export default function Contact() {
                                     label="اتصل بنا"
                                     sx={{
                                         fontFamily: 'Cairo',
-                                        bgcolor: '#FFC107',
-                                        color: '#0A2342',
+                                        bgcolor: '#4F46E5',
+                                        color: '#1E293B',
                                         fontWeight: 'bold'
                                     }}
                                 />
@@ -526,9 +526,9 @@ export default function Contact() {
 
             {/* Contact Info Cards */}
             <Container maxWidth="lg" sx={{ mt: -8, position: 'relative', zIndex: 3 }}>
-                <Grid container spacing={3}>
+                <Grid container spacing={4}>
                     {contactInfo.map((info, index) => (
-                        <Grid item xs={12} sm={6} md={3} key={index}>
+                        <Grid item xs={12} key={index}>
                             <ContactCard info={info} index={index} />
                         </Grid>
                     ))}
@@ -562,7 +562,7 @@ export default function Contact() {
                                         left: 0,
                                         right: 0,
                                         height: 4,
-                                        background: 'linear-gradient(90deg, transparent, #FFC107, #0A2342, #FFC107, transparent)',
+                                        background: 'linear-gradient(90deg, transparent, #4F46E5, #14B8A6, #4F46E5, transparent)',
                                         backgroundSize: '200% 100%',
                                         animation: `${shimmer} 3s linear infinite`,
                                     }}
@@ -574,15 +574,15 @@ export default function Contact() {
                                             width: 70,
                                             height: 70,
                                             borderRadius: 4,
-                                            background: 'linear-gradient(135deg, #FFC107, #FFD54F)',
+                                            background: 'linear-gradient(135deg, #4F46E5, #7C3AED)',
                                             display: 'flex',
                                             alignItems: 'center',
                                             justifyContent: 'center',
                                             mr: 3,
-                                            boxShadow: '0 10px 30px rgba(255,193,7,0.3)',
+                                            boxShadow: '0 10px 30px rgba(79, 70, 229, 0.3)',
                                         }}
                                     >
-                                        <SendIcon sx={{ color: '#0A2342', fontSize: 32 }} />
+                                        <SendIcon sx={{ color: '#fff', fontSize: 32 }} />
                                     </Box>
                                     <Box>
                                         <Typography
@@ -590,7 +590,7 @@ export default function Contact() {
                                             sx={{
                                                 fontFamily: 'Cairo',
                                                 fontWeight: 'bold',
-                                                color: '#0A2342',
+                                                color: '#1E293B',
                                             }}
                                         >
                                             أرسل لنا رسالة
@@ -620,7 +620,7 @@ export default function Contact() {
                                                 InputProps={{
                                                     startAdornment: (
                                                         <InputAdornment position="start">
-                                                            <PersonIcon sx={{ color: '#0A2342' }} />
+                                                            <PersonIcon sx={{ color: '#4F46E5' }} />
                                                         </InputAdornment>
                                                     )
                                                 }}
@@ -642,7 +642,7 @@ export default function Contact() {
                                                 InputProps={{
                                                     startAdornment: (
                                                         <InputAdornment position="start">
-                                                            <EmailIcon sx={{ color: '#0A2342' }} />
+                                                            <EmailIcon sx={{ color: '#4F46E5' }} />
                                                         </InputAdornment>
                                                     )
                                                 }}
@@ -661,7 +661,7 @@ export default function Contact() {
                                                 InputProps={{
                                                     startAdornment: (
                                                         <InputAdornment position="start">
-                                                            <PhoneIcon sx={{ color: '#0A2342' }} />
+                                                            <PhoneIcon sx={{ color: '#4F46E5' }} />
                                                         </InputAdornment>
                                                     )
                                                 }}
@@ -683,7 +683,7 @@ export default function Contact() {
                                                 InputProps={{
                                                     startAdornment: (
                                                         <InputAdornment position="start">
-                                                            <CategoryIcon sx={{ color: '#0A2342' }} />
+                                                            <CategoryIcon sx={{ color: '#4F46E5' }} />
                                                         </InputAdornment>
                                                     )
                                                 }}
@@ -709,7 +709,7 @@ export default function Contact() {
                                                 InputProps={{
                                                     startAdornment: (
                                                         <InputAdornment position="start">
-                                                            <BusinessIcon sx={{ color: '#0A2342' }} />
+                                                            <BusinessIcon sx={{ color: '#4F46E5' }} />
                                                         </InputAdornment>
                                                     )
                                                 }}
@@ -736,7 +736,7 @@ export default function Contact() {
                                                 InputProps={{
                                                     startAdornment: (
                                                         <InputAdornment position="start">
-                                                            <SubjectIcon sx={{ color: '#0A2342' }} />
+                                                            <SubjectIcon sx={{ color: '#4F46E5' }} />
                                                         </InputAdornment>
                                                     )
                                                 }}
@@ -760,7 +760,7 @@ export default function Contact() {
                                                 InputProps={{
                                                     startAdornment: (
                                                         <InputAdornment position="start" sx={{ alignSelf: 'flex-start', mt: 1.5 }}>
-                                                            <MessageIcon sx={{ color: '#0A2342' }} />
+                                                            <MessageIcon sx={{ color: '#4F46E5' }} />
                                                         </InputAdornment>
                                                     )
                                                 }}
@@ -776,7 +776,7 @@ export default function Contact() {
                                                 fullWidth
                                                 disabled={isSubmitting}
                                                 sx={{
-                                                    bgcolor: '#0A2342',
+                                                    bgcolor: '#4F46E5',
                                                     fontFamily: 'Cairo',
                                                     fontWeight: 'bold',
                                                     py: 2,
@@ -842,7 +842,7 @@ export default function Contact() {
                                                 sx={{
                                                     fontFamily: 'Cairo',
                                                     fontWeight: 'bold',
-                                                    color: '#0A2342',
+                                                    color: '#1E293B',
                                                 }}
                                             >
                                                 الأسئلة الشائعة
@@ -866,18 +866,18 @@ export default function Contact() {
                                                 mb: 2,
                                                 borderRadius: '16px !important',
                                                 border: '1px solid',
-                                                borderColor: expandedFaq === index ? '#FFC107' : 'rgba(0,0,0,0.08)',
+                                                borderColor: expandedFaq === index ? '#4F46E5' : 'rgba(0,0,0,0.08)',
                                                 '&::before': { display: 'none' },
                                                 overflow: 'hidden',
                                                 transition: 'all 0.3s ease',
                                                 '&:hover': {
-                                                    borderColor: '#FFC107',
+                                                    borderColor: '#4F46E5',
                                                     boxShadow: '0 5px 20px rgba(255,193,7,0.15)',
                                                 }
                                             }}
                                         >
                                             <AccordionSummary
-                                                expandIcon={<ExpandMoreIcon sx={{ color: '#0A2342' }} />}
+                                                expandIcon={<ExpandMoreIcon sx={{ color: '#4F46E5' }} />}
                                                 sx={{
                                                     bgcolor: expandedFaq === index ? 'rgba(255,193,7,0.08)' : 'transparent',
                                                     py: 1,
@@ -887,7 +887,7 @@ export default function Contact() {
                                                     sx={{
                                                         fontFamily: 'Cairo',
                                                         fontWeight: 'bold',
-                                                        color: '#0A2342'
+                                                        color: '#1E293B'
                                                     }}
                                                 >
                                                     {faq.question}
@@ -915,7 +915,7 @@ export default function Contact() {
                                         p: 4,
                                         mt: 3,
                                         borderRadius: 4,
-                                        background: 'linear-gradient(135deg, #0A2342, #1a4a7a)',
+                                        background: 'linear-gradient(135deg, #4F46E5, #7C3AED)',
                                         textAlign: 'center',
                                     }}
                                 >
@@ -971,7 +971,7 @@ export default function Contact() {
                             sx={{
                                 mb: 2,
                                 bgcolor: 'rgba(10,35,66,0.08)',
-                                color: '#0A2342',
+                                color: '#1E293B',
                                 fontFamily: 'Cairo',
                                 fontWeight: 'bold',
                             }}
@@ -981,7 +981,7 @@ export default function Contact() {
                             sx={{
                                 fontFamily: 'Cairo',
                                 fontWeight: 'bold',
-                                color: '#0A2342',
+                                color: '#1E293B',
                                 mb: 2,
                             }}
                         >
@@ -1025,15 +1025,15 @@ export default function Contact() {
                 sx={{
                     position: 'relative',
                     py: 10,
-                    background: 'linear-gradient(135deg, #0A2342 0%, #1a3a5c 50%, #0A2342 100%)',
+                    background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 50%, #4F46E5 100%)',
                     backgroundSize: '200% 200%',
                     animation: `${gradientMove} 15s ease infinite`,
                     overflow: 'hidden',
                 }}
             >
-                {/* Background Elements */}
-                <Box sx={{ position: 'absolute', top: -50, right: -50, width: 300, height: 300, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,193,7,0.1) 0%, transparent 70%)' }} />
-                <Box sx={{ position: 'absolute', bottom: -50, left: -50, width: 250, height: 250, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%)' }} />
+                {/* Background Elements - REMOVED */}
+                {/* <Box sx={{ position: 'absolute', top: -50, right: -50, width: 300, height: 300, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,193,7,0.1) 0%, transparent 70%)' }} />
+                <Box sx={{ position: 'absolute', bottom: -50, left: -50, width: 250, height: 250, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%)' }} /> */}
 
                 <Container maxWidth="md" sx={{ position: 'relative', zIndex: 2, textAlign: 'center' }}>
                     <Box
@@ -1050,7 +1050,7 @@ export default function Contact() {
                             animation: `${pulse} 2s ease-in-out infinite`,
                         }}
                     >
-                        <CheckCircleOutlineIcon sx={{ fontSize: 50, color: '#FFC107' }} />
+                        <CheckCircleOutlineIcon sx={{ fontSize: 50, color: '#4F46E5' }} />
                     </Box>
 
                     <Typography
@@ -1086,8 +1086,8 @@ export default function Contact() {
                             href="tel:082-2334015"
                             startIcon={<PhoneIcon />}
                             sx={{
-                                bgcolor: '#FFC107',
-                                color: '#0A2342',
+                                bgcolor: '#4F46E5',
+                                color: '#1E293B',
                                 fontFamily: 'Cairo',
                                 fontWeight: 'bold',
                                 px: 5,
@@ -1119,7 +1119,7 @@ export default function Contact() {
                                 borderRadius: 3,
                                 fontSize: '1.1rem',
                                 '&:hover': {
-                                    borderColor: '#FFC107',
+                                    borderColor: '#4F46E5',
                                     bgcolor: 'rgba(255,193,7,0.1)',
                                 }
                             }}

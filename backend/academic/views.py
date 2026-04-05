@@ -123,11 +123,16 @@ class AcademicYearViewSet(viewsets.ModelViewSet):
         return Response(AcademicYearSerializer(year).data)
 
 
-class TermViewSet(viewsets.ReadOnlyModelViewSet):
-    """Terms - Read-only (auto-created with Academic Year)"""
+class TermViewSet(viewsets.ModelViewSet):
+    """Terms - Auto-created with Academic Year, Admin can toggle status"""
     queryset = Term.objects.all()
     serializer_class = TermSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+    def get_permissions(self):
+        if self.action in ['toggle_status', 'update', 'partial_update']:
+            return [IsAdminRole()]
+        return [permissions.IsAuthenticated()]
 
     def get_queryset(self):
         queryset = Term.objects.all()
@@ -135,6 +140,17 @@ class TermViewSet(viewsets.ReadOnlyModelViewSet):
         if academic_year:
             queryset = queryset.filter(academic_year_id=academic_year)
         return queryset
+
+    @action(detail=True, methods=['post'])
+    def toggle_status(self, request, pk=None):
+        """Toggle term status between OPEN and CLOSED"""
+        term = self.get_object()
+        if term.status == Term.Status.OPEN:
+            term.status = Term.Status.CLOSED
+        else:
+            term.status = Term.Status.OPEN
+        term.save()
+        return Response(TermSerializer(term).data)
 
 
 class GradingTemplateViewSet(viewsets.ModelViewSet):

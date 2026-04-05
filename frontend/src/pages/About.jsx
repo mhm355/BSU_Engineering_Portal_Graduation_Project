@@ -3,15 +3,15 @@ import { Box, Container, Typography, Paper, Grid } from '@mui/material';
 
 export default function About() {
     return (
-        <Container maxWidth="lg" sx={{ py: 8 }}>
-            <Typography variant="h3" gutterBottom sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342', textAlign: 'center', mb: 6 }}>
+        <Container maxWidth="lg" sx={{ py: 4 }}>
+            <Typography variant="h4" gutterBottom sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B', textAlign: 'center', mb: 4 }}>
                 عن الكلية
             </Typography>
 
             <Grid container spacing={4}>
-                <Grid item xs={12} md={6}>
-                    <Paper elevation={3} sx={{ p: 4, height: '100%' }}>
-                        <Typography variant="h5" gutterBottom sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#FFC107' }}>
+                <Grid item xs={12}>
+                    <Paper elevation={3} sx={{ p: 4, height: '100%', borderRadius: 4 }}>
+                        <Typography variant="h5" gutterBottom sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#4F46E5' }}>
                             الرؤية
                         </Typography>
                         <Typography variant="body1" sx={{ fontFamily: 'Cairo', lineHeight: 1.8 }}>
@@ -20,9 +20,9 @@ export default function About() {
                     </Paper>
                 </Grid>
 
-                <Grid item xs={12} md={6}>
-                    <Paper elevation={3} sx={{ p: 4, height: '100%' }}>
-                        <Typography variant="h5" gutterBottom sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#FFC107' }}>
+                <Grid item xs={12}>
+                    <Paper elevation={3} sx={{ p: 4, height: '100%', borderRadius: 4 }}>
+                        <Typography variant="h5" gutterBottom sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#14B8A6' }}>
                             الرسالة
                         </Typography>
                         <Typography variant="body1" sx={{ fontFamily: 'Cairo', lineHeight: 1.8 }}>
@@ -32,8 +32,8 @@ export default function About() {
                 </Grid>
 
                 <Grid item xs={12}>
-                    <Paper elevation={3} sx={{ p: 4, mt: 2 }}>
-                        <Typography variant="h5" gutterBottom sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342' }}>
+                    <Paper elevation={3} sx={{ p: 4, mt: 2, borderRadius: 4 }}>
+                        <Typography variant="h5" gutterBottom sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#4F46E5' }}>
                             كلمة العميد
                         </Typography>
                         <Typography variant="body1" sx={{ fontFamily: 'Cairo', lineHeight: 1.8, mb: 2 }}>

@@ -46,7 +46,7 @@ export default function AssignmentHistory() {
                 عودة للوحة التحكم
             </Button>
 
-            <Typography variant="h4" gutterBottom sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342' }}>
+            <Typography variant="h4" gutterBottom sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B' }}>
                 <HistoryIcon sx={{ mr: 1, verticalAlign: 'bottom', fontSize: 36 }} />
                 سجل التعيينات
             </Typography>
@@ -63,7 +63,7 @@ export default function AssignmentHistory() {
                 <TableContainer component={Paper} sx={{ borderRadius: 2 }}>
                     <Table>
                         <TableHead>
-                            <TableRow sx={{ bgcolor: '#0A2342' }}>
+                            <TableRow sx={{ bgcolor: '#4F46E5' }}>
                                 <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff' }}>#</TableCell>
                                 <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff' }}>الإجراء</TableCell>
                                 <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff' }}>الدكتور</TableCell>

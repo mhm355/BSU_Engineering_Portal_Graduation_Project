@@ -82,8 +82,8 @@ export default function ChangePassword() {
     return (
         <Container maxWidth="sm" sx={{ py: 12 }}>
             <Paper elevation={6} sx={{ p: 5, textAlign: 'center', borderRadius: 4 }}>
-                <LockResetIcon sx={{ fontSize: 60, color: '#0A2342', mb: 2 }} />
-                <Typography variant="h4" gutterBottom sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342' }}>
+                <LockResetIcon sx={{ fontSize: 60, color: '#4F46E5', mb: 2 }} />
+                <Typography variant="h4" gutterBottom sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B' }}>
                     تغيير كلمة المرور
                 </Typography>
                 <Typography variant="body1" color="textSecondary" sx={{ fontFamily: 'Cairo', mb: 4 }}>
@@ -165,7 +165,7 @@ export default function ChangePassword() {
                             fullWidth
                             disabled={loading}
                             sx={{
-                                bgcolor: '#0A2342',
+                                bgcolor: '#4F46E5',
                                 fontFamily: 'Cairo',
                                 fontWeight: 'bold',
                                 py: 1.5,

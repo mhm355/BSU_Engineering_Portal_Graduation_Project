@@ -46,7 +46,7 @@ export default function DeletionRequests() {
         <Container maxWidth="lg" sx={{ py: 4 }}>
             <Button onClick={() => window.history.back()} sx={{ mb: 2, fontFamily: 'Cairo' }}>← عودة</Button>
 
-            <Typography variant="h4" gutterBottom sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342', mb: 4 }}>
+            <Typography variant="h4" gutterBottom sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B', mb: 4 }}>
                 طلبات حذف الأعضاء
             </Typography>
 

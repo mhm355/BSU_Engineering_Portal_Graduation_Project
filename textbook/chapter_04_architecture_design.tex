@@ -1,0 +1,426 @@
+% Chapter 4: System & Architecture Design
+% BSU Engineering Portal Graduation Project
+
+\chapter{System \& Architecture Design}
+\label{chap:architecture}
+
+\section{Architecture Overview}
+\label{sec:architecture-overview}
+
+\subsection{High-Level Architecture}
+
+The BSU Engineering Portal follows a \textbf{four-tier architecture} pattern, separating concerns into distinct, independently deployable layers to ensure scalability and maintainability:
+
+\begin{enumerate}
+    \item \textbf{Presentation Tier}: A React-based Single Page Application (SPA) deployed as a containerized service.
+    \item \textbf{API Tier}: A Django REST Framework (DRF) backend, running inside a Gunicorn WSGI server as a scalable AWS ECS Fargate task.
+    \item \textbf{Data Tier}: A managed Amazon RDS for MySQL 8.0 instance, providing high availability, automated backups, and automated patching.
+    \item \textbf{Routing Tier}: An AWS Application Load Balancer (ALB) acting as the single entry point, routing \texttt{/api/*} requests to the backend service and serving the SPA for all other paths via an Nginx container.
+\end{enumerate}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{aws_architecture.png}
+    \caption{Cloud Deployment Architecture on AWS, illustrating the use of a Virtual Private Cloud (VPC) with public and private subnets to isolate ECS Fargate compute tasks and the Amazon RDS database instance.}
+    \label{fig:four_tier_arch}
+\end{figure}
+
+\subsection{Architectural Trade-offs \& Justifications}
+
+\textbf{Why not a Monolith?} \\
+A traditional Django monolith renders HTML server-side. While simpler to deploy initially, it fundamentally limits the user experience. The BSU Engineering Portal requires real-time form validation during 500+ row Excel uploads, role-specific dynamic dashboards, and RTL layout support with theme switching. A clean SPA + API split grants full control over the frontend experience while keeping the backend strictly concerned with data and business logic.
+
+\textbf{Why REST over GraphQL?} \\
+The system's data access patterns are highly predictable and strictly role-bounded. Each dashboard fetches a well-defined set of resources (e.g., students, grades, courses). GraphQL's flexibility---allowing clients to compose arbitrary queries---is overkill for this domain and introduces unnecessary complexity in resolving granular permission enforcement. With REST, each endpoint is shielded by a single, auditable permission class.
+
+\textbf{Why Amazon RDS \& ECS?} \\
+Managing database persistence, backups, and OS patching within standard Docker containers introduces significant operational risk. By offloading data persistence to Amazon RDS, the system guarantees automated point-in-time recovery and Multi-AZ readiness. Utilizing AWS Fargate for the compute tier allows the application containers to run completely serverless, eliminating EC2 host maintenance while maintaining deterministic Docker image deployments.
+
+\begin{table}[H]
+    \centering
+    \renewcommand{\arraystretch}{1.3}
+    \begin{tabular}{|p{0.2\textwidth}|p{0.15\textwidth}|p{0.55\textwidth}|}
+        \hline
+        \textbf{Layer} & \textbf{Technology} & \textbf{Engineering Justification} \\
+        \hline
+        \textbf{Frontend} & React 19 & Component-based UI, robust state handling. \\
+        \textbf{UI Library} & Material UI v5 & Native RTL capability, Cairo font integration. \\
+        \textbf{Backend} & Django 5.x & Mature ORM, session management, reliable auth. \\
+        \textbf{API Framework} & DRF 3.x & Seamless serialization, extensible permission classes. \\
+        \textbf{Database} & MySQL 8.0 & ACID compliance for strict academic records. \\
+        \textbf{Infrastructure} & AWS ECS (Fargate) \& RDS & Serverless container compute, zero-maintenance managed database. \\
+        \hline
+    \end{tabular}
+    \caption{Technology Stack \& Engineering Justification}
+    \label{tab:tech_stack}
+\end{table}
+
+\subsection{Cloud Deployment Topology (AWS)}
+
+The production deployment abandons single-host limitations in favor of a cloud-native approach using Amazon Web Services (AWS). Compute resources are orchestrated via \textbf{Elastic Container Service (ECS) with AWS Fargate}.
+
+A critical security decision was the \textbf{Virtual Private Cloud (VPC) isolation strategy}. The architecture employs logically isolated networks:
+\begin{itemize}
+    \item \textbf{Public Subnet}: Hosts the Application Load Balancer (ALB), which intercepts external HTTPS traffic and acts as a shield against DDoS attacks.
+    \item \textbf{Private Subnet (Compute)}: Hosts the ECS Fargate tasks (Frontend and Backend). These tasks are not assigned public IP addresses and can only be reached via the ALB.
+    \item \textbf{Private Subnet (Data)}: Hosts the Amazon RDS MySQL instance. Its Security Group strictly permits ingress traffic exclusively on port 3306 originating from the backend Fargate task's Security Group, neutralizing direct external database attacks.
+\end{itemize}
+
+\begin{lstlisting}[language=json, caption=ECS Task Definition Snippet injecting secrets via AWS Systems Manager (\texttt{task-def.json})]
+"containerDefinitions": [
+  {
+    "name": "bsu-backend",
+    "image": "123456789.dkr.ecr.eu-west-1.amazonaws.com/bsu-backend:latest",
+    "portMappings": [{"containerPort": 8000, "protocol": "tcp"}],
+    "secrets": [
+      { "name": "DB_PASSWORD", "valueFrom": "arn:aws:ssm:region:account:parameter/db_pass" }
+    ]
+  }
+]
+\end{lstlisting}
+
+\section{System Modeling (UML)}
+\label{sec:system-modeling}
+
+\subsection{Sequence Diagram: Authentication \& CSRF Handshake}
+
+Because the SPA and API are decoupled, session-based authentication requires a deliberate Cross-Site Request Forgery (CSRF) handshake. The browser must retrieve a CSRF token cookie before dispatching the POST request containing credentials.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{auth_sequence.png}
+    \caption{Sequence diagram detailing the decoupled CSRF handshake and session-based authentication flow between the React SPA and Django API.}
+    \label{fig:seq_auth}
+\end{figure}
+
+\subsection{Activity Diagram: Fault-Tolerant Batch Operations}
+
+Batch uploads (e.g., student enrollment, attendance logs) are the system's most data-intensive operations. Rather than rejecting an entire 500-row file due to a single invalid row, the system utilizes iterative row-level processing. As demonstrated in the \texttt{BulkAttendanceView}, the system traps operational exceptions per row without halting the broader batch execution.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{batch_activity.png}
+    \caption{Activity diagram illustrating the fault-tolerant batch processing pipeline. The iterative design ensures isolated failures do not abort the entire batch commit.}
+    \label{fig:act_batch}
+\end{figure}
+
+\needspace{12\baselineskip}
+\begin{lstlisting}[language=Python, caption=Row-level Fault Tolerance during Batch Insert (\texttt{academic/views.py})]
+for idx, item in enumerate(attendance_list):
+    try:
+        # Process row safely; isolate errors without halting batch
+        obj, is_created = Attendance.objects.update_or_create(
+            student=student, course_offering=course_offering,
+            date=date, defaults={'status': attendance_status}
+        )
+    except Exception as e:
+        errors.append(f"Row {idx+1}: {str(e)}")
+\end{lstlisting}
+
+\subsection{State Machine: Quiz Lifecycle}
+
+The assessment subsystem treats quizzes as a state machine. A student attempt transitions through four distinct states. Objectively graded quizzes (MCQs) transition directly to \texttt{GRADED}, whereas essay responses remain \texttt{SUBMITTED} pending manual doctor review.
+
+\begin{lstlisting}[language=Python, caption=Quiz Attempt State Machine in Django Model (\texttt{academic/models.py})]
+class StudentQuizAttempt(models.Model):
+    class AttemptStatus(models.TextChoices):
+        IN_PROGRESS = 'IN_PROGRESS', 'In Progress'
+        SUBMITTED   = 'SUBMITTED', 'Submitted'
+        TIMEOUT     = 'TIMEOUT', 'Timeout'
+        GRADED      = 'GRADED', 'Graded'
+
+    status = models.CharField(max_length=20, choices=AttemptStatus.choices)
+\end{lstlisting}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{quiz_state_machine.png}
+    \caption{State machine diagram modeling the lifecycle of a student's quiz attempt, demonstrating the diverging paths for auto-graded MCQ assessments versus manually graded essay submissions.}
+    \label{fig:quiz_state}
+\end{figure}
+
+\section{Database Design}
+\label{sec:database-design}
+
+\subsection{Entity-Relationship Overview}
+
+The database is heavily normalized into over 20 tables, organized into five functional domains to ensure a clean separation of concerns:
+
+\begin{enumerate}
+    \item \textbf{Identity \& Access}: Manages user accounts and role-based permissions.
+    \item \textbf{Academic Structure}: Defines the faculty's static hierarchy (Departments, Subjects, etc.).
+    \item \textbf{Academic Operations}: Contains transactional data like grades and attendance.
+    \item \textbf{Assessment}: The complete quiz engine schema.
+    \item \textbf{System \& Communication}: Handles system-level features like audit logs and announcements.
+\end{enumerate}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{erd_full.png}
+    \caption{Entity-Relationship Diagram detailing the core domains of the system: Identity, Academic Structure, Operations, and Assessment. Demonstrates the central pivot role of the CourseOffering entity.}
+    \label{fig:erd_full}
+\end{figure}
+
+\subsection{The CourseOffering Pivot Entity}
+
+The \texttt{CourseOffering} model represents the architectural cornerstone of the academic domain. It serves as a central junction tying together a \texttt{Subject}, a \texttt{Doctor}, an \texttt{AcademicYear}, a \texttt{Term}, and a \texttt{Level}. All subsequent operational data (Lectures, Quizzes, Attendance, Grades) hang off this central pivot rather than directly off a subject.
+
+\begin{lstlisting}[language=Python, caption=CourseOffering Pivot Entity Definition (\texttt{academic/models.py})]
+class CourseOffering(models.Model):
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
+    academic_year = models.ForeignKey(AcademicYear, on_delete=models.CASCADE)
+    level = models.ForeignKey(Level, on_delete=models.CASCADE)
+    doctor = models.ForeignKey(User, limit_choices_to={'role': 'DOCTOR'})
+    
+    class Meta:
+        unique_together = ('subject', 'academic_year', 'term', 'level')
+\end{lstlisting}
+
+This composite \texttt{unique\_together} constraint enforces a critical business rule at the database level: a specific subject cannot be duplicated for the same level within the same academic term.
+
+\subsection{Dual Identity: User vs. Student}
+
+A deliberate separation of concerns was implemented by decoupling the authentication model (\texttt{User}) from the academic metadata model (\texttt{Student}) using a \texttt{OneToOneField}. This design was chosen over embedding academic fields directly into the User model for two key reasons:
+
+\begin{enumerate}
+    \item \textbf{Separation of Concerns}: Authentication data (password hash, role, session tokens) belongs to the \texttt{User} model. Academic data (level, department, grades) belongs to the \texttt{Student} model. This prevents the core authentication entity from being polluted with domain-specific properties.
+    \item \textbf{Lifecycle Independence}: A Student record can be managed or even deleted (e.g., upon graduation) without destroying the underlying User account, preserving a historical record if needed.
+\end{enumerate}
+
+\begin{lstlisting}[language=Python, caption=Decoupled Student and User Models (\texttt{academic/models.py})]
+class Student(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE,
+                                related_name='student_profile')
+    level = models.ForeignKey(Level, on_delete=models.SET_NULL, ...)
+    department = models.ForeignKey(Department, on_delete=models.SET_NULL, ...)
+\end{lstlisting}
+
+\subsection{Assessment Schema Design}
+
+The quiz subsystem follows a nested composition pattern, where a \texttt{Quiz} contains multiple \texttt{QuizQuestion}s, which in turn can have multiple \texttt{QuizChoice}s. Student interactions are tracked via the \texttt{StudentQuizAttempt} and \texttt{StudentQuizAnswer} models, forming a relational structure that is both queryable and auditable.
+
+\begin{table}[H]
+    \centering
+    \renewcommand{\arraystretch}{1.3}
+    \small  % Smaller font for wide table
+    \begin{tabular}{|p{0.18\textwidth}|p{0.42\textwidth}|p{0.3\textwidth}|}
+        \hline
+        \textbf{Table} & \textbf{Key Columns} & \textbf{Purpose} \\ \hline
+        \texttt{Quiz} & \texttt{course\_offering\_id, quiz\_type, total\_points} & Defines the assessment container. \\
+        \texttt{QuizQuestion} & \texttt{quiz\_id, question\_type, points} & Stores an individual question (MCQ/ESSAY). \\
+        \texttt{QuizChoice} & \texttt{question\_id, is\_correct} & Stores a possible answer for an MCQ question. \\
+        \texttt{StudentQuizAttempt} & \texttt{student\_id, quiz\_id, score, status} & Tracks a single student's attempt at a quiz. \\
+        \texttt{StudentQuizAnswer} & \texttt{attempt\_id, question\_id, selected\_choice\_id} & Records a student's answer to one question. \\ \hline
+    \end{tabular}
+    \caption{Summary of the Quiz Subsystem Schema}
+    \label{tab:quiz_schema}
+\end{table}
+
+\subsection{Normalization and Database Integrity}
+
+The schema is normalized to Third Normal Form (3NF) to eliminate data redundancy and prevent update anomalies. Business rules are enforced at the database level using composite unique constraints, which are more reliable than application-level checks, especially under concurrent write operations.
+
+\begin{table}[H]
+    \centering
+    \renewcommand{\arraystretch}{1.3}
+    \begin{tabular}{|p{0.25\textwidth}|p{0.35\textwidth}|p{0.3\textwidth}|}
+        \hline
+        \textbf{Table} & \textbf{Composite Unique Constraint} & \textbf{Business Rule Validated} \\
+        \hline
+        \texttt{Attendance} & \texttt{(student, course\_offering, date)} & One attendance record per session. \\
+        \hline
+        \texttt{StudentGrade} & \texttt{(student, course\_offering)} & One master grade sheet per course. \\
+        \hline
+        \texttt{StudentQuizAttempt} & \texttt{(student, quiz)} & Strict single-attempt policy. \\
+        \hline
+        \texttt{StudentQuizAnswer} & \texttt{(attempt, question)} & One answer per question per attempt. \\
+        \hline
+        \texttt{Term} & \texttt{(name, academic\_year)} & Prevents duplicate terms (e.g., two "First" terms) in one year. \\
+        \hline
+    \end{tabular}
+    \caption{Key Composite Constraints Enforcing Database Integrity}
+    \label{tab:db_constraints}
+\end{table}
+
+\section{Backend Design}
+\label{sec:backend-design}
+
+\subsection{Application Structure \& Namespace}
+
+The backend follows a modular monolith structure, organized into four distinct Django applications, each with a single responsibility. This modularity prevents the codebase from becoming a tangled "big ball of mud" and clarifies ownership.
+
+\begin{verbatim}
+backend/
+|-- bsu_backend/  # Project settings, WSGI, root URL config
+|-- users/        # Authentication, user models, RBAC permissions
+|-- academic/     # Core academic operations (largest module)
+|-- content/      # CMS-like features (News, Announcements)
+`-- system/       # System-level operations (Audit Logs)
+\end{verbatim}
+
+Routing is encapsulated under dedicated API namespaces to ensure predictable and maintainable URL structures. For instance, all 120+ endpoints handling faculty workflows live under the \texttt{/api/academic/} boundary, while authentication endpoints are grouped under \texttt{/api/auth/}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{backend_modules.png}
+    \caption{Dependency Diagram showing the modular structure of the Django backend. Demonstrates how the academic, content, and system apps rely on the centralized users module for RBAC enforcement.}
+    \label{fig:backend_modules}
+\end{figure}
+
+\subsection{Middleware Pipeline}
+
+HTTP requests transit through an explicit middleware sequence defined in \texttt{settings.py}. The configuration order is structurally critical for security and functionality. For example, \texttt{CorsMiddleware} must execute before most other middleware to ensure that CORS preflight (OPTIONS) requests are handled correctly without being blocked by security checks.
+
+\begin{lstlisting}[language=Python, caption=Critical Middleware Order in \texttt{settings.py}]
+MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',        # 1. Must be high for preflight checks
+    'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
+\end{lstlisting}
+
+\subsection{Defense in Depth: Three-Tier Authorization}
+
+Security is not delegated to a single layer. Instead, Role-Based Access Control (RBAC) relies on three sequential verifications:
+
+\begin{enumerate}
+    \item \textbf{Routing Gateway}: Nginx segregates API requests from static asset requests.
+    \item \textbf{View-Level Permissions}: DRF viewsets dynamically assign permission classes based on the requested HTTP verb (\texttt{action}). Read operations may be allowed for authenticated users, while mutations are restricted to specific staff roles.
+\end{enumerate}
+
+\begin{lstlisting}[language=Python, caption=Dynamic Class-Level Permission Resolution (\texttt{academic/views.py})]
+class CourseOfferingViewSet(viewsets.ModelViewSet):
+    def get_permissions(self):
+        if self.action in ['create', 'update', 'partial_update', 'destroy']:
+            return [IsStaffAffairsRole()]
+        return [permissions.IsAuthenticated()]
+\end{lstlisting}
+
+\begin{enumerate}
+    \setcounter{enumi}{2}
+    \item \textbf{Object-Level Ownership}: Even if a user has the \texttt{DOCTOR} role, the system queries the relational hierarchy to verify ownership of the specific resource being mutated.
+\end{enumerate}
+
+\begin{lstlisting}[language=Python, caption=Object-Level Ownership Verification (\texttt{academic/views.py})]
+course_offering = CourseOffering.objects.get(id=course_offering_id)
+# Prevent cross-doctor grade tampering
+if not request.user.is_superuser and course_offering.doctor != request.user:
+    return Response({'error': 'Not authorized'}, status=status.HTTP_403_FORBIDDEN)
+\end{lstlisting}
+
+\subsection{Immutable Audit Logging}
+
+Administrative confidence requires traceability. All critical mutations processed by administrative roles generate an \texttt{AuditLog} record. This model leverages Django's \texttt{JSONField} to store context-aware payloads mapping specifically to the event signature. This provides far more useful information than a simple text message.
+
+\begin{lstlisting}[language=Python, caption=AuditLog Model with Flexible JSONField (\texttt{system/models.py})]
+class AuditLog(models.Model):
+    class ActionType(models.TextChoices):
+        STUDENT_BATCH_UPLOAD = "STUDENT_BATCH_UPLOAD"
+        DOCTOR_ASSIGNMENT    = "DOCTOR_ASSIGNMENT"
+        GRADE_APPROVED       = "GRADE_APPROVED"
+        # ... other action types
+
+    action = models.CharField(max_length=50, choices=ActionType.choices)
+    performed_by = models.ForeignKey(User, ...)
+    details = models.JSONField(null=True, blank=True) # Context-specific data
+\end{lstlisting}
+
+For example, a \texttt{STUDENT\_BATCH\_UPLOAD} action stores a payload of \texttt{\{"created": 50, "updated": 5, "errors": 2\}}, while a \texttt{DOCTOR\_ASSIGNMENT} action stores \texttt{\{"doctor\_name": "...", "subject": "..."\}}.
+
+\section{Frontend \& UI/UX Design}
+\label{sec:frontend-design}
+
+\subsection{State Management \& Architecture}
+
+The application eschews heavy state libraries like Redux in favor of the native \textbf{React Context API}. State is session-scoped (authentication context, UI theme context) rather than deeply interconnected. The primary \texttt{AuthProvider} performs a background session validation immediately on load to prevent UI hydration flashes.
+\begin{lstlisting}[language=JavaScript, caption=Session Revalidation in AuthProvider]
+useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+        api.get('/api/auth/profile/')
+            .then(res => setUser(res.data)) // Session is valid
+            .catch(() => {
+                localStorage.removeItem('user'); // Session expired
+                setUser(null);
+            });
+    }
+}, []);
+\end{lstlisting}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{react_tree.png}
+    \caption{React Component Tree demonstrating the Context Provider nesting. The Theme and Auth providers wrap the Router, allowing the ProtectedRoute component to securely shield role-specific dashboards.}
+    \label{fig:react_tree}
+\end{figure}
+
+\subsection{Route Protection}
+
+\needspace{10\baselineskip}
+\begin{lstlisting}[language=jsx, caption=ProtectedRoute Component Logic]
+const ProtectedRoute = ({ children, roles }) => {
+    const { user } = useAuth();
+    if (!user) return <Navigate to="/login" replace />;
+    if (user.first_login_required) return <Navigate to="/change-password" replace />;
+    if (roles && !roles.includes(user.role)) return <Navigate to="/" replace />;
+    return children;
+};
+\end{lstlisting}
+
+\begin{lstlisting}[language=JavaScript, caption=API Request Interception for Expiry Handling]
+api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response?.status === 401) {
+            localStorage.removeItem('user');
+            window.location.href = '/login'; // Force re-authentication
+        }
+        return Promise.reject(error);
+    }
+);
+\end{lstlisting}
+
+\subsection{RTL-First Interface \& Theming}
+
+Because the faculty requires an Arabic-native interface, the UI was built RTL-first. It leverages Material-UI's built-in RTL support, which uses the \texttt{stylis-plugin-rtl} library to automatically mirror CSS properties (e.g., converting \texttt{padding-left} to \texttt{padding-right}) when the theme's direction is set to \texttt{'rtl'}. The design incorporates the "Cairo" Google Font, which is heavily optimized for Arabic script legibility. Dark mode integration maps the university's primary color palette to low-luminance backgrounds to reduce eye strain.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{theme_comparison.png}
+    \caption{Side-by-side comparison of the Student Dashboard illustrating the dynamic theme switching capability (Light Mode vs. Dark Mode), built with Material-UI and tailored for an Arabic RTL layout.}
+    \label{fig:theme_compare}
+\end{figure}
+
+\subsection{Build Optimization \& Deployment}
+
+The project utilizes multi-stage Docker builds to create lean, production-optimized container images. The frontend build process, for example, uses a Node.js image to build the static React assets, then copies only the resulting \texttt{/dist} folder and the Nginx configuration into a lightweight \texttt{nginx:alpine} image for the final artifact. This ensures the production container has a minimal attack surface and does not contain any build-time dependencies.
+
+The backend container's \texttt{entrypoint.sh} script automates critical startup tasks, including running database migrations and collecting static files, before starting the Gunicorn server.
+
+\subsection{Reverse Proxy Engineering}
+
+The Nginx container serves a dual purpose: it efficiently serves the static frontend assets and acts as a reverse proxy for the backend API. This single-entrypoint architecture simplifies CORS configuration and network security. The Nginx configuration is engineered to handle large file uploads and support client-side routing.
+
+\begin{lstlisting}[language=nginx, caption=Nginx Reverse Proxy Configuration (\texttt{nginx.conf})]
+server {
+    listen 80;
+    client_max_body_size 50M; # Allow large file uploads
+
+    # Route for React SPA (client-side routing)
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    # Route for Django API
+    location /api/ {
+        proxy_pass http://backend:8000; # Forward to backend service
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_read_timeout 300s; # Accommodate long-running batch uploads
+    }
+}
+\end{lstlisting}

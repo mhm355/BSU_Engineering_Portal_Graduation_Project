@@ -79,7 +79,7 @@ const StatCard = ({ icon: Icon, value, label, color, delay = 0 }) => (
 );
 
 // Year Card Component (for card view)
-const YearCard = ({ year, idx, onEdit, onToggleStatus, onSetCurrent, delay = 0 }) => (
+const YearCard = ({ year, idx, onEdit, onToggleStatus, onSetCurrent, terms, onToggleTermStatus, delay = 0 }) => (
     <Grow in={true} timeout={800 + delay}>
         <Card
             sx={{
@@ -159,6 +159,55 @@ const YearCard = ({ year, idx, onEdit, onToggleStatus, onSetCurrent, delay = 0 }
                     </Typography>
                 </Box>
 
+                {/* Terms Section */}
+                {terms && terms.length > 0 && (
+                    <Box sx={{ mt: 2, p: 2, bgcolor: 'rgba(0,0,0,0.02)', borderRadius: 2 }}>
+                        <Typography variant="subtitle2" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#666', mb: 1.5 }}>
+                            الفصول الدراسية:
+                        </Typography>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                            {terms.map((term) => (
+                                <Box key={term.id} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 1, bgcolor: '#fff', borderRadius: 1.5, border: '1px solid rgba(0,0,0,0.06)' }}>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                        <Typography variant="body2" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
+                                            {term.name_display}
+                                        </Typography>
+                                        <Chip
+                                            label={term.status === 'OPEN' ? 'مفتوح' : 'مغلق'}
+                                            size="small"
+                                            sx={{
+                                                height: 22,
+                                                fontSize: '0.7rem',
+                                                bgcolor: term.status === 'OPEN' ? '#e8f5e9' : '#ffebee',
+                                                color: term.status === 'OPEN' ? '#2e7d32' : '#c62828',
+                                                fontFamily: 'Cairo',
+                                                fontWeight: 'bold',
+                                            }}
+                                        />
+                                    </Box>
+                                    <Tooltip title={term.status === 'OPEN' ? 'إغلاق الفصل' : 'فتح الفصل'}>
+                                        <IconButton
+                                            size="small"
+                                            onClick={() => onToggleTermStatus(term)}
+                                            sx={{
+                                                width: 28,
+                                                height: 28,
+                                                bgcolor: term.status === 'OPEN' ? '#ffebee' : '#e8f5e9',
+                                                color: term.status === 'OPEN' ? '#c62828' : '#2e7d32',
+                                                '&:hover': {
+                                                    bgcolor: term.status === 'OPEN' ? '#ffcdd2' : '#c8e6c9'
+                                                }
+                                            }}
+                                        >
+                                            {term.status === 'OPEN' ? <LockIcon sx={{ fontSize: 14 }} /> : <LockOpenIcon sx={{ fontSize: 14 }} />}
+                                        </IconButton>
+                                    </Tooltip>
+                                </Box>
+                            ))}
+                        </Box>
+                    </Box>
+                )}
+
                 {/* Actions */}
                 <Box sx={{ display: 'flex', gap: 1, mt: 2, pt: 2, borderTop: '1px solid rgba(0,0,0,0.08)' }}>
                     <Tooltip title="تعديل">
@@ -210,6 +259,7 @@ const YearCard = ({ year, idx, onEdit, onToggleStatus, onSetCurrent, delay = 0 }
 export default function ManageAcademicYears() {
     const navigate = useNavigate();
     const [years, setYears] = useState([]);
+    const [terms, setTerms] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
@@ -225,6 +275,7 @@ export default function ManageAcademicYears() {
 
     useEffect(() => {
         fetchYears();
+        fetchTerms();
     }, []);
 
     const fetchYears = async () => {
@@ -235,6 +286,25 @@ export default function ManageAcademicYears() {
             setError('فشل في تحميل الأعوام الدراسية');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const fetchTerms = async () => {
+        try {
+            const response = await axios.get('/api/academic/terms/', config);
+            setTerms(response.data);
+        } catch (err) {
+            console.error('Error fetching terms:', err);
+        }
+    };
+
+    const handleToggleTermStatus = async (term) => {
+        try {
+            const response = await axios.post(`/api/academic/terms/${term.id}/toggle_status/`, {}, config);
+            setSuccess(`تم ${response.data.status === 'OPEN' ? 'فتح' : 'إغلاق'} ${response.data.name_display}`);
+            fetchTerms();
+        } catch (err) {
+            setError('فشل في تغيير حالة الفصل الدراسي');
         }
     };
 
@@ -312,15 +382,15 @@ export default function ManageAcademicYears() {
             <Box
                 sx={{
                     background: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)',
-                    pt: 4,
-                    pb: 6,
-                    mb: 4,
+                    pt: 3,
+                    pb: 4,
+                    mb: 3,
                     position: 'relative',
                     overflow: 'hidden',
                 }}
             >
-                {/* Floating Elements */}
-                <Box
+                {/* Floating Elements - REMOVED */}
+                {/* <Box
                     sx={{
                         position: 'absolute',
                         top: -50,
@@ -344,7 +414,7 @@ export default function ManageAcademicYears() {
                         animation: `${float} 8s ease-in-out infinite`,
                         animationDelay: '2s',
                     }}
-                />
+                /> */}
 
                 <Container maxWidth="xl">
                     <Fade in={true} timeout={800}>
@@ -364,19 +434,19 @@ export default function ManageAcademicYears() {
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
                                 <Avatar
                                     sx={{
-                                        width: 80,
-                                        height: 80,
+                                        width: 55,
+                                        height: 55,
                                         bgcolor: 'rgba(255,255,255,0.2)',
                                         backdropFilter: 'blur(10px)',
                                     }}
                                 >
-                                    <CalendarMonthIcon sx={{ fontSize: 45, color: '#fff' }} />
+                                    <CalendarMonthIcon sx={{ fontSize: 30, color: '#fff' }} />
                                 </Avatar>
                                 <Box>
-                                    <Typography variant="h3" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff', textShadow: '0 4px 20px rgba(0,0,0,0.2)' }}>
+                                    <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff', textShadow: '0 4px 20px rgba(0,0,0,0.2)' }}>
                                         إدارة الأعوام الدراسية
                                     </Typography>
-                                    <Typography variant="h6" sx={{ fontFamily: 'Cairo', color: 'rgba(255,255,255,0.9)' }}>
+                                    <Typography variant="subtitle1" sx={{ fontFamily: 'Cairo', color: 'rgba(255,255,255,0.9)' }}>
                                         إضافة وتعديل وإدارة الأعوام الأكاديمية
                                     </Typography>
                                 </Box>
@@ -505,15 +575,15 @@ export default function ManageAcademicYears() {
                     <Paper
                         elevation={0}
                         sx={{
-                            p: 8,
+                            p: 6,
                             borderRadius: 4,
                             background: '#fff',
                             boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
                             textAlign: 'center',
                         }}
                     >
-                        <CalendarMonthIcon sx={{ fontSize: 80, color: '#ddd', mb: 2 }} />
-                        <Typography variant="h5" sx={{ fontFamily: 'Cairo', color: '#999', mb: 1 }}>
+                        <CalendarMonthIcon sx={{ fontSize: 60, color: '#ddd', mb: 2 }} />
+                        <Typography variant="h6" sx={{ fontFamily: 'Cairo', color: '#999', mb: 1 }}>
                             لا توجد أعوام دراسية
                         </Typography>
                         <Typography variant="body1" sx={{ fontFamily: 'Cairo', color: '#bbb', mb: 3 }}>
@@ -545,6 +615,8 @@ export default function ManageAcademicYears() {
                                     onEdit={handleOpen}
                                     onToggleStatus={handleToggleStatus}
                                     onSetCurrent={handleSetCurrent}
+                                    terms={terms.filter(t => t.academic_year === year.id)}
+                                    onToggleTermStatus={handleToggleTermStatus}
                                     delay={idx * 100}
                                 />
                             </Grid>

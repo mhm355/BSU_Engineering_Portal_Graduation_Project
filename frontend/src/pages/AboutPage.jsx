@@ -26,7 +26,7 @@ export default function AboutPage() {
                 sx={{
                     p: 5,
                     mb: 4,
-                    background: 'linear-gradient(135deg, #0A2342 0%, #1a4a7a 100%)',
+                    background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)',
                     color: 'white',
                     borderRadius: 3,
                     position: 'relative',
@@ -38,25 +38,25 @@ export default function AboutPage() {
                         left: 0,
                         right: 0,
                         bottom: 0,
-                        background: 'radial-gradient(circle at 20% 80%, rgba(255,193,7,0.1) 0%, transparent 50%)',
+                        background: 'none',
                     }
                 }}
             >
-                <Typography variant="h3" component="h1" gutterBottom sx={{ fontFamily: 'Cairo', fontWeight: 'bold', textAlign: 'center', position: 'relative' }}>
+                <Typography variant="h4" component="h1" gutterBottom sx={{ fontFamily: 'Cairo', fontWeight: 'bold', textAlign: 'center', position: 'relative' }}>
                     نبذة عن الكلية
                 </Typography>
-                <Typography variant="h6" sx={{ fontFamily: 'Cairo', textAlign: 'center', opacity: 0.9 }}>
+                <Typography variant="subtitle1" sx={{ fontFamily: 'Cairo', textAlign: 'center', opacity: 0.9 }}>
                     كلية الهندسة - جامعة بني سويف
                 </Typography>
             </Paper>
 
             {/* History Section */}
-            <Paper elevation={3} sx={{ p: 4, mb: 4, borderRight: '5px solid #FFC107', borderRadius: 3, background: 'linear-gradient(to left, #fafafa, white)' }}>
+            <Paper elevation={3} sx={{ p: 4, mb: 4, borderRight: '5px solid #4F46E5', borderRadius: 3, background: 'linear-gradient(to left, #fafafa, white)' }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-                    <Box sx={{ bgcolor: '#FFC107', p: 1.5, borderRadius: 2, mr: 2 }}>
-                        <HistoryEduIcon sx={{ fontSize: 35, color: '#0A2342' }} />
+                    <Box sx={{ bgcolor: '#4F46E5', p: 1.5, borderRadius: 2, mr: 2 }}>
+                        <HistoryEduIcon sx={{ fontSize: 35, color: '#fff' }} />
                     </Box>
-                    <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342' }}>
+                    <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B' }}>
                         نشأة الكلية
                     </Typography>
                 </Box>
@@ -68,14 +68,14 @@ export default function AboutPage() {
             {/* Info Cards */}
             <Grid container spacing={3} sx={{ mb: 4 }}>
                 {/* Degrees */}
-                <Grid item xs={12} md={6}>
-                    <Card elevation={4} sx={{ height: '100%', borderTop: '5px solid #FFC107', borderRadius: 3, transition: 'transform 0.3s, box-shadow 0.3s', '&:hover': { transform: 'translateY(-5px)', boxShadow: 8 } }}>
+                <Grid item xs={12}>
+                    <Card elevation={4} sx={{ height: '100%', borderTop: '5px solid #4F46E5', borderRadius: 3, transition: 'transform 0.3s, box-shadow 0.3s', '&:hover': { transform: 'translateY(-5px)', boxShadow: 8 } }}>
                         <CardContent sx={{ p: 3 }}>
                             <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
                                 <Box sx={{ bgcolor: '#e3f2fd', p: 1.5, borderRadius: 2, mr: 2 }}>
-                                    <SchoolIcon sx={{ fontSize: 35, color: '#0A2342' }} />
+                                    <SchoolIcon sx={{ fontSize: 35, color: '#4F46E5' }} />
                                 </Box>
-                                <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342' }}>
+                                <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B' }}>
                                     الدرجات العلمية
                                 </Typography>
                             </Box>
@@ -102,14 +102,14 @@ export default function AboutPage() {
                 </Grid>
 
                 {/* Duration & Language */}
-                <Grid item xs={12} md={6}>
-                    <Card elevation={4} sx={{ height: '100%', borderTop: '5px solid #FFC107', borderRadius: 3, transition: 'transform 0.3s, box-shadow 0.3s', '&:hover': { transform: 'translateY(-5px)', boxShadow: 8 } }}>
+                <Grid item xs={12}>
+                    <Card elevation={4} sx={{ height: '100%', borderTop: '5px solid #14B8A6', borderRadius: 3, transition: 'transform 0.3s, box-shadow 0.3s', '&:hover': { transform: 'translateY(-5px)', boxShadow: 8 } }}>
                         <CardContent sx={{ p: 3 }}>
                             <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
                                 <Box sx={{ bgcolor: '#e8f5e9', p: 1.5, borderRadius: 2, mr: 2 }}>
-                                    <MenuBookIcon sx={{ fontSize: 35, color: '#0A2342' }} />
+                                    <MenuBookIcon sx={{ fontSize: 35, color: '#14B8A6' }} />
                                 </Box>
-                                <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342' }}>
+                                <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B' }}>
                                     مدة الدراسة
                                 </Typography>
                             </Box>
@@ -121,9 +121,9 @@ export default function AboutPage() {
 
                             <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                                 <Box sx={{ bgcolor: '#fff3e0', p: 1.5, borderRadius: 2, mr: 2 }}>
-                                    <LanguageIcon sx={{ fontSize: 35, color: '#0A2342' }} />
+                                    <LanguageIcon sx={{ fontSize: 35, color: '#F59E0B' }} />
                                 </Box>
-                                <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342' }}>
+                                <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B' }}>
                                     لغة الدراسة
                                 </Typography>
                             </Box>
@@ -138,16 +138,16 @@ export default function AboutPage() {
             {/* Departments */}
             <Paper elevation={3} sx={{ p: 4, borderRadius: 3, background: 'linear-gradient(to bottom, #fafafa, white)' }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
-                    <Box sx={{ bgcolor: '#0A2342', p: 1.5, borderRadius: 2, mr: 2 }}>
-                        <EngineeringIcon sx={{ fontSize: 35, color: '#FFC107' }} />
+                    <Box sx={{ bgcolor: '#4F46E5', p: 1.5, borderRadius: 2, mr: 2 }}>
+                        <EngineeringIcon sx={{ fontSize: 35, color: '#fff' }} />
                     </Box>
-                    <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342' }}>
+                    <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B' }}>
                         الأقسام العلمية
                     </Typography>
                 </Box>
                 <Grid container spacing={3}>
                     {departments.map((dept, index) => (
-                        <Grid item xs={12} sm={4} key={index}>
+                        <Grid item xs={12} key={index}>
                             <Paper
                                 component={Link}
                                 to={dept.link}
@@ -171,7 +171,7 @@ export default function AboutPage() {
                                 <Box sx={{ bgcolor: dept.color, py: 3, mb: 2, mx: -3, mt: -3 }}>
                                     <dept.icon className="dept-icon" sx={{ fontSize: 50, color: 'white', transition: 'transform 0.3s' }} />
                                 </Box>
-                                <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#0A2342', mb: 0.5 }}>
+                                <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B', mb: 0.5 }}>
                                     {dept.name}
                                 </Typography>
                                 <Typography variant="caption" sx={{ color: '#888' }}>

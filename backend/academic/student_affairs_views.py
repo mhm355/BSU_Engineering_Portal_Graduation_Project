@@ -17,6 +17,218 @@ from users.permissions import IsStudentAffairsRole, IsStudentRole
 User = get_user_model()
 
 
+# Mapping dictionaries to support both Arabic and English department/specialization names
+DEPARTMENT_NAME_MAPPINGS = {
+    # English to Arabic mappings
+    'architecture': 'هندسة معمارية',
+    'civil': 'هندسة مدنية',
+    'electrical': 'هندسة كهربية',
+    'prep': 'الفرقة الإعدادية',
+    'preparatory': 'الفرقة الإعدادية',
+    # Arabic variations without ال
+    'هندسة معمارية': 'هندسة معمارية',
+    'هندسة مدنية': 'هندسة مدنية',
+    'هندسة كهربية': 'هندسة كهربية',
+    'الفرقة الإعدادية': 'الفرقة الإعدادية',
+    # Arabic variations with ال
+    'الهندسة المعمارية': 'هندسة معمارية',
+    'الهندسة المدنية': 'هندسة مدنية',
+    'الهندسة الكهربية': 'هندسة كهربية',
+    # Additional variations
+    'معمارية': 'هندسة معمارية',
+    'مدنية': 'هندسة مدنية',
+    'كهربية': 'هندسة كهربية',
+    'الفرقة الاعدادية': 'الفرقة الإعدادية',
+}
+
+SPECIALIZATION_NAME_MAPPINGS = {
+    # English to Arabic (short form)
+    'ece': 'هندسة اتصالات',
+    'epm': 'هندسة قوى',
+    # Full DB names (as stored in production)
+    'هندسة الإلكترونيات والاتصالات': 'هندسة الإلكترونيات والاتصالات',
+    'هندسة القوى والآلات الكهربية': 'هندسة القوى والآلات الكهربية',
+    # Arabic variations without prefixes
+    'هندسة اتصالات': 'هندسة اتصالات',
+    'هندسة قوى': 'هندسة قوى',
+    'اتصالات': 'هندسة اتصالات',
+    'قوى': 'هندسة قوى',
+    'الهندسة الاتصالات': 'هندسة اتصالات',
+    'الهندسة القوى': 'هندسة قوى',
+    # Short forms
+    'الاتصالات': 'هندسة اتصالات',
+    'القوى': 'هندسة قوى',
+    'الإلكترونيات والاتصالات': 'هندسة الإلكترونيات والاتصالات',
+    'القوى والآلات الكهربية': 'هندسة القوى والآلات الكهربية',
+}
+
+# Level name mappings - support both English and Arabic
+LEVEL_NAME_MAPPINGS = {
+    # English to Arabic display names
+    'first': 'الفرقة الأولى',
+    'second': 'الفرقة الثانية',
+    'third': 'الفرقة الثالثة',
+    'fourth': 'الفرقة الرابعة',
+    'preparatory': 'الفرقة الإعدادية',
+    'prep': 'الفرقة الإعدادية',
+    # Database name variations (underscore format)
+    'first_year': 'الفرقة الأولى',
+    'second_year': 'الفرقة الثانية',
+    'third_year': 'الفرقة الثالثة',
+    'fourth_year': 'الفرقة الرابعة',
+    # Database uppercase format (direct from CSV)
+    'first': 'الفرقة الأولى',
+    'second': 'الفرقة الثانية',
+    'third': 'الفرقة الثالثة',
+    'fourth': 'الفرقة الرابعة',
+    # Arabic to Arabic (pass-through)
+    'الفرقة الأولى': 'الفرقة الأولى',
+    'الفرقة الثانية': 'الفرقة الثانية',
+    'الفرقة الثالثة': 'الفرقة الثالثة',
+    'الفرقة الرابعة': 'الفرقة الرابعة',
+    'الفرقة الإعدادية': 'الفرقة الإعدادية',
+    # Additional Arabic variations
+    'الاولى': 'الفرقة الأولى',
+    'الثانية': 'الفرقة الثانية',
+    'الثالثة': 'الفرقة الثالثة',
+    'الرابعة': 'الفرقة الرابعة',
+    'الاعدادية': 'الفرقة الإعدادية',
+    'الإعدادية': 'الفرقة الإعدادية',
+    'اولى': 'الفرقة الأولى',
+    'إعدادية': 'الفرقة الإعدادية',
+}
+
+
+def normalize_department_name(name):
+    """Convert any department name (Arabic/English) to the database standard format"""
+    if not name:
+        return name
+    normalized = str(name).strip().lower()
+    return DEPARTMENT_NAME_MAPPINGS.get(normalized, name)
+
+
+def normalize_specialization_name(name):
+    """Convert any specialization name (Arabic/English) to the database standard format"""
+    if not name:
+        return name
+    normalized = str(name).strip().lower()
+    return SPECIALIZATION_NAME_MAPPINGS.get(normalized, name)
+
+
+def normalize_level_name(name):
+    """Convert any level name (Arabic/English) to the Arabic display format"""
+    if not name:
+        return name
+    normalized = str(name).strip().lower()
+    return LEVEL_NAME_MAPPINGS.get(normalized, name)
+
+
+def match_level(csv_level, level):
+    """Check if CSV level name matches the selected level (supports both Arabic and English)"""
+    csv_normalized = normalize_level_name(csv_level)
+    csv_lower = str(csv_level).strip().lower()
+    level_name_lower = level.name.lower()
+    
+    # Direct comparison with database name (e.g., FIRST, SECOND)
+    if csv_lower == level_name_lower:
+        return True
+    
+    # Check display name match (Arabic)
+    if csv_normalized == level.get_name_display():
+        return True
+    
+    # Check ID match
+    if csv_level == str(level.id):
+        return True
+    
+    # Check underscore format (first_year -> FIRST)
+    csv_clean = csv_lower.replace(' ', '_').replace('_year', '')
+    if csv_clean == level_name_lower:
+        return True
+    
+    # Check if normalized Arabic name matches (with or without الفرقة prefix)
+    csv_no_prefix = csv_normalized.replace('الفرقة ', '') if csv_normalized else csv_normalized
+    display_no_prefix = level.get_name_display().replace('الفرقة ', '') if level.get_name_display() else level.get_name_display()
+    if csv_no_prefix == display_no_prefix:
+        return True
+    
+    # Check if the CSV value maps to the level through LEVEL_NAME_MAPPINGS
+    if csv_normalized == level.get_name_display():
+        return True
+    
+    return False
+
+
+def match_department(csv_dept, department):
+    """Check if CSV department name matches the selected department (supports both Arabic and English)"""
+    csv_normalized = normalize_department_name(csv_dept)
+    csv_lower = str(csv_dept).strip().lower()
+    dept_name_lower = department.name.lower()
+    dept_code_lower = department.code.lower() if department.code else ''
+    
+    # Check code match first (electrical -> ELECT)
+    if csv_lower == dept_code_lower:
+        return True
+    
+    # Check if normalized value (from mapping) matches department name
+    if csv_normalized.lower() == dept_name_lower:
+        return True
+    
+    # Direct comparison with database name
+    if csv_lower == dept_name_lower:
+        return True
+    
+    # Check ID match
+    if csv_dept == str(department.id):
+        return True
+    
+    # Check if the normalized Arabic name matches (with or without ال)
+    # Remove ال prefix for comparison
+    csv_no_al = csv_normalized.replace('ال', '') if csv_normalized else csv_normalized
+    dept_no_al = department.name.replace('ال', '') if department.name else department.name
+    if csv_no_al == dept_no_al:
+        return True
+    
+    return False
+
+
+def match_specialization(csv_spec, specialization):
+    """Check if CSV specialization name matches the selected specialization (supports both Arabic and English)"""
+    csv_lower = str(csv_spec).strip().lower()
+    spec_name_lower = specialization.name.lower()
+    spec_code_lower = specialization.code.lower() if specialization.code else ''
+    
+    # Check code match first (ece, epm) - EXACT match only
+    if csv_lower == spec_code_lower:
+        return True
+    
+    # Check if CSV value is the code (ece or epm)
+    if csv_lower in ['ece', 'epm'] and spec_code_lower == csv_lower:
+        return True
+    
+    # Check normalized value matches specialization name
+    csv_normalized = normalize_specialization_name(csv_spec)
+    if csv_normalized and csv_normalized.lower() == spec_name_lower:
+        return True
+    
+    # Direct comparison with database name
+    if csv_lower == spec_name_lower:
+        return True
+    
+    # Check ID match
+    if csv_spec == str(specialization.id):
+        return True
+    
+    # Check Arabic variations - only if not a code
+    if csv_lower not in ['ece', 'epm']:
+        csv_no_prefix = csv_normalized.replace('ال', '').replace('هندسة ', '').strip() if csv_normalized else ''
+        spec_no_prefix = specialization.name.replace('ال', '').replace('هندسة ', '').strip() if specialization.name else ''
+        if csv_no_prefix and spec_no_prefix and csv_no_prefix == spec_no_prefix:
+            return True
+    
+    return False
+
+
 class PreviewStudentsUploadView(APIView):
     """
     Preview CSV/Excel file before actual upload.
@@ -103,24 +315,14 @@ class PreviewStudentsUploadView(APIView):
                 if not national_id or len(national_id) < 10:
                     row_errors.append('الرقم القومي غير صالح')
 
-                # Validate department match
-                dept_match = (
-                    csv_dept.lower() == department.name.lower() or
-                    csv_dept.lower() == department.code.lower() or
-                    csv_dept == str(department.id)
-                )
+                # Validate department match using helper function
+                dept_match = match_department(csv_dept, department)
                 if not dept_match:
                     row_errors.append(f'القسم "{csv_dept}" لا يطابق "{department.name}"')
 
-                # Validate level match
+                # Validate level match using helper function
                 if level:
-                    level_match = (
-                        csv_level.lower() == level.name.lower() or
-                        csv_level == level.get_name_display() or
-                        csv_level == str(level.id) or
-                        csv_level.lower() == level.name.lower().replace('_', ' ')
-                    )
-                    if not level_match:
+                    if not match_level(csv_level, level):
                         row_errors.append(f'الفرقة "{csv_level}" لا تطابق "{level.get_name_display()}"')
                 else:
                     # Validate level exists
@@ -132,12 +334,32 @@ class PreviewStudentsUploadView(APIView):
                     if not level_exists:
                         row_errors.append(f'الفرقة "{csv_level}" غير موجودة')
 
+                # Validate specialization for departments that have specializations (e.g. Electrical)
+                csv_spec = str(row.get('specialization', '')).strip()
+                levels_without_specializations = ['FIRST', 'الفرقة الأولى', 'PREPARATORY', 'الفرقة الإعدادية', 'PREP']
+                
+                if department.specializations.exists():
+                    # Check if this row's level requires specialization (all except FIRST/PREP)
+                    csv_level_upper = csv_level.upper() if csv_level else ''
+                    level_is_first_or_prep = any(ls in csv_level_upper or ls in csv_level for ls in levels_without_specializations)
+                    level_requires_spec = csv_level and not level_is_first_or_prep
+                    
+                    if level_requires_spec and not csv_spec:
+                        row_errors.append('التخصص مطلوب للهندسة الكهربية للفرق الثانية والثالثة والرابعة')
+                    elif csv_spec and level_requires_spec:
+                        # Check if this specialization exists in the department
+                        valid_specs = Specialization.objects.filter(department=department)
+                        spec_valid = any(match_specialization(csv_spec, spec) for spec in valid_specs)
+                        if not spec_valid:
+                            row_errors.append(f'التخصص "{csv_spec}" غير موجود في قسم {department.name}')
+
                 preview_rows.append({
                     'row_number': index + 2,
                     'national_id': national_id,
                     'full_name': str(row.get('full_name', '')),
                     'department': csv_dept,
                     'level': csv_level,
+                    'specialization': csv_spec,
                     'email': str(row.get('email', '')) if pd.notna(row.get('email')) else '',
                     'errors': row_errors
                 })
@@ -145,10 +367,31 @@ class PreviewStudentsUploadView(APIView):
                 if row_errors:
                     validation_errors.extend([f"صف {index + 2}: {', '.join(row_errors)}"])
 
+            # Validate specialization column for departments with specializations
+            if department.specializations.exists():
+                # Check if any row in CSV is from a level that requires specialization (not FIRST/PREP)
+                levels_without_specializations = ['FIRST', 'الفرقة الأولى', 'PREPARATORY', 'الفرقة الإعدادية', 'PREP']
+                
+                has_level_requiring_spec = False
+                if 'level' in df.columns:
+                    for lvl in df['level'].dropna().astype(str).str.strip().unique():
+                        lvl_upper = lvl.upper()
+                        if lvl and not any(ls in lvl_upper or ls in lvl for ls in levels_without_specializations):
+                            has_level_requiring_spec = True
+                            break
+                
+                # Only require specialization column if there are students from levels that need it
+                if has_level_requiring_spec and 'specialization' not in df.columns:
+                    validation_errors.append(
+                        'عمود specialization إلزامي للهندسة الكهربية للفرق الثانية والثالثة والرابعة. ' 
+                        'يجب إضافة عمود specialization بقيم ece (هندسة اتصالات) أو epm (هندسة قوى)'
+                    )
+
             # Summary statistics
             total_rows = len(df)
             unique_departments = df['department'].dropna().astype(str).str.strip().unique().tolist()
             unique_levels = df['level'].dropna().astype(str).str.strip().unique().tolist()
+            unique_specializations = df['specialization'].dropna().astype(str).str.strip().unique().tolist() if 'specialization' in df.columns else []
 
             return Response({
                 'total_rows': total_rows,
@@ -158,6 +401,7 @@ class PreviewStudentsUploadView(APIView):
                 'selected_level': level.get_name_display() if level else 'متعددة',
                 'csv_departments': unique_departments,
                 'csv_levels': unique_levels,
+                'csv_specializations': unique_specializations,
                 'can_upload': len(validation_errors) == 0
             })
 
@@ -265,19 +509,14 @@ class UploadStudentsView(APIView):
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
-            # Validate CSV content matches selected department - now REQUIRED
+            # Validate CSV content matches selected department using helper function
             validation_errors = []
             if 'department' not in df.columns:
                 validation_errors.append('عمود department مطلوب في الملف للتحقق من القسم')
             else:
                 csv_departments = df['department'].dropna().astype(str).str.strip().unique()
                 for csv_dept in csv_departments:
-                    dept_match = (
-                        csv_dept.lower() == department.name.lower() or 
-                        csv_dept.lower() == department.code.lower() or
-                        csv_dept.lower() == str(department.id)
-                    )
-                    if not dept_match:
+                    if not match_department(csv_dept, department):
                         validation_errors.append(
                             f'قسم في الملف "{csv_dept}" لا يطابق القسم المحدد "{department.name}". '
                             f'يرجى التحقق من اختيار القسم الصحيح أو تصحيح البيانات في الملف'
@@ -290,13 +529,7 @@ class UploadStudentsView(APIView):
                 csv_levels = df['level'].dropna().astype(str).str.strip().unique()
                 for csv_level in csv_levels:
                     if level:  # Single level selected in UI
-                        level_match = (
-                            csv_level.lower() == level.name.lower() or 
-                            csv_level == level.get_name_display() or
-                            csv_level == str(level.id) or
-                            csv_level.lower() == level.name.lower().replace('_', ' ')
-                        )
-                        if not level_match:
+                        if not match_level(csv_level, level):
                             validation_errors.append(
                                 f'فرقة في الملف "{csv_level}" لا تطابق الفرقة المحددة "{level.get_name_display()}". '
                                 f'يرجى التحقق من اختيار الفرقة الصحيحة أو تصحيح البيانات في الملف'
@@ -310,29 +543,67 @@ class UploadStudentsView(APIView):
                         if not level_exists:
                             validation_errors.append(f'فرقة غير موجودة: "{csv_level}"')
             
-            # Validate specialization column - optional but must match if provided
-            if 'specialization' in df.columns:
-                csv_specializations = df['specialization'].dropna().astype(str).str.strip().unique()
-                for csv_spec in csv_specializations:
-                    if csv_spec:
-                        if specialization:
-                            # Check if CSV specialization matches UI selection
-                            spec_match = (
-                                csv_spec.lower() == specialization.name.lower() or 
-                                csv_spec.lower() == specialization.code.lower() or
-                                csv_spec == str(specialization.id)
+            # Validate specialization column - REQUIRED for departments with specializations (all levels except FIRST/PREP)
+            # Support mixed specializations: if CSV has specialization column, use it per-row
+            allow_mixed_specializations = False
+            levels_without_specializations = ['FIRST', 'الفرقة الأولى', 'PREPARATORY', 'الفرقة الإعدادية', 'PREP']
+            
+            if department.specializations.exists():
+                # Check if any row in CSV is from a level that requires specialization (not FIRST/PREP)
+                has_level_requiring_spec = False
+                if 'level' in df.columns:
+                    for lvl in df['level'].dropna().astype(str).str.strip().unique():
+                        lvl_upper = lvl.upper()
+                        if lvl and not any(ls in lvl_upper or ls in lvl for ls in levels_without_specializations):
+                            has_level_requiring_spec = True
+                            break
+                
+                if has_level_requiring_spec and 'specialization' not in df.columns:
+                    validation_errors.append(
+                        'عمود specialization إلزامي للهندسة الكهربية للفرق الثانية والثالثة والرابعة. ' 
+                        'يجب إضافة عمود specialization بقيم ece (هندسة اتصالات) أو epm (هندسة قوى)'
+                    )
+                elif 'specialization' in df.columns:
+                    # Check if all specializations in CSV are valid (only for levels that require it)
+                    csv_specializations = df['specialization'].dropna().astype(str).str.strip().unique()
+                    valid_specs = Specialization.objects.filter(department=department)
+                    for csv_spec in csv_specializations:
+                        if csv_spec:
+                            # Check if this specialization exists for this department
+                            spec_exists = any(
+                                match_specialization(csv_spec, spec) for spec in valid_specs
                             )
-                            if not spec_match:
+                            if not spec_exists:
                                 validation_errors.append(
-                                    f'تخصص في الملف "{csv_spec}" لا يطابق التخصص المحدد في الواجهة "{specialization.name}". '
-                                    f'يرجى التحقق من اختيار التخصص الصحيح أو إزالة عمود specialization من الملف'
+                                    f'تخصص "{csv_spec}" في الملف غير موجود في قسم {department.name}'
                                 )
-                        else:
-                            # No specialization selected in UI but CSV has specialization column
-                            validation_errors.append(
-                                f'عمود specialization موجود في الملف ("{csv_spec}") ولكن لم يتم اختيار تخصص في الواجهة. '
-                                f'يرجى اختيار التخصص في الواجهة أولاً أو إزالة عمود specialization من الملف'
-                            )
+                            elif specialization:
+                                # If UI specialization selected, CSV MUST match
+                                if not match_specialization(csv_spec, specialization):
+                                    validation_errors.append(
+                                        f'تخصص في الملف "{csv_spec}" لا يطابق التخصص المحدد "{specialization.name}". '
+                                        f'يرجى اختيار التخصص الصحيح أو تصحيح الملف'
+                                    )
+                            else:
+                                # No UI specialization but CSV has it - allow mixed
+                                allow_mixed_specializations = True
+            else:
+                # For non-electrical departments, specialization is optional but must match if provided
+                if 'specialization' in df.columns:
+                    csv_specializations = df['specialization'].dropna().astype(str).str.strip().unique()
+                    for csv_spec in csv_specializations:
+                        if csv_spec:
+                            if specialization:
+                                if not match_specialization(csv_spec, specialization):
+                                    validation_errors.append(
+                                        f'تخصص في الملف "{csv_spec}" لا يطابق التخصص المحدد في الواجهة "{specialization.name}". '
+                                        f'يرجى التحقق من اختيار التخصص الصحيح أو إزالة عمود specialization من الملف'
+                                    )
+                            else:
+                                validation_errors.append(
+                                    f'عمود specialization موجود في الملف ("{csv_spec}") ولكن لم يتم اختيار تخصص في الواجهة. '
+                                    f'يرجى اختيار التخصص في الواجهة أولاً أو إزالة عمود specialization من الملف'
+                                )
             
             if validation_errors:
                 return Response(
@@ -340,15 +611,22 @@ class UploadStudentsView(APIView):
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
-            # Process students with multi-level support
-            results = self._process_students(df, department, academic_year, level, specialization, request.user)
+            # Process students with multi-level and multi-specialization support
+            results = self._process_students(df, department, academic_year, level, specialization, request.user, allow_mixed_specializations)
             return Response(results, status=status.HTTP_201_CREATED)
 
         except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            import traceback
+            error_detail = traceback.format_exc()
+            print(f"ERROR in UploadStudentsView: {str(e)}")
+            print(error_detail)
+            return Response(
+                {'error': f'Server error: {str(e)}', 'details': error_detail}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
-    def _process_students(self, df, department, academic_year, default_level, specialization, performed_by):
-        """Process student data and create accounts with multi-level support"""
+    def _process_students(self, df, department, academic_year, default_level, default_specialization, performed_by, allow_mixed_specializations=False):
+        """Process student data and create accounts with multi-level and multi-specialization support"""
         created_count = 0
         updated_count = 0
         errors = []
@@ -372,29 +650,60 @@ class UploadStudentsView(APIView):
                     row_level = default_level
                     if not default_level and 'level' in df.columns:
                         level_value = str(row['level']).strip()
-                        # Try to find level by name
-                        try:
-                            row_level = Level.objects.get(
-                                Q(name__iexact=level_value) | 
-                                Q(name__iexact=level_value.replace(' ', '_'))
-                            )
-                        except Level.DoesNotExist:
+                        # Try to find level by name - use filter to avoid MultipleObjectsReturned
+                        row_level = Level.objects.filter(
+                            Q(name__iexact=level_value) | 
+                            Q(name__iexact=level_value.replace(' ', '_'))
+                        ).first()
+                        
+                        if not row_level:
                             errors.append(f"صف {index + 2}: الفرقة '{level_value}' غير موجودة")
                             continue
+
+                    # Determine specialization for this row (supports mixed specializations)
+                    row_specialization = default_specialization
+                    if allow_mixed_specializations and 'specialization' in df.columns:
+                        spec_value = str(row['specialization']).strip()
+                        # Try to find specialization by code or name
+                        # Try by code first (ece, epm) - use filter to avoid MultipleObjectsReturned
+                        row_specialization = Specialization.objects.filter(
+                            Q(code__iexact=spec_value) | Q(name__iexact=spec_value),
+                            department=department
+                        ).first()
+                        
+                        if not row_specialization:
+                            # Try matching with helper function
+                            all_specs = Specialization.objects.filter(department=department)
+                            for spec in all_specs:
+                                if match_specialization(spec_value, spec):
+                                    row_specialization = spec
+                                    break
+                            else:
+                                errors.append(f"صف {index + 2}: التخصص '{spec_value}' غير موجود")
+                                continue
 
                     # Check if student exists
                     student_exists = Student.objects.filter(national_id=national_id).exists()
                     user_exists = User.objects.filter(username=national_id).exists()
 
                     if student_exists:
-                        # Update existing student
+                        # Update existing student - but ONLY if they belong to the same department
                         student = Student.objects.get(national_id=national_id)
+                        
+                        # Safety check: prevent cross-department reassignment
+                        if student.department_id != department.id:
+                            errors.append(
+                                f"صف {index + 2}: الطالب '{full_name}' (الرقم القومي: {national_id}) "
+                                f"مسجل بالفعل في قسم '{student.department.name}'. "
+                                f"لا يمكن نقله إلى قسم '{department.name}' عبر رفع الملفات."
+                            )
+                            continue
+                        
                         student.full_name = full_name
                         student.level = row_level
                         student.academic_year = academic_year
-                        student.department = department
-                        if specialization:
-                            student.specialization = specialization
+                        if row_specialization:
+                            student.specialization = row_specialization
                         student.save()
                         
                         # Update user email if provided
@@ -420,7 +729,7 @@ class UploadStudentsView(APIView):
                             level=row_level,
                             academic_year=academic_year,
                             department=department,
-                            specialization=specialization
+                            specialization=row_specialization
                         )
                         updated_count += 1
                     else:
@@ -443,12 +752,17 @@ class UploadStudentsView(APIView):
                             level=row_level,
                             academic_year=academic_year,
                             department=department,
-                            specialization=specialization
+                            specialization=row_specialization
                         )
                         created_count += 1
 
             except Exception as e:
-                errors.append(f"صف {index + 2}: {str(e)}")
+                import traceback
+                error_msg = f"صف {index + 2}: {str(e)}"
+                errors.append(error_msg)
+                # Log the full traceback for debugging
+                print(f"ERROR in _process_students row {index + 2}: {str(e)}")
+                print(traceback.format_exc())
 
         # Audit log
         try:

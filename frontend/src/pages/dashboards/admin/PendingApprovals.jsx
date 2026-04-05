@@ -31,13 +31,13 @@ const pulse = keyframes`
 
 const StatCard = ({ icon: Icon, value, label, color, delay = 0 }) => (
     <Grow in={true} timeout={800 + delay}>
-        <Paper elevation={0} sx={{ p: 3, borderRadius: 4, background: '#fff', boxShadow: '0 4px 20px rgba(0,0,0,0.08)', border: '1px solid rgba(0,0,0,0.06)', transition: 'all 0.3s ease', '&:hover': { transform: 'translateY(-5px)', boxShadow: `0 20px 40px ${color}25` } }}>
+        <Paper elevation={0} sx={{ p: 2.5, borderRadius: 3, background: '#fff', boxShadow: '0 4px 20px rgba(0,0,0,0.08)', border: '1px solid rgba(0,0,0,0.06)', transition: 'all 0.3s ease', '&:hover': { transform: 'translateY(-5px)', boxShadow: `0 20px 40px ${color}25` } }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                <Box sx={{ width: 56, height: 56, borderRadius: 3, background: `linear-gradient(135deg, ${color}, ${color}cc)`, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: `0 8px 24px ${color}40` }}>
-                    <Icon sx={{ fontSize: 28, color: '#fff' }} />
+                <Box sx={{ width: 50, height: 50, borderRadius: 3, background: `linear-gradient(135deg, ${color}, ${color}cc)`, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: `0 8px 24px ${color}40` }}>
+                    <Icon sx={{ fontSize: 24, color: '#fff' }} />
                 </Box>
                 <Box>
-                    <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#1a2744', fontFamily: 'Cairo', lineHeight: 1 }}>{value}</Typography>
+                    <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#1a2744', fontFamily: 'Cairo', lineHeight: 1 }}>{value}</Typography>
                     <Typography variant="body2" sx={{ color: '#666', fontFamily: 'Cairo' }}>{label}</Typography>
                 </Box>
             </Box>
@@ -131,8 +131,9 @@ export default function PendingApprovals() {
     return (
         <Box sx={{ minHeight: '100vh', background: 'linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%)', pb: 6 }}>
             {/* Header */}
-            <Box sx={{ background: 'linear-gradient(135deg, #FFD93D 0%, #FF9800 100%)', pt: 4, pb: 6, mb: 4, position: 'relative', overflow: 'hidden' }}>
-                <Box sx={{ position: 'absolute', top: -50, right: -50, width: 200, height: 200, borderRadius: '50%', background: 'rgba(255,255,255,0.15)', animation: `${float} 6s ease-in-out infinite` }} />
+            <Box sx={{ background: 'linear-gradient(135deg, #FFD93D 0%, #FF9800 100%)', pt: 3, pb: 4, mb: 3, position: 'relative', overflow: 'hidden' }}>
+                {/* Decorative circles - REMOVED */}
+                {/* <Box sx={{ position: 'absolute', top: -50, right: -50, width: 200, height: 200, borderRadius: '50%', background: 'rgba(255,255,255,0.15)', animation: `${float} 6s ease-in-out infinite` }} /> */}
                 <Container maxWidth="xl">
                     <Fade in={true} timeout={800}>
                         <Box>
@@ -140,12 +141,12 @@ export default function PendingApprovals() {
                                 العودة للوحة التحكم
                             </Button>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-                                <Avatar sx={{ width: 80, height: 80, bgcolor: 'rgba(255,255,255,0.3)', backdropFilter: 'blur(10px)' }}>
-                                    <PendingActionsIcon sx={{ fontSize: 45, color: '#1a2744' }} />
+                                <Avatar sx={{ width: 55, height: 55, bgcolor: 'rgba(255,255,255,0.3)', backdropFilter: 'blur(10px)' }}>
+                                    <PendingActionsIcon sx={{ fontSize: 30, color: '#1a2744' }} />
                                 </Avatar>
                                 <Box>
-                                    <Typography variant="h3" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>مركز الموافقات</Typography>
-                                    <Typography variant="h6" sx={{ fontFamily: 'Cairo', color: 'rgba(26,39,68,0.8)' }}>إدارة الموافقات على الدرجات وطلبات الحذف</Typography>
+                                    <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>مركز الموافقات</Typography>
+                                    <Typography variant="subtitle1" sx={{ fontFamily: 'Cairo', color: 'rgba(26,39,68,0.8)' }}>إدارة الموافقات على الدرجات وطلبات الحذف</Typography>
                                 </Box>
                             </Box>
                         </Box>

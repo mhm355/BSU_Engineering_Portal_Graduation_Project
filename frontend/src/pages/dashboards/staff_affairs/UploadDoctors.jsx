@@ -77,15 +77,16 @@ const UploadDoctors = () => {
             <Box
                 sx={{
                     background: 'linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)',
-                    pt: 4,
-                    pb: 6,
-                    mb: 4,
+                    pt: 3,
+                    pb: 4,
+                    mb: 3,
                     position: 'relative',
                     overflow: 'hidden',
                 }}
             >
-                <Box sx={{ position: 'absolute', top: -50, right: -50, width: 200, height: 200, borderRadius: '50%', background: 'rgba(255,255,255,0.15)', animation: `${float} 6s ease-in-out infinite` }} />
-                <Box sx={{ position: 'absolute', bottom: -80, left: -80, width: 300, height: 300, borderRadius: '50%', background: 'rgba(255,255,255,0.1)', animation: `${float} 8s ease-in-out infinite`, animationDelay: '2s' }} />
+                {/* Decorative circles - REMOVED */}
+                {/* <Box sx={{ position: 'absolute', top: -50, right: -50, width: 200, height: 200, borderRadius: '50%', background: 'rgba(255,255,255,0.15)', animation: `${float} 6s ease-in-out infinite` }} />
+                <Box sx={{ position: 'absolute', bottom: -80, left: -80, width: 300, height: 300, borderRadius: '50%', background: 'rgba(255,255,255,0.1)', animation: `${float} 8s ease-in-out infinite`, animationDelay: '2s' }} /> */}
 
                 <Container maxWidth="lg">
                     <Fade in={true} timeout={800}>
@@ -94,14 +95,14 @@ const UploadDoctors = () => {
                                 العودة للوحة التحكم
                             </Button>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-                                <Avatar sx={{ width: 80, height: 80, bgcolor: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(10px)' }}>
-                                    <PersonIcon sx={{ fontSize: 45, color: '#fff' }} />
+                                <Avatar sx={{ width: 55, height: 55, bgcolor: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(10px)' }}>
+                                    <PersonIcon sx={{ fontSize: 30, color: '#fff' }} />
                                 </Avatar>
                                 <Box>
-                                    <Typography variant="h3" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff', textShadow: '0 4px 20px rgba(0,0,0,0.2)' }}>
+                                    <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff', textShadow: '0 4px 20px rgba(0,0,0,0.2)' }}>
                                         رفع الدكاترة
                                     </Typography>
-                                    <Typography variant="h6" sx={{ fontFamily: 'Cairo', color: 'rgba(255,255,255,0.9)' }}>
+                                    <Typography variant="subtitle1" sx={{ fontFamily: 'Cairo', color: 'rgba(255,255,255,0.9)' }}>
                                         رفع ملف Excel لإضافة حسابات الدكاترة الجدد
                                     </Typography>
                                 </Box>
