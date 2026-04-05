@@ -108,7 +108,6 @@ export default function DoctorDashboard() {
     );
   }
 
-  // Group courses by term, applying search filter
   const filteredCourses = courses.filter(c => {
     if (!searchQuery) return true;
     const q = searchQuery.toLowerCase();
@@ -122,6 +121,68 @@ export default function DoctorDashboard() {
   const secondTermCourses = filteredCourses.filter(c => c.term_name === 'SECOND');
   const totalStudents = courses.reduce((sum, c) => sum + (c.student_count || 0), 0);
   const avgStudents = courses.length > 0 ? Math.round(totalStudents / courses.length) : 0;
+
+  const CourseCard = ({ course, index }) => (
+    <Grow in={true} timeout={300 + index * 100}>
+      <Paper
+        elevation={0}
+        sx={{
+          p: 3,
+          borderRadius: 4,
+          boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+          transition: 'all 0.3s ease',
+          '&:hover': { transform: 'translateY(-3px)', boxShadow: '0 8px 25px rgba(0,0,0,0.1)' },
+        }}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flex: 1 }}>
+            <Avatar sx={{ width: 50, height: 50, bgcolor: '#e3f2fd' }}>
+              <MenuBookIcon sx={{ color: '#1976d2' }} />
+            </Avatar>
+            <Box>
+              <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>
+                {course.subject_name}
+              </Typography>
+              <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mt: 0.5 }}>
+                {course.subject_code && (
+                  <Chip label={course.subject_code} size="small" sx={{ fontFamily: 'Cairo', bgcolor: '#f0f4ff', color: '#1976d2' }} />
+                )}
+                {course.department_name && (
+                  <Chip label={course.department_name} size="small" sx={{ fontFamily: 'Cairo', bgcolor: '#f0fdf4', color: '#16a34a' }} />
+                )}
+                {course.level_display && (
+                  <Chip label={course.level_display} size="small" sx={{ fontFamily: 'Cairo', bgcolor: '#fef3c7', color: '#d97706' }} />
+                )}
+              </Box>
+            </Box>
+          </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Box sx={{ textAlign: 'center' }}>
+              <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#4CAF50' }}>
+                {course.student_count || 0}
+              </Typography>
+              <Typography variant="caption" sx={{ fontFamily: 'Cairo', color: '#999' }}>طالب</Typography>
+            </Box>
+            <Button
+              variant="contained"
+              endIcon={<ArrowForwardIcon />}
+              onClick={() => navigate(`/doctor/courses/${course.id}`)}
+              sx={{
+                fontFamily: 'Cairo',
+                fontWeight: 'bold',
+                borderRadius: 3,
+                px: 3,
+                background: 'linear-gradient(135deg, #4F46E5, #7C3AED)',
+                '&:hover': { background: 'linear-gradient(135deg, #4338CA, #6D28D9)' },
+              }}
+            >
+              عرض التفاصيل
+            </Button>
+          </Box>
+        </Box>
+      </Paper>
+    </Grow>
+  );
 
   const TermSection = ({ title, courses, color, icon, defaultExpanded }) => (
     <Accordion
