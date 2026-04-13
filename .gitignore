@@ -53,3 +53,6 @@ htmlcov/
 
 # Local Cache
 .docker-cache
+
+textbook/markdown
+textbook/screenshots-in
