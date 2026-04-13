@@ -124,6 +124,8 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
 | **Backend** | ~1.2 GB (includes gcc, build-essential, pip cache) | ~350 MB (runtime deps only) | ~70% |
 | **Frontend** | ~1.0 GB (includes node_modules, Node.js runtime) | ~45 MB (compiled static files + Nginx) | ~95% |
 
+> **[INSERT Figure 6.1 — Terminal screenshot showing `docker images` output with backend (~350MB) and frontend (~45MB) image sizes]**
+
 ---
 
 ---
@@ -222,6 +224,8 @@ services:
       - backend
     restart: always
 ```
+
+> **[INSERT Figure 6.2 — Side-by-side comparison diagram of Development vs. Production Docker Compose configurations]**
 
 ## 6.2.2 Production-Specific Design Decisions
 
@@ -322,6 +326,8 @@ Client Browser
 │   + Security Headers on EVERY response            │
 └───────────────────────────────────────────────────┘
 ```
+
+*Figure 6.3: Nginx Request Routing — Single Entry Point Architecture*
 
 ## 6.3.2 Nginx Configuration — Annotated
 
@@ -451,6 +457,10 @@ Developer pushes to main branch
              └─────────────────────────────────┘
 ```
 
+*Figure 6.4: CI/CD Pipeline Architecture — Path-Filtered Dual Workflows*
+
+> **[INSERT Figure 6.5 — GitHub Actions screenshot showing a successful backend pipeline run with all 8 steps passed]**
+
 ## 6.4.2 Pipeline Stages — Detailed
 
 ### Stage 1: Trigger Conditions
@@ -547,6 +557,8 @@ change_image_in_docker_compose:
 **This is GitOps in action:** After a successful build and security scan, the pipeline automatically updates `docker-compose-im.yml` with the new image tag and commits the change. The production compose file always reflects the latest successfully-built and scanned image.
 
 **`yq`** is used to perform YAML-aware edits (not sed/grep), preventing formatting corruption.
+
+> **[INSERT Figure 6.6 — GitHub repository showing the auto-committed "chore: update backend image tag" commit by the CI/CD pipeline]**
 
 ---
 
@@ -678,6 +690,12 @@ The complete deployment workflow from code change to running production:
 13. System operational at port 8081
 ```
 
+*Figure 6.7: End-to-End Deployment Workflow — From Code Push to Running System*
+
+> **[INSERT Figure 6.8 — Terminal screenshot showing `docker-compose up -d` output with all 3 containers starting successfully]**
+
+> **[INSERT Figure 6.9 — Terminal screenshot showing `docker ps` output with all containers in healthy status]**
+
 ## 6.5.4 Rollback Strategy
 
 Rollback is a **one-line operation.** Every Docker image is tagged with its Git commit SHA:
@@ -706,6 +724,8 @@ Because database migrations are **forward-only** (Django does not auto-reverse),
 | **db** | `mysql:8.0` | Relational data persistence | `mysqladmin ping` (30s interval) | ❌ None (internal only) |
 | **backend** | `mhmdocker1/bsu_backend:v2.8.2` | Django REST API + Gunicorn | `curl /api/health/` (30s interval, 40s start) | 8001 → 8000 |
 | **frontend** | `mhmdocker1/bsu_frontend:v2.8.2` | Nginx (SPA + reverse proxy) | `wget localhost/` (30s interval) | 8081 → 80 |
+
+> **[INSERT Figure 6.10 — Docker Hub screenshot showing published backend and frontend images with version tags]**
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
