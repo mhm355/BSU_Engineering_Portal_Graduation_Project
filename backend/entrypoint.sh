@@ -6,6 +6,35 @@ export DJANGO_SETTINGS_MODULE=bsu_backend.settings
 echo "Starting BSU Backend..."
 echo "PORT: ${PORT:-8000}"
 
+# Wait for Redis to be available
+echo "Checking Redis connection..."
+python -c "
+import socket
+import time
+import os
+redis_host = os.environ.get('REDIS_HOST', 'redis')
+redis_port = int(os.environ.get('REDIS_PORT', 6379))
+max_retries = 30
+retry_delay = 1
+for i in range(max_retries):
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(2)
+        result = sock.connect_ex((redis_host, redis_port))
+        sock.close()
+        if result == 0:
+            print(f'Redis is available at {redis_host}:{redis_port}')
+            break
+        else:
+            print(f'Redis connection attempt {i+1}/{max_retries} failed, retrying...')
+            time.sleep(retry_delay)
+    except Exception as e:
+        print(f'Redis check error: {e}, retrying...')
+        time.sleep(retry_delay)
+else:
+    print('WARNING: Could not connect to Redis. Sessions will fall back to database.')
+"
+
 # Run migrations in correct order (users first due to custom User model)
 echo "Running migrations..."
 python manage.py migrate --noinput || { echo "ERROR: migrations failed, aborting startup"; exit 1; }

@@ -120,6 +120,30 @@ else:
     }
 
 
+# Redis Cache and Session Configuration
+# https://github.com/jazzband/django-redis
+REDIS_URL = os.environ.get('REDIS_URL', 'redis://redis:6379/1')
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': REDIS_URL,
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
+    }
+}
+
+# Use Redis for session storage (enables horizontal scaling)
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+SESSION_CACHE_ALIAS = 'default'
+
+# Cache timeouts for different data types
+CACHE_MIDDLEWARE_SECONDS = 300  # 5 minutes for page caching
+CACHE_COURSE_DATA = 300  # 5 minutes for course data
+CACHE_USER_PROFILE = 600  # 10 minutes for user profiles
+CACHE_ANNOUNCEMENTS = 900  # 15 minutes for announcements
+
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
 

@@ -3,6 +3,9 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.db.models import Q
+from django.views.decorators.cache import cache_page
+from django.utils.decorators import method_decorator
+from django.conf import settings
 import logging
 
 logger = logging.getLogger(__name__)
@@ -326,6 +329,7 @@ class CourseOfferingViewSet(viewsets.ModelViewSet):
         return queryset
 
     @action(detail=False, methods=['get'], permission_classes=[IsDoctorRole])
+    @method_decorator(cache_page(settings.CACHE_COURSE_DATA))
     def my_courses(self, request):
         """Get all courses assigned to the logged-in doctor"""
         user = request.user
