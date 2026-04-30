@@ -14,6 +14,15 @@ services:
     networks:
       - bsu_network
 
+  redis:
+    image: redis:7-alpine
+    container_name: bsu_redis
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    networks:
+      - bsu_network
+
   backend:
     build: ./backend
     container_name: bsu_backend
@@ -24,6 +33,7 @@ services:
       - "8000:8000"
     depends_on:
       - db
+      - redis
     restart: unless-stopped
     environment:
       - DATABASE_URL=mysql://${MYSQL_USER:-bsu_user}:${MYSQL_PASSWORD:-bsu_password}@db:3306/${MYSQL_DATABASE:-bsu_db}
@@ -48,6 +58,7 @@ services:
 volumes:
   db_data:
   media_data:
+  redis_data:
 
 networks:
   bsu_network:
