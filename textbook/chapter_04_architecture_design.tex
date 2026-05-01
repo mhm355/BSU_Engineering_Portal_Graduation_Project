@@ -12,16 +12,16 @@
 The BSU Engineering Portal follows a \textbf{four-tier architecture} pattern, separating concerns into distinct, independently deployable layers to ensure scalability and maintainability:
 
 \begin{enumerate}
-    \item \textbf{Presentation Tier}: A React-based Single Page Application (SPA) deployed as a containerized service.
-    \item \textbf{API Tier}: A Django REST Framework (DRF) backend, running inside a Gunicorn WSGI server as a scalable AWS ECS Fargate task.
-    \item \textbf{Data Tier}: A managed Amazon RDS for MySQL 8.0 instance, providing high availability, automated backups, and automated patching.
-    \item \textbf{Routing Tier}: An AWS Application Load Balancer (ALB) acting as the single entry point, routing \texttt{/api/*} requests to the backend service and serving the SPA for all other paths via an Nginx container.
+    \item \textbf{Presentation Tier}: A React~\cite{react}-based Single Page Application (SPA) deployed as a containerized service.
+    \item \textbf{API Tier}: A Django REST Framework (DRF)~\cite{djangorest} backend, running inside a Gunicorn~\cite{gunicorn} WSGI server as a scalable AWS ECS Fargate task.
+    \item \textbf{Data Tier}: A managed Amazon RDS for MySQL~\cite{mysql} 8.0 instance, providing high availability, automated backups, and automated patching.
+    \item \textbf{Routing Tier}: An AWS Application Load Balancer (ALB) acting as the single entry point, routing \texttt{/api/*} requests to the backend service and serving the SPA for all other paths via an Nginx~\cite{nginx} container.
 \end{enumerate}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.95\textwidth]{aws_architecture.png}
-    \caption{Cloud Deployment Architecture on AWS, illustrating the use of a Virtual Private Cloud (VPC) with public and private subnets to isolate ECS Fargate compute tasks and the Amazon RDS database instance.}
+    \includegraphics[width=0.95\textwidth]{aws_architecture_1.png}
+    \caption{Cloud Deployment Architecture on AWS, illustrating the use of a Virtual Private Cloud (VPC) with public and private subnets to isolate ECS Fargate compute tasks, Amazon RDS database instance, and ElastiCache Redis cluster for session storage and caching.}
     \label{fig:four_tier_arch}
 \end{figure}
 
@@ -43,12 +43,13 @@ Managing database persistence, backups, and OS patching within standard Docker c
         \hline
         \textbf{Layer} & \textbf{Technology} & \textbf{Engineering Justification} \\
         \hline
-        \textbf{Frontend} & React 19 & Component-based UI, robust state handling. \\
-        \textbf{UI Library} & Material UI v5 & Native RTL capability, Cairo font integration. \\
-        \textbf{Backend} & Django 5.x & Mature ORM, session management, reliable auth. \\
-        \textbf{API Framework} & DRF 3.x & Seamless serialization, extensible permission classes. \\
+        \textbf{Frontend} & React 19 [3] & Component-based UI, robust state handling. \\
+        \textbf{UI Library} & Material UI (MUI) v5 [5] & Native RTL capability, Cairo font integration. \\
+        \textbf{Backend} & Django 5.x [1] & Mature ORM, session management, reliable auth. \\
+        \textbf{API Framework} & DRF 3.x [2] & Seamless serialization, extensible permission classes. \\
         \textbf{Database} & MySQL 8.0 & ACID compliance for strict academic records. \\
         \textbf{Infrastructure} & AWS ECS (Fargate) \& RDS & Serverless container compute, zero-maintenance managed database. \\
+        \textbf{Cache / Session} & Redis 7.x & In-memory session store and application cache. \\
         \hline
     \end{tabular}
     \caption{Technology Stack \& Engineering Justification}
@@ -262,7 +263,7 @@ Routing is encapsulated under dedicated API namespaces to ensure predictable and
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.95\textwidth]{backend_modules.png}
+    \includegraphics[width=0.9\textwidth]{backend_modules_1.png}
     \caption{Dependency Diagram showing the modular structure of the Django backend. Demonstrates how the academic, content, and system apps rely on the centralized users module for RBAC enforcement.}
     \label{fig:backend_modules}
 \end{figure}
@@ -273,9 +274,9 @@ HTTP requests transit through an explicit middleware sequence defined in \texttt
 
 \begin{lstlisting}[language=Python, caption=Critical Middleware Order in \texttt{settings.py}]
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',        # 1. Must be high for preflight checks
+    'corsheaders.middleware.CorsMiddleware',        # 1. Must be high for preflight checks (django-cors-headers)
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # WhiteNoise~\cite{whitenoise} for static files
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -338,7 +339,7 @@ For example, a \texttt{STUDENT\_BATCH\_UPLOAD} action stores a payload of \textt
 
 \subsection{State Management \& Architecture}
 
-The application eschews heavy state libraries like Redux in favor of the native \textbf{React Context API}. State is session-scoped (authentication context, UI theme context) rather than deeply interconnected. The primary \texttt{AuthProvider} performs a background session validation immediately on load to prevent UI hydration flashes.
+The application eschews heavy state libraries like Redux in favor of the native \textbf{React [3] Context API}. State is session-scoped (authentication context, UI theme context) rather than deeply interconnected. The primary \texttt{AuthProvider} performs a background session validation immediately on load to prevent UI hydration flashes.
 \begin{lstlisting}[language=JavaScript, caption=Session Revalidation in AuthProvider]
 useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -387,26 +388,19 @@ api.interceptors.response.use(
 
 \subsection{RTL-First Interface \& Theming}
 
-Because the faculty requires an Arabic-native interface, the UI was built RTL-first. It leverages Material-UI's built-in RTL support, which uses the \texttt{stylis-plugin-rtl} library to automatically mirror CSS properties (e.g., converting \texttt{padding-left} to \texttt{padding-right}) when the theme's direction is set to \texttt{'rtl'}. The design incorporates the "Cairo" Google Font, which is heavily optimized for Arabic script legibility. Dark mode integration maps the university's primary color palette to low-luminance backgrounds to reduce eye strain.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\textwidth]{theme_comparison.png}
-    \caption{Side-by-side comparison of the Student Dashboard illustrating the dynamic theme switching capability (Light Mode vs. Dark Mode), built with Material-UI and tailored for an Arabic RTL layout.}
-    \label{fig:theme_compare}
-\end{figure}
+Because the faculty requires an Arabic-native interface, the UI was built RTL-first. It leverages Material-UI's [5] built-in RTL support, which uses the \texttt{stylis-plugin-rtl} library to automatically mirror CSS properties (e.g., converting \texttt{padding-left} to \texttt{padding-right}) when the theme's direction is set to \texttt{'rtl'}. The design incorporates the "Cairo" Google Font, which is heavily optimized for Arabic script legibility. Dark mode integration maps the university's primary color palette to low-luminance backgrounds to reduce eye strain.
 
 \subsection{Build Optimization \& Deployment}
 
-The project utilizes multi-stage Docker builds to create lean, production-optimized container images. The frontend build process, for example, uses a Node.js image to build the static React assets, then copies only the resulting \texttt{/dist} folder and the Nginx configuration into a lightweight \texttt{nginx:alpine} image for the final artifact. This ensures the production container has a minimal attack surface and does not contain any build-time dependencies.
+The project utilizes multi-stage Docker [8] builds to create lean, production-optimized container images. The frontend build process, for example, uses a Node.js image to build the static React assets, then copies only the resulting \texttt{/dist} folder and the Nginx configuration into a lightweight \texttt{nginx:alpine} image for the final artifact. This ensures the production container has a minimal attack surface and does not contain any build-time dependencies.
 
 The backend container's \texttt{entrypoint.sh} script automates critical startup tasks, including running database migrations and collecting static files, before starting the Gunicorn server.
 
 \subsection{Reverse Proxy Engineering}
 
-The Nginx container serves a dual purpose: it efficiently serves the static frontend assets and acts as a reverse proxy for the backend API. This single-entrypoint architecture simplifies CORS configuration and network security. The Nginx configuration is engineered to handle large file uploads and support client-side routing.
+The Nginx [10] container serves a dual purpose: it efficiently serves the static frontend assets and acts as a reverse proxy for the backend API. This single-entrypoint architecture simplifies CORS configuration and network security. The Nginx configuration is engineered to handle large file uploads and support client-side routing.
 
-\begin{lstlisting}[language=nginx, caption=Nginx Reverse Proxy Configuration (\texttt{nginx.conf})]
+\begin{lstlisting}[float, language=nginx, caption=Nginx Reverse Proxy Configuration (\texttt{nginx.conf})]
 server {
     listen 80;
     client_max_body_size 50M; # Allow large file uploads

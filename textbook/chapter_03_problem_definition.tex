@@ -56,7 +56,7 @@ Identifying the exact users of the system is the first step in requirements engi
 
 A critical engineering decision in the system's design is the enforcement of the \textbf{principle of least privilege}. No single stakeholder role has full system access. Even the Admin role cannot directly enter grades or upload students---those operational capabilities are delegated exclusively to the Doctor and Student Affairs roles, respectively. This ensures that operational authority perfectly matches organizational responsibility.
 
-The following code snippet demonstrates how these boundaries are strictly enforced at the API layer using Django REST Framework permission classes:
+The following code snippet demonstrates how these boundaries are strictly enforced at the API layer using Django REST Framework~\cite{djangorest} permission classes:
 
 \begin{lstlisting}[language=Python, caption=Role-based Permission Guard for Student Affairs (\texttt{permissions.py})]
 class IsStudentAffairsRole(permissions.BasePermission):
@@ -73,13 +73,13 @@ class IsStudentAffairsRole(permissions.BasePermission):
 
 \subsection{Why Agile?}
 
-The BSU Engineering Portal was developed using an \textbf{iterative, sprint-based Agile methodology}. A traditional Waterfall approach would have mandated locking all requirements prior to implementation. However, stakeholder interviews frequently revealed new requirements throughout the development cycle. For example, the necessity for a multi-modal quiz engine (supporting MCQ, Essay, and Image-based questions) emerged mid-development when faculty expressed frustration over the lack of integrated online assessment tools.
+The BSU Engineering Portal was developed using an \textbf{iterative, sprint-based Agile methodology} [19]. A traditional Waterfall approach [18] would have mandated locking all requirements prior to implementation. However, stakeholder interviews frequently revealed new requirements throughout the development cycle. For example, the necessity for a multi-modal quiz engine (supporting MCQ, Essay, and Image-based questions) emerged mid-development when faculty expressed frustration over the lack of integrated online assessment tools.
 
 Agile permitted the engineering team to:
 \begin{enumerate}
     \item \textbf{Deliver working features early}: Students could view grades while the quiz engine was still being actively developed.
     \item \textbf{Incorporate feedback incrementally}: The grading template logic was fundamentally redesigned after pilot testing revealed the initial model did not accommodate the faculty's official tertiary grading structure (Coursework / Written / Practical-Oral).
-    \item \textbf{Maintain continuous deployment}: Docker containerization ensured every sprint concluded with a highly reproducible, runnable artifact.
+    \item \textbf{Maintain continuous deployment}: Docker [8] containerization ensured every sprint concluded with a highly reproducible, runnable artifact.
 \end{enumerate}
 
 \begin{table}[H]
@@ -90,7 +90,7 @@ Agile permitted the engineering team to:
         \textbf{Sprint} & \textbf{Focus Area} & \textbf{Key Deliverables} \\
         \hline
         Sprint 1 & Auth \& Core Data & 5-Role User model, login/logout, CSRF, Core Academic Models. \\
-        Sprint 2 & Student \& Staff Affairs & Batch Excel uploads (Pandas), student filtering. \\
+        Sprint 2 & Student \& Staff Affairs & Batch Excel uploads (pandas [16]), student filtering. \\
         Sprint 3 & Course Management & CourseOffering model, doctor assignments, lecture uploads. \\
         Sprint 4 & Attendance \& Grading & Bulk attendance recording, grading templates. \\
         Sprint 5 & Quiz Engine & MCQ/Essay CRUD, auto-grading logic. \\
@@ -106,7 +106,7 @@ Agile permitted the engineering team to:
 \section{Functional Requirements}
 \label{sec:functional-reqs}
 
-The following functional requirements are classified using IEEE 830-style prioritization (Must / Should / Could). 
+The following functional requirements are classified using IEEE 830-style [18] prioritization (Must / Should / Could). 
 
 \subsection{Authentication \& User Management}
 
@@ -215,7 +215,7 @@ This use case outlines the system's most complex data validation pipeline, migra
 \textbf{Main Flow:}
 \begin{enumerate}
     \item User selects Department, Academic Year, and Level, then uploads a CSV/Excel file.
-    \item System parses the file via Pandas, validating headers and verifying that the file's payload matches the UI dropdown selections (preventing cross-department contamination).
+    \item System parses the file via pandas [16], validating headers and verifying that the file's payload matches the UI dropdown selections (preventing cross-department contamination).
     \item System iterates over rows. If a \texttt{national\_id} exists, the record is updated. If not, a new \texttt{User} and \texttt{Student} record are atomically created.
     \item The system commits an \texttt{UploadHistory} audit log and returns a summary.
 \end{enumerate}

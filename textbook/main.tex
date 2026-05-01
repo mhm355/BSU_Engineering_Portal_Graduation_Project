@@ -9,6 +9,8 @@
 \usepackage{float}
 \graphicspath{{images/}}
 \usepackage{hyperref}
+\usepackage{url}
+\usepackage[numbers,sort&compress]{natbib}
 \usepackage{xcolor}
 \usepackage{listings}
 \usepackage{titlesec}
@@ -73,7 +75,7 @@
 % Define nginx configuration
 \lstdefinelanguage{nginx}{
   keywords={server,location,listen,proxy_pass,proxy_set_header,proxy_read_timeout,client_max_body_size,add_header,try_files},
-  morecomment=[l]{#},
+  morecomment=[l]{\#},
   morestring=[b]",
   sensitive=true
 }
@@ -81,8 +83,24 @@
 % Define YAML
 \lstdefinelanguage{yaml}{
   keywords={services,image,ports,networks,volumes,environment,depends_on,build,container_name,restart},
-  morecomment=[l]{#},
+  morecomment=[l]{\#},
   morestring=[b]',
+  morestring=[b]",
+  sensitive=true
+}
+
+% Define Dockerfile
+\lstdefinelanguage{dockerfile}{
+  keywords={FROM,RUN,CMD,EXPOSE,ENV,ADD,COPY,ENTRYPOINT,VOLUME,USER,WORKDIR,ARG,LABEL,HEALTHCHECK,STOPSIGNAL,SHELL},
+  morecomment=[l]{\#},
+  morestring=[b]",
+  sensitive=true
+}
+
+% Define Terraform
+\lstdefinelanguage{terraform}{
+  keywords={resource,variable,output,module,locals,data,provider,terraform,backend,locals},
+  morecomment=[l]{\#},
   morestring=[b]",
   sensitive=true
 }
@@ -91,6 +109,7 @@
 \hypersetup{
     colorlinks=true,
     linkcolor=blue,
+    citecolor=blue,
     filecolor=magenta,      
     urlcolor=cyan,
     pdftitle={Release BSU Engineering Portal - Graduation Project},
@@ -117,5 +136,15 @@
 \include{chapter_03_problem_definition}
 \include{chapter_04_architecture_design}
 \include{chapter_05_security_design}
+\include{chapter_06_devops_deployment}
+\include{chapter_07_testing_qa}
+\include{chapter_08_performance}
+\include{chapter_09_results}
+\include{chapter_10_limitations}
+\include{chapter_11_conclusion}
+
+% Bibliography
+\bibliographystyle{unsrtnat}
+\bibliography{references}
 
 \end{document}

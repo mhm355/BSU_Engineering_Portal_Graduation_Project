@@ -11,7 +11,7 @@ Security in the BSU Engineering Portal is not treated as a bolt-on feature, but 
 
 \subsection{Why Session-Based Authentication Over JWT}
 
-The most consequential security decision in the system's design was the selection of \textbf{Session-Based Authentication} over JSON Web Tokens (JWT). While JWT is popular in modern SPA architectures, it was deliberately rejected after an architectural trade-off analysis specific to the faculty's operational requirements.
+The most consequential security decision in the system's design was the selection of \textbf{Session-Based Authentication} over JSON Web Tokens (JWT)~\cite{jwt}. While JWT is popular in modern SPA architectures, it was deliberately rejected after an architectural trade-off analysis specific to the faculty's operational requirements.
 
 \begin{table}[H]
     \centering
@@ -62,12 +62,41 @@ const logout = async () => {
 };
 \end{lstlisting}
 
+\subsection{Session Storage Security (Redis)}
+
+Sessions are stored in a container-local Redis 7.x instance rather than file-based storage. This design provides both performance benefits (sub-millisecond session reads) and security advantages over traditional file-based session backends.
+
+\begin{lstlisting}[language=Python, caption=Redis Session Backend Configuration (\texttt{settings.py})]
+# Redis as session backend (in-memory, no persistence requirement)
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+SESSION_CACHE_ALIAS = "default"
+
+# Cache configuration pointing to local Redis
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://localhost:6379/0",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
+\end{lstlisting}
+
+Key security properties of this design:
+\begin{itemize}
+    \item \textbf{Network Isolation:} Redis binds only to localhost (127.0.0.1:6379), rejecting all external connections
+    \item \textbf{No Persistence:} Sessions exist only in memory; container restart clears all session data (forced re-authentication)
+    \item \textbf{Automatic Expiry:} Redis TTL matches Django \texttt{SESSION\_COOKIE\_AGE} (default 2 weeks), automatically pruning stale sessions
+    \item \textbf{Sidecar Pattern:} Redis runs in the same ECS task, eliminating network traversal risks
+\end{itemize}
+
 \section{Role-Based Authorization (RBAC)}
 \label{sec:rbac}
 
 \subsection{The Role Model \& Permission Classes}
 
-The system implements a \textbf{five-role authorization model} (Admin, Student, Doctor, Student Affairs, Staff Affairs). Authorization is enforced at the backend through seven custom Django REST Framework (DRF) permission classes. 
+The system implements a \textbf{five-role authorization model} (Admin, Student, Doctor, Student Affairs, Staff Affairs). Authorization is enforced at the backend through seven custom Django REST Framework (DRF) [2] permission classes. 
 
 A key design decision was to grant the Admin role inherited capabilities across all administrative views. Rather than relying on a complex hierarchical tree, this inheritance is made explicit in each permission class for strict auditability.
 
@@ -128,7 +157,7 @@ However, the architectural principle holds that \textbf{frontend route protectio
 
 \subsection{Hashing \& Validation}
 
-Passwords are never stored in plaintext. The system leverages Django's \texttt{PBKDF2-SHA256} hashing algorithm with a 720,000-iteration key derivation function. Furthermore, four strict validators intercept all password creations:
+Passwords are never stored in plaintext. The system leverages Django's [1] \texttt{PBKDF2-SHA256} hashing algorithm with a 720,000-iteration key derivation function [25]. Furthermore, four strict validators intercept all password creations:
 
 \begin{itemize}
     \item \texttt{UserAttributeSimilarityValidator}: Rejects passwords matching the National ID.
@@ -158,7 +187,7 @@ login(request, user)                 # Atomic re-authentication
 
 Traditional Django applications rely on a double-submit cookie pattern for Cross-Site Request Forgery (CSRF) protection. In a decoupled SPA architecture spanning different origins, the browser restricts the frontend from reading the backend-issued CSRF token cookie. 
 
-To maintain functionality without degrading security, the system utilizes a custom \texttt{CsrfExemptSessionAuthentication} class. This decision is fortified by robust \textbf{compensating controls}.
+To maintain functionality without degrading security, the system utilizes a custom \texttt{CsrfExemptSessionAuthentication} class. This decision is fortified by robust \textbf{compensating controls} [24].
 
 \begin{lstlisting}[language=Python, caption=Documented CSRF Exemption for SPA Architecture (\texttt{authentication.py})]
 class CsrfExemptSessionAuthentication(SessionAuthentication):
@@ -184,9 +213,9 @@ Because explicit CSRF tokens are bypassed, the system relies on the following co
 
 \subsection{XSS Prevention}
 
-Cross-Site Scripting (XSS) is mitigated organically by React's default DOM escaping, which neutralizes injected payload rendering. Additionally, the Nginx reverse proxy injects mandatory security headers on every HTTP response:
+Cross-Site Scripting (XSS) is mitigated organically by React's [3] default DOM escaping, which neutralizes injected payload rendering. Additionally, the Nginx [10] reverse proxy injects mandatory security headers on every HTTP response [23]:
 
-\begin{lstlisting}[language=nginx, caption=Mandatory Security Headers (\texttt{nginx.conf})]
+\begin{lstlisting}[float, language=nginx, caption=Mandatory Security Headers (\texttt{nginx.conf})]
 add_header X-Content-Type-Options "nosniff" always;
 add_header X-Frame-Options "SAMEORIGIN" always;
 add_header X-XSS-Protection "1; mode=block" always;
@@ -248,18 +277,18 @@ This guarantees that even if the host machine's firewall is misconfigured, the d
 
 \subsection{CI/CD Vulnerability Scanning}
 
-The project's GitHub Actions deployment pipeline integrates **Trivy** to execute static application security testing (SAST) on all generated Docker artifacts. The pipeline is instructed to fail automatically (\texttt{exit-code: '1'}) if any CRITICAL or HIGH severity OS/library vulnerabilities are detected, preventing vulnerable code from reaching production.
+The project's GitHub Actions [15] deployment pipeline integrates \textbf{Trivy [14]} to execute static application security testing (SAST) on all generated Docker [8] artifacts. The pipeline is instructed to fail automatically (\texttt{exit-code: '1'}) if any CRITICAL or HIGH severity OS/library vulnerabilities are detected, preventing vulnerable code from reaching production.
 
 \section{Audit Trail Architecture}
 \label{sec:audit-trail}
 
 Administrative trust requires immutable traceability. Every state mutation executed by privileged roles (Admin, Staff Affairs, Student Affairs) generates an asynchronous \texttt{AuditLog} entry.
 
-The table stores 15 distinct action categories (e.g., \texttt{GRADE\_APPROVED}, \texttt{STUDENT\_DELETED}). By utilizing Django's \texttt{JSONField} for the \texttt{details} column, the schema supports highly contextual, variable payloads without requiring constant database migrations when new audit scenarios arise.
+The table stores 15 distinct action categories (e.g., \texttt{GRADE\_APPROVED}, \texttt{STUDENT\_DELETED}). By utilizing Django's [1] \texttt{JSONField} for the \texttt{details} column, the schema supports highly contextual, variable payloads without requiring constant database migrations when new audit scenarios arise.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\textwidth]{defense_in_depth.png}
-    \caption{Defense-in-Depth architecture mapping the layered security controls from the client browser transport layer down to the isolated database infrastructure.}
+    \includegraphics[width=0.85\textwidth]{defense_in_depth_1.png}
+    \caption{Defense-in-Depth architecture mapping the layered security controls from the client browser transport layer through to the isolated database and Redis cache infrastructure, including network-level isolation for the in-memory data store.}
     \label{fig:defense_in_depth}
 \end{figure}

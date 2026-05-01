@@ -84,10 +84,10 @@ def save(self, *args, **kwargs):
 \end{lstlisting}
 
 \textbf{2. Arabic-First Interface Requirement} \\
-The system must function as a native Arabic application with full Right-to-Left (RTL) layout. It leverages the MUI RTL configuration and the "Cairo" font family to ensure optimal legibility, rather than applying a brittle localization layer over an English-first design.
+The system must function as a native Arabic application with full Right-to-Left (RTL) layout. It leverages the MUI~\cite{mui} RTL configuration and the "Cairo" font family to ensure optimal legibility, rather than applying a brittle localization layer over an English-first design.
 
 \textbf{3. Deployment Constraints} \\
-The university requires a self-hosted, container-based deployment free from recurring cloud licensing costs or external dependencies (like paid SMS gateways), allowing the system to operate entirely behind institutional firewalls.
+The university requires a self-hosted, container-based deployment~\cite{docker} free from recurring cloud licensing costs or external dependencies (like paid SMS gateways), allowing the system to operate entirely behind institutional firewalls.
 
 \subsection{The Engineering Motivation}
 
@@ -95,7 +95,7 @@ Beyond solving operational issues, this project demonstrates the application of 
 \begin{itemize}
     \item \textbf{System Thinking:} Unifying diverse stakeholders into a coherent architecture.
     \item \textbf{Trade-off Analysis:} Deliberate architectural choices (e.g., Session Auth over JWT, Monolith over Microservices) driven by context.
-    \item \textbf{DevOps \& Security:} Implementing CI/CD, Docker orchestration, and Trivy security scanning as integral lifecycle components.
+    \item \textbf{DevOps \& Security:} Implementing CI/CD, Docker~\cite{docker} containerization ensured every sprint concluded with a highly reproducible, runnable artifact, and Trivy security scanning~\cite{trivy} as integral lifecycle components.
 \end{itemize}
 
 \section{Proposed Solution}
@@ -113,20 +113,20 @@ The \textbf{Release BSU Engineering Portal} is a full-stack, role-based academic
 
 \subsection{High-Level Architecture}
 
-The system utilizes a three-tier containerized architecture, separating presentation, business logic, and data persistence.
+The system utilizes a four-tier containerized architecture~\cite{docker} separating presentation (React~\cite{react}), business logic (Django~\cite{django}), data persistence (MySQL), and in-memory caching/session storage (Redis).
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\textwidth]{system_architecture.png}
-    \caption{High-Level Three-Tier Containerized Architecture of the BSU Engineering Portal, demonstrating presentation decoupling and database network isolation.}
+    \includegraphics[width=0.9\textwidth]{system_architecture_1.png}
+    \caption{High-Level Containerized Architecture of the BSU Engineering Portal, demonstrating presentation decoupling, database network isolation, and Redis for session management and caching.}
     \label{fig:arch_overview}
 \end{figure}
 
 \subsection{Preview of Architectural Decisions}
 
 \begin{itemize}
-    \item \textbf{SPA + REST API:} Complete frontend-backend decoupling allows the React client to iterate independently of the Django API.
-    \item \textbf{Nginx as the Single Entry Point:} The browser never communicates directly with Django. Nginx routes traffic, serves static assets, and injects security headers.
+    \item \textbf{SPA + REST API:} Complete frontend-backend decoupling allows the React~\cite{react} client to iterate independently of the Django~\cite{django} REST API~\cite{djangorest}.
+    \item \textbf{Nginx as the Single Entry Point:} The browser never communicates directly with Django~\cite{django}. Nginx~\cite{nginx} routes traffic, serves static assets, and injects security headers.
     \item \textbf{Database Isolation:} The MySQL container maps no ports to the host machine. It exists solely on an internal Docker network, reachable only by the backend worker.
 \end{itemize}
 
@@ -206,7 +206,7 @@ The project scope was deliberately bounded by the engineering principle: \textit
         \hline
         X5 & Horizontal Scaling & The current user load is well within single-server Gunicorn/MySQL capacity. Load balancing adds unneeded complexity. \\
         \hline
-        X6 & Microservices & A monolithic Django application is architecturally correct for this team size. Microservices multiply deployment costs. \\
+        X6 & Microservices & A monolithic Django application is architecturally correct for this team size. Microservices [22] multiply deployment costs. \\
         \hline
         X9 & Student Self-Registration & Bypasses institutional enrollment validation. Student Affairs must maintain control via batch imports. \\
         \hline
