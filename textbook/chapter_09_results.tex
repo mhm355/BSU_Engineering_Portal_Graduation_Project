@@ -16,8 +16,18 @@ The authentication system enforces \textbf{first-login password change}---no use
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.85\textwidth]{screenshot_login_flow.png}
-    \caption{Authentication flow showing: (a) Login page with RTL form fields (Username / National ID, Password), and (b) First-Login Password Change page with validation rules displayed in Arabic.}
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{login.png}
+        \caption*{\small (a) Login page with RTL form fields}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{password_change.png}
+        \caption*{\small (b) First-Login Password Change page}
+    \end{minipage}
+    \caption{Authentication flow: (a) Login page with RTL form fields (Username / National ID, Password), and (b) First-Login Password Change page with validation rules displayed in Arabic.}
     \label{fig:login-flow}
 \end{figure}
 
@@ -27,9 +37,9 @@ The Admin Dashboard serves as the system's control center, managing academic str
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.95\textwidth]{screenshot_admin_dashboard.png}
-    \caption{Admin Dashboard showing summary cards, RBAC-based navigation menu, and the audit log access point.}
-    \label{fig:admin-dashboard}
+    \includegraphics[width=0.95\textwidth]{user_management.png}
+    \caption{User Management interface showing the list of system users with their assigned roles (Admin, Doctor, Student, Student Affairs, Staff Affairs), demonstrating the Role-Based Access Control (RBAC) implementation.}
+    \label{fig:user-management}
 \end{figure}
 
 \textbf{Engineering Highlight---Cascade Creation:} When an admin creates a new academic year (e.g., ``2025-2026''), the system automatically generates 2 Terms (First, Second) and Levels for all 5 departments. This eliminates manual setup errors and ensures structural consistency.
@@ -42,7 +52,23 @@ Student Affairs manages the student lifecycle through batch operations. The Exce
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{screenshot_student_affairs_upload.png}
+    \begin{minipage}{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{student_aff_1.png}
+        \caption*{\small (a) Department/level selection form}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{studen_aff_2.png}
+        \caption*{\small (b) File upload area with drag-and-drop}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{student_aff_3.png}
+        \caption*{\small (c) Preview table with validation status}
+    \end{minipage}
     \caption{Student Affairs Excel Upload showing: (a) department/level selection form, (b) file upload area with drag-and-drop, and (c) preview table with per-row validation status and Arabic error messages.}
     \label{fig:excel-upload}
 \end{figure}
@@ -53,23 +79,23 @@ Doctors manage course-related operations through a unified interface. The bulk a
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{screenshot_doctor_attendance.png}
+    \includegraphics[width=\textwidth]{attendance_2.png}
     \caption{Doctor Bulk Attendance Recording interface showing date picker, student list with Present/Absent/Excused radio buttons, and automatic Excel export functionality.}
     \label{fig:bulk-attendance}
 \end{figure}
 
-\subsection{Student Portal: Grade Access}
+\subsection{Student Portal: Course Access}
 
-The student-facing interface provides \textbf{24/7 self-service access} to academic records. This single screen replaces the previous workflow: student $\rightarrow$ Student Affairs office $\rightarrow$ wait days $\rightarrow$ check notice board.
+The student-facing interface provides \textbf{24/7 self-service access} to enrolled courses and study materials. Students can view their subjects, download course materials, and access quizzes assigned by doctors.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{screenshot_student_grade_view.png}
-    \caption{Student Grade View showing all enrolled subjects with complete grade breakdown per component (coursework, written, practical, attendance, quizzes, total).}
-    \label{fig:student-grades}
+    \includegraphics[width=\textwidth]{student_courses.png}
+    \caption{Student Course View showing enrolled subjects with access to course materials, lecture notes, and assigned quizzes.}
+    \label{fig:student-courses}
 \end{figure}
 
-\textbf{Engineering Highlight---Real-Time Access:} Grades are visible the moment a doctor enters them (or when exam grades are approved by admin). Students see their exact breakdown per component, not just a final number.
+\textbf{Engineering Highlight---Course Materials:} All course content is centralized and accessible anytime, replacing the need for physical handouts or scattered digital files.
 
 \subsection{Quiz System}
 
@@ -77,7 +103,17 @@ The integrated quiz engine supports multiple question types (MCQ, Essay, Image-b
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{screenshot_quiz_interface.png}
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{quiz_1.png}
+        \caption*{\small (a) Quiz Creation interface with question type selection}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{quiz_2.png}
+        \caption*{\small (b) Student Quiz interface with timer and navigation}
+    \end{minipage}
     \caption{Quiz System showing: (a) Quiz Creation interface with question type selection and builder, and (b) Student Quiz interface with timer countdown and question navigation.}
     \label{fig:quiz-system}
 \end{figure}

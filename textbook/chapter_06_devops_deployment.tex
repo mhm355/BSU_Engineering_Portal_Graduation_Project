@@ -120,25 +120,56 @@ target "backend" {
 }
 \end{lstlisting}
 
-\textbf{Cache Optimization Results:} The multi-stage build with intelligent caching reduces image rebuild times from minutes to seconds when only application code changes (not dependencies). Build cache is preserved between CI runs using GitHub Actions cache or registry-based storage.
+\textbf{Cache Optimization Results:} The multi-stage build with intelligent caching reduces image rebuild times from minutes to seconds when only application code changes (not dependencies). Build cache can be preserved between builds using local directory storage or registry-based cache.
 
-\subsection{CI/CD Pipeline Flow Diagram}
+\subsection{Manual Build and Deployment Workflow}
 
-The CI/CD pipeline flow diagram illustrates the complete pipeline from code commit to production deployment. The pipeline consists of the following stages:
+Given the educational nature of this project---serving a single faculty with periodic updates rather than continuous production deployments---a full CI/CD pipeline is unnecessary. Instead, the project employs a \textbf{controlled manual build workflow} using Docker Buildx and Bake for efficient image creation and versioning.
 
-* Code push: The developer pushes the code changes to the GitHub repository.
-* GitHub Actions trigger: The GitHub Actions workflow is triggered by the code push event.
-* Docker build: The Docker image is built using the Dockerfile.
-* Trivy security scan: The Docker image is scanned for security vulnerabilities using Trivy.
-* Docker Hub push: The Docker image is pushed to Docker Hub.
-* Deployment: The Docker image is deployed to the production environment.
+\subsubsection{Buildx Bake for Local Development}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.95\textwidth]{cicd_pipeline.png}
-    \caption{CI/CD Pipeline Flow Diagram showing the automated build, security scan, and deployment process from code commit to production.}
-    \label{fig:cicd_pipeline}
-\end{figure}
+For local development and testing, the following command builds both frontend and backend images with local cache:
+
+\begin{lstlisting}[language=bash, caption=Local Development Build with Cache]
+CACHE_TYPE=local docker buildx bake \
+  --set frontend.tags=mhmdocker1/bsu_frontend:dev \
+  --set backend.tags=mhmdocker1/bsu_backend:dev
+\end{lstlisting}
+
+\subsubsection{Production Build and Push}
+
+For production releases, images are built and pushed to Docker Hub with explicit version tags:
+
+\begin{lstlisting}[language=bash, caption=Production Build and Push to Docker Hub]
+CACHE_TYPE=local docker buildx bake \
+  --set frontend.tags=mhmdocker1/bsu_frontend:stable \
+  --set backend.tags=mhmdocker1/bsu_backend:stable \
+  --push
+\end{lstlisting}
+
+\textbf{Versioning Strategy:} The project uses semantic tagging:
+\begin{itemize}
+    \item \texttt{dev} --- Active development builds for local testing
+    \item \texttt{pre\_stable} --- Release candidates for staging validation
+    \item \texttt{stable} --- Production-ready releases
+\end{itemize}
+
+\subsubsection{Deployment Workflow}
+
+For AWS ECS or local Docker Compose deployment, simply update the image tag in the respective configuration file (\texttt{docker-compose-im.yml} or ECS task definition) and redeploy:
+
+\begin{lstlisting}[language=bash, caption=Production Deployment Sequence]
+# 1. Build and push new stable images
+docker buildx bake --push
+
+# 2. Update docker-compose with new tag (if needed)
+# Edit docker-compose-im.yml to reference mhmdocker1/bsu_backend:stable
+
+# 3. Deploy
+docker compose -f docker-compose-im.yml pull && docker compose -f docker-compose-im.yml up -d
+\end{lstlisting}
+
+This workflow provides sufficient control for an educational system where updates occur on a semesterly or yearly basis rather than continuous deployment.
 
 \section{Production Docker Compose}
 \label{sec:docker-compose-prod}
@@ -312,6 +343,234 @@ def health_check(request):
     \label{fig:healthcheck-sequence}
 \end{figure}
 
+\section{Monitoring and Observability}
+\label{sec:monitoring}
+
+Production-grade systems require comprehensive monitoring to detect issues before they impact users. The BSU Engineering Portal implements a full observability stack using Prometheus~\cite{prometheus} for metrics collection, Grafana~\cite{grafana} for visualization, and Alertmanager for incident notification.
+
+\subsection{Metrics Collection Architecture}
+
+The monitoring stack uses a \textbf{pull-based architecture} where Prometheus scrapes metrics from various exporters at 15-second intervals. This design ensures minimal overhead on the application while providing real-time visibility.
+
+\begin{lstlisting}[language=yaml, caption=Monitoring Stack Services (docker-compose-monitoring.yml)]
+# Prometheus - Central metrics collection
+prometheus:
+  image: prom/prometheus:v2.48.0
+  container_name: bsu_prometheus
+  volumes:
+    - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    - prometheus_data:/prometheus
+  ports:
+    - "9090:9090"
+  command:
+    - '--storage.tsdb.retention.time=15d'
+    - '--web.enable-lifecycle'
+
+# Node Exporter - System metrics (CPU, memory, disk)
+node-exporter:
+  image: prom/node-exporter:v1.7.0
+  container_name: bsu_node_exporter
+  volumes:
+    - /:/host:ro,rslave
+  ports:
+    - "9100:9100"
+
+# MySQL Exporter - Database metrics
+mysql-exporter:
+  image: prom/mysqld-exporter:v0.15.0
+  environment:
+    - DATA_SOURCE_NAME=root:password@(db:3306)/
+  ports:
+    - "9104:9104"
+
+# Redis Exporter - Cache metrics
+redis-exporter:
+  image: oliver006/redis_exporter:v1.55.0
+  environment:
+    - REDIS_ADDR=redis://redis:6379
+  ports:
+    - "9121:9121"
+
+# Nginx Exporter - Web server metrics
+nginx-exporter:
+  image: nginx/nginx-prometheus-exporter:1.1.0
+  command:
+    - '--nginx.scrape-uri=http://nginx:80/stub_status'
+  ports:
+    - "9113:9113"
+\end{lstlisting}
+
+\textbf{Key Metrics Tracked:}
+\begin{itemize}
+    \item \textbf{System}: CPU usage, memory utilization, disk space, network I/O
+    \item \textbf{Database}: Connection count, query rate, slow queries, replication lag
+    \item \textbf{Cache}: Memory usage, hit/miss ratio, eviction rate, command latency
+    \item \textbf{Web Server}: Request rate, response time, error rate (4xx/5xx), active connections
+    \item \textbf{Containers}: Container status, resource usage per container
+\end{itemize}
+
+\subsection{Visualization with Grafana}
+
+Grafana provides interactive dashboards for real-time system monitoring. The default configuration includes:
+
+\begin{lstlisting}[language=yaml, caption=Grafana Provisioning Configuration]
+grafana:
+  image: grafana/grafana:10.2.3
+  container_name: bsu_grafana
+  environment:
+    - GF_SECURITY_ADMIN_USER=admin
+    - GF_SECURITY_ADMIN_PASSWORD=admin123
+    - GF_USERS_ALLOW_SIGN_UP=false
+  volumes:
+    - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+    - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    - grafana_data:/var/lib/grafana
+  ports:
+    - "3000:3000"
+\end{lstlisting}
+
+\textbf{Dashboards Provided:}
+\begin{itemize}
+    \item \textbf{System Overview}: CPU, memory, disk usage across all nodes
+    \item \textbf{Database Health}: MySQL connections, query performance, replication status
+    \item \textbf{Cache Performance}: Redis memory usage, hit rates, command latency
+    \item \textbf{Application Metrics}: Nginx request rates, response codes, backend latency
+\end{itemize}
+
+Access the dashboards at \texttt{http://localhost:3000} (admin/admin123).
+
+\subsection{Alerting Configuration}
+
+Alertmanager routes critical alerts through multiple channels: Email for immediate response and Slack for team visibility.
+
+\begin{lstlisting}[language=yaml, caption=Prometheus Alert Rules (alerts.yml)]
+groups:
+  - name: system_alerts
+    interval: 30s
+    rules:
+      # Critical: Database down
+      - alert: MySQLDown
+        expr: mysql_up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "MySQL database is down"
+          description: "MySQL exporter cannot connect to database"
+      
+      # Critical: Redis down
+      - alert: RedisDown
+        expr: redis_up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Redis cache is down"
+      
+      # Warning: High CPU
+      - alert: HighCPUUsage
+        expr: 100 - (avg(irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage"
+          description: "CPU usage is above 80% for more than 5 minutes"
+      
+      # Warning: Low disk space
+      - alert: LowDiskSpace
+        expr: (1 - (node_filesystem_avail_bytes / node_filesystem_size_bytes)) * 100 > 90
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Low disk space"
+          description: "Disk usage is above 90%"
+\end{lstlisting}
+
+\textbf{Alert Routing:}
+\begin{itemize}
+    \item \textbf{Critical} (database down, disk full): Email + Slack + Dashboard
+    \item \textbf{Warning} (high CPU, high memory): Slack + Dashboard only
+\end{itemize}
+
+\subsection{AWS CloudWatch Integration}
+
+For AWS deployments, CloudWatch provides native monitoring without additional infrastructure:
+
+\begin{lstlisting}[language=terraform, caption=CloudWatch Agent Configuration for ECS]
+resource "aws_ecs_task_definition" "backend" {
+  container_definitions = jsonencode([
+    {
+      name = "backend"
+      # ... main container config
+    },
+    {
+      name = "cloudwatch-agent"
+      image = "amazon/cloudwatch-agent:latest"
+      environment = [
+        {
+          name = "CW_CONFIG_CONTENT"
+          value = jsonencode({
+            logs = {
+              metrics_collected = {
+                mem = { measurement = ["mem_used_percent"] }
+                cpu = { measurement = ["cpu_usage_idle"], resources = ["*"] }
+                disk = { measurement = ["disk_used_percent"], resources = ["/"] }
+              }
+            }
+          })
+        }
+      ]
+    }
+  ])
+}
+\end{lstlisting}
+
+\textbf{AWS Monitoring Strategy:}
+\begin{itemize}
+    \item \textbf{EC2/ECS}: CloudWatch Agent for system metrics (CPU, memory, disk)
+    \item \textbf{RDS}: Performance Insights for database metrics and slow query analysis
+    \item \textbf{ALB}: Built-in metrics for request count, latency, HTTP codes
+    \item \textbf{ElastiCache (Redis)}: Native CloudWatch metrics for cache performance
+    \item \textbf{Custom Dashboards}: CloudWatch Dashboards for unified system view
+\end{itemize}
+
+\subsection{Starting the Monitoring Stack}
+
+The monitoring stack uses a dedicated environment file (\texttt{.env.monitoring}) for configuration, similar to the main application stack. This file contains credentials for Grafana, database connection strings, and other sensitive configuration.
+
+\begin{lstlisting}[language=bash, caption=Monitoring Stack Environment File (\texttt{.env.monitoring})]
+# Grafana Configuration
+GF_SECURITY_ADMIN_USER=admin
+GF_SECURITY_ADMIN_PASSWORD=admin123
+GF_USERS_ALLOW_SIGN_UP=false
+GF_SERVER_ROOT_URL=http://localhost:3000
+
+# Database Exporter Configuration
+MYSQL_EXPORTER_DSN=root:password@(db:3306)/
+REDIS_EXPORTER_ADDR=redis://redis:6379
+
+# Prometheus Configuration
+PROMETHEUS_RETENTION_TIME=15d
+\end{lstlisting}
+
+\textbf{Note:} For production deployments, change default passwords and restrict access to monitoring endpoints.
+
+\begin{lstlisting}[language=bash, caption=Launch Monitoring Infrastructure]
+# 1. Ensure main application network exists
+docker network create bsu_network || true
+
+# 2. Start monitoring stack with environment file
+docker compose -f docker-compose-monitoring.yml --env-file .env.monitoring up -d
+
+# 3. Verify all exporters are running
+curl http://localhost:9090/api/v1/targets
+
+# 4. Access Grafana dashboards
+open http://localhost:3000  # admin/admin123
+\end{lstlisting}
+
 \section{Infrastructure as Code (IaC)}
 \label{sec:iac}
 
@@ -425,42 +684,6 @@ Azure components provide equivalent functionality with native integration:
 
 \textbf{Infrastructure Provisioning:} The Terraform configuration creates 12+ AWS resources including VPC, subnets, security groups, ECS cluster, RDS instance, and Application Load Balancer. The execution plan shows exactly what will be created before any changes are applied.
 
-\section{CI/CD Pipeline}
-\label{sec:cicd}
-
-The GitHub Actions~\cite{github-actions} workflows implement a complete deployment pipeline with vulnerability scanning and automatic configuration updates~\cite{github-docs}.
-
-\subsection{Vulnerability Scanning Gate}
-
-Trivy~\cite{trivy} integration ensures no CRITICAL or HIGH severity vulnerabilities reach production.
-
-\begin{lstlisting}[float, language=yaml, caption=Security Gate in CI Pipeline]
-- name: Run Trivy vulnerability scanner
-  uses: aquasecurity/trivy-action@master
-  with:
-    image-ref: '${{ vars.DOCKERHUB_USERNAME }}/bsu_backend:${{ steps.meta.outputs.version }}'
-    format: 'table'
-    exit-code: '1'  # FAIL on vulnerabilities
-    vuln-type: 'os,library'
-    severity: 'CRITICAL,HIGH'
-\end{lstlisting}
-
-\subsection{GitOps-Style Deployment Updates}
-
-Upon successful image push, the pipeline automatically updates \texttt{docker-compose-im.yml} with the new image tag.
-
-\begin{lstlisting}[float, language=yaml, caption=Automated Compose File Update]
-- name: Update image tag in docker-compose
-  run: |
-    IMAGE="${{ vars.DOCKERHUB_USERNAME }}/bsu_backend:${{ needs.build.outputs.image_tag }}"
-    yq -i ".services.backend.image = \"$IMAGE\"" ./docker-compose-im.yml
-
-- name: Commit and push changes
-  uses: stefanzweifel/git-auto-commit-action@v5
-  with:
-    commit_message: "chore: update backend image tag"
-    file_pattern: "docker-compose-im.yml"
-\end{lstlisting}
 
 This enables declarative deployment: operators run \texttt{docker compose -f docker-compose-im.yml pull \&\& docker compose up -d} to deploy the exact images validated by CI.
 

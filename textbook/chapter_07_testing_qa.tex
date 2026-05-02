@@ -143,7 +143,7 @@ with transaction.atomic():
 
 \subsection{Container Vulnerability Scanning}
 
-\begin{lstlisting}[language=yaml, caption=Trivy Security Gate in CI/CD]
+\begin{lstlisting}[language=yaml, caption=Trivy Security Gate in Build Pipeline]
 - name: Run Trivy vulnerability scanner
   uses: aquasecurity/trivy-action@master
   with:

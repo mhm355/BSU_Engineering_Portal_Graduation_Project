@@ -11,7 +11,7 @@
 
 This graduation project presented the \textbf{BSU Engineering Portal}---a production-grade, role-based academic management platform designed to digitize, centralize, and secure the full academic lifecycle of the Faculty of Engineering at Beni-Suef University.
 
-The system was developed over \textbf{8 Agile sprints}, progressing from core authentication infrastructure to a fully containerized, CI/CD-deployed platform serving five distinct stakeholder roles across all five academic departments.
+The system was developed over \textbf{8 Agile sprints}, progressing from core authentication infrastructure to a fully containerized platform serving five distinct stakeholder roles across all five academic departments.
 
 \subsection{Problems Solved}
 
@@ -54,13 +54,13 @@ Beyond solving operational problems, this project demonstrates the application o
 \begin{itemize}
     \item \textbf{14 security layers} from transport encryption to database isolation, implementing defense-in-depth
     \item \textbf{Session-based authentication} with server-side invalidation---chosen over JWT through explicit trade-off analysis
-    \item \textbf{Automated vulnerability scanning} via Trivy [14] in the GitHub Actions [15] CI/CD pipeline, blocking deployment of known-vulnerable images
+    \item \textbf{Automated vulnerability scanning} via Trivy [14], integrated into the Docker build process to block deployment of known-vulnerable images
 \end{itemize}
 
 \subsubsection{DevOps \& Deployment}
 \begin{itemize}
     \item \textbf{Multi-stage Docker [8] builds} reducing image sizes by 70-95\% (backend: \textasciitilde350MB, frontend: \textasciitilde45MB)
-    \item \textbf{GitOps CI/CD pipeline} with path-filtered triggers, Docker Hub publishing, Trivy scanning, and auto-updating compose files
+    \item \textbf{Manual build workflow} using Docker Buildx with path-filtered builds, Docker Hub publishing, Trivy security scanning, and version-tagged releases
     \item \textbf{Idempotent startup} with Docker Compose [9] health-checked dependency ordering---ensuring reliable deployment with a single command
 \end{itemize}
 
@@ -86,7 +86,7 @@ This project provided the team with practical experience in:
     \item \textbf{Full-stack development:} Building both a REST API backend and a React SPA frontend as a cohesive system
     \item \textbf{Database design:} Designing a 28-table relational schema with normalization, indexing, and constraint strategies
     \item \textbf{Containerization:} Creating multi-stage Docker builds and orchestrating multi-service deployments with Docker Compose
-    \item \textbf{CI/CD engineering:} Implementing GitHub Actions pipelines with security scanning and automated infrastructure updates
+    \item \textbf{Manual build workflow:} Using Docker Buildx with path-filtered builds, Docker Hub publishing, Trivy security scanning, and version-tagged releases
     \item \textbf{Security engineering:} Making explicit trade-off decisions (sessions vs. JWT, CSRF exemption with CORS compensation) and documenting their rationale
     \item \textbf{Arabic-first UI development:} Building a complete RTL interface with MUI [5] as a primary design---not a localization afterthought
 \end{itemize}
@@ -150,9 +150,6 @@ David Cramer, ``WhiteNoise: Radically Simplified Static File Serving for Python 
 \bibitem{trivy}
 Aqua Security, ``Trivy: A Comprehensive and Versatile Security Scanner.'' [Online]. Available: \url{https://trivy.dev/}. [Accessed: 2025].
 
-\bibitem{github-actions}
-GitHub, Inc., ``GitHub Actions: Automate Your Workflow from Idea to Production.'' [Online]. Available: \url{https://github.com/features/actions}. [Accessed: 2025].
-
 \bibitem{pandas}
 Wes McKinney, ``pandas: Powerful Data Structures for Data Analysis,'' Version 2.x. [Online]. Available: \url{https://pandas.pydata.org/}. [Accessed: 2025].
 
@@ -188,9 +185,6 @@ N. Gift, K. Behrman, A. Deza, and G. Gheorghiu, ``Python for DevOps: Learn Ruthl
 
 \bibitem{docker-best-practices}
 Docker, Inc., ``Docker Best Practices for Building Containers.'' [Online]. Available: \url{https://docs.docker.com/develop/develop-images/dockerfile_best-practices/}. [Accessed: 2025].
-
-\bibitem{github-docs}
-GitHub, Inc., ``GitHub Actions Documentation.'' [Online]. Available: \url{https://docs.github.com/en/actions}. [Accessed: 2025].
 
 \end{thebibliography}
 
