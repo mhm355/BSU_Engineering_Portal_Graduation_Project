@@ -1,6 +1,7 @@
-other
+
 features/
 other/
+textbook/markdown/
 .github/workflows/main.yml
 # Python
 __pycache__/
@@ -54,5 +55,3 @@ htmlcov/
 # Local Cache
 .docker-cache
 
-textbook/markdown
-textbook/screenshots-in

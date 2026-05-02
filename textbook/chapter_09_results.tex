@@ -19,13 +19,13 @@ The authentication system enforces \textbf{first-login password change}---no use
     \begin{minipage}{0.48\textwidth}
         \centering
         \includegraphics[width=\textwidth]{login.png}
-        \caption*{\small (a) Login page with RTL form fields}
+        \caption{\small (a) Login page with RTL form fields}
     \end{minipage}
     \hfill
     \begin{minipage}{0.48\textwidth}
         \centering
         \includegraphics[width=\textwidth]{password_change.png}
-        \caption*{\small (b) First-Login Password Change page}
+        \caption{\small (b) First-Login Password Change page}
     \end{minipage}
     \caption{Authentication flow: (a) Login page with RTL form fields (Username / National ID, Password), and (b) First-Login Password Change page with validation rules displayed in Arabic.}
     \label{fig:login-flow}
@@ -37,9 +37,9 @@ The Admin Dashboard serves as the system's control center, managing academic str
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.95\textwidth]{user_management.png}
-    \caption{User Management interface showing the list of system users with their assigned roles (Admin, Doctor, Student, Student Affairs, Staff Affairs), demonstrating the Role-Based Access Control (RBAC) implementation.}
-    \label{fig:user-management}
+    \includegraphics[width=0.95\textwidth]{admin_dashboard.png}
+    \caption{Admin Dashboard showing summary cards (total students, doctors, pending approvals), academic year management, and quick access to user management and system configuration.}
+    \label{fig:admin-dashboard}
 \end{figure}
 
 \textbf{Engineering Highlight---Cascade Creation:} When an admin creates a new academic year (e.g., ``2025-2026''), the system automatically generates 2 Terms (First, Second) and Levels for all 5 departments. This eliminates manual setup errors and ensures structural consistency.
@@ -52,24 +52,8 @@ Student Affairs manages the student lifecycle through batch operations. The Exce
 
 \begin{figure}[H]
     \centering
-    \begin{minipage}{0.32\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{student_aff_1.png}
-        \caption*{\small (a) Department/level selection form}
-    \end{minipage}
-    \hfill
-    \begin{minipage}{0.32\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{studen_aff_2.png}
-        \caption*{\small (b) File upload area with drag-and-drop}
-    \end{minipage}
-    \hfill
-    \begin{minipage}{0.32\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{student_aff_3.png}
-        \caption*{\small (c) Preview table with validation status}
-    \end{minipage}
-    \caption{Student Affairs Excel Upload showing: (a) department/level selection form, (b) file upload area with drag-and-drop, and (c) preview table with per-row validation status and Arabic error messages.}
+    \includegraphics[width=0.95\textwidth]{student_affairs_upload.png}
+    \caption{Student Affairs Excel Upload interface showing department/level selection form, file upload area with drag-and-drop support, and preview table with per-row validation status and Arabic error messages.}
     \label{fig:excel-upload}
 \end{figure}
 
@@ -80,7 +64,7 @@ Doctors manage course-related operations through a unified interface. The bulk a
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{attendance_2.png}
-    \caption{Doctor Bulk Attendance Recording interface showing date picker, student list with Present/Absent/Excused radio buttons, and automatic Excel export functionality.}
+    \caption{Doctor Bulk Attendance Recording interface showing date picker, student list with Present/Absent options.}
     \label{fig:bulk-attendance}
 \end{figure}
 
@@ -103,17 +87,7 @@ The integrated quiz engine supports multiple question types (MCQ, Essay, Image-b
 
 \begin{figure}[H]
     \centering
-    \begin{minipage}{0.48\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{quiz_1.png}
-        \caption*{\small (a) Quiz Creation interface with question type selection}
-    \end{minipage}
-    \hfill
-    \begin{minipage}{0.48\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{quiz_2.png}
-        \caption*{\small (b) Student Quiz interface with timer and navigation}
-    \end{minipage}
+    \includegraphics[width=0.95\textwidth]{quiz_interface.png}
     \caption{Quiz System showing: (a) Quiz Creation interface with question type selection and builder, and (b) Student Quiz interface with timer countdown and question navigation.}
     \label{fig:quiz-system}
 \end{figure}

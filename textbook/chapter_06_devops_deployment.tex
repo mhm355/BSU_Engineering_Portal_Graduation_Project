@@ -571,6 +571,27 @@ curl http://localhost:9090/api/v1/targets
 open http://localhost:3000  # admin/admin123
 \end{lstlisting}
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{monitoring_architecture.png}
+    \caption{Monitoring Architecture Diagram showing Prometheus scraping metrics from Node Exporter, MySQL Exporter, Redis Exporter, Nginx Exporter, and cAdvisor, with Alertmanager routing alerts to email and Slack.}
+    \label{fig:monitoring-architecture}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{prometheus_targets.png}
+    \caption{Prometheus Targets Page at \texttt{localhost:9090/targets} showing all exporter endpoints with health status.}
+    \label{fig:prometheus-targets}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{grafana_dashboard.png}
+    \caption{Grafana Dashboard showing system overview metrics including CPU usage, memory consumption, database connections, and application response times.}
+    \label{fig:grafana-dashboard}
+\end{figure}
+
 \section{Infrastructure as Code (IaC)}
 \label{sec:iac}
 
