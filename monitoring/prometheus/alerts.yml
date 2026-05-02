@@ -1,0 +1,105 @@
+# Prometheus Alert Rules
+# BSU Engineering Portal Critical Alerts
+
+groups:
+  - name: system_alerts
+    interval: 30s
+    rules:
+      # High CPU Usage Alert
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage on {{ $labels.instance }}"
+          description: "CPU usage is above 80% for more than 5 minutes (current: {{ $value }}%)"
+
+      # High Memory Usage Alert
+      - alert: HighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage on {{ $labels.instance }}"
+          description: "Memory usage is above 85% for more than 5 minutes (current: {{ $value }}%)"
+
+      # Disk Space Alert
+      - alert: LowDiskSpace
+        expr: (1 - (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"})) * 100 > 90
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Low disk space on {{ $labels.instance }}"
+          description: "Disk usage is above 90% (current: {{ $value }}%)"
+
+  - name: database_alerts
+    interval: 30s
+    rules:
+      # MySQL Down Alert
+      - alert: MySQLDown
+        expr: mysql_up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "MySQL database is down"
+          description: "MySQL exporter cannot connect to database"
+
+      # MySQL High Connection Usage
+      - alert: MySQLHighConnections
+        expr: (mysql_global_status_threads_connected / mysql_global_variables_max_connections) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "MySQL high connection usage"
+          description: "MySQL connection usage is above 80% (current: {{ $value }}%)"
+
+  - name: cache_alerts
+    interval: 30s
+    rules:
+      # Redis Down Alert
+      - alert: RedisDown
+        expr: redis_up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Redis cache is down"
+          description: "Redis exporter cannot connect to Redis server"
+
+      # Redis High Memory Usage
+      - alert: RedisHighMemory
+        expr: (redis_memory_used_bytes / redis_memory_max_bytes) * 100 > 90
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Redis high memory usage"
+          description: "Redis memory usage is above 90% (current: {{ $value }}%)"
+
+  - name: application_alerts
+    interval: 30s
+    rules:
+      # Container Down Alert
+      - alert: ContainerDown
+        expr: up{job="cadvisor"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Container monitoring is down"
+          description: "cAdvisor cannot scrape container metrics"
+
+      # Nginx High Error Rate
+      - alert: NginxHighErrorRate
+        expr: rate(nginx_http_requests_total{status=~"5.."}[5m]) / rate(nginx_http_requests_total[5m]) * 100 > 5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High nginx error rate"
+          description: "Nginx 5xx error rate is above 5% (current: {{ $value }}%)"
