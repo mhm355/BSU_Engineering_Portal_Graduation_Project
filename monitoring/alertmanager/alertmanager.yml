@@ -1,14 +1,14 @@
 # Alertmanager Configuration
 # BSU Engineering Portal - Email + Slack Notifications
-# Note: Replace placeholders with actual values before deployment
+# Values are hardcoded here (envsubst is not available in the Alertmanager image)
 
 global:
-  # SMTP settings for email alerts (loaded from .env.monitoring)
-  smtp_smarthost: '${ALERTMANAGER_SMTP_SMARTHOST:-smtp.gmail.com:587}'
-  smtp_from: '${ALERTMANAGER_SMTP_FROM:-alerts@bsu-engineering.edu}'
-  smtp_auth_username: '${ALERTMANAGER_SMTP_AUTH_USERNAME}'
-  smtp_auth_password: '${ALERTMANAGER_SMTP_AUTH_PASSWORD}'
-  smtp_require_tls: ${ALERTMANAGER_SMTP_REQUIRE_TLS:-true}
+  # SMTP settings for email alerts
+  smtp_smarthost: 'smtp.gmail.com:587'
+  smtp_from: 'alerts@bsu-engineering.edu'
+  smtp_auth_username: [EMAIL_ADDRESS]'
+  smtp_auth_password: [PASSWORD]
+  smtp_require_tls: true
 
 # Templates for alert formatting
 templates:
@@ -43,8 +43,8 @@ receivers:
   # Default: Slack notifications
   - name: 'default'
     slack_configs:
-      - api_url: '${ALERTMANAGER_SLACK_API_URL}'
-        channel: '${ALERTMANAGER_SLACK_CHANNEL:-#bsu-alerts}'
+      - api_url: 'https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK'
+        channel: '#bsu-alerts'
         title: '{{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
         text: '{{ range .Alerts }}{{ .Annotations.description }}{{ end }}'
         send_resolved: true
@@ -52,22 +52,22 @@ receivers:
   # Critical alerts: Email + Slack
   - name: 'critical-alerts'
     email_configs:
-      - to: '${ALERTMANAGER_EMAIL_TO:-admin@bsu-engineering.edu}'
-        subject: '[CRITICAL] BSU Portal Alert: {{ .GroupLabels.alertname }}'
-        body: |
+      - to: 'admin@bsu-engineering.edu'
+        headers:
+          Subject: '[CRITICAL] BSU Portal Alert: {{ .GroupLabels.alertname }}'
+        html: |
           {{ range .Alerts }}
-          Alert: {{ .Annotations.summary }}
-          Severity: {{ .Labels.severity }}
-          Instance: {{ .Labels.instance }}
-          Description: {{ .Annotations.description }}
-          Time: {{ .StartsAt }}
-          
-          ---
+          <p><b>Alert:</b> {{ .Annotations.summary }}</p>
+          <p><b>Severity:</b> {{ .Labels.severity }}</p>
+          <p><b>Instance:</b> {{ .Labels.instance }}</p>
+          <p><b>Description:</b> {{ .Annotations.description }}</p>
+          <p><b>Time:</b> {{ .StartsAt }}</p>
+          <hr>
           {{ end }}
         send_resolved: true
     slack_configs:
-      - api_url: '${ALERTMANAGER_SLACK_API_URL}'
-        channel: '${ALERTMANAGER_SLACK_CHANNEL_CRITICAL:-#bsu-critical}'
+      - api_url: 'https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK'
+        channel: '#bsu-alerts-critical'
         title: ':rotating_light: CRITICAL: {{ .GroupLabels.alertname }}'
         text: '{{ range .Alerts }}{{ .Annotations.description }}{{ end }}'
         send_resolved: true
@@ -75,8 +75,8 @@ receivers:
   # Warning alerts: Slack only
   - name: 'slack-only'
     slack_configs:
-      - api_url: '${ALERTMANAGER_SLACK_API_URL}'
-        channel: '${ALERTMANAGER_SLACK_CHANNEL:-#bsu-alerts}'
+      - api_url: 'https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK'
+        channel: '#bsu-alerts'
         title: ':warning: {{ .GroupLabels.alertname }}'
         text: '{{ range .Alerts }}{{ .Annotations.description }}{{ end }}'
         send_resolved: true

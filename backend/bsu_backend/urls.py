@@ -27,6 +27,7 @@ urlpatterns = [
     path('api/academic/', include('academic.urls')),
     path('api/system/', include('system.urls')),
     path('api/content/', include('content.urls')),
+    path('', include('django_prometheus.urls')),
 ]
 
 # Serve media files (uploads) - ALWAYS serve, not just in DEBUG mode

@@ -70,7 +70,7 @@ scrape_configs:
         target_label: instance
         replacement: 'bsu-containers'
 
-  # Django Backend - Application metrics (if using django-prometheus)
+  # Django Backend - Application metrics (via django-prometheus)
   - job_name: 'backend'
     static_configs:
       - targets: ['backend:8000']

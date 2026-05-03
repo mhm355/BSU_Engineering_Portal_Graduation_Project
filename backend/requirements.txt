@@ -1,6 +1,7 @@
 django>=5.0
 djangorestframework
 django-cors-headers
+django-prometheus
 mysqlclient
 Pillow==10.4.0
 pandas

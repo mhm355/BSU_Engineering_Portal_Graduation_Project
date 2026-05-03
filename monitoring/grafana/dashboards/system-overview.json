@@ -1,104 +1,103 @@
 {
-  "dashboard": {
-    "id": null,
-    "title": "BSU Portal - System Overview",
-    "tags": ["bsu", "system"],
-    "timezone": "browser",
-    "schemaVersion": 36,
-    "refresh": "30s",
-    "panels": [
-      {
-        "id": 1,
-        "title": "CPU Usage",
-        "type": "stat",
-        "targets": [
-          {
-            "expr": "100 - (avg by(instance) (irate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)",
-            "legendFormat": "{{instance}}"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "unit": "percent",
-            "thresholds": {
-              "steps": [
-                {"color": "green", "value": null},
-                {"color": "yellow", "value": 70},
-                {"color": "red", "value": 85}
-              ]
-            }
-          }
-        },
-        "gridPos": {"h": 4, "w": 6, "x": 0, "y": 0}
-      },
-      {
-        "id": 2,
-        "title": "Memory Usage",
-        "type": "stat",
-        "targets": [
-          {
-            "expr": "(1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100",
-            "legendFormat": "{{instance}}"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "unit": "percent",
-            "thresholds": {
-              "steps": [
-                {"color": "green", "value": null},
-                {"color": "yellow", "value": 75},
-                {"color": "red", "value": 90}
-              ]
-            }
-          }
-        },
-        "gridPos": {"h": 4, "w": 6, "x": 6, "y": 0}
-      },
-      {
-        "id": 3,
-        "title": "Disk Usage",
-        "type": "stat",
-        "targets": [
-          {
-            "expr": "(1 - (node_filesystem_avail_bytes{mountpoint=\"/\"} / node_filesystem_size_bytes{mountpoint=\"/\"})) * 100",
-            "legendFormat": "{{instance}}"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "unit": "percent",
-            "thresholds": {
-              "steps": [
-                {"color": "green", "value": null},
-                {"color": "yellow", "value": 80},
-                {"color": "red", "value": 95}
-              ]
-            }
-          }
-        },
-        "gridPos": {"h": 4, "w": 6, "x": 12, "y": 0}
-      },
-      {
-        "id": 4,
-        "title": "Container Status",
-        "type": "stat",
-        "targets": [
-          {
-            "expr": "count by (name) (container_last_seen{name=~\"bsu_.*\"})",
-            "legendFormat": "{{name}}"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "mappings": [
-              {"options": {"0": {"text": "DOWN", "color": "red"}}, "type": "value"},
-              {"options": {"1": {"text": "UP", "color": "green"}}, "type": "value"}
+  "id": null,
+  "uid": "bsu-system-overview",
+  "title": "BSU Portal - System Overview",
+  "tags": ["bsu", "system"],
+  "timezone": "browser",
+  "schemaVersion": 36,
+  "refresh": "30s",
+  "panels": [
+    {
+      "id": 1,
+      "title": "CPU Usage",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "100 - (avg by(instance) (irate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)",
+          "legendFormat": "{{instance}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "thresholds": {
+            "steps": [
+              {"color": "green", "value": null},
+              {"color": "yellow", "value": 70},
+              {"color": "red", "value": 85}
             ]
           }
-        },
-        "gridPos": {"h": 4, "w": 6, "x": 18, "y": 0}
-      }
-    ]
-  }
+        }
+      },
+      "gridPos": {"h": 4, "w": 6, "x": 0, "y": 0}
+    },
+    {
+      "id": 2,
+      "title": "Memory Usage",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "(1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100",
+          "legendFormat": "{{instance}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "thresholds": {
+            "steps": [
+              {"color": "green", "value": null},
+              {"color": "yellow", "value": 75},
+              {"color": "red", "value": 90}
+            ]
+          }
+        }
+      },
+      "gridPos": {"h": 4, "w": 6, "x": 6, "y": 0}
+    },
+    {
+      "id": 3,
+      "title": "Disk Usage",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "(1 - (node_filesystem_avail_bytes{mountpoint=\"/\"} / node_filesystem_size_bytes{mountpoint=\"/\"})) * 100",
+          "legendFormat": "{{instance}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "thresholds": {
+            "steps": [
+              {"color": "green", "value": null},
+              {"color": "yellow", "value": 80},
+              {"color": "red", "value": 95}
+            ]
+          }
+        }
+      },
+      "gridPos": {"h": 4, "w": 6, "x": 12, "y": 0}
+    },
+    {
+      "id": 4,
+      "title": "Container Status",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "count by (name) (container_last_seen{name=~\"bsu_.*\"})",
+          "legendFormat": "{{name}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {"options": {"0": {"text": "DOWN", "color": "red"}}, "type": "value"},
+            {"options": {"1": {"text": "UP", "color": "green"}}, "type": "value"}
+          ]
+        }
+      },
+      "gridPos": {"h": 4, "w": 6, "x": 18, "y": 0}
+    }
+  ]
 }
