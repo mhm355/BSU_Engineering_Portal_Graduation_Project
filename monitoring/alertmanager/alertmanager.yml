@@ -6,7 +6,7 @@ global:
   # SMTP settings for email alerts
   smtp_smarthost: 'smtp.gmail.com:587'
   smtp_from: 'alerts@bsu-engineering.edu'
-  smtp_auth_username: [EMAIL_ADDRESS]'
+  smtp_auth_username: [EMAIL]
   smtp_auth_password: [PASSWORD]
   smtp_require_tls: true
 
