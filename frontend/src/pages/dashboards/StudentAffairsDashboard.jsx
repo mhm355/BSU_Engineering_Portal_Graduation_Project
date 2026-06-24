@@ -1,0 +1,423 @@
+import React, { useEffect, useState } from 'react';
+import {
+    Box, Container, Typography, Grid, Card, CardContent, Button, Avatar, Paper, Fade, Grow, IconButton
+} from '@mui/material';
+import { keyframes } from '@mui/system';
+import PeopleIcon from '@mui/icons-material/People';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
+import CardMembershipIcon from '@mui/icons-material/CardMembership';
+import NewspaperIcon from '@mui/icons-material/Newspaper';
+import GradingIcon from '@mui/icons-material/Grading';
+import SchoolIcon from '@mui/icons-material/School';
+import AccountTreeIcon from '@mui/icons-material/AccountTree';
+import AssignmentIcon from '@mui/icons-material/Assignment';
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import CampaignIcon from '@mui/icons-material/Campaign';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import AssessmentIcon from '@mui/icons-material/Assessment';
+import LogoutIcon from '@mui/icons-material/Logout';
+import HistoryIcon from '@mui/icons-material/History';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import DomainIcon from '@mui/icons-material/Domain';
+import axios from 'axios';
+import DashboardCard from '../../components/DashboardCard';
+
+// Animations
+const float = keyframes`
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+`;
+
+const pulse = keyframes`
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+  100% { transform: scale(1); }
+`;
+
+const avatarPulse = keyframes`
+  0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4), 0 8px 25px rgba(0,0,0,0.2); transform: translateY(0px); }
+  50% { box-shadow: 0 0 0 15px rgba(255, 255, 255, 0), 0 12px 30px rgba(0,0,0,0.3); transform: translateY(-4px); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0), 0 8px 25px rgba(0,0,0,0.2); transform: translateY(0px); }
+`;
+
+// Navigation Card Component
+const NavCard = ({ icon: Icon, title, description, onClick, gradient, delay = 0 }) => (
+    <Grow in={true} timeout={800 + delay}>
+        <Card
+            onClick={onClick}
+            sx={{
+                height: '100%',
+                borderRadius: 4,
+                background: '#fff',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                border: '1px solid rgba(0,0,0,0.06)',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                position: 'relative',
+                overflow: 'hidden',
+                '&:hover': {
+                    transform: 'translateY(-8px)',
+                    boxShadow: '0 20px 40px rgba(0,0,0,0.15)',
+                    '& .nav-icon': {
+                        transform: 'scale(1.1) rotate(5deg)',
+                    },
+                    '& .nav-arrow': {
+                        opacity: 1,
+                        transform: 'translateX(0)',
+                    }
+                }
+            }}
+        >
+            {/* Gradient top bar */}
+            <Box sx={{ height: 6, background: gradient }} />
+
+            <CardContent sx={{ p: 3 }}>
+                <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2.5 }}>
+                    <Avatar
+                        className="nav-icon"
+                        sx={{
+                            width: 64,
+                            height: 64,
+                            background: gradient,
+                            boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
+                            transition: 'transform 0.3s ease',
+                        }}
+                    >
+                        <Icon sx={{ fontSize: 32 }} />
+                    </Avatar>
+                    <Box sx={{ flex: 1 }}>
+                        <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744', mb: 0.5 }}>
+                            {title}
+                        </Typography>
+                        <Typography variant="body2" sx={{ fontFamily: 'Cairo', color: '#666', lineHeight: 1.5 }}>
+                            {description}
+                        </Typography>
+                    </Box>
+                    <ArrowForwardIcon
+                        className="nav-arrow"
+                        sx={{
+                            color: '#ccc',
+                            opacity: 0.5,
+                            transition: 'all 0.3s ease',
+                            transform: 'translateX(-10px)',
+                        }}
+                    />
+                </Box>
+            </CardContent>
+        </Card>
+    </Grow>
+);
+
+// Stats Card Component
+const StatCard = ({ icon: Icon, value, label, color, delay = 0 }) => (
+    <Grow in={true} timeout={800 + delay}>
+        <Paper
+            elevation={0}
+            sx={{
+                p: 2.5,
+                borderRadius: 3,
+                background: '#fff',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                border: '1px solid rgba(0,0,0,0.06)',
+                transition: 'all 0.3s ease',
+                textAlign: 'center',
+                '&:hover': {
+                    transform: 'translateY(-5px)',
+                    boxShadow: `0 15px 35px ${color}20`,
+                }
+            }}
+        >
+            <Box
+                sx={{
+                    width: 50,
+                    height: 50,
+                    borderRadius: 2.5,
+                    background: `linear-gradient(135deg, ${color}, ${color}cc)`,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxShadow: `0 6px 20px ${color}35`,
+                    mx: 'auto',
+                    mb: 1.5,
+                }}
+            >
+                <Icon sx={{ fontSize: 26, color: '#fff' }} />
+            </Box>
+            <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#1a2744', fontFamily: 'Cairo', lineHeight: 1.2 }}>
+                {value}
+            </Typography>
+            <Typography variant="body2" sx={{ color: '#666', fontFamily: 'Cairo', mt: 0.5 }}>
+                {label}
+            </Typography>
+        </Paper>
+    </Grow>
+);
+
+export default function StudentAffairsDashboard() {
+    const { user, logout } = useAuth();
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        logout();
+        navigate('/login');
+    };
+
+    useEffect(() => {
+        if (!user) {
+            navigate('/login');
+        } else if (user.role !== 'STUDENT_AFFAIRS' && user.role !== 'ADMIN') {
+            navigate('/');
+        }
+    }, [user, navigate]);
+
+    if (!user) {
+        return (
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
+                <CircularProgress size={60} />
+            </Box>
+        );
+    }
+
+    const [stats, setStats] = useState({ students: 0, departments: 0, certificates: 0, levels: 0 });
+
+    useEffect(() => {
+        const fetchStats = async () => {
+            try {
+                const config = { withCredentials: true };
+                const [studentsRes, deptsRes, certsRes, levelsRes] = await Promise.all([
+                    axios.get('/api/academic/student-affairs/students/', config).catch(() => ({ data: [] })),
+                    axios.get('/api/academic/departments/', config).catch(() => ({ data: [] })),
+                    axios.get('/api/academic/certificates/', config).catch(() => ({ data: [] })),
+                    axios.get('/api/academic/levels/', config).catch(() => ({ data: [] })),
+                ]);
+                setStats({
+                    students: (Array.isArray(studentsRes.data) ? studentsRes.data : studentsRes.data?.results || []).length,
+                    departments: (Array.isArray(deptsRes.data) ? deptsRes.data : deptsRes.data?.results || []).length,
+                    certificates: (Array.isArray(certsRes.data) ? certsRes.data : certsRes.data?.results || []).length,
+                    levels: (Array.isArray(levelsRes.data) ? levelsRes.data : levelsRes.data?.results || []).length,
+                });
+            } catch { /* fail silently */ }
+        };
+        fetchStats();
+    }, []);
+
+    const navigationCards = [
+        {
+            icon: AccountTreeIcon,
+            title: 'الهيكل الأكاديمي',
+            description: 'تصفح الطلاب حسب القسم والسنة والفرقة الدراسية',
+            buttonText: 'الهيكل الأكاديمي',
+            onClick: () => navigate('/student-affairs/hierarchy'),
+            color: 'primary',
+        },
+        {
+            icon: UploadFileIcon,
+            title: 'رفع بيانات الطلاب',
+            description: 'رفع ملفات Excel/CSV لإضافة بيانات الطلاب الجدد',
+            buttonText: 'رفع البيانات',
+            onClick: () => navigate('/student-affairs/upload-students'),
+            color: 'warning',
+        },
+        {
+            icon: EmojiEventsIcon,
+            title: 'الشهادات',
+            description: 'رفع وإدارة شهادات التخرج للطلاب',
+            buttonText: 'الشهادات',
+            onClick: () => navigate('/student-affairs/certificates'),
+            color: 'secondary',
+        },
+        {
+            icon: CampaignIcon,
+            title: 'الأخبار والإعلانات',
+            description: 'نشر الأخبار والإعلانات الهامة للطلاب',
+            buttonText: 'الأخبار والإعلانات',
+            onClick: () => navigate('/student-affairs/news'),
+            color: 'error',
+        },
+        {
+            icon: GradingIcon,
+            title: 'عرض درجات الطلاب',
+            description: 'عرض درجات كل فرقة (للقراءة فقط)',
+            buttonText: 'عرض الدرجات',
+            onClick: () => navigate('/student-affairs/grades'),
+            color: 'info',
+        },
+        {
+            icon: AssessmentIcon,
+            title: 'إدارة إعلان النتائج',
+            description: 'اعتماد نتائج الامتحانات ونشرها للطلاب',
+            buttonText: 'إدارة النتائج',
+            onClick: () => navigate('/student-affairs/publish-results'),
+            color: 'success',
+        },
+        {
+            icon: HistoryIcon,
+            title: 'سجل عمليات الرفع',
+            description: 'تتبع جميع عمليات الرفع السابقة وتحميل تقارير الأخطاء',
+            buttonText: 'سجل الرفع',
+            onClick: () => navigate('/student-affairs/upload-history'),
+            color: 'secondary',
+        },
+        {
+            icon: CloudUploadIcon,
+            title: 'رفع شهادات بالجملة',
+            description: 'رفع ملف ZIP يحتوي على شهادات PDF للطلاب',
+            buttonText: 'رفع الشهادات',
+            onClick: () => navigate('/student-affairs/bulk-certificates'),
+            color: 'purple',
+        },
+    ];
+
+    return (
+        <Box sx={{ minHeight: '100vh', background: 'linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%)', pb: 6 }}>
+            {/* Hero Header */}
+            <Box
+                sx={{
+                    background: 'linear-gradient(135deg, #1976D2 0%, #42A5F5 100%)',
+                    pt: 2.5,
+                    pb: 3,
+                    mb: 2.5,
+                    position: 'relative',
+                    overflow: 'hidden',
+                }}
+            >
+                {/* Floating Elements - REMOVED */}
+                {/* <Box sx={{ position: 'absolute', top: -50, right: -50, width: 200, height: 200, borderRadius: '50%', background: 'rgba(255,255,255,0.1)', animation: `${float} 6s ease-in-out infinite` }} />
+                <Box sx={{ position: 'absolute', bottom: -80, left: -80, width: 300, height: 300, borderRadius: '50%', background: 'rgba(255,255,255,0.08)', animation: `${float} 8s ease-in-out infinite`, animationDelay: '2s' }} />
+                <Box sx={{ position: 'absolute', top: 60, left: '30%', width: 100, height: 100, borderRadius: '50%', background: 'rgba(255,255,255,0.05)', animation: `${float} 5s ease-in-out infinite`, animationDelay: '1s' }} /> */}
+
+                <Container maxWidth="xl">
+                    <Fade in={true} timeout={800}>
+                        <Box>
+                            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2, mb: 2 }}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                                    <Avatar
+                                        src={user.profile_picture || undefined}
+                                        sx={{
+                                            width: 85,
+                                            height: 85,
+                                            bgcolor: 'rgba(255,255,255,0.2)',
+                                            backdropFilter: 'blur(10px)',
+                                            border: '4px solid rgba(255, 255, 255, 0.9)',
+                                            boxShadow: '0 8px 25px rgba(0,0,0,0.2)',
+                                            animation: `${avatarPulse} 4s ease-in-out infinite`,
+                                            transition: 'all 0.3s ease',
+                                            '&:hover': {
+                                                transform: 'scale(1.05) translateY(-5px)',
+                                            },
+                                            fontSize: 32,
+                                            fontFamily: 'Cairo',
+                                            fontWeight: 'bold',
+                                            color: '#fff'
+                                        }}
+                                    >
+                                        {user.first_name?.charAt(0)}{user.last_name?.charAt(0)}
+                                    </Avatar>
+                                    <Box>
+                                        <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff', textShadow: '0 2px 10px rgba(0,0,0,0.2)' }}>
+                                            مرحباً، {user.first_name} {user.last_name}
+                                        </Typography>
+                                        <Typography variant="subtitle1" sx={{ fontFamily: 'Cairo', color: 'rgba(255,255,255,0.9)' }}>
+                                            لوحة تحكم شؤون الطلاب
+                                        </Typography>
+                                    </Box>
+                                </Box>
+                                <IconButton
+                                    onClick={handleLogout}
+                                    sx={{
+                                        bgcolor: 'rgba(211,47,47,0.2)',
+                                        color: '#fff',
+                                        width: 50,
+                                        height: 50,
+                                        '&:hover': { bgcolor: 'rgba(211,47,47,0.4)' }
+                                    }}
+                                >
+                                    <LogoutIcon />
+                                </IconButton>
+                            </Box>
+                        </Box>
+                    </Fade>
+                </Container>
+            </Box>
+
+            <Container maxWidth="xl">
+                {/* Stats Row */}
+                <Grid container spacing={2} sx={{ mb: 3 }}>
+                    <Grid item xs={12} sm={6} md={3}>
+                        <StatCard
+                            icon={PeopleIcon}
+                            value={String(stats.students)}
+                            label="إجمالي الطلاب"
+                            color="#2196F3"
+                            delay={0}
+                        />
+                    </Grid>
+                    <Grid item xs={12} sm={6} md={3}>
+                        <StatCard
+                            icon={DomainIcon}
+                            value={String(stats.departments)}
+                            label="الأقسام"
+                            color="#FF9800"
+                            delay={100}
+                        />
+                    </Grid>
+                    <Grid item xs={12} sm={6} md={3}>
+                        <StatCard
+                            icon={EmojiEventsIcon}
+                            value={String(stats.certificates)}
+                            label="الشهادات"
+                            color="#4CAF50"
+                            delay={200}
+                        />
+                    </Grid>
+                    <Grid item xs={12} sm={6} md={3}>
+                        <StatCard
+                            icon={SchoolIcon}
+                            value={String(stats.levels)}
+                            label="الفرق الدراسية"
+                            color="#00BCD4"
+                            delay={300}
+                        />
+                    </Grid>
+                </Grid>
+
+                {/* Section Title */}
+                <Paper
+                    elevation={0}
+                    sx={{
+                        p: 2.5,
+                        mb: 2.5,
+                        borderRadius: 4,
+                        background: '#fff',
+                        boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                    }}
+                >
+                    <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>
+                        الخدمات المتاحة
+                    </Typography>
+                    <Typography variant="body2" sx={{ fontFamily: 'Cairo', color: '#666' }}>
+                        اختر الخدمة التي تريد الوصول إليها
+                    </Typography>
+                </Paper>
+
+                {/* Navigation Cards */}
+                <Grid container spacing={2} direction="column">
+                    {navigationCards.map((card, idx) => (
+                        <Grid item xs={12} key={idx}>
+                            <DashboardCard
+                                icon={card.icon}
+                                title={card.title}
+                                description={card.description}
+                                buttonText={card.buttonText}
+                                onClick={card.onClick}
+                                color={card.color}
+                            />
+                        </Grid>
+                    ))}
+                </Grid>
+            </Container>
+        </Box>
+    );
+}

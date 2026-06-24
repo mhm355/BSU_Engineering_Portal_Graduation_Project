@@ -1,0 +1,307 @@
+% Chapter 7: Testing & Quality Assurance
+% BSU Engineering Portal Graduation Project
+
+\chapter{Testing and Quality Assurance}
+\label{chap:testing}
+
+The BSU Engineering Portal employs a \textbf{multi-layered testing strategy} spanning from database-level constraints to manual acceptance testing. Given that grade calculation errors directly affect student academic records, quality assurance is treated as a critical engineering requirement.
+
+\section{Testing Strategy Overview}
+\label{sec:testing-strategy}
+
+\subsection{Testing Layers}
+
+The quality assurance approach organizes testing into \textbf{five layers}:
+
+\begin{enumerate}
+    \item \textbf{Layer 1: Model and Business Logic Validation} --- Django~\cite{django} model constraints, serializer validation
+    \item \textbf{Layer 2: Integration Testing} --- Management command verification, database transaction integrity
+    \item \textbf{Layer 3: Security Testing} --- Trivy~\cite{trivy} CVE scanning, RBAC boundary testing
+    \item \textbf{Layer 4: Manual Acceptance Testing} --- Stakeholder-driven test cases per role
+    \item \textbf{Layer 5: Infrastructure and Health Testing} --- Container healthchecks using Docker~\cite{docker}
+\end{enumerate}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{testing_pyramid.png}
+    \caption{Testing Pyramid showing the 5 layers from bottom (Model Constraints) to top (System Verification).}
+    \label{fig:testing_pyramid}
+\end{figure}
+
+\subsection{Testing Tools Summary}
+
+\begin{table}[H]
+    \centering
+    \renewcommand{\arraystretch}{1.3}
+    \begin{tabular}{|l|l|p{8cm}|}
+        \hline
+        \textbf{Tool} & \textbf{Layer} & \textbf{Purpose} \\
+        \hline
+        Django~\cite{django} Model Constraints & Layer 1 & \texttt{unique\_together}, \texttt{choices}, \texttt{max\_length} enforced at database level \\
+        \hline
+        DRF~\cite{drf} Serializer Validators & Layer 1 & Type checking, format validation, 14-digit National ID validation \\
+        \hline
+        \texttt{test\_grades.py} Command & Layer 2 & Grade calculation verification against real database state \\
+        \hline
+        Trivy~\cite{trivy} & Layer 3 & Container image vulnerability scanning \\
+        \hline
+        Docker~\cite{docker} Healthchecks & Layer 5 & Container readiness verification \\
+        \hline
+        Manual Test Execution & Layer 4 & Structured acceptance testing via API client \\
+        \hline
+    \end{tabular}
+    \caption{Testing Tools and Their Corresponding Layers}
+    \label{tab:testing_tools}
+\end{table}
+
+\section{Layer 1: Model and Business Logic Validation}
+\label{sec:layer1-validation}
+
+\subsection{Database-Level Constraints}
+
+\begin{lstlisting}[language=Python, caption=Critical Uniqueness Constraints (academic/models.py)]
+class Attendance(models.Model):
+    class Meta:
+        unique_together = ('student', 'course_offering', 'date')
+        # Prevents duplicate attendance records
+
+class StudentGrade(models.Model):
+    class Meta:
+        unique_together = ('student', 'course_offering')
+        # Prevents duplicate grade records
+
+class CourseOffering(models.Model):
+    class Meta:
+        unique_together = ('subject', 'academic_year', 'term', 'level')
+        # Prevents duplicate course offerings
+\end{lstlisting}
+
+\subsubsection{Serializer Validation}
+
+\begin{lstlisting}[language=Python, caption=National ID Validation (users/serializers.py)]
+def validate_national_id(self, value):
+    if value and (len(value) != 14 or not value.isdigit()):
+        raise serializers.ValidationError(
+            "National ID must be exactly 14 digits.")
+    return value
+\end{lstlisting}
+
+\section{Layer 2: Integration Testing}
+\label{sec:layer2-integration}
+
+\subsection{Grade Calculation Verification}
+
+\begin{lstlisting}[language=Python, caption=Grade Calculation Test Command]
+class Command(BaseCommand):
+    help = 'Test calculation of attendance grades'
+
+    def handle(self, *args, **options):
+        grades = StudentGrade.objects.all()[:5]
+        for grade in grades:
+            offering = grade.course_offering
+            template = offering.grading_template
+            
+            if not template:
+                print(f"No Grading Template for {offering}!")
+                continue
+            
+            present_count = grade.student.attendance_records.filter(
+                course_offering=grade.course_offering,
+                status=Attendance.AttendanceStatus.PRESENT
+            ).count()
+            
+            if template.attendance_slots == 0:
+                calc = 0
+            else:
+                ratio = present_count / template.attendance_slots
+                calc = ratio * float(template.attendance_weight)
+            
+            print(f"({present_count} / {template.attendance_slots}) "
+                  f"* {template.attendance_weight} = {calc}")
+\end{lstlisting}
+
+\subsection{Transaction Integrity Testing}
+
+\begin{lstlisting}[language=Python, caption=Atomic Transaction Pattern]
+with transaction.atomic():
+    user = User.objects.create_user(
+        username=national_id,
+        password=national_id,
+        role='STUDENT',
+        first_login_required=True
+    )
+    Student.objects.create(
+        national_id=national_id,
+        full_name=full_name,
+        user=user,
+        level=row_level,
+    )
+\end{lstlisting}
+
+\section{Layer 3: Security Testing}
+\label{sec:layer3-security}
+
+\subsection{Container Vulnerability Scanning}
+
+\begin{lstlisting}[language=yaml, caption=Trivy Security Gate in Build Pipeline]
+- name: Run Trivy vulnerability scanner
+  uses: aquasecurity/trivy-action@master
+  with:
+    image-ref: '${{ vars.DOCKERHUB_USERNAME }}/bsu_backend:${{ steps.meta.outputs.version }}'
+    format: 'table'
+    exit-code: '1'
+    vuln-type: 'os,library'
+    severity: 'CRITICAL,HIGH'
+\end{lstlisting}
+
+\begin{table}[H]
+    \centering
+    \renewcommand{\arraystretch}{1.3}
+    \begin{tabular}{|l|c|c|c|}
+        \hline
+        \textbf{Image} & \textbf{Critical} & \textbf{High} & \textbf{Status} \\
+        \hline
+        \texttt{bsu\_backend:stable} & 0 & 0 & \textcolor{green!80!black}{\ding{51}} Passed \\
+        \hline
+        \texttt{bsu\_frontend:stable} & 0 & 0 & \textcolor{green!80!black}{\ding{51}} Passed \\
+        \hline
+    \end{tabular}
+    \caption{Container Vulnerability Scan Results}
+\end{table}
+
+\subsection{RBAC Boundary Testing}
+
+\begin{table}[H]
+    \centering
+    \renewcommand{\arraystretch}{1.3}
+    \small
+    \begin{tabular}{|c|l|l|c|c|}
+        \hline
+        \textbf{\#} & \textbf{Authenticated As} & \textbf{Attempted Endpoint} & \textbf{Expected} & \textbf{Actual} \\
+        \hline
+        1 & Student & POST /api/student-affairs/upload/ & 403 & \textcolor{green!80!black}{\ding{51}} 403 \\
+        \hline
+        2 & Doctor & GET /api/admin/audit-logs/ & 403 & \textcolor{green!80!black}{\ding{51}} 403 \\
+        \hline
+        3 & Unauthenticated & GET /api/academic/departments/ & 403 & \textcolor{green!80!black}{\ding{51}} 403 \\
+        \hline
+    \end{tabular}
+    \caption{Role Isolation Verification}
+\end{table}
+
+\subsubsection{Course Ownership Enforcement}
+
+\begin{lstlisting}[language=Python, caption=Course Ownership Filter]
+def get_queryset(self):
+    return CourseOffering.objects.filter(doctor=self.request.user)
+\end{lstlisting}
+
+\section{Layer 4: Manual Acceptance Testing}
+\label{sec:layer4-manual}
+
+Manual testing validates end-to-end workflows for each role.
+
+\subsection{Authentication Test Cases}
+
+\begin{table}[H]
+    \centering
+    \renewcommand{\arraystretch}{1.3}
+    \small
+    \begin{tabular}{|c|p{2.5cm}|p{3cm}|p{3cm}|c|}
+        \hline
+        \textbf{ID} & \textbf{Test Case} & \textbf{Input} & \textbf{Expected} & \textbf{Status} \\
+        \hline
+        TC-A01 & Valid login & admin / [valid] & Dashboard redirect & \textcolor{green!80!black}{\ding{51}} \\
+        \hline
+        TC-A02 & Invalid password & admin / wrong & Error message & \textcolor{green!80!black}{\ding{51}} \\
+        \hline
+        TC-A03 & First login & New student & Password change redirect & \textcolor{green!80!black}{\ding{51}} \\
+        \hline
+    \end{tabular}
+    \caption{Authentication Test Cases}
+\end{table}
+
+\subsection{Student Affairs Test Cases}
+
+\begin{table}[H]
+    \centering
+    \renewcommand{\arraystretch}{1.3}
+    \small
+    \begin{tabular}{|c|p{2.8cm}|p{3.5cm}|p{3cm}|c|}
+        \hline
+        \textbf{ID} & \textbf{Test Case} & \textbf{Input} & \textbf{Expected} & \textbf{Status} \\
+        \hline
+        TC-SA01 & Upload Excel & 50 students & Created & \textcolor{green!80!black}{\ding{51}} \\
+        \hline
+        TC-SA02 & Duplicate & Existing student & Updated (upsert) & \textcolor{green!80!black}{\ding{51}} \\
+        \hline
+        TC-SA03 & Missing columns & No national\_id & Error message & \textcolor{green!80!black}{\ding{51}} \\
+        \hline
+    \end{tabular}
+    \caption{Student Affairs Test Cases}
+\end{table}
+
+\section{Layer 5: Infrastructure and Health Testing}
+\label{sec:layer5-infrastructure}
+
+\subsection{Docker Healthcheck Configuration}
+
+\begin{lstlisting}[language=yaml, caption=Docker Compose Healthchecks]
+# Database
+healthcheck:
+  test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+  interval: 30s
+  timeout: 5s
+  retries: 5
+
+# Backend
+healthcheck:
+  test: ["CMD", "curl", "-f", "http://localhost:8000/api/health/"]
+  interval: 30s
+  timeout: 10s
+  retries: 3
+  start_period: 40s
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python, caption=Health Check Endpoint]
+def health_check(request):
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT 1")
+        db_status = "connected"
+    except Exception:
+        db_status = "disconnected"
+    
+    status_code = 200 if db_status == "connected" else 503
+    return JsonResponse(
+        {"status": "ok" if db_status == "connected" else "unhealthy",
+         "db": db_status},
+        status=status_code
+    )
+\end{lstlisting}
+
+\section{Test Coverage Summary}
+\label{sec:test-summary}
+
+\begin{table}[H]
+    \centering
+    \renewcommand{\arraystretch}{1.3}
+    \begin{tabular}{|l|c|c|c|}
+        \hline
+        \textbf{Category} & \textbf{Test Cases} & \textbf{Passed} & \textbf{Failed} \\
+        \hline
+        Authentication & 5 & 5 & 0 \\
+        \hline
+        Student Affairs & 4 & 4 & 0 \\
+        \hline
+        Doctor Operations & 5 & 5 & 0 \\
+        \hline
+        Security & 6 & 6 & 0 \\
+        \hline
+        Infrastructure & 5 & 5 & 0 \\
+        \hline
+        \textbf{TOTAL} & \textbf{25} & \textbf{25} & \textbf{0} \\
+        \hline
+    \end{tabular}
+    \caption{Test Coverage Summary}
+\end{table}

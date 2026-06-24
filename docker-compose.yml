@@ -1,0 +1,64 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: bsu_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-bsu_db}
+      MYSQL_USER: ${MYSQL_USER:-bsu_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-bsu_password}
+    volumes:
+      - db_data:/var/lib/mysql
+    # DB port NOT exposed to host — only accessible within Docker network
+    networks:
+      - bsu_network
+
+  redis:
+    image: redis:7-alpine
+    container_name: bsu_redis
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    networks:
+      - bsu_network
+
+  backend:
+    build: ./backend
+    container_name: bsu_backend
+    volumes:
+      - ./backend:/app
+      - media_data:/app/media
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=mysql://${MYSQL_USER:-bsu_user}:${MYSQL_PASSWORD:-bsu_password}@db:3306/${MYSQL_DATABASE:-bsu_db}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin123@bsu}
+    networks:
+      - bsu_network
+
+  frontend:
+    build: ./frontend
+    container_name: bsu_frontend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - bsu_network
+
+volumes:
+  db_data:
+  media_data:
+  redis_data:
+
+networks:
+  bsu_network:

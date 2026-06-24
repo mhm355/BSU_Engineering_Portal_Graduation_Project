@@ -1,0 +1,45 @@
+# Stage 1: Builder
+FROM docker.io/python:3.11-slim AS builder
+
+WORKDIR /app
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y \
+    pkg-config \
+    default-libmysqlclient-dev \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY backend/requirements.txt .
+RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
+
+# Stage 2: Runtime
+FROM docker.io/python:3.11-slim
+
+WORKDIR /app
+
+# Install runtime dependencies only
+RUN apt-get update && apt-get install -y \
+    default-libmysqlclient-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=builder /install /usr/local
+COPY backend/ .
+
+RUN find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true \
+    && find . -type f -name "*.pyc" -delete 2>/dev/null || true \
+    && find . -type f -name "*.pyo" -delete 2>/dev/null || true
+
+# Ensure migrations directories are Python packages (in case __init__.py is gitignored)
+RUN touch users/migrations/__init__.py academic/migrations/__init__.py \
+    content/migrations/__init__.py system/migrations/__init__.py 2>/dev/null || true
+
+# Generate any new migrations automatically
+#RUN python manage.py makemigrations --noinput || true
+
+# Make entrypoint executable
+RUN chmod +x entrypoint.sh
+
+EXPOSE 8000
+
+CMD ["./entrypoint.sh"]

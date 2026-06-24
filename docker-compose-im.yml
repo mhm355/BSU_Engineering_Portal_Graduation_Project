@@ -1,0 +1,83 @@
+# Production Docker Compose Configuration
+# Loads environment variables from .env.production automatically
+# Run with: docker compose -f docker-compose-im.yml up -d
+
+services:
+  db:
+    image: docker.io/mysql:8.0
+    container_name: bsu_db
+    restart: always
+    env_file:
+      - .env.production
+    volumes:
+      - db_data:/var/lib/mysql
+    # DB port NOT exposed to host — only accessible within Docker network
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+    networks:
+      - bsu_network
+
+  redis:
+    image: docker.io/redis:7-alpine
+    container_name: bsu_redis
+    restart: always
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - bsu_network
+
+  backend:
+    image: docker.io/mhmdocker1/bsu_backend:stable
+    container_name: bsu_backend
+    volumes:
+      - media_data:/app/media
+    ports:
+      - "8001:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: always
+    env_file:
+      - .env.production
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/api/health/" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - bsu_network
+
+  frontend:
+    image: docker.io/mhmdocker1/bsu_frontend:stable
+    container_name: bsu_frontend
+    volumes:
+      - media_data:/usr/share/nginx/html/media
+    ports:
+      - "8081:80"
+    depends_on:
+      - backend
+    restart: always
+    networks:
+      - bsu_network
+
+volumes:
+  db_data:
+  media_data:
+  redis_data:
+
+
+networks:
+  bsu_network:
+    name: bsu_network
+    driver: bridge

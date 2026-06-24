@@ -1,0 +1,729 @@
+"""
+Quiz API Views for doctors to create quizzes and students to take them
+"""
+from rest_framework import viewsets, status
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework.parsers import MultiPartParser, FormParser
+from django.db import models as db_models
+from django.utils import timezone
+
+from .models import (
+    Quiz, QuizQuestion, QuizChoice, StudentQuizAttempt, StudentQuizAnswer,
+    CourseOffering, Student
+)
+from .serializers import QuizSerializer
+from users.permissions import IsDoctorRole, IsStudentRole
+
+
+def get_relative_url(file_field):
+    """Return relative URL for file/image fields to avoid docker internal hostname issues"""
+    if not file_field:
+        return None
+    url = file_field.url
+    if url.startswith('http'):
+        try:
+            from urllib.parse import urlparse
+            parsed = urlparse(url)
+            return parsed.path
+        except Exception:
+            pass
+    return url
+
+
+class QuizViewSet(viewsets.ModelViewSet):
+    """ViewSet for Quiz CRUD operations - Doctor only for CUD, Students can list"""
+    queryset = Quiz.objects.all()
+    serializer_class = QuizSerializer
+
+    def get_permissions(self):
+        if self.action in ['create', 'update', 'partial_update', 'destroy']:
+            return [IsDoctorRole()]
+        return []
+
+    def get_queryset(self):
+        user = self.request.user
+        queryset = Quiz.objects.select_related('course_offering', 'course_offering__subject')
+        
+        # Filter by course_offering if provided
+        course_offering_id = self.request.query_params.get('course_offering')
+        if course_offering_id:
+            queryset = queryset.filter(course_offering_id=course_offering_id)
+        
+        # If doctor, show only their quizzes
+        if hasattr(user, 'role') and user.role == 'DOCTOR':
+            queryset = queryset.filter(course_offering__doctor=user)
+        
+        return queryset.order_by('-created_at')
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response({'message': 'تم حذف الكويز بنجاح'}, status=status.HTTP_200_OK)
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        data = []
+        for quiz in queryset:
+            data.append({
+                'id': quiz.id,
+                'title': quiz.title,
+                'description': quiz.description,
+                'quiz_type': quiz.quiz_type,
+                'total_points': float(quiz.total_points),
+                'is_active': quiz.is_active,
+                'time_limit_minutes': quiz.time_limit_minutes,
+                'question_count': quiz.questions.count(),
+                'course_offering_id': quiz.course_offering_id,
+                'subject_name': quiz.course_offering.subject.name,
+                'created_at': quiz.created_at,
+            })
+        return Response(data)
+
+    def retrieve(self, request, pk=None):
+        try:
+            quiz = Quiz.objects.select_related('course_offering', 'course_offering__subject').get(pk=pk)
+        except Quiz.DoesNotExist:
+            return Response({'error': 'الكويز غير موجود'}, status=status.HTTP_404_NOT_FOUND)
+        
+        # Get questions with choices
+        questions = []
+        for q in quiz.questions.all():
+            question_data = {
+                'id': q.id,
+                'question_text': q.question_text,
+                'question_image': get_relative_url(q.question_image),
+                'question_type': q.question_type,
+                'points': float(q.points),
+                'order': q.order,
+                'choices': []
+            }
+            if q.question_type == 'MCQ':
+                for choice in q.choices.all():
+                    choice_data = {
+                        'id': choice.id,
+                        'choice_text': choice.choice_text,
+                        'order': choice.order,
+                    }
+                    # Only show is_correct to doctor
+                    if hasattr(request.user, 'role') and request.user.role == 'DOCTOR':
+                        choice_data['is_correct'] = choice.is_correct
+                    question_data['choices'].append(choice_data)
+            questions.append(question_data)
+        
+        return Response({
+            'id': quiz.id,
+            'title': quiz.title,
+            'description': quiz.description,
+            'quiz_type': quiz.quiz_type,
+            'total_points': float(quiz.total_points),
+            'is_active': quiz.is_active,
+            'time_limit_minutes': quiz.time_limit_minutes,
+            'image': get_relative_url(quiz.image),
+            'course_offering_id': quiz.course_offering_id,
+            'subject_name': quiz.course_offering.subject.name,
+            'questions': questions,
+        })
+
+    def create(self, request):
+        """Create a new quiz with questions and choices"""
+        import json
+        data = request.data
+        course_offering_id = data.get('course_offering_id')
+        
+        # Validate course offering belongs to this doctor
+        try:
+            course_offering = CourseOffering.objects.get(
+                id=course_offering_id,
+                doctor=request.user
+            )
+        except CourseOffering.DoesNotExist:
+            return Response(
+                {'error': 'المادة غير موجودة أو ليست مخصصة لك'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Parse is_active properly (could be string "true"/"false" from FormData)
+        is_active = data.get('is_active', True)
+        if isinstance(is_active, str):
+            is_active = is_active.lower() == 'true'
+        
+        # Create quiz
+        quiz = Quiz.objects.create(
+            course_offering=course_offering,
+            title=data.get('title', 'كويز جديد'),
+            description=data.get('description', ''),
+            quiz_type=data.get('quiz_type', 'MCQ'),
+            total_points=data.get('total_points', 10),
+            time_limit_minutes=data.get('time_limit_minutes') or None,
+            is_active=is_active,
+        )
+        
+        # Handle image for IMAGE type
+        if 'image' in request.FILES:
+            quiz.image = request.FILES['image']
+            quiz.save()
+        
+        # Create questions - parse JSON string if needed
+        questions_data = data.get('questions', [])
+        if isinstance(questions_data, str):
+            try:
+                questions_data = json.loads(questions_data)
+            except json.JSONDecodeError:
+                questions_data = []
+        
+        for i, q_data in enumerate(questions_data):
+            question = QuizQuestion.objects.create(
+                quiz=quiz,
+                question_text=q_data.get('question_text', ''),
+                question_type=q_data.get('question_type', 'MCQ'),
+                points=q_data.get('points', 1),
+                order=i + 1
+            )
+            
+            # Handle question image
+            image_key = f'question_image_{i}'
+            if image_key in request.FILES:
+                question.question_image = request.FILES[image_key]
+                question.save()
+            
+            # Create choices for MCQ
+            if question.question_type == 'MCQ':
+                choices_data = q_data.get('choices', [])
+                for j, c_data in enumerate(choices_data):
+                    QuizChoice.objects.create(
+                        question=question,
+                        choice_text=c_data.get('choice_text', ''),
+                        is_correct=c_data.get('is_correct', False),
+                        order=j + 1
+                    )
+        
+        return Response({'id': quiz.id, 'message': 'تم إنشاء الكويز بنجاح'}, status=status.HTTP_201_CREATED)
+
+    def destroy(self, request, pk=None):
+        try:
+            quiz = Quiz.objects.get(pk=pk, course_offering__doctor=request.user)
+            quiz.delete()
+            return Response({'message': 'تم حذف الكويز'})
+        except Quiz.DoesNotExist:
+            return Response({'error': 'الكويز غير موجود'}, status=status.HTTP_404_NOT_FOUND)
+
+
+class StudentQuizListView(APIView):
+    """List quizzes available for the student"""
+    permission_classes = [IsStudentRole]
+
+    def get(self, request):
+        try:
+            student = Student.objects.get(user=request.user)
+        except Student.DoesNotExist:
+            return Response({'error': 'الطالب غير موجود'}, status=status.HTTP_404_NOT_FOUND)
+        
+        # Get active quizzes for student's level
+        quizzes = Quiz.objects.filter(
+            is_active=True,
+            course_offering__level=student.level,
+            course_offering__academic_year=student.academic_year
+        ).select_related('course_offering', 'course_offering__subject')
+        
+        data = []
+        for quiz in quizzes:
+            # Check if student has attempted
+            attempt = StudentQuizAttempt.objects.filter(student=student, quiz=quiz).first()
+            
+            data.append({
+                'id': quiz.id,
+                'title': quiz.title,
+                'description': quiz.description,
+                'quiz_type': quiz.quiz_type,
+                'total_points': float(quiz.total_points),
+                'time_limit_minutes': quiz.time_limit_minutes,
+                'subject_name': quiz.course_offering.subject.name,
+                'question_count': quiz.questions.count(),
+                'attempted': attempt is not None,
+                'score': float(attempt.score) if attempt and attempt.score else None,
+                'submitted_at': attempt.submitted_at if attempt else None,
+            })
+        
+        return Response(data)
+
+
+class StudentQuizAttemptView(APIView):
+    """Start or submit a quiz attempt"""
+    permission_classes = [IsStudentRole]
+
+    def get(self, request, quiz_id):
+        """Get quiz for taking (start attempt if not started)"""
+        try:
+            student = Student.objects.get(user=request.user)
+            quiz = Quiz.objects.get(id=quiz_id, is_active=True)
+        except (Student.DoesNotExist, Quiz.DoesNotExist):
+            return Response({'error': 'غير موجود'}, status=status.HTTP_404_NOT_FOUND)
+        
+        # Check or create attempt
+        attempt, created = StudentQuizAttempt.objects.get_or_create(
+            student=student,
+            quiz=quiz
+        )
+        
+        if attempt.submitted_at:
+            return Response({'error': 'لقد قمت بحل هذا الكويز مسبقاً'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Build quiz data for student
+        questions = []
+        for q in quiz.questions.all():
+            question_data = {
+                'id': q.id,
+                'question_text': q.question_text,
+                'question_type': q.question_type,
+                'question_image': get_relative_url(q.question_image),
+                'points': float(q.points),
+                'choices': []
+            }
+            if q.question_type == 'MCQ':
+                for choice in q.choices.all():
+                    question_data['choices'].append({
+                        'id': choice.id,
+                        'choice_text': choice.choice_text,
+                    })
+            questions.append(question_data)
+        
+        return Response({
+            'attempt_id': attempt.id,
+            'quiz_id': quiz.id,
+            'title': quiz.title,
+            'description': quiz.description,
+            'total_points': float(quiz.total_points),
+            'time_limit_minutes': quiz.time_limit_minutes,
+            'image': get_relative_url(quiz.image),
+            'questions': questions,
+            'started_at': attempt.started_at,
+        })
+
+    def post(self, request, quiz_id):
+        """Submit quiz answers"""
+        try:
+            student = Student.objects.get(user=request.user)
+            quiz = Quiz.objects.get(id=quiz_id)
+            attempt = StudentQuizAttempt.objects.get(student=student, quiz=quiz)
+        except (Student.DoesNotExist, Quiz.DoesNotExist, StudentQuizAttempt.DoesNotExist):
+            return Response({'error': 'غير موجود'}, status=status.HTTP_404_NOT_FOUND)
+        
+        if attempt.submitted_at:
+            # Self-healing: If submitted but status is IN_PROGRESS (from previous bug), fix it
+            if attempt.status == StudentQuizAttempt.AttemptStatus.IN_PROGRESS:
+                attempt.status = StudentQuizAttempt.AttemptStatus.GRADED if attempt.is_graded else StudentQuizAttempt.AttemptStatus.SUBMITTED
+                attempt.save()
+                return Response({
+                    'message': 'تم تحديث الحالة بنجاح',
+                    'status': attempt.status,
+                    'score': attempt.score if attempt.is_graded else None,
+                    'total_points': float(quiz.total_points),
+                })
+            return Response({'error': 'لقد قمت بحل هذا الكويز مسبقاً'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        answers = request.data.get('answers', [])
+        total_score = 0
+        
+        for answer_data in answers:
+            question_id = answer_data.get('question_id')
+            try:
+                question = QuizQuestion.objects.get(id=question_id, quiz=quiz)
+            except QuizQuestion.DoesNotExist:
+                continue
+            
+            answer, _ = StudentQuizAnswer.objects.get_or_create(
+                attempt=attempt,
+                question=question
+            )
+            
+            if question.question_type == 'MCQ':
+                choice_id = answer_data.get('choice_id')
+                if choice_id:
+                    try:
+                        choice = QuizChoice.objects.get(id=choice_id, question=question)
+                        answer.selected_choice = choice
+                        if choice.is_correct:
+                            answer.points_earned = question.points
+                            total_score += float(question.points)
+                        else:
+                            answer.points_earned = 0
+                    except QuizChoice.DoesNotExist:
+                        pass
+            else:
+                # Essay - save answer, doctor grades later
+                answer.essay_answer = answer_data.get('essay_answer', '')
+            
+            answer.save()
+        
+        # Mark attempt as submitted
+        attempt.submitted_at = timezone.now()
+        
+        # Check if quiz has any essay questions
+        has_essay = quiz.questions.filter(question_type='ESSAY').exists()
+        
+        if has_essay:
+            # Essay/Mixed quiz: score is None until doctor grades
+            attempt.score = None
+            attempt.is_graded = False
+            attempt.status = StudentQuizAttempt.AttemptStatus.SUBMITTED
+        else:
+            # MCQ-only quiz: auto-grade immediately
+            attempt.score = total_score
+            attempt.is_graded = True
+            attempt.status = StudentQuizAttempt.AttemptStatus.GRADED
+            
+        attempt.save()
+        
+        return Response({
+            'message': 'تم تسليم الكويز بنجاح',
+            'status': attempt.status,
+            'score': total_score if attempt.is_graded else None,
+            'total_points': float(quiz.total_points),
+        })
+
+
+class QuizResultsView(APIView):
+    """View quiz results - Doctor views all attempts, Student views their own"""
+    
+    def get(self, request, quiz_id):
+        try:
+            quiz = Quiz.objects.get(id=quiz_id)
+        except Quiz.DoesNotExist:
+            return Response({'error': 'الكويز غير موجود'}, status=status.HTTP_404_NOT_FOUND)
+        
+        user = request.user
+        
+        if hasattr(user, 'role') and user.role == 'DOCTOR':
+            # Doctor sees all attempts
+            attempts = StudentQuizAttempt.objects.filter(quiz=quiz).select_related('student')
+            data = []
+            for attempt in attempts:
+                data.append({
+                    'attempt_id': attempt.id,
+                    'student_id': attempt.student.id,
+                    'student_name': attempt.student.full_name,
+                    'score': float(attempt.score) if attempt.score else None,
+                    'total_points': float(quiz.total_points),
+                    'submitted_at': attempt.submitted_at,
+                    'is_graded': attempt.is_graded,
+                })
+            return Response(data)
+        
+        elif hasattr(user, 'role') and user.role == 'STUDENT':
+            # Student sees their own result with details
+            try:
+                student = Student.objects.get(user=user)
+                attempt = StudentQuizAttempt.objects.get(student=student, quiz=quiz)
+            except (Student.DoesNotExist, StudentQuizAttempt.DoesNotExist):
+                return Response({'error': 'لم تقم بحل هذا الكويز'}, status=status.HTTP_404_NOT_FOUND)
+            
+            # Build detailed response
+            questions_data = []
+            for question in quiz.questions.all().order_by('order'):
+                q_data = {
+                    'id': question.id,
+                    'question_text': question.question_text,
+                    'question_image': get_relative_url(question.question_image),
+                    'question_type': question.question_type,
+                    'points': float(question.points),
+                    'user_answer': None,
+                    'is_correct': False,
+                    'earned_points': 0,
+                    'choices': []
+                }
+                
+                # Get user's answer for this question
+                try:
+                    user_ans_obj = StudentQuizAnswer.objects.get(attempt=attempt, question=question)
+                    q_data['earned_points'] = float(user_ans_obj.points_earned)
+                    q_data['is_correct'] = user_ans_obj.points_earned == question.points
+                    
+                    if question.question_type == 'MCQ':
+                        q_data['user_answer'] = {
+                            'choice_id': user_ans_obj.selected_choice.id if user_ans_obj.selected_choice else None
+                        }
+                    else:
+                        q_data['user_answer'] = {
+                            'essay_answer': user_ans_obj.essay_answer
+                        }
+                        # For essay, check if graded
+                        if not attempt.is_graded:
+                            q_data['pending_review'] = True
+                except StudentQuizAnswer.DoesNotExist:
+                    pass
+
+                # Add choices if MCQ
+                if question.question_type == 'MCQ':
+                    for choice in question.choices.all().order_by('order'):
+                        q_data['choices'].append({
+                            'id': choice.id,
+                            'choice_text': choice.choice_text,
+                            'is_correct': choice.is_correct
+                        })
+                
+                questions_data.append(q_data)
+
+            # Calculate counts in python to be safe
+            correct_count = 0
+            wrong_count = 0
+            for ans in attempt.answers.all().select_related('question'):
+                if ans.points_earned == ans.question.points:
+                    correct_count += 1
+                elif ans.points_earned == 0:
+                    wrong_count += 1
+
+            return Response({
+                'id': quiz.id,
+                'title': quiz.title,
+                'score': float(attempt.score) if attempt.score is not None else None,
+                'total_points': float(quiz.total_points),
+                'submitted_at': attempt.submitted_at,
+                'is_graded': attempt.is_graded,
+                'correct_count': correct_count,
+                'wrong_count': wrong_count,
+                'questions': questions_data
+            })
+        
+        return Response({'error': 'غير مصرح'}, status=status.HTTP_403_FORBIDDEN)
+
+
+class BulkQuizImportView(APIView):
+    """
+    Import quizzes from a JSON file.
+    JSON format: {
+        "course_offering_id": 1,
+        "quizzes": [
+            {
+                "title": "Quiz 1",
+                "description": "...",
+                "quiz_type": "MCQ",
+                "total_points": 10,
+                "time_limit_minutes": 15,
+                "questions": [
+                    {
+                        "question_text": "...",
+                        "points": 2,
+                        "choices": [
+                            {"choice_text": "A", "is_correct": false},
+                            {"choice_text": "B", "is_correct": true}
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+    """
+    permission_classes = [IsDoctorRole]
+    parser_classes = [MultiPartParser, FormParser]
+
+    def post(self, request):
+        import json
+
+        uploaded_file = request.FILES.get('file')
+        if not uploaded_file:
+            return Response(
+                {'error': 'يرجى رفع ملف JSON'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if not uploaded_file.name.endswith('.json'):
+            return Response(
+                {'error': 'يجب أن يكون الملف بصيغة JSON'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            content = json.loads(uploaded_file.read().decode('utf-8'))
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            return Response(
+                {'error': 'ملف JSON غير صالح'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        course_offering_id = content.get('course_offering_id')
+        if not course_offering_id:
+            return Response(
+                {'error': 'course_offering_id مطلوب'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            course_offering = CourseOffering.objects.get(
+                id=course_offering_id, doctor=request.user
+            )
+        except CourseOffering.DoesNotExist:
+            return Response(
+                {'error': 'المادة غير موجودة أو ليست مخصصة لك'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        quizzes_data = content.get('quizzes', [])
+        if not quizzes_data:
+            return Response(
+                {'error': 'لا توجد كويزات في الملف'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        created_count = 0
+        errors = []
+
+        for idx, quiz_data in enumerate(quizzes_data):
+            try:
+                quiz = Quiz.objects.create(
+                    course_offering=course_offering,
+                    title=quiz_data.get('title', f'كويز {idx + 1}'),
+                    description=quiz_data.get('description', ''),
+                    quiz_type=quiz_data.get('quiz_type', 'MCQ'),
+                    total_points=quiz_data.get('total_points', 10),
+                    time_limit_minutes=quiz_data.get('time_limit_minutes'),
+                    is_active=quiz_data.get('is_active', False),
+                )
+
+                for q_idx, q_data in enumerate(quiz_data.get('questions', [])):
+                    question = QuizQuestion.objects.create(
+                        quiz=quiz,
+                        question_text=q_data.get('question_text', ''),
+                        question_type=q_data.get('question_type', 'MCQ'),
+                        points=q_data.get('points', 1),
+                        order=q_idx + 1
+                    )
+
+                    for c_idx, c_data in enumerate(q_data.get('choices', [])):
+                        QuizChoice.objects.create(
+                            question=question,
+                            choice_text=c_data.get('choice_text', ''),
+                            is_correct=c_data.get('is_correct', False),
+                            order=c_idx + 1
+                        )
+
+                created_count += 1
+            except Exception as e:
+                errors.append({
+                    'quiz_index': idx,
+                    'title': quiz_data.get('title', ''),
+                    'error': str(e)
+                })
+
+        return Response({
+            'message': f'تم إنشاء {created_count} كويز بنجاح',
+            'created_count': created_count,
+            'error_count': len(errors),
+            'errors': errors,
+        }, status=status.HTTP_201_CREATED)
+
+
+class QuizAttemptDetailView(APIView):
+    """View detailed attempt for doctor grading - shows all answers including essays"""
+    permission_classes = [IsDoctorRole]
+
+    def get(self, request, quiz_id, attempt_id):
+        """Get detailed attempt with all answers for grading"""
+        try:
+            quiz = Quiz.objects.get(id=quiz_id, course_offering__doctor=request.user)
+            attempt = StudentQuizAttempt.objects.get(id=attempt_id, quiz=quiz)
+        except (Quiz.DoesNotExist, StudentQuizAttempt.DoesNotExist):
+            return Response({'error': 'غير موجود'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Build detailed answers
+        answers_data = []
+        for answer in attempt.answers.all().select_related('question'):
+            answer_data = {
+                'answer_id': answer.id,
+                'question_id': answer.question.id,
+                'question_text': answer.question.question_text,
+                'question_type': answer.question.question_type,
+                'points': float(answer.question.points),
+                'points_earned': float(answer.points_earned) if answer.points_earned is not None else None,
+            }
+
+            if answer.question.question_type == 'MCQ':
+                answer_data['selected_choice'] = {
+                    'id': answer.selected_choice.id if answer.selected_choice else None,
+                    'text': answer.selected_choice.choice_text if answer.selected_choice else None,
+                }
+                # Get correct choice
+                correct_choice = answer.question.choices.filter(is_correct=True).first()
+                answer_data['correct_choice'] = {
+                    'id': correct_choice.id if correct_choice else None,
+                    'text': correct_choice.choice_text if correct_choice else None,
+                }
+                answer_data['is_correct'] = answer.selected_choice == correct_choice if answer.selected_choice else False
+            else:
+                # Essay question
+                answer_data['essay_answer'] = answer.essay_answer
+
+            answers_data.append(answer_data)
+
+        return Response({
+            'attempt_id': attempt.id,
+            'student_id': attempt.student.id,
+            'student_name': attempt.student.full_name,
+            'quiz_id': quiz.id,
+            'quiz_title': quiz.title,
+            'total_points': float(quiz.total_points),
+            'current_score': float(attempt.score) if attempt.score is not None else None,
+            'is_graded': attempt.is_graded,
+            'submitted_at': attempt.submitted_at,
+            'answers': answers_data,
+        })
+
+
+class GradeQuizAttemptView(APIView):
+    """Grade essay answers for a quiz attempt - Doctor only"""
+    permission_classes = [IsDoctorRole]
+
+    def post(self, request, quiz_id, attempt_id):
+        """Grade essay answers and update attempt score"""
+        try:
+            quiz = Quiz.objects.get(id=quiz_id, course_offering__doctor=request.user)
+            attempt = StudentQuizAttempt.objects.get(id=attempt_id, quiz=quiz)
+        except (Quiz.DoesNotExist, StudentQuizAttempt.DoesNotExist):
+            return Response({'error': 'غير موجود'}, status=status.HTTP_404_NOT_FOUND)
+
+        grades = request.data.get('grades', [])  # List of {answer_id, points_earned}
+
+        if not grades:
+            return Response({'error': 'لا توجد درجات للتسجيل'}, status=status.HTTP_400_BAD_REQUEST)
+
+        total_score = 0
+
+        for grade_data in grades:
+            answer_id = grade_data.get('answer_id')
+            points_earned = grade_data.get('points_earned')
+
+            try:
+                answer = StudentQuizAnswer.objects.get(id=answer_id, attempt=attempt)
+                question = answer.question
+
+                # Validate points don't exceed max
+                max_points = float(question.points)
+                earned = min(float(points_earned), max_points) if points_earned is not None else 0
+
+                answer.points_earned = earned
+                answer.save()
+
+                total_score += earned
+
+            except (StudentQuizAnswer.DoesNotExist, ValueError):
+                continue
+
+        # Also count MCQ points that were already graded
+        mcq_points = attempt.answers.filter(
+            question__question_type='MCQ',
+            points_earned__isnull=False
+        ).aggregate(total=db_models.Sum('points_earned'))['total'] or 0
+
+        # Update attempt
+        attempt.score = total_score + float(mcq_points)
+        attempt.is_graded = True
+        attempt.status = StudentQuizAttempt.AttemptStatus.GRADED
+        attempt.save()
+
+        return Response({
+            'message': 'تم حفظ الدرجات بنجاح',
+            'score': float(attempt.score),
+            'total_points': float(quiz.total_points),
+            'is_graded': True,
+        })
