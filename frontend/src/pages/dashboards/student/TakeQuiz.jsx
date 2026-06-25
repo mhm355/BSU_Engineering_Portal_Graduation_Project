@@ -21,6 +21,7 @@ import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import EditIcon from '@mui/icons-material/Edit';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
+import { sanitizeFileUrl } from '../../../utils/urlHelper';
 
 const shimmer = keyframes`
   0% { background-position: -200% 0; }
@@ -508,12 +509,7 @@ export default function TakeQuiz() {
 
                                     {/* Question Image */}
                                     {currentQ.question_image && (() => {
-                                        let imgUrl = currentQ.question_image;
-                                        // Strip any internal Docker/backend hostname, keep only the path
-                                        if (imgUrl.includes('://')) {
-                                            try { imgUrl = new URL(imgUrl).pathname; } catch (e) { /* use as-is */ }
-                                        }
-                                        if (imgUrl && !imgUrl.startsWith('/')) imgUrl = '/' + imgUrl;
+                                        const imgUrl = sanitizeFileUrl(currentQ.question_image);
                                         return (
                                             <Box sx={{ mb: 3, textAlign: 'center' }}>
                                                 <img

@@ -163,10 +163,13 @@ class LectureSerializer(serializers.ModelSerializer):
         ]
 
     def get_file_url(self, obj):
-        """Return relative URL for file to avoid docker internal hostname issues"""
+        """Return URL for file — preserves Azure Blob URLs, strips internal Docker hostnames"""
         if obj.file:
             url = obj.file.url
-            # Strip domain/protocol to return relative path
+            # Azure Blob Storage URLs are external and should be returned as-is
+            if url.startswith('http') and 'blob.core.windows.net' in url:
+                return url
+            # Strip internal Docker hostnames (e.g., http://backend:8000/media/...)
             if url.startswith('http'):
                 try:
                     from urllib.parse import urlparse

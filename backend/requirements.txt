@@ -10,3 +10,4 @@ dj-database-url
 gunicorn
 whitenoise
 django-redis>=5.4.0
+django-storages[azure]
