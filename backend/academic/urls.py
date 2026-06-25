@@ -18,7 +18,8 @@ from .staff_affairs_views import (
     UploadDoctorsView, UploadStaffAffairsUsersView, DoctorListView,
     StudentAffairsUserListView, AssignDoctorToSubjectView, DoctorAssignmentsView,
     TermListView, GradingTemplateListView, DoctorDetailView, DoctorResetPasswordView,
-    DoctorDeletionRequestView, AdminDeletionRequestsView, AssignmentHistoryView
+    DoctorDeletionRequestView, AdminDeletionRequestsView, AssignmentHistoryView,
+    UnassignDoctorView
 )
 from .exam_grades_views import (
     UploadExamGradesView, PendingExamGradesView, ApproveExamGradesView,
@@ -28,6 +29,7 @@ from .quiz_views import (
     QuizViewSet, StudentQuizListView, StudentQuizAttemptView, QuizResultsView,
     BulkQuizImportView, QuizAttemptDetailView, GradeQuizAttemptView
 )
+from .student_results_views import PublishingStatusView, StudentResultsQueryView
 
 router = DefaultRouter()
 router.register(r'departments', DepartmentViewSet)
@@ -51,6 +53,10 @@ urlpatterns = [
     path('attendance/bulk/', BulkAttendanceView.as_view(), name='bulk-attendance'),
     path('student-grades/bulk/', BulkStudentGradeView.as_view(), name='bulk-student-grades'),
     
+    # Results Publishing and Querying
+    path('results/publish-status/', PublishingStatusView.as_view(), name='publish-status'),
+    path('results/query/', StudentResultsQueryView.as_view(), name='results-query'),
+    
     path('', include(router.urls)),
 
     # Student Affairs endpoints
@@ -68,6 +74,7 @@ urlpatterns = [
     path('staff-affairs/student-affairs-users/', StudentAffairsUserListView.as_view(), name='student-affairs-user-list'),
     path('staff-affairs/assign-doctor/', AssignDoctorToSubjectView.as_view(), name='assign-doctor'),
     path('staff-affairs/assignments/', DoctorAssignmentsView.as_view(), name='doctor-assignments'),
+    path('staff-affairs/assignments/<int:pk>/', UnassignDoctorView.as_view(), name='unassign-doctor'),
     path('staff-affairs/terms/', TermListView.as_view(), name='term-list'),
     path('staff-affairs/grading-templates/', GradingTemplateListView.as_view(), name='grading-template-list'),
     path('staff-affairs/doctors/<int:pk>/', DoctorDetailView.as_view(), name='doctor-detail'),

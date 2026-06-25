@@ -446,7 +446,7 @@ export default function StudentGradesView() {
                                                 <TableRow key={student.id} hover sx={{ '&:nth-of-type(odd)': { bgcolor: '#fafafa' } }}>
                                                     <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold', fontSize: '1rem' }}>
                                                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                                                            <Avatar sx={{ width: 35, height: 35, bgcolor: '#3F51B5', fontSize: 14 }}>{index + 1}</Avatar>
+                                                            <Avatar src={student.profile_picture || undefined} sx={{ width: 35, height: 35, bgcolor: '#3F51B5', fontSize: 14 }}>{student.full_name?.charAt(0)}</Avatar>
                                                             {student.full_name}
                                                         </Box>
                                                     </TableCell>

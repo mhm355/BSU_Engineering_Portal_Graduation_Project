@@ -1,19 +1,13 @@
 import React, { useEffect, useState, useRef } from 'react';
 import {
     Box, Container, Typography, Paper, Alert, CircularProgress,
-    IconButton, Chip, LinearProgress, Card, CardContent, Grid, Avatar, Fade, Grow,
-    Button, Tooltip
+    IconButton, Avatar, Fade, Grow,
+    Button, Tooltip, Table, TableBody, TableCell, TableContainer, TableHead, TableRow
 } from '@mui/material';
 import { keyframes } from '@mui/system';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import GradeIcon from '@mui/icons-material/Grade';
-import TrendingUpIcon from '@mui/icons-material/TrendingUp';
-import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
-import SchoolIcon from '@mui/icons-material/School';
-import StarIcon from '@mui/icons-material/Star';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
-import BarChartIcon from '@mui/icons-material/BarChart';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
@@ -45,67 +39,7 @@ export default function StudentGrades() {
         }
     };
 
-    const getGradeColor = (percentage) => {
-        if (percentage === null || percentage === undefined) return '#9e9e9e';
-        if (percentage >= 90) return '#4caf50';
-        if (percentage >= 75) return '#2196f3';
-        if (percentage >= 60) return '#ff9800';
-        return '#f44336';
-    };
 
-    const getGradeLabel = (grade) => {
-        const percentage = grade.total_grade || calculateTotal(grade);
-        const yearStatus = grade.year_status;
-        
-        // Don't show "راسب" when term is still open
-        if (yearStatus === 'OPEN' && percentage < 60) {
-            return 'مستمر';
-        }
-        
-        if (percentage === null || percentage === undefined) return '-';
-        if (percentage >= 90) return 'ممتاز';
-        if (percentage >= 80) return 'جيد جداً';
-        if (percentage >= 70) return 'جيد';
-        if (percentage >= 60) return 'مقبول';
-        return 'راسب';
-    };
-
-    const calculateTotal = (grade) => {
-        const attendance = Number(grade.attendance_grade) || 0;
-        const quizzes = Number(grade.quizzes_grade) || 0;
-        const coursework = Number(grade.coursework_grade) || 0;
-        const midterm = Number(grade.midterm_grade) || 0;
-        const final_g = Number(grade.final_grade) || 0;
-        return attendance + quizzes + coursework + midterm + final_g;
-    };
-
-    // GPA 4.0 scale conversion
-    const percentageToGPA = (pct) => {
-        if (pct >= 93) return 4.0;
-        if (pct >= 90) return 3.7;
-        if (pct >= 87) return 3.3;
-        if (pct >= 83) return 3.0;
-        if (pct >= 80) return 2.7;
-        if (pct >= 77) return 2.3;
-        if (pct >= 73) return 2.0;
-        if (pct >= 70) return 1.7;
-        if (pct >= 67) return 1.3;
-        if (pct >= 60) return 1.0;
-        return 0.0;
-    };
-
-    // Calculate statistics
-    const stats = {
-        totalSubjects: grades.length,
-        average: grades.length > 0 ? Math.round(grades.reduce((acc, g) => acc + calculateTotal(g), 0) / grades.length) : 0,
-        passed: grades.filter(g => calculateTotal(g) >= 60).length,
-        excellent: grades.filter(g => calculateTotal(g) >= 90).length,
-    };
-
-    // GPA calculation
-    const gpa = grades.length > 0
-        ? (grades.reduce((acc, g) => acc + percentageToGPA(calculateTotal(g)), 0) / grades.length).toFixed(2)
-        : '0.00';
 
     // Export grades as printable PDF
     const handleExportPDF = () => {
@@ -134,14 +68,8 @@ export default function StudentGrades() {
                 </style>
             </head>
             <body>
-                <h1>كشف درجات الطالب</h1>
-                <h3>كلية الهندسة - جامعة بنها</h3>
-                <div class="summary">
-                    <div><div class="value">${stats.totalSubjects}</div><div class="label">عدد المواد</div></div>
-                    <div><div class="value">${stats.average}%</div><div class="label">المعدل العام</div></div>
-                    <div><div class="value">${gpa}</div><div class="label">GPA</div></div>
-                    <div><div class="value">${stats.passed}</div><div class="label">مواد ناجحة</div></div>
-                </div>
+                <h1>كشف التقييمات المستمرة</h1>
+                <h3>كلية الهندسة - جامعة بني سويف</h3>
                 <table>
                     <thead>
                         <tr>
@@ -151,14 +79,10 @@ export default function StudentGrades() {
                             <th>الكويزات</th>
                             <th>أعمال السنة</th>
                             <th>منتصف الترم</th>
-                            <th>النهائي</th>
-                            <th>المجموع</th>
-                            <th>التقدير</th>
                         </tr>
                     </thead>
                     <tbody>
                         ${grades.map(g => {
-            const total = calculateTotal(g);
             return `<tr>
                                 <td>${g.course_name || g.subject_name || '-'}</td>
                                 <td>${g.course_code || g.subject_code || '-'}</td>
@@ -166,9 +90,6 @@ export default function StudentGrades() {
                                 <td>${g.quizzes_grade ?? '-'}</td>
                                 <td>${g.coursework_grade ?? '-'}</td>
                                 <td>${g.midterm_grade ?? '-'}</td>
-                                <td>${g.final_grade ?? '-'}</td>
-                                <td style="font-weight:bold">${total}</td>
-                                <td>${getGradeLabel(g)}</td>
                             </tr>`;
         }).join('')}
                     </tbody>
@@ -241,238 +162,48 @@ export default function StudentGrades() {
             </Box>
 
             <Container maxWidth="lg" sx={{ mt: -3, pb: 6 }} ref={printRef}>
-                {/* Stats Cards — now with GPA */}
-                <Grid container spacing={3} sx={{ mb: 4 }}>
-                    <Grid item xs={6} md={2.4}>
-                        <Grow in={true} timeout={400}>
-                            <Paper elevation={0} sx={{ p: 3, borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.08)', textAlign: 'center' }}>
-                                <Avatar sx={{ width: 50, height: 50, bgcolor: '#e3f2fd', mx: 'auto', mb: 1 }}>
-                                    <SchoolIcon sx={{ color: '#1976d2' }} />
-                                </Avatar>
-                                <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>{stats.totalSubjects}</Typography>
-                                <Typography variant="body2" sx={{ fontFamily: 'Cairo', color: '#666' }}>إجمالي المواد</Typography>
-                            </Paper>
-                        </Grow>
-                    </Grid>
-                    <Grid item xs={6} md={2.4}>
-                        <Grow in={true} timeout={500}>
-                            <Paper elevation={0} sx={{ p: 3, borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.08)', textAlign: 'center' }}>
-                                <Avatar sx={{ width: 50, height: 50, bgcolor: '#e8f5e9', mx: 'auto', mb: 1 }}>
-                                    <TrendingUpIcon sx={{ color: '#4CAF50' }} />
-                                </Avatar>
-                                <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: getGradeColor(stats.average) }}>{stats.average}%</Typography>
-                                <Typography variant="body2" sx={{ fontFamily: 'Cairo', color: '#666' }}>المعدل العام</Typography>
-                            </Paper>
-                        </Grow>
-                    </Grid>
-                    <Grid item xs={6} md={2.4}>
-                        <Grow in={true} timeout={600}>
-                            <Paper elevation={0} sx={{
-                                p: 3, borderRadius: 4,
-                                boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-                                textAlign: 'center',
-                                background: 'linear-gradient(135deg, #667eea10, #764ba210)',
-                                border: '2px solid #667eea30',
-                            }}>
-                                <Avatar sx={{ width: 50, height: 50, bgcolor: '#ede7f6', mx: 'auto', mb: 1 }}>
-                                    <BarChartIcon sx={{ color: '#673ab7' }} />
-                                </Avatar>
-                                <Tooltip title="Grade Point Average (4.0 scale)">
-                                    <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#673ab7' }}>{gpa}</Typography>
-                                </Tooltip>
-                                <Typography variant="body2" sx={{ fontFamily: 'Cairo', color: '#666' }}>GPA</Typography>
-                            </Paper>
-                        </Grow>
-                    </Grid>
-                    <Grid item xs={6} md={2.4}>
-                        <Grow in={true} timeout={700}>
-                            <Paper elevation={0} sx={{ p: 3, borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.08)', textAlign: 'center' }}>
-                                <Avatar sx={{ width: 50, height: 50, bgcolor: '#fff3e0', mx: 'auto', mb: 1 }}>
-                                    <CheckCircleIcon sx={{ color: '#FF9800' }} />
-                                </Avatar>
-                                <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>{stats.passed}</Typography>
-                                <Typography variant="body2" sx={{ fontFamily: 'Cairo', color: '#666' }}>مواد ناجحة</Typography>
-                            </Paper>
-                        </Grow>
-                    </Grid>
-                    <Grid item xs={6} md={2.4}>
-                        <Grow in={true} timeout={800}>
-                            <Paper elevation={0} sx={{ p: 3, borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.08)', textAlign: 'center' }}>
-                                <Avatar sx={{ width: 50, height: 50, bgcolor: '#fce4ec', mx: 'auto', mb: 1 }}>
-                                    <EmojiEventsIcon sx={{ color: '#e91e63' }} />
-                                </Avatar>
-                                <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>{stats.excellent}</Typography>
-                                <Typography variant="body2" sx={{ fontFamily: 'Cairo', color: '#666' }}>تقدير ممتاز</Typography>
-                            </Paper>
-                        </Grow>
-                    </Grid>
-                </Grid>
 
-                {/* Grade Trend Chart (CSS-only bar chart) */}
-                {grades.length > 1 && (
-                    <Grow in={true} timeout={900}>
-                        <Paper elevation={0} sx={{ p: 3, borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.08)', mb: 4 }}>
-                            <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744', mb: 3 }}>
-                                📊 مخطط الدرجات
-                            </Typography>
-                            <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 1.5, height: 200, overflowX: 'auto', pb: 1 }}>
-                                {grades.map((g, idx) => {
-                                    const total = calculateTotal(g);
-                                    const color = getGradeColor(total);
-                                    return (
-                                        <Tooltip key={idx} title={`${g.course_name || g.subject_name}: ${total}%`} arrow>
-                                            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: 50, flex: 1 }}>
-                                                <Typography variant="caption" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color, mb: 0.5 }}>
-                                                    {total}%
-                                                </Typography>
-                                                <Box
-                                                    sx={{
-                                                        width: '100%',
-                                                        maxWidth: 60,
-                                                        height: `${Math.max(total * 1.6, 10)}px`,
-                                                        bgcolor: color,
-                                                        borderRadius: '8px 8px 0 0',
-                                                        transition: 'height 0.8s ease',
-                                                        opacity: 0.85,
-                                                        '&:hover': { opacity: 1, transform: 'scaleY(1.05)' },
-                                                    }}
-                                                />
-                                                <Typography
-                                                    variant="caption"
-                                                    sx={{
-                                                        fontFamily: 'Cairo',
-                                                        fontSize: '0.6rem',
-                                                        color: '#666',
-                                                        mt: 0.5,
-                                                        textAlign: 'center',
-                                                        maxWidth: 60,
-                                                        overflow: 'hidden',
-                                                        textOverflow: 'ellipsis',
-                                                        whiteSpace: 'nowrap',
-                                                    }}
-                                                >
-                                                    {(g.course_code || g.subject_code || '').slice(0, 8)}
-                                                </Typography>
-                                            </Box>
-                                        </Tooltip>
-                                    );
-                                })}
-                            </Box>
-                            {/* Pass/fail line */}
-                            <Box sx={{ position: 'relative', mt: -1 }}>
-                                <Box sx={{
-                                    position: 'absolute',
-                                    bottom: `${60 * 1.6 + 30}px`,
-                                    left: 0,
-                                    right: 0,
-                                    borderTop: '2px dashed #ff980050',
-                                }} />
-                            </Box>
-                        </Paper>
-                    </Grow>
-                )}
 
                 {error && <Alert severity="error" sx={{ mb: 3, fontFamily: 'Cairo', borderRadius: 3 }} onClose={() => setError('')}>{error}</Alert>}
 
                 {/* Grades List */}
+                {/* Grades List */}
                 {grades.length > 0 ? (
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-                        {grades.map((grade, idx) => {
-                            const total = calculateTotal(grade);
-                            const color = getGradeColor(total);
-                            const courseGPA = percentageToGPA(total);
-                            return (
-                                <Grow in={true} timeout={400 + idx * 100} key={idx}>
-                                    <Card sx={{ borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.08)', overflow: 'visible', border: `2px solid ${color}20` }}>
-                                        <CardContent sx={{ p: 3 }}>
-                                            {/* Course Header */}
-                                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, flexWrap: 'wrap', gap: 2 }}>
-                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                                    <Avatar sx={{ width: 50, height: 50, bgcolor: `${color}20` }}>
-                                                        <SchoolIcon sx={{ color }} />
-                                                    </Avatar>
-                                                    <Box>
-                                                        <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>
-                                                            {grade.course_name || grade.subject_name}
-                                                        </Typography>
-                                                        <Typography variant="body2" sx={{ fontFamily: 'Cairo', color: '#666' }}>
-                                                            {grade.course_code || grade.subject_code}
-                                                        </Typography>
-                                                    </Box>
-                                                </Box>
-                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                                    <Chip
-                                                        icon={<StarIcon />}
-                                                        label={getGradeLabel(grade)}
-                                                        sx={{ bgcolor: `${color}20`, color, fontFamily: 'Cairo', fontWeight: 'bold' }}
-                                                    />
-                                                    <Tooltip title={`GPA: ${courseGPA}`}>
-                                                        <Chip
-                                                            label={`GPA ${courseGPA}`}
-                                                            size="small"
-                                                            sx={{ bgcolor: '#ede7f6', color: '#673ab7', fontFamily: 'Cairo', fontWeight: 'bold' }}
-                                                        />
-                                                    </Tooltip>
-                                                    <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color }}>
-                                                        {total}%
-                                                    </Typography>
-                                                </Box>
-                                            </Box>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                        {/* Table for Ongoing Assessments */}
+                        <Paper elevation={0} sx={{ p: 4, borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}>
+                            <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744', mb: 3 }}>
+                                التقييمات المستمرة
+                            </Typography>
+                            <TableContainer sx={{ borderRadius: 2, border: '1px solid #e0e0e0' }}>
+                                <Table>
+                                    <TableHead>
+                                        <TableRow sx={{ bgcolor: '#f5f5f5' }}>
+                                            <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>كود المادة</TableCell>
+                                            <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>اسم المادة</TableCell>
+                                            <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold', textAlign: 'center' }}>الحضور</TableCell>
+                                            <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold', textAlign: 'center' }}>الكويزات</TableCell>
+                                            <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold', textAlign: 'center' }}>أعمال السنة</TableCell>
+                                            <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold', textAlign: 'center' }}>الميدترم</TableCell>
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {grades.map((grade, idx) => (
+                                            <TableRow key={idx} hover>
+                                                <TableCell sx={{ fontFamily: 'Cairo' }}>{grade.course_code || grade.subject_code}</TableCell>
+                                                <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>{grade.course_name || grade.subject_name}</TableCell>
+                                                <TableCell sx={{ fontFamily: 'Cairo', textAlign: 'center' }}>{grade.attendance_grade ?? '--'} / {grade.attendance_weight || 10}</TableCell>
+                                                <TableCell sx={{ fontFamily: 'Cairo', textAlign: 'center' }}>{grade.quizzes_grade ?? '--'} / {grade.quizzes_weight || 10}</TableCell>
+                                                <TableCell sx={{ fontFamily: 'Cairo', textAlign: 'center' }}>{grade.coursework_grade ?? '--'} / {grade.coursework_weight || 10}</TableCell>
+                                                <TableCell sx={{ fontFamily: 'Cairo', textAlign: 'center' }}>{grade.midterm_grade ?? '--'} / {grade.midterm_weight || 20}</TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
+                        </Paper>
 
-                                            {/* Progress Bar */}
-                                            <Box sx={{ mb: 3 }}>
-                                                <LinearProgress
-                                                    variant="determinate"
-                                                    value={Math.min(total, 100)}
-                                                    sx={{
-                                                        height: 12,
-                                                        borderRadius: 6,
-                                                        bgcolor: '#e0e0e0',
-                                                        '& .MuiLinearProgress-bar': { bgcolor: color, borderRadius: 6 }
-                                                    }}
-                                                />
-                                            </Box>
 
-                                            {/* Grade Components */}
-                                            <Grid container spacing={2}>
-                                                <Grid item xs={6} sm={4} md={3}>
-                                                    <Paper sx={{ p: 2, textAlign: 'center', bgcolor: '#fafafa', borderRadius: 3 }}>
-                                                        <Typography variant="body2" sx={{ fontFamily: 'Cairo', color: '#666', mb: 0.5 }}>الحضور</Typography>
-                                                        <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
-                                                            {grade.attendance_grade ?? '--'}/{grade.attendance_weight || 10}
-                                                        </Typography>
-                                                    </Paper>
-                                                </Grid>
-                                                <Grid item xs={6} sm={4} md={3}>
-                                                    <Paper sx={{ p: 2, textAlign: 'center', bgcolor: '#fafafa', borderRadius: 3 }}>
-                                                        <Typography variant="body2" sx={{ fontFamily: 'Cairo', color: '#666', mb: 0.5 }}>الكويزات</Typography>
-                                                        <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
-                                                            {grade.quizzes_grade ?? '--'}/{grade.quizzes_weight || 10}
-                                                        </Typography>
-                                                    </Paper>
-                                                </Grid>
-                                                <Grid item xs={6} sm={4} md={3}>
-                                                    <Paper sx={{ p: 2, textAlign: 'center', bgcolor: '#fafafa', borderRadius: 3 }}>
-                                                        <Typography variant="body2" sx={{ fontFamily: 'Cairo', color: '#666', mb: 0.5 }}>أعمال السنة</Typography>
-                                                        <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
-                                                            {grade.coursework_grade ?? '--'}/{grade.coursework_weight || 10}
-                                                        </Typography>
-                                                    </Paper>
-                                                </Grid>
-                                                <Grid item xs={6} sm={4} md={3}>
-                                                    <Paper sx={{ p: 2, textAlign: 'center', bgcolor: '#fff3e0', borderRadius: 3 }}>
-                                                        <Typography variant="body2" sx={{ fontFamily: 'Cairo', color: '#666', mb: 0.5 }}>منتصف الترم</Typography>
-                                                        <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#FF9800' }}>
-                                                            {grade.midterm_grade ?? '--'}/{grade.midterm_weight || 20}
-                                                        </Typography>
-                                                    </Paper>
-                                                </Grid>
-                                            </Grid>
-                                        </CardContent>
-                                    </Card>
-                                </Grow>
-                            );
-                        })}
                     </Box>
                 ) : (
                     <Paper sx={{ p: 6, textAlign: 'center', borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}>

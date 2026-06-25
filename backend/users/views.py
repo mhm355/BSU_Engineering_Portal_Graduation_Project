@@ -3,7 +3,9 @@ from rest_framework.throttling import AnonRateThrottle
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.contrib.auth import authenticate, login, logout
+from rest_framework.parsers import MultiPartParser, FormParser
 from .serializers import UserSerializer, RegisterSerializer
+from .models import PasswordResetRequest
 
 class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
@@ -73,6 +75,7 @@ class PublicStaffView(APIView):
 class UserProfileView(generics.RetrieveUpdateAPIView):
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
 
     def get_object(self):
         return self.request.user
@@ -139,6 +142,7 @@ from rest_framework.decorators import action
 from .serializers import UserManagementSerializer
 from django.contrib.auth import get_user_model
 from .permissions import IsAdminRole
+from .models import PasswordResetRequest
 
 User = get_user_model()
 
@@ -171,3 +175,107 @@ class UserViewSet(viewsets.ModelViewSet):
             return Response({'message': 'تم إعادة تعيين كلمة المرور بنجاح'})
         return Response({'error': 'لا يمكن إعادة تعيين كلمة المرور - الرقم القومي غير موجود'}, 
                         status=status.HTTP_400_BAD_REQUEST)
+
+class PasswordResetRequestView(APIView):
+    """View to allow users to request a password reset"""
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        """List requests made by this user"""
+        requests = PasswordResetRequest.objects.filter(user=request.user).order_by('-requested_at')
+        result = []
+        for req in requests:
+            result.append({
+                'id': req.id,
+                'reason': req.reason,
+                'status': req.status,
+                'status_display': req.get_status_display(),
+                'requested_at': req.requested_at,
+            })
+        return Response(result)
+
+    def post(self, request):
+        """Create a new password reset request"""
+        # Check if already pending
+        if PasswordResetRequest.objects.filter(user=request.user, status=PasswordResetRequest.Status.PENDING).exists():
+            return Response(
+                {'error': 'لديك طلب قيد الانتظار بالفعل'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        reason = request.data.get('reason', '')
+        req = PasswordResetRequest.objects.create(user=request.user, reason=reason)
+        
+        return Response({
+            'message': 'تم إرسال طلبك بنجاح',
+            'id': req.id
+        }, status=status.HTTP_201_CREATED)
+
+
+class AdminPasswordResetRequestsView(APIView):
+    """Admin view for approving/rejecting password reset requests"""
+    permission_classes = [IsAdminRole]
+
+    def get(self, request):
+        """List all pending requests"""
+        from django.utils import timezone
+        
+        status_filter = request.query_params.get('status', 'PENDING')
+        requests = PasswordResetRequest.objects.filter(status=status_filter).select_related('user')
+        
+        result = []
+        for req in requests:
+            result.append({
+                'id': req.id,
+                'user_id': req.user.id,
+                'user_name': f"{req.user.first_name} {req.user.last_name}".strip(),
+                'user_role': req.user.get_role_display(),
+                'national_id': req.user.national_id,
+                'reason': req.reason,
+                'status': req.status,
+                'status_display': req.get_status_display(),
+                'requested_at': req.requested_at,
+            })
+        return Response(result)
+
+    def post(self, request, pk):
+        """Approve or reject request"""
+        from django.utils import timezone
+        
+        try:
+            req = PasswordResetRequest.objects.get(id=pk)
+            action = request.data.get('action')
+            
+            if action == 'approve':
+                # Reset password to national ID
+                user = req.user
+                if user.national_id:
+                    user.set_password(user.national_id)
+                    user.first_login_required = True
+                    user.save()
+                    
+                    req.status = PasswordResetRequest.Status.APPROVED
+                    req.reviewed_at = timezone.now()
+                    req.reviewed_by = request.user
+                    req.save()
+                    
+                    return Response({'message': 'تم الموافقة على الطلب وإعادة تعيين كلمة المرور'})
+                else:
+                    return Response(
+                        {'error': 'لا يوجد رقم قومي للمستخدم، لا يمكن إعادة تعيين كلمة المرور'}, 
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+                    
+            elif action == 'reject':
+                req.status = PasswordResetRequest.Status.REJECTED
+                req.reviewed_at = timezone.now()
+                req.reviewed_by = request.user
+                req.save()
+                return Response({'message': 'تم رفض الطلب'})
+                
+            else:
+                return Response({'error': 'Invalid action'}, status=status.HTTP_400_BAD_REQUEST)
+                
+        except PasswordResetRequest.DoesNotExist:
+            return Response({'error': 'Request not found'}, status=status.HTTP_404_NOT_FOUND)
+

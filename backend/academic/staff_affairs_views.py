@@ -497,6 +497,56 @@ class DoctorAssignmentsView(APIView):
         return Response(result)
 
 
+class UnassignDoctorView(APIView):
+    """Remove a doctor's assignment (delete course offering)"""
+    permission_classes = [IsStaffAffairsRole]
+
+    def delete(self, request, pk):
+        try:
+            offering = CourseOffering.objects.get(id=pk)
+            
+            # Check if academic year is open
+            if offering.academic_year.status != 'OPEN':
+                return Response(
+                    {'error': 'العام الدراسي مغلق - لا يمكن إلغاء التعيينات'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            # Store info for audit log before deletion
+            doctor_name = f"{offering.doctor.first_name} {offering.doctor.last_name}".strip()
+            subject_name = offering.subject.name
+            level_name = offering.level.get_name_display()
+            term_name = offering.term.get_name_display()
+            doctor_id = offering.doctor.id
+
+            # Delete the offering
+            offering.delete()
+
+            # Log audit trail
+            try:
+                AuditLog.objects.create(
+                    action=AuditLog.ActionType.DOCTOR_UNASSIGNMENT,
+                    performed_by=request.user,
+                    entity_type='COURSE_OFFERING',
+                    entity_id=str(pk),
+                    details={
+                        'doctor_id': doctor_id,
+                        'doctor_name': doctor_name,
+                        'subject': subject_name,
+                        'level': level_name,
+                        'term': term_name,
+                    }
+                )
+            except Exception:
+                pass
+
+            return Response({'message': 'تم إلغاء التعيين بنجاح'})
+
+        except CourseOffering.DoesNotExist:
+            return Response({'error': 'التعيين غير موجود'}, status=status.HTTP_404_NOT_FOUND)
+
+
+
 class DoctorDetailView(APIView):
     """Manage individual doctor: edit, reset password"""
     permission_classes = [IsStaffAffairsRole]

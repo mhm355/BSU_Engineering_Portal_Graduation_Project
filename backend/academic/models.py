@@ -70,6 +70,28 @@ class Term(models.Model):
         return f"{self.get_name_display()} - {self.academic_year.name} ({self.get_status_display()})"
 
 
+class ResultPublishing(models.Model):
+    """Tracks whether results for a specific level and term have been approved for publishing"""
+    academic_year = models.ForeignKey(AcademicYear, on_delete=models.CASCADE, related_name='result_publishings')
+    term = models.ForeignKey(Term, on_delete=models.CASCADE, related_name='result_publishings')
+    level = models.ForeignKey('Level', on_delete=models.CASCADE, related_name='result_publishings')
+    specialization = models.ForeignKey('Specialization', on_delete=models.CASCADE, related_name='result_publishings', null=True, blank=True)
+    student_affairs_approved = models.BooleanField(default=False)
+    admin_approved = models.BooleanField(default=False)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('academic_year', 'term', 'level', 'specialization')
+
+    @property
+    def is_published(self):
+        return self.student_affairs_approved and self.admin_approved
+
+    def __str__(self):
+        return f"{self.level.get_name_display()} - {self.term.get_name_display()} ({self.academic_year.name})"
+
+
+
 class Level(models.Model):
     class LevelName(models.TextChoices):
         PREPARATORY = "PREPARATORY", "الفرقة الإعدادية"

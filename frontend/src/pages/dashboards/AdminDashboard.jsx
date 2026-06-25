@@ -37,6 +37,7 @@ import HistoryIcon from '@mui/icons-material/History';
 import CampaignIcon from '@mui/icons-material/Campaign';
 import MailIcon from '@mui/icons-material/Mail';
 import NewspaperIcon from '@mui/icons-material/Newspaper';
+import AssessmentIcon from '@mui/icons-material/Assessment';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
@@ -51,6 +52,12 @@ const pulse = keyframes`
 const float = keyframes`
   0%, 100% { transform: translateY(0px); }
   50% { transform: translateY(-10px); }
+`;
+
+const avatarPulse = keyframes`
+  0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4), 0 8px 25px rgba(0,0,0,0.2); transform: translateY(0px); }
+  50% { box-shadow: 0 0 0 15px rgba(255, 255, 255, 0), 0 12px 30px rgba(0,0,0,0.3); transform: translateY(-4px); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0), 0 8px 25px rgba(0,0,0,0.2); transform: translateY(0px); }
 `;
 
 // Stats Card Component
@@ -399,6 +406,14 @@ export default function AdminDashboard() {
             badge: pendingCount,
         },
         {
+            icon: AssessmentIcon,
+            title: 'إدارة إعلان النتائج',
+            description: 'اعتماد نتائج الامتحانات ونشرها للطلاب',
+            buttonText: 'إدارة النتائج',
+            onClick: () => navigate('/admin/publish-results'),
+            gradient: 'linear-gradient(135deg, #11998E, #38EF7D)',
+        },
+        {
             icon: healthStatus.status === 'healthy' ? CheckCircleIcon : WarningIcon,
             title: 'صحة النظام',
             description: healthStatus.status === 'healthy'
@@ -459,6 +474,14 @@ export default function AdminDashboard() {
             onClick: () => navigate('/admin/news'),
             gradient: 'linear-gradient(135deg, #E91E63, #F06292)',
         },
+        {
+            icon: SettingsIcon,
+            title: 'طلبات كلمات المرور',
+            description: 'إدارة طلبات إعادة تعيين كلمات المرور للمستخدمين',
+            buttonText: 'عرض الطلبات',
+            onClick: () => navigate('/admin/password-resets'),
+            gradient: 'linear-gradient(135deg, #43a047, #66bb6a)',
+        },
     ];
 
     return (
@@ -515,13 +538,21 @@ export default function AdminDashboard() {
                             <Avatar
                                 src={user.profile_picture || undefined}
                                 sx={{
-                                    width: 50,
-                                    height: 50,
-                                    border: '3px solid rgba(255,255,255,0.3)',
-                                    boxShadow: '0 8px 20px rgba(0,0,0,0.3)',
-                                    fontSize: 24,
-                                    bgcolor: '#4F46E5',
+                                    width: 85,
+                                    height: 85,
+                                    border: '4px solid rgba(255, 255, 255, 0.9)',
+                                    boxShadow: '0 8px 25px rgba(0,0,0,0.2)',
+                                    fontSize: 32,
+                                    bgcolor: 'rgba(255,255,255,0.2)',
+                                    backdropFilter: 'blur(10px)',
                                     color: '#fff',
+                                    fontFamily: 'Cairo',
+                                    fontWeight: 'bold',
+                                    animation: `${avatarPulse} 4s ease-in-out infinite`,
+                                    transition: 'all 0.3s ease',
+                                    '&:hover': {
+                                        transform: 'scale(1.05) translateY(-5px)',
+                                    }
                                 }}
                             >
                                 {user.first_name?.charAt(0)}{user.last_name?.charAt(0)}

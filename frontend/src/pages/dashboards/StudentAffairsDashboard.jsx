@@ -14,6 +14,7 @@ import AssignmentIcon from '@mui/icons-material/Assignment';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import CampaignIcon from '@mui/icons-material/Campaign';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import AssessmentIcon from '@mui/icons-material/Assessment';
 import LogoutIcon from '@mui/icons-material/Logout';
 import HistoryIcon from '@mui/icons-material/History';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
@@ -33,6 +34,12 @@ const pulse = keyframes`
   0% { transform: scale(1); }
   50% { transform: scale(1.02); }
   100% { transform: scale(1); }
+`;
+
+const avatarPulse = keyframes`
+  0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4), 0 8px 25px rgba(0,0,0,0.2); transform: translateY(0px); }
+  50% { box-shadow: 0 0 0 15px rgba(255, 255, 255, 0), 0 12px 30px rgba(0,0,0,0.3); transform: translateY(-4px); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0), 0 8px 25px rgba(0,0,0,0.2); transform: translateY(0px); }
 `;
 
 // Navigation Card Component
@@ -238,6 +245,14 @@ export default function StudentAffairsDashboard() {
             color: 'info',
         },
         {
+            icon: AssessmentIcon,
+            title: 'إدارة إعلان النتائج',
+            description: 'اعتماد نتائج الامتحانات ونشرها للطلاب',
+            buttonText: 'إدارة النتائج',
+            onClick: () => navigate('/student-affairs/publish-results'),
+            color: 'success',
+        },
+        {
             icon: HistoryIcon,
             title: 'سجل عمليات الرفع',
             description: 'تتبع جميع عمليات الرفع السابقة وتحميل تقارير الأخطاء',
@@ -279,14 +294,23 @@ export default function StudentAffairsDashboard() {
                             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2, mb: 2 }}>
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
                                     <Avatar
+                                        src={user.profile_picture || undefined}
                                         sx={{
-                                            width: 50,
-                                            height: 50,
+                                            width: 85,
+                                            height: 85,
                                             bgcolor: 'rgba(255,255,255,0.2)',
                                             backdropFilter: 'blur(10px)',
-                                            fontSize: 24,
+                                            border: '4px solid rgba(255, 255, 255, 0.9)',
+                                            boxShadow: '0 8px 25px rgba(0,0,0,0.2)',
+                                            animation: `${avatarPulse} 4s ease-in-out infinite`,
+                                            transition: 'all 0.3s ease',
+                                            '&:hover': {
+                                                transform: 'scale(1.05) translateY(-5px)',
+                                            },
+                                            fontSize: 32,
                                             fontFamily: 'Cairo',
                                             fontWeight: 'bold',
+                                            color: '#fff'
                                         }}
                                     >
                                         {user.first_name?.charAt(0)}{user.last_name?.charAt(0)}

@@ -26,7 +26,7 @@ import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import ArchitectureIcon from '@mui/icons-material/Architecture';
 import ElectricalServicesIcon from '@mui/icons-material/ElectricalServices';
 import FoundationIcon from '@mui/icons-material/Foundation';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useThemeMode } from '../context/ThemeContext';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
@@ -142,11 +142,13 @@ const StyledMenu = ({ anchorEl, open, onClose, items }) => (
 );
 
 export default function Header() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const { isDark, toggleMode } = useThemeMode();
   const location = useLocation();
+  const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
+  const [avatarAnchorEl, setAvatarAnchorEl] = useState(null);
   const [currentMenu, setCurrentMenu] = useState(null);
   const [expandedMobile, setExpandedMobile] = useState(null);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -189,6 +191,7 @@ export default function Header() {
       { text: 'البريد الإلكتروني', link: 'http://www.email.bsu.edu.eg/_BSU_Std.aspx', external: true, icon: <EmailIcon fontSize="small" /> },
       { text: 'المدن الجامعية', link: 'https://www.bsu.edu.eg/Sector_Home.aspx?cat_id=286', external: true, icon: <ApartmentIcon fontSize="small" /> },
       { text: 'نتائج الكليات', link: 'http://www.results.bsu.edu.eg/', external: true, icon: <AssessmentIcon fontSize="small" /> },
+      { text: 'نتائج الطلاب (بوابة الهندسة)', link: '/student/results', external: false, icon: <AssessmentIcon fontSize="small" /> },
       { text: 'الدفع الإلكتروني', link: 'http://www.payment.bsu.edu.eg/services/', external: true, icon: <PaymentIcon fontSize="small" /> },
     ]
   };
@@ -290,12 +293,23 @@ export default function Header() {
               <Box component={Link} to="/" style={{ textDecoration: 'none' }}>
                 <NavItem label="الرئيسية" isActive={isActive('/')} />
               </Box>
-              <Box component={Link} to="/about" style={{ textDecoration: 'none' }}>
-                <NavItem label="عن الكلية" isActive={isActive('/about')} />
-              </Box>
-              <Box component={Link} to="/departments" style={{ textDecoration: 'none' }}>
-                <NavItem label="الأقسام" isActive={isActive('/departments')} />
-              </Box>
+              <NavItem
+                label="عن الكلية"
+                hasMenu
+                onClick={(e) => handleMenuOpen(e, 'about')}
+                isActive={['/about', '/dean-word', '/vision-mission', '/regulations', '/ethics', '/staff'].includes(location.pathname)}
+              />
+              <NavItem
+                label="الأقسام"
+                hasMenu
+                onClick={(e) => handleMenuOpen(e, 'departments')}
+                isActive={location.pathname.startsWith('/departments')}
+              />
+              <NavItem
+                label="الطلاب"
+                hasMenu
+                onClick={(e) => handleMenuOpen(e, 'students')}
+              />
               <Box component={Link} to="/contact" style={{ textDecoration: 'none' }}>
                 <NavItem label="اتصل بنا" isActive={isActive('/contact')} />
               </Box>
@@ -335,6 +349,59 @@ export default function Header() {
             >
               {isDark ? <LightModeIcon /> : <DarkModeIcon />}
             </IconButton>
+
+            {/* User Avatar Menu */}
+            {user && (
+              <Box sx={{ display: { xs: 'none', lg: 'block' }, ml: 1 }}>
+                <IconButton
+                  onClick={(e) => setAvatarAnchorEl(e.currentTarget)}
+                  sx={{ p: 0, border: '2px solid', borderColor: 'primary.main', borderRadius: '50%' }}
+                >
+                  <Avatar 
+                    src={user.profile_picture || undefined} 
+                    sx={{ width: 40, height: 40 }}
+                  >
+                    {user.first_name?.charAt(0)}{user.last_name?.charAt(0)}
+                  </Avatar>
+                </IconButton>
+                <Menu
+                  anchorEl={avatarAnchorEl}
+                  open={Boolean(avatarAnchorEl)}
+                  onClose={() => setAvatarAnchorEl(null)}
+                  PaperProps={{
+                    sx: {
+                      mt: 1.5,
+                      minWidth: 200,
+                      borderRadius: 3,
+                      boxShadow: '0 8px 30px rgba(0,0,0,0.1)',
+                      '& .MuiMenuItem-root': {
+                        fontFamily: 'Cairo',
+                        fontWeight: 600,
+                        py: 1.5,
+                      }
+                    }
+                  }}
+                  transformOrigin={{ horizontal: 'left', vertical: 'top' }}
+                  anchorOrigin={{ horizontal: 'left', vertical: 'bottom' }}
+                >
+                  <Box sx={{ px: 2, py: 1.5, borderBottom: '1px solid rgba(0,0,0,0.08)' }}>
+                    <Typography variant="subtitle1" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
+                      {user.first_name} {user.last_name}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ fontFamily: 'Cairo' }}>
+                      {user.role}
+                    </Typography>
+                  </Box>
+                  <MenuItem onClick={() => { setAvatarAnchorEl(null); navigate('/profile'); }}>
+                    إعدادات الحساب
+                  </MenuItem>
+                  <MenuItem onClick={() => { setAvatarAnchorEl(null); logout(); navigate('/login'); }} sx={{ color: 'error.main' }}>
+                    تسجيل الخروج
+                  </MenuItem>
+                </Menu>
+              </Box>
+            )}
+
 
             {/* Mobile Menu Button */}
             <IconButton

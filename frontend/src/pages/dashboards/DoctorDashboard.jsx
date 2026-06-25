@@ -29,6 +29,12 @@ const float = keyframes`
   50% { transform: translateY(-10px); }
 `;
 
+const avatarPulse = keyframes`
+  0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4), 0 8px 25px rgba(0,0,0,0.2); transform: translateY(0px); }
+  50% { box-shadow: 0 0 0 15px rgba(255, 255, 255, 0), 0 12px 30px rgba(0,0,0,0.3); transform: translateY(-4px); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0), 0 8px 25px rgba(0,0,0,0.2); transform: translateY(0px); }
+`;
+
 export default function DoctorDashboard() {
   const { logout } = useAuth();
   const [user, setUser] = useState(null);
@@ -250,10 +256,22 @@ export default function DoctorDashboard() {
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 3 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
                   <Avatar
-                    src={user.profile_picture}
-                    sx={{ width: 50, height: 50, border: '3px solid rgba(255,255,255,0.3)', boxShadow: '0 8px 20px rgba(0,0,0,0.3)' }}
+                    src={user.profile_picture || undefined}
+                    sx={{ 
+                        width: 85, 
+                        height: 85, 
+                        border: '4px solid rgba(255, 255, 255, 0.9)', 
+                        boxShadow: '0 8px 25px rgba(0,0,0,0.2)',
+                        bgcolor: 'rgba(255,255,255,0.2)',
+                        backdropFilter: 'blur(10px)',
+                        animation: `${avatarPulse} 4s ease-in-out infinite`,
+                        transition: 'all 0.3s ease',
+                        '&:hover': {
+                            transform: 'scale(1.05) translateY(-5px)',
+                        }
+                    }}
                   >
-                    <PersonIcon sx={{ fontSize: 28 }} />
+                    <PersonIcon sx={{ fontSize: 40, color: '#fff' }} />
                   </Avatar>
                   <Box>
                     <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff', textShadow: '0 2px 10px rgba(0,0,0,0.3)' }}>
@@ -370,17 +388,7 @@ export default function DoctorDashboard() {
           </Grid>
         </Grid>
 
-        {/* Quick Actions */}
-        <Paper elevation={0} sx={{ p: 2, mb: 3, borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.08)', display: 'flex', justifyContent: 'center', gap: 2, flexWrap: 'wrap' }}>
-          <Button
-            variant="outlined"
-            startIcon={<QuizIcon />}
-            onClick={() => navigate('/doctor/course-manager')}
-            sx={{ fontFamily: 'Cairo', borderRadius: 3, px: 3, fontWeight: 'bold', borderColor: '#9c27b0', color: '#9c27b0', '&:hover': { bgcolor: 'rgba(156,39,176,0.04)', borderColor: '#7b1fa2' } }}
-          >
-            إدارة الكويزات
-          </Button>
-        </Paper>
+
 
         {/* Search / Filter Bar */}
         {courses.length > 0 && (

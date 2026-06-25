@@ -30,5 +30,11 @@ urlpatterns = [
     path('', include('django_prometheus.urls')),
 ]
 
+from django.urls import re_path
+from django.views.static import serve
+
 # Serve media files (uploads) - ALWAYS serve, not just in DEBUG mode
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# We use explicit serve because django.conf.urls.static.static() returns empty list in DEBUG=False
+urlpatterns += [
+    re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
+]
