@@ -3,7 +3,8 @@ import {
     Container, Paper, Typography, Box, Button, Alert, CircularProgress,
     FormControl, InputLabel, Select, MenuItem, Autocomplete, TextField,
     Table, TableBody, TableCell, TableHead, TableRow, TableContainer,
-    Chip, Avatar, Grid, Fade, Grow
+    Chip, Avatar, Grid, Fade, Grow, IconButton, Tooltip,
+    Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions
 } from '@mui/material';
 import { keyframes } from '@mui/system';
 import {
@@ -16,6 +17,7 @@ import {
     CheckCircle as CheckCircleIcon,
     Category as CategoryIcon,
     Grade as GradeIcon,
+    Delete as DeleteIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -32,6 +34,9 @@ const AssignDoctors = () => {
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(null);
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [assignmentToDelete, setAssignmentToDelete] = useState(null);
+    const [deleting, setDeleting] = useState(false);
 
     // Data
     const [departments, setDepartments] = useState([]);
@@ -206,6 +211,32 @@ const AssignDoctors = () => {
             setError(err.response?.data?.error || 'حدث خطأ');
         } finally {
             setSubmitting(false);
+        }
+    };
+
+    const handleDeleteClick = (assignment) => {
+        setAssignmentToDelete(assignment);
+        setDeleteDialogOpen(true);
+    };
+
+    const handleUnassign = async () => {
+        if (!assignmentToDelete) return;
+        
+        setDeleting(true);
+        setError(null);
+        setSuccess(null);
+        
+        try {
+            await axios.delete(`/api/academic/staff-affairs/assignments/${assignmentToDelete.id}/`, config);
+            setSuccess('تم إلغاء التعيين بنجاح');
+            const res = await axios.get('/api/academic/staff-affairs/assignments/', config);
+            setAssignments(res.data);
+            setDeleteDialogOpen(false);
+        } catch (err) {
+            setError(err.response?.data?.error || 'حدث خطأ أثناء إلغاء التعيين');
+        } finally {
+            setDeleting(false);
+            setAssignmentToDelete(null);
         }
     };
 
@@ -522,6 +553,7 @@ const AssignDoctors = () => {
                                                     <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff', fontSize: '1rem' }}>الترم</TableCell>
                                                     <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff', fontSize: '1rem' }}>العام</TableCell>
                                                     <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff', fontSize: '1rem' }}>قالب التقييم</TableCell>
+                                                    <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff', fontSize: '1rem', textAlign: 'center' }}>إجراءات</TableCell>
                                                 </TableRow>
                                             </TableHead>
                                             <TableBody>
@@ -542,6 +574,17 @@ const AssignDoctors = () => {
                                                         <TableCell><Chip label={a.term} size="small" color="primary" sx={{ fontFamily: 'Cairo' }} /></TableCell>
                                                         <TableCell sx={{ fontFamily: 'Cairo' }}>{a.academic_year}</TableCell>
                                                         <TableCell>{a.grading_template ? <Chip label={a.grading_template} size="small" color="secondary" sx={{ fontFamily: 'Cairo' }} /> : '-'}</TableCell>
+                                                        <TableCell sx={{ textAlign: 'center' }}>
+                                                            <Tooltip title="إلغاء التعيين">
+                                                                <IconButton 
+                                                                    color="error" 
+                                                                    onClick={() => handleDeleteClick(a)}
+                                                                    size="small"
+                                                                >
+                                                                    <DeleteIcon />
+                                                                </IconButton>
+                                                            </Tooltip>
+                                                        </TableCell>
                                                     </TableRow>
                                                 ))}
                                             </TableBody>
@@ -552,6 +595,39 @@ const AssignDoctors = () => {
                         </Grow>
                     </>
                 )}
+
+                {/* Delete Confirmation Dialog */}
+                <Dialog open={deleteDialogOpen} onClose={() => !deleting && setDeleteDialogOpen(false)}>
+                    <DialogTitle sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#d32f2f' }}>
+                        تأكيد إلغاء التعيين
+                    </DialogTitle>
+                    <DialogContent>
+                        <DialogContentText sx={{ fontFamily: 'Cairo' }}>
+                            هل أنت متأكد من رغبتك في إلغاء تعيين الدكتور <strong>{assignmentToDelete?.doctor_name}</strong> عن مادة <strong>{assignmentToDelete?.subject_name}</strong>؟
+                            <br /><br />
+                            <strong>تحذير:</strong> قد يؤدي هذا إلى حذف بيانات مرتبطة بهذا التعيين مثل درجات الطلاب والغياب.
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions sx={{ p: 2 }}>
+                        <Button 
+                            onClick={() => setDeleteDialogOpen(false)} 
+                            disabled={deleting}
+                            sx={{ fontFamily: 'Cairo' }}
+                        >
+                            تراجع
+                        </Button>
+                        <Button 
+                            onClick={handleUnassign} 
+                            color="error" 
+                            variant="contained" 
+                            disabled={deleting}
+                            startIcon={deleting ? <CircularProgress size={20} color="inherit" /> : <DeleteIcon />}
+                            sx={{ fontFamily: 'Cairo' }}
+                        >
+                            {deleting ? 'جاري الإلغاء...' : 'تأكيد الإلغاء'}
+                        </Button>
+                    </DialogActions>
+                </Dialog>
             </Container>
         </Box>
     );

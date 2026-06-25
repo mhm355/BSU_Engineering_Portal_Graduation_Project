@@ -18,7 +18,8 @@ from .staff_affairs_views import (
     UploadDoctorsView, UploadStaffAffairsUsersView, DoctorListView,
     StudentAffairsUserListView, AssignDoctorToSubjectView, DoctorAssignmentsView,
     TermListView, GradingTemplateListView, DoctorDetailView, DoctorResetPasswordView,
-    DoctorDeletionRequestView, AdminDeletionRequestsView, AssignmentHistoryView
+    DoctorDeletionRequestView, AdminDeletionRequestsView, AssignmentHistoryView,
+    UnassignDoctorView
 )
 from .exam_grades_views import (
     UploadExamGradesView, PendingExamGradesView, ApproveExamGradesView,
@@ -73,6 +74,7 @@ urlpatterns = [
     path('staff-affairs/student-affairs-users/', StudentAffairsUserListView.as_view(), name='student-affairs-user-list'),
     path('staff-affairs/assign-doctor/', AssignDoctorToSubjectView.as_view(), name='assign-doctor'),
     path('staff-affairs/assignments/', DoctorAssignmentsView.as_view(), name='doctor-assignments'),
+    path('staff-affairs/assignments/<int:pk>/', UnassignDoctorView.as_view(), name='unassign-doctor'),
     path('staff-affairs/terms/', TermListView.as_view(), name='term-list'),
     path('staff-affairs/grading-templates/', GradingTemplateListView.as_view(), name='grading-template-list'),
     path('staff-affairs/doctors/<int:pk>/', DoctorDetailView.as_view(), name='doctor-detail'),
