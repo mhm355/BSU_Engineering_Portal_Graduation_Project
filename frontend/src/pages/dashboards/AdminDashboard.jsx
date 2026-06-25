@@ -474,6 +474,14 @@ export default function AdminDashboard() {
             onClick: () => navigate('/admin/news'),
             gradient: 'linear-gradient(135deg, #E91E63, #F06292)',
         },
+        {
+            icon: SettingsIcon,
+            title: 'طلبات كلمات المرور',
+            description: 'إدارة طلبات إعادة تعيين كلمات المرور للمستخدمين',
+            buttonText: 'عرض الطلبات',
+            onClick: () => navigate('/admin/password-resets'),
+            gradient: 'linear-gradient(135deg, #43a047, #66bb6a)',
+        },
     ];
 
     return (

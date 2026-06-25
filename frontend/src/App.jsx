@@ -67,6 +67,7 @@ import ManageGradingTemplates from './pages/dashboards/admin/ManageGradingTempla
 import AuditLogViewer from './pages/dashboards/admin/AuditLogViewer';
 import Announcements from './pages/dashboards/admin/Announcements';
 import ComplaintsDashboard from './pages/dashboards/admin/ComplaintsDashboard';
+import PasswordResets from './pages/dashboards/admin/PasswordResets';
 import UploadHistory from './pages/dashboards/student_affairs/UploadHistory';
 import BulkCertificateUpload from './pages/dashboards/student_affairs/BulkCertificateUpload';
 import AssignmentHistory from './pages/dashboards/staff_affairs/AssignmentHistory';
@@ -172,6 +173,7 @@ function App() {
                 <Route path="admin/audit-logs" element={<ProtectedRoute roles={['ADMIN']}><AuditLogViewer /></ProtectedRoute>} />
                 <Route path="admin/announcements" element={<ProtectedRoute roles={['ADMIN']}><Announcements /></ProtectedRoute>} />
                 <Route path="admin/complaints" element={<ProtectedRoute roles={['ADMIN']}><ComplaintsDashboard /></ProtectedRoute>} />
+                <Route path="admin/password-resets" element={<ProtectedRoute roles={['ADMIN']}><PasswordResets /></ProtectedRoute>} />
               </Route>
             </Routes>
           </BrowserRouter>

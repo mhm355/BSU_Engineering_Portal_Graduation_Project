@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Box, Container, Typography, Paper, TextField, Button, Avatar, Grid, Alert, CircularProgress, IconButton } from '@mui/material';
+import { Box, Container, Typography, Paper, TextField, Button, Avatar, Grid, Alert, CircularProgress, IconButton, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
 import PhotoCamera from '@mui/icons-material/PhotoCamera';
 import { useAuth } from "../context/AuthContext";
 import axios from 'axios';
@@ -7,24 +7,16 @@ import axios from 'axios';
 export default function UserProfile() {
     const { user, login } = useAuth();
     const fileInputRef = useRef(null);
-    const [formData, setFormData] = useState({
-        first_name: user?.first_name || '',
-        last_name: user?.last_name || '',
-        email: user?.email || '',
-        phone_number: user?.phone_number || '',
-        address: user?.address || '',
-        password: '',
-        confirm_password: ''
-    });
+    const [resetDialogOpen, setResetDialogOpen] = useState(false);
+    const [resetReason, setResetReason] = useState('');
+    const [resetLoading, setResetLoading] = useState(false);
     const [profilePicture, setProfilePicture] = useState(null);
     const [previewUrl, setPreviewUrl] = useState(user?.profile_picture || null);
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState('');
     const [error, setError] = useState('');
 
-    const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
+
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
@@ -52,27 +44,15 @@ export default function UserProfile() {
         setSuccess('');
         setLoading(true);
 
-        if (formData.password && formData.password !== formData.confirm_password) {
-            setError('كلمات المرور غير متطابقة');
-            setLoading(false);
-            return;
-        }
-
         try {
             const dataToSend = new FormData();
             
-            Object.keys(formData).forEach(key => {
-                if (key !== 'confirm_password' && key !== 'password') {
-                    dataToSend.append(key, formData[key]);
-                }
-            });
-            
-            if (formData.password) {
-                dataToSend.append('password', formData.password);
-            }
-            
             if (profilePicture) {
                 dataToSend.append('profile_picture', profilePicture);
+            } else {
+                setSuccess('لم يتم تغيير الصورة');
+                setLoading(false);
+                return;
             }
 
             const response = await axios.patch('/api/auth/profile/', dataToSend, { 
@@ -84,13 +64,29 @@ export default function UserProfile() {
 
             // Update context
             login(response.data);
-            setSuccess('تم تحديث البيانات بنجاح');
-            setFormData(prev => ({ ...prev, password: '', confirm_password: '' }));
+            setSuccess('تم تحديث الصورة بنجاح');
+            setProfilePicture(null);
         } catch (err) {
             console.error('Error updating profile:', err);
             setError('فشل تحديث البيانات. تأكد من صحة المدخلات.');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleRequestReset = async () => {
+        setResetLoading(true);
+        setError('');
+        setSuccess('');
+        try {
+            await axios.post('/api/auth/password-reset/request/', { reason: resetReason }, { withCredentials: true });
+            setSuccess('تم إرسال طلب إعادة تعيين كلمة المرور إلى الإدارة بنجاح. سيتم مراجعة طلبك وإعادة تعيين كلمة المرور إلى الرقم القومي الخاص بك.');
+            setResetDialogOpen(false);
+            setResetReason('');
+        } catch (err) {
+            setError(err.response?.data?.error || 'حدث خطأ أثناء إرسال الطلب');
+        } finally {
+            setResetLoading(false);
         }
     };
 
@@ -156,9 +152,8 @@ export default function UserProfile() {
                             <TextField
                                 fullWidth
                                 label="الاسم الأول"
-                                name="first_name"
-                                value={formData.first_name}
-                                onChange={handleChange}
+                                value={user?.first_name || ''}
+                                disabled
                                 InputLabelProps={{ style: { fontFamily: 'Cairo' } }}
                             />
                         </Grid>
@@ -166,9 +161,8 @@ export default function UserProfile() {
                             <TextField
                                 fullWidth
                                 label="الاسم الأخير"
-                                name="last_name"
-                                value={formData.last_name}
-                                onChange={handleChange}
+                                value={user?.last_name || ''}
+                                disabled
                                 InputLabelProps={{ style: { fontFamily: 'Cairo' } }}
                             />
                         </Grid>
@@ -176,10 +170,8 @@ export default function UserProfile() {
                             <TextField
                                 fullWidth
                                 label="البريد الإلكتروني"
-                                name="email"
-                                type="email"
-                                value={formData.email}
-                                onChange={handleChange}
+                                value={user?.email || ''}
+                                disabled
                                 InputLabelProps={{ style: { fontFamily: 'Cairo' } }}
                             />
                         </Grid>
@@ -187,9 +179,8 @@ export default function UserProfile() {
                             <TextField
                                 fullWidth
                                 label="رقم الهاتف"
-                                name="phone_number"
-                                value={formData.phone_number}
-                                onChange={handleChange}
+                                value={user?.phone_number || ''}
+                                disabled
                                 InputLabelProps={{ style: { fontFamily: 'Cairo' } }}
                             />
                         </Grid>
@@ -197,52 +188,70 @@ export default function UserProfile() {
                             <TextField
                                 fullWidth
                                 label="العنوان"
-                                name="address"
-                                value={formData.address}
-                                onChange={handleChange}
+                                value={user?.address || ''}
+                                disabled
                                 InputLabelProps={{ style: { fontFamily: 'Cairo' } }}
                             />
                         </Grid>
 
-                        <Grid item xs={12}>
-                            <Typography variant="h6" sx={{ fontFamily: 'Cairo', mt: 2, mb: 2 }}>تغيير كلمة المرور</Typography>
-                        </Grid>
-                        <Grid item xs={12} md={6}>
-                            <TextField
-                                fullWidth
-                                label="كلمة المرور الجديدة"
-                                name="password"
-                                type="password"
-                                value={formData.password}
-                                onChange={handleChange}
-                                InputLabelProps={{ style: { fontFamily: 'Cairo' } }}
-                            />
-                        </Grid>
-                        <Grid item xs={12} md={6}>
-                            <TextField
-                                fullWidth
-                                label="تأكيد كلمة المرور"
-                                name="confirm_password"
-                                type="password"
-                                value={formData.confirm_password}
-                                onChange={handleChange}
-                                InputLabelProps={{ style: { fontFamily: 'Cairo' } }}
-                            />
-                        </Grid>
-
-                        <Grid item xs={12}>
+                        <Grid item xs={12} sx={{ mt: 2, display: 'flex', gap: 2, alignItems: 'center' }}>
                             <Button
                                 type="submit"
                                 variant="contained"
                                 size="large"
-                                disabled={loading}
-                                sx={{ bgcolor: '#4F46E5', fontFamily: 'Cairo', mt: 2 }}
+                                disabled={loading || !profilePicture}
+                                sx={{ bgcolor: '#4F46E5', fontFamily: 'Cairo' }}
                             >
-                                {loading ? 'جاري الحفظ...' : 'حفظ التغييرات'}
+                                {loading ? 'جاري الحفظ...' : 'حفظ الصورة الجديدة'}
+                            </Button>
+
+                            <Button
+                                variant="outlined"
+                                color="warning"
+                                size="large"
+                                onClick={() => setResetDialogOpen(true)}
+                                sx={{ fontFamily: 'Cairo' }}
+                            >
+                                طلب إعادة تعيين كلمة المرور
                             </Button>
                         </Grid>
                     </Grid>
                 </form>
+
+                {/* Password Reset Dialog */}
+                <Dialog open={resetDialogOpen} onClose={() => !resetLoading && setResetDialogOpen(false)} maxWidth="sm" fullWidth>
+                    <DialogTitle sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>طلب إعادة تعيين كلمة المرور</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText sx={{ fontFamily: 'Cairo', mb: 2 }}>
+                            سيتم إرسال طلب إلى الإدارة لإعادة تعيين كلمة المرور الخاصة بك. في حال الموافقة، سيتم إعادة تعيين كلمة المرور إلى رقمك القومي.
+                        </DialogContentText>
+                        <TextField
+                            autoFocus
+                            margin="dense"
+                            label="السبب (اختياري)"
+                            type="text"
+                            fullWidth
+                            multiline
+                            rows={3}
+                            value={resetReason}
+                            onChange={(e) => setResetReason(e.target.value)}
+                            InputLabelProps={{ style: { fontFamily: 'Cairo' } }}
+                        />
+                    </DialogContent>
+                    <DialogActions sx={{ p: 2 }}>
+                        <Button onClick={() => setResetDialogOpen(false)} disabled={resetLoading} sx={{ fontFamily: 'Cairo' }}>إلغاء</Button>
+                        <Button 
+                            onClick={handleRequestReset} 
+                            variant="contained" 
+                            color="primary"
+                            disabled={resetLoading}
+                            sx={{ fontFamily: 'Cairo' }}
+                            startIcon={resetLoading ? <CircularProgress size={20} color="inherit" /> : null}
+                        >
+                            إرسال الطلب
+                        </Button>
+                    </DialogActions>
+                </Dialog>
             </Paper>
         </Container>
     );

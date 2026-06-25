@@ -9,8 +9,8 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'email', 'first_name', 'last_name', 'role', 
                   'national_id', 'phone_number', 'address', 'profile_picture',
                   'first_login_required', 'graduation_status']
-        read_only_fields = ['role', 'first_login_required'] # Role and first_login should be managed by system
-
+        read_only_fields = ['username', 'email', 'first_name', 'last_name', 'role', 
+                            'national_id', 'phone_number', 'address', 'first_login_required', 'graduation_status']
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
 
