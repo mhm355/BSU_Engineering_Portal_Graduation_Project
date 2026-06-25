@@ -262,6 +262,13 @@ class PreviewStudentsUploadView(APIView):
         except AcademicYear.DoesNotExist:
             return Response({'error': 'العام الدراسي غير موجود'}, status=status.HTTP_400_BAD_REQUEST)
 
+        # Check if academic year is closed
+        if academic_year.status == 'CLOSED':
+            return Response(
+                {'error': 'العام الدراسي مغلق - لا يمكن معاينة بيانات طلاب جدد'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         level = None
         if level_id:
             try:
@@ -445,6 +452,13 @@ class UploadStudentsView(APIView):
             academic_year = AcademicYear.objects.get(id=academic_year_id)
         except AcademicYear.DoesNotExist:
             return Response({'error': 'العام الدراسي غير موجود'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Check if academic year is closed
+        if academic_year.status == 'CLOSED':
+            return Response(
+                {'error': 'العام الدراسي مغلق - لا يمكن رفع طلاب جدد'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         # Validate level if provided, otherwise CSV must have level column
         level = None

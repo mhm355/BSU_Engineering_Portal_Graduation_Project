@@ -328,6 +328,26 @@ class CourseOfferingViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(doctor_id=doctor)
         return queryset
 
+    def create(self, request, *args, **kwargs):
+        """Check year/term status before creating course offering"""
+        term_id = request.data.get('term')
+        if term_id:
+            try:
+                term_obj = Term.objects.select_related('academic_year').get(id=term_id)
+                if term_obj.academic_year.status == 'CLOSED':
+                    return Response(
+                        {'error': 'العام الدراسي مغلق - لا يمكن إضافة مقررات جديدة'},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+                if term_obj.status == 'CLOSED':
+                    return Response(
+                        {'error': 'الترم مغلق - لا يمكن إضافة مقررات جديدة'},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+            except Term.DoesNotExist:
+                pass
+        return super().create(request, *args, **kwargs)
+
     @action(detail=False, methods=['get'], permission_classes=[IsDoctorRole])
     @method_decorator(cache_page(settings.CACHE_COURSE_DATA))
     def my_courses(self, request):
@@ -838,6 +858,22 @@ class StudentCoursesView(APIView):
     """Get all courses for logged in student (with or without lectures)"""
     permission_classes = [IsStudentRole]
 
+    @staticmethod
+    def _sanitize_file_url(file_field):
+        """Return URL for file field — preserves Azure Blob URLs, strips internal Docker hostnames"""
+        if not file_field:
+            return None
+        url = file_field.url
+        if url.startswith('http') and 'blob.core.windows.net' in url:
+            return url
+        if url.startswith('http'):
+            try:
+                from urllib.parse import urlparse
+                return urlparse(url).path
+            except Exception:
+                pass
+        return url
+
     def get(self, request):
         try:
             student = Student.objects.get(user=request.user)
@@ -876,7 +912,7 @@ class StudentCoursesView(APIView):
                         'id': lecture.id,
                         'title': lecture.title,
                         'description': lecture.description,
-                        'file': lecture.file.url if lecture.file else None,
+                        'file': self._sanitize_file_url(lecture.file) if lecture.file else None,
                         'file_type': file_type,
                         'uploaded_at': lecture.uploaded_at,
                     })

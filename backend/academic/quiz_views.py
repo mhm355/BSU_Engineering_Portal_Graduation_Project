@@ -18,10 +18,16 @@ from users.permissions import IsDoctorRole, IsStudentRole
 
 
 def get_relative_url(file_field):
-    """Return relative URL for file/image fields to avoid docker internal hostname issues"""
+    """Return URL for file/image fields.
+    Preserves external Azure Blob URLs, strips internal Docker hostnames.
+    """
     if not file_field:
         return None
     url = file_field.url
+    # Azure Blob Storage URLs are external and should be returned as-is
+    if url.startswith('http') and 'blob.core.windows.net' in url:
+        return url
+    # Strip internal Docker hostnames (e.g., http://backend:8000/media/...)
     if url.startswith('http'):
         try:
             from urllib.parse import urlparse
@@ -141,6 +147,18 @@ class QuizViewSet(viewsets.ModelViewSet):
         except CourseOffering.DoesNotExist:
             return Response(
                 {'error': 'المادة غير موجودة أو ليست مخصصة لك'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Check if academic year or term is closed
+        if course_offering.academic_year.status == 'CLOSED':
+            return Response(
+                {'error': 'العام الدراسي مغلق - لا يمكن إنشاء كويزات جديدة'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        if course_offering.term.status == 'CLOSED':
+            return Response(
+                {'error': 'الترم مغلق - لا يمكن إنشاء كويزات جديدة'},
                 status=status.HTTP_400_BAD_REQUEST
             )
         
