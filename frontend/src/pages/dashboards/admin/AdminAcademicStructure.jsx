@@ -529,7 +529,7 @@ export default function AdminAcademicStructure() {
                                                 <TableCell sx={{ fontFamily: 'Cairo' }}>{index + 1}</TableCell>
                                                 <TableCell>
                                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                                                        <Avatar sx={{ width: 36, height: 36, bgcolor: '#2196F3', fontSize: 14 }}>
+                                                        <Avatar src={student.profile_picture || undefined} sx={{ width: 36, height: 36, bgcolor: '#2196F3', fontSize: 14 }}>
                                                             {student.full_name?.charAt(0)}
                                                         </Avatar>
                                                         <Typography sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>

@@ -22,6 +22,9 @@ import DoctorDashboard from './pages/dashboards/DoctorDashboard';
 import AdminDashboard from './pages/dashboards/AdminDashboard';
 import ManageDepartments from './pages/dashboards/admin/ManageDepartments';
 import ManageUsers from './pages/dashboards/admin/ManageUsers';
+import StudentResults from './pages/dashboards/StudentResults';
+import PublishResultsAdmin from './pages/dashboards/admin/PublishResultsAdmin';
+import PublishResultsSA from './pages/dashboards/student_affairs/PublishResultsSA';
 import StudentGrades from './pages/dashboards/student/StudentGrades';
 import StudentAttendance from './pages/dashboards/student/StudentAttendance';
 import StudentMaterials from './pages/dashboards/student/StudentMaterials';
@@ -103,6 +106,9 @@ function App() {
                 <Route path="/departments/arch" element={<ArchDepartmentPage />} />
                 <Route path="/departments/electrical" element={<ElectricalDepartmentPage />} />
 
+                {/* Public Results Query */}
+                <Route path="student/results" element={<StudentResults />} />
+
                 {/* Protected Student Routes */}
                 <Route path="student/dashboard" element={<ProtectedRoute roles={['STUDENT']}><StudentDashboard /></ProtectedRoute>} />
                 <Route path="student/grades" element={<ProtectedRoute roles={['STUDENT']}><StudentGrades /></ProtectedRoute>} />
@@ -135,6 +141,7 @@ function App() {
                 <Route path="student-affairs/grades" element={<ProtectedRoute roles={['STUDENT_AFFAIRS']}><StudentGradesView /></ProtectedRoute>} />
                 <Route path="student-affairs/upload-history" element={<ProtectedRoute roles={['STUDENT_AFFAIRS']}><UploadHistory /></ProtectedRoute>} />
                 <Route path="student-affairs/bulk-certificates" element={<ProtectedRoute roles={['STUDENT_AFFAIRS']}><BulkCertificateUpload /></ProtectedRoute>} />
+                <Route path="student-affairs/publish-results" element={<ProtectedRoute roles={['STUDENT_AFFAIRS']}><PublishResultsSA /></ProtectedRoute>} />
 
                 {/* Staff Affairs Routes */}
                 <Route path="staff-affairs" element={<ProtectedRoute roles={['STAFF_AFFAIRS']}><StaffAffairsDashboard /></ProtectedRoute>} />
@@ -161,6 +168,7 @@ function App() {
                 <Route path="admin/pending-approvals" element={<ProtectedRoute roles={['ADMIN']}><PendingApprovals /></ProtectedRoute>} />
                 <Route path="admin/news" element={<ProtectedRoute roles={['ADMIN']}><ManageNews /></ProtectedRoute>} />
                 <Route path="admin/deletion-requests" element={<ProtectedRoute roles={['ADMIN']}><DeletionRequests /></ProtectedRoute>} />
+                <Route path="admin/publish-results" element={<ProtectedRoute roles={['ADMIN']}><PublishResultsAdmin /></ProtectedRoute>} />
                 <Route path="admin/audit-logs" element={<ProtectedRoute roles={['ADMIN']}><AuditLogViewer /></ProtectedRoute>} />
                 <Route path="admin/announcements" element={<ProtectedRoute roles={['ADMIN']}><Announcements /></ProtectedRoute>} />
                 <Route path="admin/complaints" element={<ProtectedRoute roles={['ADMIN']}><ComplaintsDashboard /></ProtectedRoute>} />

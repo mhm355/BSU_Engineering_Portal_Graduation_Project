@@ -393,7 +393,7 @@ export default function UploadCertificates() {
                                                     <MenuItem key={student.id} value={student.id} sx={{ fontSize: '1.2rem', py: 1.5 }}>
                                                         <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
                                                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                                                <Avatar sx={{ width: 35, height: 35, bgcolor: '#673AB7', fontSize: 14 }}>{student.full_name?.charAt(0)}</Avatar>
+                                                                <Avatar src={student.profile_picture || undefined} sx={{ width: 35, height: 35, bgcolor: '#673AB7', fontSize: 14 }}>{student.full_name?.charAt(0)}</Avatar>
                                                                 <span>{student.full_name}</span>
                                                             </Box>
                                                             <Chip
@@ -411,7 +411,7 @@ export default function UploadCertificates() {
                                         {selectedStudent && getSelectedStudent() && (
                                             <Paper sx={{ p: 3, mt: 3, borderRadius: 3, bgcolor: '#e8f5e9', border: '2px solid #4CAF50' }}>
                                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                                    <Avatar sx={{ width: 50, height: 50, bgcolor: '#4CAF50' }}>{getSelectedStudent()?.full_name?.charAt(0)}</Avatar>
+                                                    <Avatar src={getSelectedStudent()?.profile_picture || undefined} sx={{ width: 50, height: 50, bgcolor: '#4CAF50' }}>{getSelectedStudent()?.full_name?.charAt(0)}</Avatar>
                                                     <Box>
                                                         <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>{getSelectedStudent()?.full_name}</Typography>
                                                         <Typography variant="body2" sx={{ fontFamily: 'Cairo', color: '#666' }}>الرقم القومي: {getSelectedStudent()?.national_id}</Typography>

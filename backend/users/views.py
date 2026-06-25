@@ -3,6 +3,7 @@ from rest_framework.throttling import AnonRateThrottle
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.contrib.auth import authenticate, login, logout
+from rest_framework.parsers import MultiPartParser, FormParser
 from .serializers import UserSerializer, RegisterSerializer
 
 class RegisterView(generics.CreateAPIView):
@@ -73,6 +74,7 @@ class PublicStaffView(APIView):
 class UserProfileView(generics.RetrieveUpdateAPIView):
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
 
     def get_object(self):
         return self.request.user

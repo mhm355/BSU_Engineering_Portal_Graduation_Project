@@ -611,8 +611,13 @@ export default function DoctorCourseDetail() {
                                         <TableBody>
                                             {students.map((student, idx) => (
                                                 <TableRow key={student.id} hover sx={{ '&:nth-of-type(odd)': { bgcolor: '#fafafa' } }}>
-                                                    <TableCell><Avatar sx={{ width: 32, height: 32, bgcolor: '#4CAF50', fontSize: 14 }}>{idx + 1}</Avatar></TableCell>
-                                                    <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>{student.full_name}</TableCell>
+                                                    <TableCell>{idx + 1}</TableCell>
+                                                    <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
+                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                                                            <Avatar src={student.profile_picture || undefined} sx={{ width: 32, height: 32, bgcolor: '#4CAF50', fontSize: 14 }}>{student.full_name?.charAt(0)}</Avatar>
+                                                            {student.full_name}
+                                                        </Box>
+                                                    </TableCell>
                                                     <TableCell sx={{ fontFamily: 'monospace' }}>{student.university_id || student.national_id}</TableCell>
                                                 </TableRow>
                                             ))}
@@ -801,7 +806,12 @@ export default function DoctorCourseDetail() {
                                                         return (
                                                             <TableRow key={student.id} hover>
                                                                 <TableCell>{idx + 1}</TableCell>
-                                                                <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>{student.full_name}</TableCell>
+                                                                <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
+                                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                                                                        <Avatar src={student.profile_picture || undefined} sx={{ width: 32, height: 32, bgcolor: '#FF9800', fontSize: 14 }}>{student.full_name?.charAt(0)}</Avatar>
+                                                                        {student.full_name}
+                                                                    </Box>
+                                                                </TableCell>
                                                                 <TableCell>{student.university_id || student.national_id}</TableCell>
                                                                 <TableCell sx={{ textAlign: 'center' }}>
                                                                     <Chip
@@ -918,7 +928,12 @@ export default function DoctorCourseDetail() {
                                         <TableBody>
                                             {students.map((student) => (
                                                 <TableRow key={student.id} hover>
-                                                    <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>{student.full_name}</TableCell>
+                                                    <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
+                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                                                            <Avatar src={student.profile_picture || undefined} sx={{ width: 32, height: 32, bgcolor: '#d32f2f', fontSize: 14 }}>{student.full_name?.charAt(0)}</Avatar>
+                                                            {student.full_name}
+                                                        </Box>
+                                                    </TableCell>
                                                     {['attendance', 'quizzes', 'coursework', 'midterm', 'final'].map(field => (
                                                         <TableCell key={field} sx={{ textAlign: 'center' }}>
                                                             <TextField type="number" size="small" value={grades[student.id]?.[field] || ''} onChange={(e) => handleGradeChange(student.id, field, e.target.value)} sx={{ width: 80, '& .MuiOutlinedInput-root': { borderRadius: 2 } }} />

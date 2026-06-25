@@ -28,6 +28,7 @@ from .quiz_views import (
     QuizViewSet, StudentQuizListView, StudentQuizAttemptView, QuizResultsView,
     BulkQuizImportView, QuizAttemptDetailView, GradeQuizAttemptView
 )
+from .student_results_views import PublishingStatusView, StudentResultsQueryView
 
 router = DefaultRouter()
 router.register(r'departments', DepartmentViewSet)
@@ -50,6 +51,10 @@ urlpatterns = [
     # Bulk operations MUST come before router to avoid being intercepted
     path('attendance/bulk/', BulkAttendanceView.as_view(), name='bulk-attendance'),
     path('student-grades/bulk/', BulkStudentGradeView.as_view(), name='bulk-student-grades'),
+    
+    # Results Publishing and Querying
+    path('results/publish-status/', PublishingStatusView.as_view(), name='publish-status'),
+    path('results/query/', StudentResultsQueryView.as_view(), name='results-query'),
     
     path('', include(router.urls)),
 

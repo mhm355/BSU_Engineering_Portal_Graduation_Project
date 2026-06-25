@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
-import { Box, Container, Typography, Paper, TextField, Button, Avatar, Grid, Alert, CircularProgress } from '@mui/material';
+import React, { useState, useRef } from 'react';
+import { Box, Container, Typography, Paper, TextField, Button, Avatar, Grid, Alert, CircularProgress, IconButton } from '@mui/material';
+import PhotoCamera from '@mui/icons-material/PhotoCamera';
 import { useAuth } from "../context/AuthContext";
 import axios from 'axios';
 
 export default function UserProfile() {
     const { user, login } = useAuth();
+    const fileInputRef = useRef(null);
     const [formData, setFormData] = useState({
         first_name: user?.first_name || '',
         last_name: user?.last_name || '',
@@ -14,12 +16,34 @@ export default function UserProfile() {
         password: '',
         confirm_password: ''
     });
+    const [profilePicture, setProfilePicture] = useState(null);
+    const [previewUrl, setPreviewUrl] = useState(user?.profile_picture || null);
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState('');
     const [error, setError] = useState('');
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            if (file.size > 5 * 1024 * 1024) {
+                setError('حجم الصورة يجب أن لا يتجاوز 5 ميجابايت');
+                return;
+            }
+            if (!['image/jpeg', 'image/png', 'image/jpg'].includes(file.type)) {
+                setError('صيغة الملف غير مدعومة. يرجى رفع صورة JPG أو PNG');
+                return;
+            }
+            setProfilePicture(file);
+            setPreviewUrl(URL.createObjectURL(file));
+        }
+    };
+
+    const handleAvatarClick = () => {
+        fileInputRef.current.click();
     };
 
     const handleSubmit = async (e) => {
@@ -35,16 +59,28 @@ export default function UserProfile() {
         }
 
         try {
-            const dataToSend = { ...formData };
-            if (!dataToSend.password) delete dataToSend.password;
-            delete dataToSend.confirm_password;
+            const dataToSend = new FormData();
+            
+            Object.keys(formData).forEach(key => {
+                if (key !== 'confirm_password' && key !== 'password') {
+                    dataToSend.append(key, formData[key]);
+                }
+            });
+            
+            if (formData.password) {
+                dataToSend.append('password', formData.password);
+            }
+            
+            if (profilePicture) {
+                dataToSend.append('profile_picture', profilePicture);
+            }
 
-            // Assuming we have an endpoint to update profile. 
-            // UserViewSet supports update, but we need to check permissions.
-            // Usually users can update their own profile via /api/auth/profile/ (if implemented) or /api/auth/users/{id}/
-            // Let's check urls.py. /api/auth/profile/ maps to UserProfileView.
-
-            const response = await axios.patch('/api/auth/profile/', dataToSend, { withCredentials: true });
+            const response = await axios.patch('/api/auth/profile/', dataToSend, { 
+                withCredentials: true,
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                }
+            });
 
             // Update context
             login(response.data);
@@ -62,9 +98,45 @@ export default function UserProfile() {
         <Container maxWidth="md" sx={{ py: 4 }}>
             <Paper sx={{ p: 4 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
-                    <Avatar sx={{ width: 55, height: 55, bgcolor: '#4F46E5', fontSize: 24, mr: 2 }}>
-                        {user?.first_name?.[0]}
-                    </Avatar>
+                    <Box sx={{ position: 'relative', mr: 2 }}>
+                        <input
+                            type="file"
+                            accept="image/jpeg,image/png,image/jpg"
+                            style={{ display: 'none' }}
+                            ref={fileInputRef}
+                            onChange={handleFileChange}
+                        />
+                        <Avatar 
+                            src={previewUrl}
+                            sx={{ 
+                                width: 80, 
+                                height: 80, 
+                                bgcolor: '#4F46E5', 
+                                fontSize: 32,
+                                border: '3px solid #e0e7ff',
+                                boxShadow: '0 4px 14px rgba(0,0,0,0.1)',
+                                cursor: 'pointer'
+                            }}
+                            onClick={handleAvatarClick}
+                        >
+                            {user?.first_name?.[0]}{user?.last_name?.[0]}
+                        </Avatar>
+                        <IconButton
+                            onClick={handleAvatarClick}
+                            sx={{
+                                position: 'absolute',
+                                bottom: -4,
+                                right: -4,
+                                bgcolor: '#fff',
+                                boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                                '&:hover': { bgcolor: '#f8fafc' },
+                                width: 32,
+                                height: 32
+                            }}
+                        >
+                            <PhotoCamera sx={{ fontSize: 18, color: '#4F46E5' }} />
+                        </IconButton>
+                    </Box>
                     <Box>
                         <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
                             {user?.first_name} {user?.last_name}

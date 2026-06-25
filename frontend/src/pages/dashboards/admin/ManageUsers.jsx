@@ -408,7 +408,7 @@ export default function ManageUsers() {
                                         ) : students.map((s, i) => (
                                             <TableRow key={s.id} hover sx={{ '&:nth-of-type(odd)': { bgcolor: '#fafafa' } }}>
                                                 <TableCell>{i + 1}</TableCell>
-                                                <TableCell><Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}><Avatar sx={{ width: 36, height: 36, bgcolor: '#FF6B35', fontSize: 14 }}>{s.full_name?.charAt(0)}</Avatar><Typography sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>{s.full_name}</Typography></Box></TableCell>
+                                                <TableCell><Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}><Avatar src={s.profile_picture || undefined} sx={{ width: 36, height: 36, bgcolor: '#FF6B35', fontSize: 14 }}>{s.full_name?.charAt(0)}</Avatar><Typography sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>{s.full_name}</Typography></Box></TableCell>
                                                 <TableCell sx={{ fontFamily: 'monospace' }}>{s.national_id}</TableCell>
                                                 <TableCell><Chip icon={s.has_account ? <CheckCircleIcon sx={{ fontSize: 16 }} /> : <PendingIcon sx={{ fontSize: 16 }} />} label={s.has_account ? 'مفعل' : 'غير مفعل'} size="small" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', bgcolor: s.has_account ? '#e8f5e9' : '#fafafa', color: s.has_account ? '#2e7d32' : '#999' }} /></TableCell>
                                             </TableRow>
@@ -454,7 +454,7 @@ export default function ManageUsers() {
                                     {users.map((user, idx) => (
                                         <TableRow key={user.id} hover sx={{ '&:nth-of-type(odd)': { bgcolor: '#fafafa' } }}>
                                             <TableCell>{idx + 1}</TableCell>
-                                            <TableCell><Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}><Avatar sx={{ width: 36, height: 36, background: gradient, fontSize: 14 }}>{user.first_name?.charAt(0)}</Avatar><Typography sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>{user.first_name} {user.last_name}</Typography></Box></TableCell>
+                                            <TableCell><Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}><Avatar src={user.profile_picture || undefined} sx={{ width: 36, height: 36, background: gradient, fontSize: 14 }}>{user.first_name?.charAt(0)}</Avatar><Typography sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>{user.first_name} {user.last_name}</Typography></Box></TableCell>
                                             <TableCell sx={{ fontFamily: 'monospace' }}>{user.national_id || '-'}</TableCell>
                                             <TableCell>{user.email || '-'}</TableCell>
                                             <TableCell>

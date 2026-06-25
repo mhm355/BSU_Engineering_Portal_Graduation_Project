@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import {
     Box, Container, Typography, TextField, InputAdornment,
     CircularProgress, Table, TableBody, TableCell, TableContainer,
-    TableHead, TableRow, Paper, Tabs, Tab
+    TableHead, TableRow, Paper, Tabs, Tab, Avatar
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import axios from 'axios';
@@ -125,7 +125,12 @@ export default function StaffDirectory() {
                                 >
                                     <TableCell>{idx + 1}</TableCell>
                                     <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 500 }}>
-                                        {member.first_name} {member.last_name}
+                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                                            <Avatar src={member.profile_picture || undefined} sx={{ width: 36, height: 36, bgcolor: '#4F46E5', fontSize: 14 }}>
+                                                {member.first_name?.charAt(0)}
+                                            </Avatar>
+                                            {member.first_name} {member.last_name}
+                                        </Box>
                                     </TableCell>
                                     <TableCell sx={{ fontFamily: 'Cairo' }}>
                                         {member.email || '-'}

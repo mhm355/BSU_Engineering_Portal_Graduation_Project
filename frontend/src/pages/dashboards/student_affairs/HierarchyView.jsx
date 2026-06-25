@@ -486,7 +486,7 @@ export default function HierarchyView() {
                                                         <TableCell>{idx + 1}</TableCell>
                                                         <TableCell>
                                                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                                                                <Avatar sx={{ width: 36, height: 36, bgcolor: '#00BCD4', fontSize: 14 }}>{student.full_name?.charAt(0)}</Avatar>
+                                                                <Avatar src={student.profile_picture || undefined} sx={{ width: 36, height: 36, bgcolor: '#00BCD4', fontSize: 14 }}>{student.full_name?.charAt(0)}</Avatar>
                                                                 <Typography sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>{student.full_name}</Typography>
                                                             </Box>
                                                         </TableCell>

@@ -38,8 +38,15 @@ const float = keyframes`
 `;
 
 const pulse = keyframes`
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+  100% { transform: scale(1); }
+`;
+
+const avatarPulse = keyframes`
+  0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4), 0 8px 25px rgba(0,0,0,0.2); transform: translateY(0px); }
+  50% { box-shadow: 0 0 0 15px rgba(255, 255, 255, 0), 0 12px 30px rgba(0,0,0,0.3); transform: translateY(-4px); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0), 0 8px 25px rgba(0,0,0,0.2); transform: translateY(0px); }
 `;
 
 const shimmer = keyframes`
@@ -198,11 +205,11 @@ export default function StudentDashboard() {
 
     const quickActions = [
         {
-            title: 'نتائج الامتحانات',
+            title: 'النتائج النهائية',
             icon: GradeIcon,
-            description: 'عرض درجاتك ونتائج الامتحانات',
+            description: 'الاستعلام عن النتائج النهائية المعتمدة',
             gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-            path: '/student/grades'
+            path: '/student/results'
         },
         {
             title: isPreparatory ? 'المواد العامة' : 'مواد القسم',
@@ -259,15 +266,22 @@ export default function StudentDashboard() {
                     <Fade in={true} timeout={800}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, flexWrap: 'wrap' }}>
                             <Avatar
-                                src={user.profile_picture}
+                                src={user.profile_picture || undefined}
                                 sx={{
-                                    width: 50,
-                                    height: 50,
-                                    border: '3px solid rgba(255,255,255,0.3)',
-                                    boxShadow: '0 8px 20px rgba(0,0,0,0.2)',
+                                    width: 85,
+                                    height: 85,
+                                    bgcolor: 'rgba(255,255,255,0.2)',
+                                    backdropFilter: 'blur(10px)',
+                                    border: '4px solid rgba(255, 255, 255, 0.9)',
+                                    boxShadow: '0 8px 25px rgba(0,0,0,0.2)',
+                                    animation: `${avatarPulse} 4s ease-in-out infinite`,
+                                    transition: 'all 0.3s ease',
+                                    '&:hover': {
+                                        transform: 'scale(1.05) translateY(-5px)',
+                                    }
                                 }}
                             >
-                                <PersonIcon sx={{ fontSize: 28 }} />
+                                <PersonIcon sx={{ fontSize: 40, color: '#fff' }} />
                             </Avatar>
                             <Box sx={{ flex: 1 }}>
                                 <Typography variant="subtitle1" sx={{ fontFamily: 'Cairo', opacity: 0.9, mb: 0.5 }}>
