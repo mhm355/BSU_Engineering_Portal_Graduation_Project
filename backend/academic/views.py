@@ -405,7 +405,7 @@ class CourseOfferingViewSet(viewsets.ModelViewSet):
                 'term_name': o.term.name,
                 'academic_year': o.academic_year.name,
                 'academic_year_id': o.academic_year.id,
-                'year_status': o.academic_year.status,
+                'academic_year_status': o.academic_year.status,
                 'grading_template': o.grading_template.name if o.grading_template else None,
                 'grading_template_id': o.grading_template.id if o.grading_template else None,
                 'grading_template_details': template_data,
