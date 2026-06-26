@@ -951,9 +951,9 @@ class StudentAffairsGradesView(APIView):
             level_id = request.query_params.get('level')
             specialization_id = request.query_params.get('specialization')  # Optional
 
-            if not all([department_id, academic_year_id, level_id]):
+            if not academic_year_id or not level_id:
                 return Response(
-                    {'error': 'يجب تحديد القسم والعام الدراسي والفرقة'},
+                    {'error': 'يجب تحديد العام الدراسي والفرقة'},
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
@@ -966,11 +966,15 @@ class StudentAffairsGradesView(APIView):
                 return Response({'error': 'الفرقة غير موجودة'}, status=status.HTTP_404_NOT_FOUND)
 
             # Check if department is preparatory
-            try:
-                department = Department.objects.get(id=department_id)
-                is_preparatory = department.is_preparatory or department.code == 'PREP'
-            except Department.DoesNotExist:
-                is_preparatory = False
+            is_preparatory = False
+            if department_id and department_id not in ['null', 'undefined', '']:
+                try:
+                    department = Department.objects.get(id=department_id)
+                    is_preparatory = department.is_preparatory or department.code == 'PREP'
+                except Department.DoesNotExist:
+                    pass
+            else:
+                department_id = None
 
             # Also check level name for preparatory
             level_is_prep = level.name == 'PREPARATORY' or (hasattr(Level, 'LevelName') and level.name == Level.LevelName.PREPARATORY)
@@ -1010,6 +1014,24 @@ class StudentAffairsGradesView(APIView):
                         Q(specialization__isnull=True)
                     )
 
+            # Get course offerings for these subjects
+            offerings = CourseOffering.objects.filter(
+                subject__in=subjects,
+                level=level,
+                academic_year_id=academic_year_id
+            )
+
+            # Get all grades for these students and offerings
+            grades = StudentGrade.objects.filter(
+                student__in=students,
+                course_offering__in=offerings
+            ).select_related('course_offering')
+
+            # Create a lookup dictionary: (student_id, subject_id) -> grade
+            grades_lookup = {}
+            for g in grades:
+                grades_lookup[(g.student_id, g.course_offering.subject_id)] = g
+
             # Get grades for each student
             result = []
             for student in students:
@@ -1021,40 +1043,18 @@ class StudentAffairsGradesView(APIView):
                 }
 
                 for subject in subjects:
-                    # Find grade for this student and subject
+                    sg = grades_lookup.get((student.id, subject.id))
                     grade_data = {
                         'subject_id': subject.id,
                         'subject_name': subject.name,
                         'subject_code': subject.code,
-                        'midterm': None,
-                        'coursework': None,
-                        'final': None,
-                        'attendance': None,
-                        'quizzes': None,
+                        'midterm': float(sg.midterm) if sg and sg.midterm is not None else None,
+                        'coursework': float(sg.coursework) if sg and sg.coursework is not None else None,
+                        'practical': float(sg.practical) if sg and hasattr(sg, 'practical') and sg.practical is not None else None,
+                        'final': float(sg.final) if sg and sg.final is not None else None,
+                        'attendance': sg.attendance_grade() if sg else None,
+                        'quizzes': sg.quizzes_grade() if sg else None,
                     }
-
-                    # Look for StudentGrade through CourseOffering
-                    course_offerings = CourseOffering.objects.filter(
-                        subject=subject,
-                        level=level,
-                        academic_year_id=academic_year_id
-                    )
-
-                    for co in course_offerings:
-                        try:
-                            sg = StudentGrade.objects.get(
-                                student=student,
-                                course_offering=co
-                            )
-                            grade_data['midterm'] = float(sg.midterm) if sg.midterm is not None else None
-                            grade_data['coursework'] = float(sg.coursework) if sg.coursework is not None else None
-                            grade_data['final'] = float(sg.final) if sg.final is not None else None
-                            grade_data['attendance'] = sg.attendance_grade()
-                            grade_data['quizzes'] = sg.quizzes_grade()
-                            break
-                        except StudentGrade.DoesNotExist:
-                            continue
-
                     student_data['subjects'].append(grade_data)
 
                 result.append(student_data)

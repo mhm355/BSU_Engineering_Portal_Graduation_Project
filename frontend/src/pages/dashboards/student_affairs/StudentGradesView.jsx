@@ -60,6 +60,10 @@ export default function StudentGradesView() {
     useEffect(() => {
         if (isSelectionComplete) {
             fetchGrades();
+            const interval = setInterval(() => {
+                fetchGrades(true);
+            }, 10000); // 10s polling
+            return () => clearInterval(interval);
         }
     }, [selectedDepartment, selectedYear, selectedLevel, selectedSpecialization]);
 
@@ -92,10 +96,9 @@ export default function StudentGradesView() {
 
     const fetchLevels = async () => {
         try {
-            const res = await axios.get(
-                `/api/academic/levels/?department=${selectedDepartment}&academic_year=${selectedYear}`,
-                config
-            );
+            let url = `/api/academic/levels/?academic_year=${selectedYear}`;
+            if (selectedDepartment) url += `&department=${selectedDepartment}`;
+            const res = await axios.get(url, config);
             setLevels(res.data);
         } catch (err) {
             console.error(err);
@@ -114,24 +117,27 @@ export default function StudentGradesView() {
         }
     };
 
-    const fetchGrades = async () => {
-        if (!selectedDepartment || !selectedYear || !selectedLevel) {
-            setError('يرجى اختيار جميع الخيارات');
+    const fetchGrades = async (silent = false) => {
+        if (!selectedYear || !selectedLevel) {
+            if (!silent) setError('يرجى اختيار العام والفرقة');
             return;
         }
 
         // Check if specialization is required but not selected
         if (needsSpecialization && !selectedSpecialization) {
-            setError('يرجى اختيار التخصص');
+            if (!silent) setError('يرجى اختيار التخصص');
             return;
         }
 
-        setLoading(true);
-        setError('');
-        setGradesData(null);
+        if (!silent) {
+            setLoading(true);
+            setError('');
+            setGradesData(null);
+        }
 
         try {
-            let url = `/api/academic/student-affairs/grades/?department=${selectedDepartment}&academic_year=${selectedYear}&level=${selectedLevel}`;
+            let url = `/api/academic/student-affairs/grades/?academic_year=${selectedYear}&level=${selectedLevel}`;
+            if (selectedDepartment) url += `&department=${selectedDepartment}`;
 
             // Add specialization parameter if needed
             if (needsSpecialization && selectedSpecialization) {
@@ -142,12 +148,14 @@ export default function StudentGradesView() {
             setGradesData(res.data);
         } catch (err) {
             console.error(err);
-            const data = err.response?.data;
-            const errMsg = data?.error || data?.detail || 'فشل في تحميل الدرجات';
-            const details = data?.details || ''; // In this view, traceback is in 'details' field
-            setError(`${errMsg}${details ? ': ' + details.substring(0, 150) + '...' : ''}`);
+            if (!silent) {
+                const data = err.response?.data;
+                const errMsg = data?.error || data?.detail || 'فشل في تحميل الدرجات';
+                const details = data?.details || ''; // In this view, traceback is in 'details' field
+                setError(`${errMsg}${details ? ': ' + details.substring(0, 150) + '...' : ''}`);
+            }
         } finally {
-            setLoading(false);
+            if (!silent) setLoading(false);
         }
     };
 
@@ -240,7 +248,7 @@ export default function StudentGradesView() {
                                         displayEmpty
                                         sx={{ borderRadius: 2, fontSize: '1.2rem', minHeight: 55, bgcolor: '#fafafa', '& .MuiSelect-select': { py: 1.5 } }}
                                     >
-                                        <MenuItem value="" disabled sx={{ fontSize: '1.1rem' }}>اختر القسم</MenuItem>
+                                        <MenuItem value="" sx={{ fontSize: '1.1rem' }}>الكل / إعدادي</MenuItem>
                                         {departments.map((dept) => (
                                             <MenuItem key={dept.id} value={dept.id} sx={{ fontSize: '1.1rem', py: 1.5 }}>{dept.name}</MenuItem>
                                         ))}
@@ -271,7 +279,7 @@ export default function StudentGradesView() {
                                 <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', mb: 1.5, color: '#1a2744' }}>
                                     الفرقة
                                 </Typography>
-                                <FormControl fullWidth variant="outlined" disabled={!selectedDepartment || !selectedYear}>
+                                <FormControl fullWidth variant="outlined" disabled={!selectedYear}>
                                     <Select
                                         value={selectedLevel}
                                         onChange={handleLevelChange}
