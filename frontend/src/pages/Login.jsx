@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import {
     Box, Container, Typography, Paper, TextField, Button, InputAdornment,
-    IconButton, Alert, CircularProgress, Fade, Grow, Chip, Avatar
+    IconButton, Alert, CircularProgress, Fade, Grow, Chip, Avatar,
+    Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions
 } from '@mui/material';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
