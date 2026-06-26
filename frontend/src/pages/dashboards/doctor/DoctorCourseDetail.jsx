@@ -686,11 +686,9 @@ export default function DoctorCourseDetail() {
                                             احتساب درجات الحضور تلقائياً
                                         </Button>
                                         {gradingTemplate && (
-                                            <Chip
-                                                label={`وزن الحضور: ${gradingTemplate.attendance_weight || 10}%`}
-                                                color="info"
-                                                sx={{ fontFamily: 'Cairo' }}
-                                            />
+                                            <Typography variant="body2" sx={{ fontFamily: 'Cairo', color: 'text.secondary', bgcolor: '#f0f4f8', px: 2, py: 1, borderRadius: 2 }}>
+                                                تلميح: درجة الحضور القصوى المحددة في اللائحة هي ({gradingTemplate.attendance_weight || 10}) درجات.
+                                            </Typography>
                                         )}
                                     </Box>
 
