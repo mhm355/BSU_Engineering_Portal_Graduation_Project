@@ -25,7 +25,9 @@ export default function UserProfile() {
         last_name: user?.last_name || '',
         email: user?.email || '',
         phone_number: user?.phone_number || '',
-        address: user?.address || ''
+        address: user?.address || '',
+        username: user?.username || '',
+        password: ''
     });
 
     React.useEffect(() => {
@@ -35,7 +37,9 @@ export default function UserProfile() {
                 last_name: user.last_name || '',
                 email: user.email || '',
                 phone_number: user.phone_number || '',
-                address: user.address || ''
+                address: user.address || '',
+                username: user.username || '',
+                password: ''
             });
         }
     }, [user]);
@@ -82,7 +86,9 @@ export default function UserProfile() {
                     formData.last_name !== user?.last_name ||
                     formData.email !== user?.email ||
                     formData.phone_number !== user?.phone_number ||
-                    formData.address !== user?.address
+                    formData.address !== user?.address ||
+                    formData.username !== user?.username ||
+                    (formData.password && formData.password.trim() !== '')
                 ) {
                     hasChanges = true;
                     dataToSend.append('first_name', formData.first_name);
@@ -90,6 +96,13 @@ export default function UserProfile() {
                     dataToSend.append('email', formData.email);
                     dataToSend.append('phone_number', formData.phone_number);
                     dataToSend.append('address', formData.address);
+                    
+                    if (formData.username !== user?.username) {
+                        dataToSend.append('username', formData.username);
+                    }
+                    if (formData.password && formData.password.trim() !== '') {
+                        dataToSend.append('password', formData.password);
+                    }
                 }
             }
 
@@ -257,6 +270,30 @@ export default function UserProfile() {
                                 InputLabelProps={{ style: { fontFamily: 'Cairo' } }}
                             />
                         </Grid>
+                        
+                        {isAdmin && (
+                            <>
+                                <Grid item xs={12} md={6}>
+                                    <TextField
+                                        fullWidth
+                                        label="اسم المستخدم"
+                                        value={formData.username}
+                                        onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                                        InputLabelProps={{ style: { fontFamily: 'Cairo' } }}
+                                    />
+                                </Grid>
+                                <Grid item xs={12} md={6}>
+                                    <TextField
+                                        fullWidth
+                                        label="كلمة المرور الجديدة (اختياري)"
+                                        type="password"
+                                        value={formData.password}
+                                        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                                        InputLabelProps={{ style: { fontFamily: 'Cairo' } }}
+                                    />
+                                </Grid>
+                            </>
+                        )}
 
                         <Grid item xs={12} sx={{ mt: 2, display: 'flex', gap: 2, alignItems: 'center' }}>
                             <Button
@@ -269,15 +306,17 @@ export default function UserProfile() {
                                 {loading ? 'جاري الحفظ...' : (isAdmin ? 'حفظ التغييرات' : 'حفظ الصورة الجديدة')}
                             </Button>
 
-                            <Button
-                                variant="outlined"
-                                color="warning"
-                                size="large"
-                                onClick={() => setResetDialogOpen(true)}
-                                sx={{ fontFamily: 'Cairo' }}
-                            >
-                                طلب إعادة تعيين كلمة المرور
-                            </Button>
+                            {!isAdmin && (
+                                <Button
+                                    variant="outlined"
+                                    color="warning"
+                                    size="large"
+                                    onClick={() => setResetDialogOpen(true)}
+                                    sx={{ fontFamily: 'Cairo' }}
+                                >
+                                    طلب إعادة تعيين كلمة المرور
+                                </Button>
+                            )}
                         </Grid>
                     </Grid>
                 </form>

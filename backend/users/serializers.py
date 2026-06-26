@@ -4,20 +4,31 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 class UserSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, required=False)
+
     class Meta:
         model = User
         fields = ['id', 'username', 'email', 'first_name', 'last_name', 'role', 
                   'national_id', 'phone_number', 'address', 'profile_picture',
-                  'first_login_required', 'graduation_status']
-        read_only_fields = ['username', 'role', 'national_id', 'first_login_required', 'graduation_status']
+                  'first_login_required', 'graduation_status', 'password']
+        read_only_fields = ['role', 'national_id', 'first_login_required', 'graduation_status']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         request = self.context.get('request')
         if request and hasattr(request, 'user') and getattr(request.user, 'role', None) != 'ADMIN':
-            for field in ['email', 'first_name', 'last_name', 'phone_number', 'address']:
+            for field in ['username', 'email', 'first_name', 'last_name', 'phone_number', 'address', 'password']:
                 if field in self.fields:
                     self.fields[field].read_only = True
+
+    def update(self, instance, validated_data):
+        password = validated_data.pop('password', None)
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        if password:
+            instance.set_password(password)
+        instance.save()
+        return instance
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
 
