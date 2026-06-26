@@ -1,10 +1,13 @@
 import React, { useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Box, Container, Typography, Paper, TextField, Button, Avatar, Grid, Alert, CircularProgress, IconButton, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
 import PhotoCamera from '@mui/icons-material/PhotoCamera';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useAuth } from "../context/AuthContext";
 import axios from 'axios';
 
 export default function UserProfile() {
+    const navigate = useNavigate();
     const { user, login } = useAuth();
     const fileInputRef = useRef(null);
     const [resetDialogOpen, setResetDialogOpen] = useState(false);
@@ -92,6 +95,21 @@ export default function UserProfile() {
 
     return (
         <Container maxWidth="md" sx={{ py: 4 }}>
+            <Button
+                startIcon={<ArrowBackIcon />}
+                onClick={() => navigate(-1)}
+                sx={{
+                    mb: 2,
+                    fontFamily: 'Cairo',
+                    fontWeight: 'bold',
+                    color: '#4F46E5',
+                    '&:hover': {
+                        bgcolor: 'rgba(79, 70, 229, 0.08)',
+                    },
+                }}
+            >
+                رجوع
+            </Button>
             <Paper sx={{ p: 4 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
                     <Box sx={{ position: 'relative', mr: 2 }}>
