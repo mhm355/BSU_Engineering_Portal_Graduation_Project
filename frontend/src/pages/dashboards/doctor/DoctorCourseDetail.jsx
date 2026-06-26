@@ -918,29 +918,42 @@ export default function DoctorCourseDetail() {
                                         <TableHead>
                                             <TableRow sx={{ bgcolor: '#d32f2f' }}>
                                                 <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff', minWidth: 180 }}>الطالب</TableCell>
-                                                <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff', textAlign: 'center' }}>الحضور<br /><small>({gradingTemplate?.attendance_weight || 10}%)</small></TableCell>
-                                                <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff', textAlign: 'center' }}>الكويزات<br /><small>({gradingTemplate?.quizzes_weight || 10}%)</small></TableCell>
-                                                <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff', textAlign: 'center' }}>أعمال السنة<br /><small>({gradingTemplate?.coursework_weight || 10}%)</small></TableCell>
-                                                <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff', textAlign: 'center' }}>منتصف الترم<br /><small>({gradingTemplate?.midterm_weight || 20}%)</small></TableCell>
-                                                <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff', textAlign: 'center' }}>النهائي<br /><small>({gradingTemplate?.final_weight || 50}%)</small></TableCell>
+                                                <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff', textAlign: 'center' }}>الحضور<br /><small>(أقصى: {gradingTemplate?.attendance_weight || 10})</small></TableCell>
+                                                <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff', textAlign: 'center' }}>الكويزات<br /><small>(أقصى: {gradingTemplate?.quizzes_weight || 10})</small></TableCell>
+                                                <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff', textAlign: 'center' }}>منتصف الترم<br /><small>(أقصى: {gradingTemplate?.midterm_weight || 20})</small></TableCell>
+                                                <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff', textAlign: 'center' }}>شفوي/عملي<br /><small>(أقصى: {gradingTemplate?.practical_weight || 0})</small></TableCell>
+                                                <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff', textAlign: 'center' }}>أعمال السنة<br /><small>(إجمالي)</small></TableCell>
+                                                <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff', textAlign: 'center' }}>النهائي<br /><small>(أقصى: {gradingTemplate?.final_weight || 50})</small></TableCell>
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
-                                            {students.map((student) => (
-                                                <TableRow key={student.id} hover>
-                                                    <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
-                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                                                            <Avatar src={student.profile_picture || undefined} sx={{ width: 32, height: 32, bgcolor: '#d32f2f', fontSize: 14 }}>{student.full_name?.charAt(0)}</Avatar>
-                                                            {student.full_name}
-                                                        </Box>
-                                                    </TableCell>
-                                                    {['attendance', 'quizzes', 'coursework', 'midterm', 'final'].map(field => (
-                                                        <TableCell key={field} sx={{ textAlign: 'center' }}>
-                                                            <TextField type="number" size="small" value={grades[student.id]?.[field] || ''} onChange={(e) => handleGradeChange(student.id, field, e.target.value)} sx={{ width: 80, '& .MuiOutlinedInput-root': { borderRadius: 2 } }} />
+                                            {students.map((student) => {
+                                                const att = parseFloat(grades[student.id]?.attendance || 0);
+                                                const quiz = parseFloat(grades[student.id]?.quizzes || 0);
+                                                const mid = parseFloat(grades[student.id]?.midterm || 0);
+                                                const cw = (att + quiz + mid).toFixed(2);
+                                                return (
+                                                    <TableRow key={student.id} hover>
+                                                        <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
+                                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                                                                <Avatar src={student.profile_picture || undefined} sx={{ width: 32, height: 32, bgcolor: '#d32f2f', fontSize: 14 }}>{student.full_name?.charAt(0)}</Avatar>
+                                                                {student.full_name}
+                                                            </Box>
                                                         </TableCell>
-                                                    ))}
-                                                </TableRow>
-                                            ))}
+                                                        {['attendance', 'quizzes', 'midterm', 'practical'].map(field => (
+                                                            <TableCell key={field} sx={{ textAlign: 'center' }}>
+                                                                <TextField type="number" size="small" value={grades[student.id]?.[field] || ''} onChange={(e) => handleGradeChange(student.id, field, e.target.value)} sx={{ width: 80, '& .MuiOutlinedInput-root': { borderRadius: 2 } }} />
+                                                            </TableCell>
+                                                        ))}
+                                                        <TableCell sx={{ textAlign: 'center' }}>
+                                                            <Typography sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>{cw}</Typography>
+                                                        </TableCell>
+                                                        <TableCell sx={{ textAlign: 'center' }}>
+                                                            <TextField type="number" size="small" value={grades[student.id]?.final || ''} onChange={(e) => handleGradeChange(student.id, 'final', e.target.value)} sx={{ width: 80, '& .MuiOutlinedInput-root': { borderRadius: 2 } }} />
+                                                        </TableCell>
+                                                    </TableRow>
+                                                );
+                                            })}
                                         </TableBody>
                                     </Table>
                                 </TableContainer>

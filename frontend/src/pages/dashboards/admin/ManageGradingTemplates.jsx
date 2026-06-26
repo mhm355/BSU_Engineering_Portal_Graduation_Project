@@ -111,6 +111,7 @@ const TemplateCard = ({ template, onEdit, delay = 0 }) => {
         parseInt(template.quizzes_weight || 0) +
         parseInt(template.coursework_weight || 0) +
         parseInt(template.midterm_weight || 0) +
+        parseInt(template.practical_weight || 0) +
         parseInt(template.final_weight || 0)
     );
 
@@ -175,13 +176,12 @@ const TemplateCard = ({ template, onEdit, delay = 0 }) => {
                                     {template.name}
                                 </Typography>
                                 <Chip
-                                    icon={<CheckCircleIcon sx={{ fontSize: 14 }} />}
-                                    label={`المجموع: ${totalWeight}%`}
+                                    label={`المجموع: ${totalWeight}`}
                                     size="small"
                                     sx={{
                                         mt: 0.5,
-                                        bgcolor: totalWeight === 100 ? '#e8f5e9' : '#ffebee',
-                                        color: totalWeight === 100 ? '#2e7d32' : '#c62828',
+                                        bgcolor: totalWeight > 0 ? '#e8f5e9' : '#ffebee',
+                                        color: totalWeight > 0 ? '#2e7d32' : '#c62828',
                                         fontFamily: 'Cairo',
                                         fontWeight: 'bold',
                                     }}
@@ -194,8 +194,8 @@ const TemplateCard = ({ template, onEdit, delay = 0 }) => {
                     <Box sx={{ mb: 2 }}>
                         <WeightBar label="الحضور" value={template.attendance_weight} color="#2196F3" icon={EventAvailableIcon} />
                         <WeightBar label="الكويزات" value={template.quizzes_weight} color="#9C27B0" icon={QuizIcon} />
-                        <WeightBar label="أعمال السنة" value={template.coursework_weight} color="#FF9800" icon={AssignmentIcon} />
                         <WeightBar label="الميدتيرم" value={template.midterm_weight} color="#00BCD4" icon={DescriptionIcon} />
+                        <WeightBar label="عملي/شفوي" value={template.practical_weight || 0} color="#FF9800" icon={AssignmentIcon} />
                         <WeightBar label="الفاينال" value={template.final_weight} color="#4CAF50" icon={SchoolIcon} />
                     </Box>
 
@@ -312,8 +312,8 @@ export default function ManageGradingTemplates() {
         return (
             parseInt(currentTemplate.attendance_weight || 0) +
             parseInt(currentTemplate.quizzes_weight || 0) +
-            parseInt(currentTemplate.coursework_weight || 0) +
             parseInt(currentTemplate.midterm_weight || 0) +
+            parseInt(currentTemplate.practical_weight || 0) +
             parseInt(currentTemplate.final_weight || 0)
         );
     };
@@ -324,8 +324,8 @@ export default function ManageGradingTemplates() {
             return;
         }
 
-        if (getTotalWeight() !== 100) {
-            setError(`مجموع الدرجات يجب أن يساوي 100 (الحالي: ${getTotalWeight()})`);
+        if (getTotalWeight() <= 0) {
+            setError(`يجب أن يكون مجموع الدرجات أكبر من الصفر`);
             return;
         }
 
@@ -609,7 +609,7 @@ export default function ManageGradingTemplates() {
                         />
                         <Box sx={{ display: 'flex', gap: 2 }}>
                             <TextField
-                                label="الحضور %"
+                                label="الحضور"
                                 type="number"
                                 value={currentTemplate.attendance_weight}
                                 onChange={(e) => setCurrentTemplate({ ...currentTemplate, attendance_weight: parseInt(e.target.value) || 0 })}
@@ -627,7 +627,7 @@ export default function ManageGradingTemplates() {
                         </Box>
                         <Box sx={{ display: 'flex', gap: 2 }}>
                             <TextField
-                                label="الكويزات %"
+                                label="الكويزات"
                                 type="number"
                                 value={currentTemplate.quizzes_weight}
                                 onChange={(e) => setCurrentTemplate({ ...currentTemplate, quizzes_weight: parseInt(e.target.value) || 0 })}
@@ -644,21 +644,21 @@ export default function ManageGradingTemplates() {
                             />
                         </Box>
                         <TextField
-                            label="أعمال السنة %"
+                            label="عملي/شفوي"
                             type="number"
-                            value={currentTemplate.coursework_weight}
-                            onChange={(e) => setCurrentTemplate({ ...currentTemplate, coursework_weight: parseInt(e.target.value) || 0 })}
+                            value={currentTemplate.practical_weight || 0}
+                            onChange={(e) => setCurrentTemplate({ ...currentTemplate, practical_weight: parseInt(e.target.value) || 0 })}
                             InputProps={{ sx: { borderRadius: 2 } }}
                         />
                         <TextField
-                            label="الميدتيرم %"
+                            label="الميدتيرم"
                             type="number"
                             value={currentTemplate.midterm_weight}
                             onChange={(e) => setCurrentTemplate({ ...currentTemplate, midterm_weight: parseInt(e.target.value) || 0 })}
                             InputProps={{ sx: { borderRadius: 2 } }}
                         />
                         <TextField
-                            label="الفاينال %"
+                            label="الفاينال"
                             type="number"
                             value={currentTemplate.final_weight}
                             onChange={(e) => setCurrentTemplate({ ...currentTemplate, final_weight: parseInt(e.target.value) || 0 })}
@@ -671,21 +671,21 @@ export default function ManageGradingTemplates() {
                             sx={{
                                 p: 2,
                                 borderRadius: 3,
-                                bgcolor: getTotalWeight() === 100 ? '#e8f5e9' : '#fff3e0',
-                                border: `2px solid ${getTotalWeight() === 100 ? '#4CAF50' : '#FF9800'}`,
+                                bgcolor: getTotalWeight() > 0 ? '#e8f5e9' : '#fff3e0',
+                                border: `2px solid ${getTotalWeight() > 0 ? '#4CAF50' : '#FF9800'}`,
                             }}
                         >
                             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                <Typography sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: getTotalWeight() === 100 ? '#2e7d32' : '#e65100' }}>
+                                <Typography sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: getTotalWeight() > 0 ? '#2e7d32' : '#e65100' }}>
                                     المجموع الكلي
                                 </Typography>
                                 <Chip
-                                    label={`${getTotalWeight()}%`}
+                                    label={`${getTotalWeight()}`}
                                     sx={{
                                         fontFamily: 'Cairo',
                                         fontWeight: 'bold',
                                         fontSize: '1rem',
-                                        bgcolor: getTotalWeight() === 100 ? '#4CAF50' : '#FF9800',
+                                        bgcolor: getTotalWeight() > 0 ? '#4CAF50' : '#FF9800',
                                         color: '#fff',
                                     }}
                                 />
@@ -704,9 +704,9 @@ export default function ManageGradingTemplates() {
                                     }
                                 }}
                             />
-                            {getTotalWeight() !== 100 && (
+                            {getTotalWeight() <= 0 && (
                                 <Typography variant="body2" sx={{ mt: 1, fontFamily: 'Cairo', color: '#e65100' }}>
-                                    يجب أن يكون المجموع 100% (الفرق: {100 - getTotalWeight()}%)
+                                    يجب إدخال قيم أكبر من الصفر
                                 </Typography>
                             )}
                         </Paper>
@@ -719,7 +719,7 @@ export default function ManageGradingTemplates() {
                     <Button
                         onClick={handleSave}
                         variant="contained"
-                        disabled={getTotalWeight() !== 100}
+                        disabled={getTotalWeight() <= 0}
                         sx={{
                             fontFamily: 'Cairo',
                             px: 4,

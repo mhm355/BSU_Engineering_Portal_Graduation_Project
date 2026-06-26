@@ -483,7 +483,8 @@ const AssignDoctors = () => {
                                                 <Select value={selectedTemplate} onChange={(e) => setSelectedTemplate(e.target.value)} displayEmpty sx={inputStyle}>
                                                     {gradingTemplates.map((t) => (
                                                         <MenuItem key={t.id} value={t.id}>
-                                                            {t.name} {t.is_default && <Chip label="افتراضي" size="small" color="primary" sx={{ ml: 1 }} />}
+                                                            {t.name} (حضور: {t.attendance_weight}، عملي: {t.practical_weight || 0}، منتصف: {t.midterm_weight}، نهائي: {t.final_weight})
+                                                            {t.is_default && <Chip label="افتراضي" size="small" color="primary" sx={{ ml: 1 }} />}
                                                         </MenuItem>
                                                     ))}
                                                 </Select>

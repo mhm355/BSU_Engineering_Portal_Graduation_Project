@@ -260,7 +260,7 @@ class CourseOffering(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, null=True)
 
     class Meta:
-        unique_together = ('subject', 'academic_year', 'term', 'level')
+        unique_together = ('subject', 'academic_year', 'term', 'level', 'specialization')
 
     def __str__(self):
         dept = self.level.department.name if self.level.department else 'Prep'
@@ -339,11 +339,18 @@ class StudentGrade(models.Model):
     quiz_grades = models.JSONField(default=dict, blank=True)  # {1: 8.5, 2: 9.0}
     attendance = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
     quizzes = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
-    coursework = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
     midterm = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    practical = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
     final = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    @property
+    def coursework(self):
+        att = self.attendance_grade()
+        qz = self.quizzes_grade()
+        mid = float(self.midterm) if self.midterm is not None else 0.0
+        return att + qz + mid
 
     class Meta:
         unique_together = ('student', 'course_offering')
@@ -375,15 +382,11 @@ class StudentGrade(models.Model):
 
     def total_grade(self):
         """Calculate total grade"""
-        total = 0
-        if self.coursework:
-            total += float(self.coursework)
-        if self.midterm:
-            total += float(self.midterm)
+        total = self.coursework
+        if self.practical:
+            total += float(self.practical)
         if self.final:
             total += float(self.final)
-        total += self.attendance_grade()
-        total += self.quizzes_grade()
         return total
 
     def __str__(self):

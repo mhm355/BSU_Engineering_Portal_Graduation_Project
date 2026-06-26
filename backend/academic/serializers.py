@@ -215,12 +215,14 @@ class StudentGradeSerializer(serializers.ModelSerializer):
     quizzes_weight = serializers.SerializerMethodField()
     coursework_weight = serializers.SerializerMethodField()
     midterm_weight = serializers.SerializerMethodField()
+    practical_weight = serializers.SerializerMethodField()
     final_weight = serializers.SerializerMethodField()
     course_name = serializers.CharField(source='course_offering.subject.name', read_only=True)
     attendance_grade = serializers.SerializerMethodField()
     quizzes_grade = serializers.SerializerMethodField()
     coursework_grade = serializers.DecimalField(source='coursework', max_digits=5, decimal_places=2, read_only=True)
     midterm_grade = serializers.DecimalField(source='midterm', max_digits=5, decimal_places=2, read_only=True)
+    practical_grade = serializers.DecimalField(source='practical', max_digits=5, decimal_places=2, read_only=True)
     final_grade = serializers.DecimalField(source='final', max_digits=5, decimal_places=2, read_only=True)
     total_grade = serializers.SerializerMethodField()
     year_status = serializers.CharField(source='course_offering.academic_year.status', read_only=True)
@@ -230,13 +232,14 @@ class StudentGradeSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'student', 'student_name', 'student_national_id',
             'course_offering', 'course_code', 'course_name',
-            'quiz_grades', 'attendance', 'quizzes', 'coursework', 'midterm', 'final',
+            'quiz_grades', 'attendance', 'quizzes', 'coursework', 'midterm', 'practical', 'final',
             'attendance_grade', 'quizzes_grade', 'coursework_grade',
-            'midterm_grade', 'final_grade', 'total_grade',
+            'midterm_grade', 'practical_grade', 'final_grade', 'total_grade',
             'attendance_weight', 'quizzes_weight', 'coursework_weight',
-            'midterm_weight', 'final_weight', 'year_status',
+            'midterm_weight', 'practical_weight', 'final_weight', 'year_status',
             'created_at', 'updated_at',
         ]
+        read_only_fields = ['coursework']
 
     def get_attendance_grade(self, obj):
         if obj.attendance is not None:
@@ -275,6 +278,10 @@ class StudentGradeSerializer(serializers.ModelSerializer):
     def get_final_weight(self, obj):
         tmpl = self.get_Template(obj)
         return tmpl.final_weight if tmpl else 0
+
+    def get_practical_weight(self, obj):
+        tmpl = self.get_Template(obj)
+        return tmpl.practical_weight if tmpl else 0
 
 
 class TeachingAssignmentSerializer(serializers.ModelSerializer):
