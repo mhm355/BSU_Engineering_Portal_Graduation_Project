@@ -50,17 +50,21 @@ export default function Announcements() {
 
     useEffect(() => {
         fetchAnnouncements();
+        const interval = setInterval(() => {
+            fetchAnnouncements(true);
+        }, 10000);
+        return () => clearInterval(interval);
     }, []);
 
-    const fetchAnnouncements = async () => {
-        setLoading(true);
+    const fetchAnnouncements = async (silent = false) => {
+        if (!silent) setLoading(true);
         try {
             const res = await axios.get('/api/academic/announcements/', config);
             setAnnouncements(res.data);
         } catch (err) {
-            setError('فشل في تحميل الإعلانات');
+            if (!silent) setError('فشل في تحميل الإعلانات');
         } finally {
-            setLoading(false);
+            if (!silent) setLoading(false);
         }
     };
 
@@ -116,37 +120,28 @@ export default function Announcements() {
     };
 
     return (
-        <Container maxWidth="lg" sx={{ py: 4 }}>
-            <Button
-                startIcon={<ArrowBackIcon />}
-                onClick={() => navigate('/admin/dashboard')}
-                sx={{ mb: 2, fontFamily: 'Cairo' }}
-            >
-                عودة للوحة التحكم
-            </Button>
+        <Box>
+            {error && <Alert severity="error" sx={{ mb: 3, borderRadius: 3, fontFamily: 'Cairo' }} onClose={() => setError('')}>{error}</Alert>}
+            {success && <Alert severity="success" sx={{ mb: 3, borderRadius: 3, fontFamily: 'Cairo' }} onClose={() => setSuccess('')}>{success}</Alert>}
 
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-                <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B' }}>
-                    <CampaignIcon sx={{ mr: 1, verticalAlign: 'bottom', fontSize: 36 }} />
+            <Paper elevation={0} sx={{ p: 3, mb: 4, borderRadius: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: '1px solid #e0e0e0' }}>
+                <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
                     إدارة الإعلانات
                 </Typography>
                 <Button
                     variant="contained"
                     startIcon={<AddIcon />}
                     onClick={() => setOpenDialog(true)}
-                    sx={{ fontFamily: 'Cairo' }}
+                    sx={{ fontFamily: 'Cairo', borderRadius: 3 }}
                 >
                     إعلان جديد
                 </Button>
-            </Box>
-
-            {error && <Alert severity="error" sx={{ mb: 2, fontFamily: 'Cairo' }} onClose={() => setError('')}>{error}</Alert>}
-            {success && <Alert severity="success" sx={{ mb: 2, fontFamily: 'Cairo' }} onClose={() => setSuccess('')}>{success}</Alert>}
+            </Paper>
 
             {loading ? (
                 <Box sx={{ textAlign: 'center', py: 5 }}><CircularProgress /></Box>
             ) : (
-                <TableContainer component={Paper}>
+                <TableContainer component={Paper} sx={{ borderRadius: 4 }}>
                     <Table>
                         <TableHead>
                             <TableRow sx={{ bgcolor: '#4F46E5' }}>
@@ -199,7 +194,6 @@ export default function Announcements() {
                 </TableContainer>
             )}
 
-            {/* Create Announcement Dialog */}
             <Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="sm" fullWidth>
                 <DialogTitle sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>إنشاء إعلان جديد</DialogTitle>
                 <DialogContent>
@@ -264,6 +258,6 @@ export default function Announcements() {
                     </Button>
                 </DialogActions>
             </Dialog>
-        </Container>
+        </Box>
     );
 }

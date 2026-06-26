@@ -89,10 +89,10 @@ export default function ManageNews() {
     };
 
     return (
-        <Container maxWidth="lg" sx={{ py: 4 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-                <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B' }}>
-                    إدارة الأخبار
+        <Box>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B' }}>
+                    الأخبار العامة
                 </Typography>
                 <Button
                     variant="contained"
@@ -214,6 +214,6 @@ export default function ManageNews() {
                     </Button>
                 </DialogActions>
             </Dialog>
-        </Container>
+        </Box>
     );
 }

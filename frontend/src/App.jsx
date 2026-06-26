@@ -13,7 +13,7 @@ import ArchDepartmentPage from './pages/ArchDepartmentPage';
 import ElectricalDepartmentPage from './pages/ElectricalDepartmentPage';
 import StaffDirectory from './pages/dashboards/student_affairs/public/StaffDirectory';
 import Departments from './pages/dashboards/student_affairs/public/Departments';
-import ManageNews from './pages/dashboards/admin/ManageNews';
+import UnifiedNews from './pages/dashboards/admin/UnifiedNews';
 import Contact from './pages/Contact';
 import Login from './pages/Login';
 import ChangePassword from './pages/ChangePassword';
@@ -65,7 +65,7 @@ import DeletionRequests from './pages/dashboards/admin/DeletionRequests';
 import ManageAcademicYears from './pages/dashboards/admin/ManageAcademicYears';
 import ManageGradingTemplates from './pages/dashboards/admin/ManageGradingTemplates';
 import AuditLogViewer from './pages/dashboards/admin/AuditLogViewer';
-import Announcements from './pages/dashboards/admin/Announcements';
+
 import ComplaintsDashboard from './pages/dashboards/admin/ComplaintsDashboard';
 import PasswordResets from './pages/dashboards/admin/PasswordResets';
 import UploadHistory from './pages/dashboards/student_affairs/UploadHistory';
@@ -167,11 +167,11 @@ function App() {
                 <Route path="admin/academic-structure" element={<ProtectedRoute roles={['ADMIN']}><AdminAcademicStructure /></ProtectedRoute>} />
                 <Route path="admin/approvals" element={<ProtectedRoute roles={['ADMIN']}><ApprovalCenter /></ProtectedRoute>} />
                 <Route path="admin/pending-approvals" element={<ProtectedRoute roles={['ADMIN']}><PendingApprovals /></ProtectedRoute>} />
-                <Route path="admin/news" element={<ProtectedRoute roles={['ADMIN']}><ManageNews /></ProtectedRoute>} />
+                <Route path="admin/news" element={<ProtectedRoute roles={['ADMIN']}><UnifiedNews /></ProtectedRoute>} />
                 <Route path="admin/deletion-requests" element={<ProtectedRoute roles={['ADMIN']}><DeletionRequests /></ProtectedRoute>} />
                 <Route path="admin/publish-results" element={<ProtectedRoute roles={['ADMIN']}><PublishResultsAdmin /></ProtectedRoute>} />
                 <Route path="admin/audit-logs" element={<ProtectedRoute roles={['ADMIN']}><AuditLogViewer /></ProtectedRoute>} />
-                <Route path="admin/announcements" element={<ProtectedRoute roles={['ADMIN']}><Announcements /></ProtectedRoute>} />
+                <Route path="admin/announcements" element={<ProtectedRoute roles={['ADMIN']}><UnifiedNews /></ProtectedRoute>} />
                 <Route path="admin/complaints" element={<ProtectedRoute roles={['ADMIN']}><ComplaintsDashboard /></ProtectedRoute>} />
                 <Route path="admin/password-resets" element={<ProtectedRoute roles={['ADMIN']}><PasswordResets /></ProtectedRoute>} />
               </Route>
