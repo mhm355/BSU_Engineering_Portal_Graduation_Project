@@ -467,14 +467,6 @@ export default function AdminDashboard() {
             gradient: 'linear-gradient(135deg, #d32f2f, #ef5350)',
         },
         {
-            icon: NewspaperIcon,
-            title: 'إدارة الأخبار',
-            description: 'إنشاء وإدارة الأخبار المتنوعة في النظام',
-            buttonText: 'إدارة الأخبار',
-            onClick: () => navigate('/admin/news'),
-            gradient: 'linear-gradient(135deg, #E91E63, #F06292)',
-        },
-        {
             icon: SettingsIcon,
             title: 'طلبات كلمات المرور',
             description: 'إدارة طلبات إعادة تعيين كلمات المرور للمستخدمين',
