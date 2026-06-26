@@ -1,6 +1,4 @@
 from rest_framework import viewsets, permissions
-from django.views.decorators.cache import cache_page
-from django.utils.decorators import method_decorator
 from django.conf import settings
 from .models import News
 from .serializers import NewsSerializer
@@ -17,9 +15,6 @@ class NewsViewSet(viewsets.ModelViewSet):
     serializer_class = NewsSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
-    @method_decorator(cache_page(settings.CACHE_ANNOUNCEMENTS))
-    def list(self, request, *args, **kwargs):
-        return super().list(request, *args, **kwargs)
 
     def get_queryset(self):
         qs = News.objects.all().order_by('-created_at')

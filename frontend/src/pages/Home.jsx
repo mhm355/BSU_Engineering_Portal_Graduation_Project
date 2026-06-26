@@ -16,6 +16,7 @@ import ScienceIcon from '@mui/icons-material/Science';
 import GroupsIcon from '@mui/icons-material/Groups';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import AutoStoriesIcon from '@mui/icons-material/AutoStories';
+import { sanitizeFileUrl } from '../utils/urlHelper';
 
 // Feature Card Component
 const FeatureCard = ({ icon: Icon, title, description, delay = 0 }) => (
@@ -206,19 +207,7 @@ export default function Home() {
     const [newsList, setNewsList] = React.useState([]);
     const [selectedNews, setSelectedNews] = React.useState(null);
 
-    const getImageUrl = (image) => {
-        if (!image) return null;
-        // Force relative path by stripping domain/protocol
-        if (image.startsWith('http')) {
-            try {
-                const url = new URL(image);
-                return url.pathname + url.search;
-            } catch (e) {
-                return image;
-            }
-        }
-        return image;
-    };
+    const getImageUrl = sanitizeFileUrl;
 
     React.useEffect(() => {
         fetchNews();
