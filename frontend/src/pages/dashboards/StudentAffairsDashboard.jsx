@@ -260,14 +260,6 @@ export default function StudentAffairsDashboard() {
             onClick: () => navigate('/student-affairs/upload-history'),
             color: 'secondary',
         },
-        {
-            icon: CloudUploadIcon,
-            title: 'رفع شهادات بالجملة',
-            description: 'رفع ملف ZIP يحتوي على شهادات PDF للطلاب',
-            buttonText: 'رفع الشهادات',
-            onClick: () => navigate('/student-affairs/bulk-certificates'),
-            color: 'purple',
-        },
     ];
 
     return (
