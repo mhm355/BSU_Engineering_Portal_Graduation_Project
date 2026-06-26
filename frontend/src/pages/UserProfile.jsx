@@ -18,8 +18,27 @@ export default function UserProfile() {
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState('');
     const [error, setError] = useState('');
+    const isAdmin = user?.role === 'ADMIN';
 
+    const [formData, setFormData] = useState({
+        first_name: user?.first_name || '',
+        last_name: user?.last_name || '',
+        email: user?.email || '',
+        phone_number: user?.phone_number || '',
+        address: user?.address || ''
+    });
 
+    React.useEffect(() => {
+        if (user) {
+            setFormData({
+                first_name: user.first_name || '',
+                last_name: user.last_name || '',
+                email: user.email || '',
+                phone_number: user.phone_number || '',
+                address: user.address || ''
+            });
+        }
+    }, [user]);
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
@@ -52,8 +71,30 @@ export default function UserProfile() {
             
             if (profilePicture) {
                 dataToSend.append('profile_picture', profilePicture);
-            } else {
-                setSuccess('لم يتم تغيير الصورة');
+            }
+
+            let hasChanges = !!profilePicture;
+
+            if (isAdmin) {
+                // Check if any text field changed
+                if (
+                    formData.first_name !== user?.first_name ||
+                    formData.last_name !== user?.last_name ||
+                    formData.email !== user?.email ||
+                    formData.phone_number !== user?.phone_number ||
+                    formData.address !== user?.address
+                ) {
+                    hasChanges = true;
+                    dataToSend.append('first_name', formData.first_name);
+                    dataToSend.append('last_name', formData.last_name);
+                    dataToSend.append('email', formData.email);
+                    dataToSend.append('phone_number', formData.phone_number);
+                    dataToSend.append('address', formData.address);
+                }
+            }
+
+            if (!hasChanges) {
+                setSuccess('لم يتم إجراء أي تغييرات');
                 setLoading(false);
                 return;
             }
@@ -67,7 +108,7 @@ export default function UserProfile() {
 
             // Update context
             login(response.data);
-            setSuccess('تم تحديث الصورة بنجاح');
+            setSuccess('تم تحديث البيانات بنجاح');
             setProfilePicture(null);
         } catch (err) {
             console.error('Error updating profile:', err);
@@ -170,8 +211,9 @@ export default function UserProfile() {
                             <TextField
                                 fullWidth
                                 label="الاسم الأول"
-                                value={user?.first_name || ''}
-                                disabled
+                                value={formData.first_name}
+                                onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
+                                disabled={!isAdmin}
                                 InputLabelProps={{ style: { fontFamily: 'Cairo' } }}
                             />
                         </Grid>
@@ -179,8 +221,9 @@ export default function UserProfile() {
                             <TextField
                                 fullWidth
                                 label="الاسم الأخير"
-                                value={user?.last_name || ''}
-                                disabled
+                                value={formData.last_name}
+                                onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
+                                disabled={!isAdmin}
                                 InputLabelProps={{ style: { fontFamily: 'Cairo' } }}
                             />
                         </Grid>
@@ -188,8 +231,9 @@ export default function UserProfile() {
                             <TextField
                                 fullWidth
                                 label="البريد الإلكتروني"
-                                value={user?.email || ''}
-                                disabled
+                                value={formData.email}
+                                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                disabled={!isAdmin}
                                 InputLabelProps={{ style: { fontFamily: 'Cairo' } }}
                             />
                         </Grid>
@@ -197,8 +241,9 @@ export default function UserProfile() {
                             <TextField
                                 fullWidth
                                 label="رقم الهاتف"
-                                value={user?.phone_number || ''}
-                                disabled
+                                value={formData.phone_number}
+                                onChange={(e) => setFormData({ ...formData, phone_number: e.target.value })}
+                                disabled={!isAdmin}
                                 InputLabelProps={{ style: { fontFamily: 'Cairo' } }}
                             />
                         </Grid>
@@ -206,8 +251,9 @@ export default function UserProfile() {
                             <TextField
                                 fullWidth
                                 label="العنوان"
-                                value={user?.address || ''}
-                                disabled
+                                value={formData.address}
+                                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                                disabled={!isAdmin}
                                 InputLabelProps={{ style: { fontFamily: 'Cairo' } }}
                             />
                         </Grid>
@@ -217,10 +263,10 @@ export default function UserProfile() {
                                 type="submit"
                                 variant="contained"
                                 size="large"
-                                disabled={loading || !profilePicture}
+                                disabled={loading}
                                 sx={{ bgcolor: '#4F46E5', fontFamily: 'Cairo' }}
                             >
-                                {loading ? 'جاري الحفظ...' : 'حفظ الصورة الجديدة'}
+                                {loading ? 'جاري الحفظ...' : (isAdmin ? 'حفظ التغييرات' : 'حفظ الصورة الجديدة')}
                             </Button>
 
                             <Button

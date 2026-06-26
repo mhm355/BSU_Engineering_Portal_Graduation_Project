@@ -9,8 +9,15 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'email', 'first_name', 'last_name', 'role', 
                   'national_id', 'phone_number', 'address', 'profile_picture',
                   'first_login_required', 'graduation_status']
-        read_only_fields = ['username', 'email', 'first_name', 'last_name', 'role', 
-                            'national_id', 'phone_number', 'address', 'first_login_required', 'graduation_status']
+        read_only_fields = ['username', 'role', 'national_id', 'first_login_required', 'graduation_status']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        request = self.context.get('request')
+        if request and hasattr(request, 'user') and getattr(request.user, 'role', None) != 'ADMIN':
+            for field in ['email', 'first_name', 'last_name', 'phone_number', 'address']:
+                if field in self.fields:
+                    self.fields[field].read_only = True
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
 
