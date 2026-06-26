@@ -1,7 +1,7 @@
 % Chapter 10: Limitations & Future Work
 % BSU Engineering Portal Graduation Project
 
-\chapter{Limitations \& Future Work}
+\chapter{Limitations and Future Work}
 \label{chap:limitations}
 
 A mature engineering project acknowledges its boundaries. This chapter documents the system's known limitations with full transparency---not as failures, but as \textbf{deliberate scope decisions} and \textbf{honest assessments} of what the current architecture does not yet support. Each limitation is paired with a concrete proposed mitigation, providing a roadmap for future development.
@@ -59,6 +59,10 @@ A mature engineering project acknowledges its boundaries. This chapter documents
         L-13 & \textbf{Single quiz attempt only} & Feature & Students can only take each quiz once. No mechanism for retakes or practice modes. & Add \texttt{max\_attempts} field to Quiz model. Modify \texttt{unique\_together} to \texttt{['student', 'quiz', 'attempt\_number']}. \\
         \hline
         L-14 & \textbf{No GPA calculation} & Feature & System records individual course grades but does not compute cumulative or semester GPA. & Add GPA calculation service that aggregates \texttt{StudentGrade.total\_grade()} across courses, weighted by credit hours. \\
+        \hline
+        L-19 & \textbf{No discussion forums} & Feature & Students and doctors lack a structured platform for asynchronous academic discussions. & Implement a forum module with topic threads, replies, and moderation tools. \\
+        \hline
+        L-20 & \textbf{No live virtual classrooms} & Feature & System does not support real-time remote lectures or video conferencing. & Integrate with Zoom/Teams APIs or embed an open-source solution like BigBlueButton. \\
         \hline
     \end{tabular}
     \caption{Feature Limitations and Proposed Mitigations}
@@ -158,6 +162,10 @@ A mature engineering project acknowledges its boundaries. This chapter documents
         \textcolor{yellow}{\ding{108}} Low & \textbf{Horizontal scaling} (K8s) (L-01) & 3-4 sprints & Enterprise-grade scalability \\
         \hline
         \textcolor{yellow}{\ding{108}} Low & \textbf{Automated proctoring} (L-11) & 4-6 sprints & Academic integrity enhancement \\
+        \hline
+        \textcolor{orange}{\ding{108}} Medium & \textbf{Discussion Forums} (L-19) & 2-3 sprints & Asynchronous academic engagement \\
+        \hline
+        \textcolor{orange}{\ding{108}} Medium & \textbf{Live Virtual Classrooms} (L-20) & 4-5 sprints & Real-time remote learning \\
         \hline
     \end{tabular}
     \caption{Long-Term Vision Roadmap (6+ Sprints)}

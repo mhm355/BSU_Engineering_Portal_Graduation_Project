@@ -1,7 +1,7 @@
 % Chapter 11: Conclusion & References
 % BSU Engineering Portal Graduation Project
 
-\chapter{Conclusion \& References}
+\chapter{Conclusion}
 \label{chap:conclusion}
 
 \section{Conclusion}
@@ -43,7 +43,7 @@ The BSU Engineering Portal directly addresses the \textbf{five systemic problems
 
 Beyond solving operational problems, this project demonstrates the application of \textbf{modern software engineering principles} at a production level.
 
-\subsubsection{Architecture \& Design}
+\subsubsection{Architecture and Design}
 \begin{itemize}
     \item \textbf{Three-tier containerized architecture} with clear separation between presentation (React [3]), business logic (Django [1]/DRF [2]), and data persistence (MySQL [12])
     \item \textbf{REST API contract} [21] enabling frontend-backend independence---the API serves as a stable interface between teams
@@ -57,7 +57,7 @@ Beyond solving operational problems, this project demonstrates the application o
     \item \textbf{Automated vulnerability scanning} via Trivy [14], integrated into the Docker build process to block deployment of known-vulnerable images
 \end{itemize}
 
-\subsubsection{DevOps \& Deployment}
+\subsubsection{DevOps and Deployment}
 \begin{itemize}
     \item \textbf{Multi-stage Docker [8] builds} reducing image sizes by 70-95\% (backend: \textasciitilde350MB, frontend: \textasciitilde45MB)
     \item \textbf{Manual build workflow} using Docker Buildx with path-filtered builds, Docker Hub publishing, Trivy security scanning, and version-tagged releases
@@ -95,7 +95,7 @@ This project provided the team with practical experience in:
 
 The BSU Engineering Portal is not a prototype or a proof of concept. It is a \textbf{deployable, maintainable, and extensible system} that replaces a paper-and-spreadsheet environment with a secure, scalable, and auditable digital platform.
 
-The system is designed to evolve. The REST API architecture, Docker containerization, and modular Django application structure ensure that future enhancements---mobile applications, real-time notifications, analytics dashboards---can be added incrementally without requiring a rewrite.
+The system is designed to evolve. The REST API architecture, Docker containerization, and modular Django application structure ensure that future enhancements---including traditional Learning Management System (LMS) features like Discussion Forums and Live Virtual Classrooms, as well as mobile applications, real-time notifications, and analytics dashboards---can be added incrementally without requiring a rewrite.
 
 \begin{quote}
 \textit{``A well-scoped system that works reliably is more valuable than an ambitious system that works partially.''}
@@ -103,83 +103,6 @@ The system is designed to evolve. The REST API architecture, Docker containeriza
 
 The BSU Engineering Portal embodies this principle. It solves the faculty's core problems today and provides the architectural foundation to address tomorrow's requirements.
 
-\section{References}
-\label{sec:references}
 
-\begin{thebibliography}{30}
 
-\bibitem{django}
-Django Software Foundation, ``Django: The Web Framework for Perfectionists with Deadlines,'' Version 5.0, 2024. [Online]. Available: \url{https://www.djangoproject.com/}. [Accessed: 2025].
 
-\bibitem{drf}
-Encode OSS, ``Django REST Framework,'' Version 3.15. [Online]. Available: \url{https://www.django-rest-framework.org/}. [Accessed: 2025].
-
-\bibitem{react}
-Meta Platforms, Inc., ``React: A JavaScript Library for Building User Interfaces,'' Version 18. [Online]. Available: \url{https://react.dev/}. [Accessed: 2025].
-
-\bibitem{vite}
-Evan You, ``Vite: Next Generation Frontend Tooling,'' Version 5. [Online]. Available: \url{https://vitejs.dev/}. [Accessed: 2025].
-
-\bibitem{mui}
-MUI (Material UI), ``MUI Core: React UI Framework,'' Version 5. [Online]. Available: \url{https://mui.com/}. [Accessed: 2025].
-
-\bibitem{axios}
-Matt Zabriskie, ``Axios: Promise-Based HTTP Client for the Browser and Node.js.'' [Online]. Available: \url{https://axios-http.com/}. [Accessed: 2025].
-
-\bibitem{docker-compose}
-Docker, Inc., ``Docker Compose: Define and Run Multi-Container Applications,'' Version 2.29. [Online]. Available: \url{https://docs.docker.com/compose/}. [Accessed: 2025].
-
-\bibitem{nginx}
-F5, Inc., ``NGINX: Advanced Load Balancer, Web Server, \& Reverse Proxy.'' [Online]. Available: \url{https://www.nginx.com/}. [Accessed: 2025].
-
-\bibitem{gunicorn}
-Beno\"{i}t Chesneau, ``Gunicorn: Python WSGI HTTP Server for UNIX,'' Version 21.2. [Online]. Available: \url{https://gunicorn.org/}. [Accessed: 2025].
-
-\bibitem{mysql}
-Oracle Corporation, ``MySQL: The World's Most Popular Open Source Database,'' Version 8.0. [Online]. Available: \url{https://www.mysql.com/}. [Accessed: 2025].
-
-\bibitem{whitenoise}
-David Cramer, ``WhiteNoise: Radically Simplified Static File Serving for Python Web Apps.'' [Online]. Available: \url{https://whitenoise.readthedocs.io/}. [Accessed: 2025].
-
-\bibitem{trivy}
-Aqua Security, ``Trivy: A Comprehensive and Versatile Security Scanner.'' [Online]. Available: \url{https://trivy.dev/}. [Accessed: 2025].
-
-\bibitem{pandas}
-Wes McKinney, ``pandas: Powerful Data Structures for Data Analysis,'' Version 2.x. [Online]. Available: \url{https://pandas.pydata.org/}. [Accessed: 2025].
-
-\bibitem{openpyxl}
-Eric Gazoni and Charlie Clark, ``openpyxl: A Python Library to Read/Write Excel 2010 xlsx/xlsm Files.'' [Online]. Available: \url{https://openpyxl.readthedocs.io/}. [Accessed: 2025].
-
-\bibitem{ieee830}
-IEEE, ``IEEE Std 830-1998: IEEE Recommended Practice for Software Requirements Specifications,'' IEEE, 1998.
-
-\bibitem{agile}
-K. Beck et al., ``Manifesto for Agile Software Development,'' 2001. [Online]. Available: \url{https://agilemanifesto.org/}. [Accessed: 2025].
-
-\bibitem{fowler-poeaa}
-M. Fowler, ``Patterns of Enterprise Application Architecture,'' Addison-Wesley, 2002.
-
-\bibitem{clean-architecture}
-R. C. Martin, ``Clean Architecture: A Craftsman's Guide to Software Structure and Design,'' Prentice Hall, 2017.
-
-\bibitem{microservices}
-S. Newman, ``Building Microservices: Designing Fine-Grained Systems,'' 2nd ed., O'Reilly Media, 2021.
-
-\bibitem{owasp-top10}
-OWASP Foundation, ``OWASP Top Ten Web Application Security Risks,'' 2021. [Online]. Available: \url{https://owasp.org/www-project-top-ten/}. [Accessed: 2025].
-
-\bibitem{owasp-csrf}
-OWASP Foundation, ``OWASP Cross-Site Request Forgery Prevention Cheat Sheet.'' [Online]. Available: \url{https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html}. [Accessed: 2025].
-
-\bibitem{django-password}
-Django Software Foundation, ``Django Security Documentation: Password Management.'' [Online]. Available: \url{https://docs.djangoproject.com/en/5.0/topics/auth/passwords/}. [Accessed: 2025].
-
-\bibitem{python-devops}
-N. Gift, K. Behrman, A. Deza, and G. Gheorghiu, ``Python for DevOps: Learn Ruthlessly Effective Automation,'' O'Reilly Media, 2019.
-
-\bibitem{docker-best-practices}
-Docker, Inc., ``Docker Best Practices for Building Containers.'' [Online]. Available: \url{https://docs.docker.com/develop/develop-images/dockerfile_best-practices/}. [Accessed: 2025].
-
-\end{thebibliography}
-
-% End of Textbook

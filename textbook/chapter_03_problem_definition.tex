@@ -1,10 +1,14 @@
 % Chapter 3: Problem Definition & Requirements Engineering
 % BSU Engineering Portal Graduation Project
 
-\chapter{Problem Definition \& Requirements Engineering}
+\chapter{Problem Definition and Requirements Engineering}
 \label{chap:requirements}
 
-\section{Current Situation \& Stakeholder Analysis}
+\section{System Scope and Limitations}
+\label{sec:system-scope}
+While the BSU Engineering Portal provides comprehensive Management Information System (MIS) capabilities for academic administration, traditional Learning Management System (LMS) features such as Discussion Forums and Live Virtual Classrooms are intentionally scoped for future phases. This distinguishes the current system from platforms like Moodle, focusing first on core administrative reliability before expanding into interactive pedagogical tools.
+
+\section{Current Situation and Stakeholder Analysis}
 \label{sec:current-situation}
 
 \subsection{The Pre-System Workflow}
@@ -89,14 +93,14 @@ Agile permitted the engineering team to:
         \hline
         \textbf{Sprint} & \textbf{Focus Area} & \textbf{Key Deliverables} \\
         \hline
-        Sprint 1 & Auth \& Core Data & 5-Role User model, login/logout, CSRF, Core Academic Models. \\
-        Sprint 2 & Student \& Staff Affairs & Batch Excel uploads (pandas [16]), student filtering. \\
+        Sprint 1 & Auth and Core Data & 5-Role User model, login/logout, CSRF, Core Academic Models. \\
+        Sprint 2 & Student and Staff Affairs & Batch Excel uploads (pandas [16]), student filtering. \\
         Sprint 3 & Course Management & CourseOffering model, doctor assignments, lecture uploads. \\
-        Sprint 4 & Attendance \& Grading & Bulk attendance recording, grading templates. \\
+        Sprint 4 & Attendance and Grading & Bulk attendance recording, grading templates. \\
         Sprint 5 & Quiz Engine & MCQ/Essay CRUD, auto-grading logic. \\
         Sprint 6 & Student Portal & Dashboards, schedules, grade views. \\
-        Sprint 7 & Admin \& Operations & Announcements, audit logging, deletion workflows. \\
-        Sprint 8 & DevOps \& Polish & Docker Compose, Nginx proxy, RTL (Arabic) UI support. \\
+        Sprint 7 & Admin and Operations & Announcements, audit logging, deletion workflows. \\
+        Sprint 8 & DevOps and Polish & Docker Compose, Nginx proxy, RTL (Arabic) UI support. \\
         \hline
     \end{tabular}
     \caption{Agile Sprint Plan Overview}
@@ -108,7 +112,7 @@ Agile permitted the engineering team to:
 
 The following functional requirements are classified using IEEE 830-style [18] prioritization (Must / Should / Could). 
 
-\subsection{Authentication \& User Management}
+\subsection{Authentication and User Management}
 
 \begin{itemize}
     \item \textbf{FR-01 [Must]}: The system shall authenticate users via session-based login using a username (national ID) and password.
@@ -148,7 +152,7 @@ def save(self, *args, **kwargs):
     \label{fig:upload_preview}
 \end{figure}
 
-\subsection{Staff Affairs \& Doctor Operations}
+\subsection{Staff Affairs and Doctor Operations}
 
 \begin{itemize}
     \item \textbf{FR-13 [Must]}: Staff Affairs shall batch-upload Doctors and assign them to specific \texttt{CourseOfferings} per term.

@@ -1,7 +1,7 @@
 % Chapter 2: Executive Summary / Introduction
 % BSU Engineering Portal Graduation Project
 
-\chapter{Executive Summary \& Introduction}
+\chapter{Executive Summary and Introduction}
 \label{chap:intro}
 
 \section{Problem Statement}
@@ -9,7 +9,7 @@
 
 \subsection{The Operational Reality}
 
-The Faculty of Engineering at Beni-Suef University (BSU) accommodates approximately \textbf{2,000+ students} distributed across five academic departments: Preparatory, Electrical Engineering (with specializations in Electronics \& Communications and Power \& Machines), Mechanical Engineering, Civil Engineering, and Architectural Engineering. Each department operates across up to four academic levels, two semesters per year, and manages dozens of courses per term.
+The Faculty of Engineering at Beni-Suef University (BSU) accommodates approximately \textbf{2,000+ students} distributed across five academic departments: Preparatory, Electrical Engineering (with specializations in Electronics and Communications and Power and Machines), Mechanical Engineering, Civil Engineering, and Architectural Engineering. Each department operates across up to four academic levels, two semesters per year, and manages dozens of courses per term.
 
 The administrative machinery supporting this academic structure relies on a patchwork of \textbf{manual processes, disconnected spreadsheets, and informal communication channels}. This is not merely an inconvenience---it is a systemic risk to data integrity, operational efficiency, and academic governance.
 
@@ -19,7 +19,7 @@ The following localized problems were identified through direct observation and 
 
 \begin{itemize}
     \item \textbf{Student Data Management (The Excel Chaos):} Student enrollment and academic records are maintained in standalone Excel files. When a department needs student lists, a manual extraction process begins. This introduces data duplication, version conflicts, and eliminates any single source of truth.
-    \item \textbf{Grade Entry \& Approval (The Paper Trail):} Faculty members record grades on paper or personal spreadsheets, physically submitting them to Student Affairs for manual re-entry. This multi-hop flow creates transcription errors, lacks an audit trail, and severely delays grade visibility for students.
+    \item \textbf{Grade Entry and Approval (The Paper Trail):} Faculty members record grades on paper or personal spreadsheets, physically submitting them to Student Affairs for manual re-entry. This multi-hop flow creates transcription errors, lacks an audit trail, and severely delays grade visibility for students.
     \item \textbf{Attendance Tracking (The Paper Register):} Attendance is recorded on printed sheets passed around lecture halls. Records risk physical loss, offer no real-time visibility for students, and provide no analytics capability for early academic intervention.
     \item \textbf{Material Distribution (The USB Drive Problem):} Lecture slides and notes are distributed via USB drives, personal emails, or social media groups. There is no centralized repository, no access control based on enrollment, and no version management.
     \item \textbf{Administrative Isolation (The Silo Effect):} Administrative units operate in isolation. There is no shared platform for tracking doctor-to-course assignments, cross-referencing enrollment with grades, or maintaining institutional accountability.
@@ -95,7 +95,7 @@ Beyond solving operational issues, this project demonstrates the application of 
 \begin{itemize}
     \item \textbf{System Thinking:} Unifying diverse stakeholders into a coherent architecture.
     \item \textbf{Trade-off Analysis:} Deliberate architectural choices (e.g., Session Auth over JWT, Monolith over Microservices) driven by context.
-    \item \textbf{DevOps \& Security:} Implementing CI/CD, Docker~\cite{docker} containerization ensured every sprint concluded with a highly reproducible, runnable artifact, and Trivy security scanning~\cite{trivy} as integral lifecycle components.
+    \item \textbf{DevOps and Security:} Implementing CI/CD, Docker~\cite{docker} containerization ensured every sprint concluded with a highly reproducible, runnable artifact, and Trivy security scanning~\cite{trivy} as integral lifecycle components.
 \end{itemize}
 
 \section{Proposed Solution}

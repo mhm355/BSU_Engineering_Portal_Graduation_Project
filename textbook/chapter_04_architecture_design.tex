@@ -1,7 +1,7 @@
 % Chapter 4: System & Architecture Design
 % BSU Engineering Portal Graduation Project
 
-\chapter{System \& Architecture Design}
+\chapter{System and Architecture Design}
 \label{chap:architecture}
 
 \section{Architecture Overview}
@@ -25,7 +25,7 @@ The BSU Engineering Portal follows a \textbf{four-tier architecture} pattern, se
     \label{fig:four_tier_arch}
 \end{figure}
 
-\subsection{Architectural Trade-offs \& Justifications}
+\subsection{Architectural Trade-offs and Justifications}
 
 \textbf{Why not a Monolith?} \\
 A traditional Django monolith renders HTML server-side. While simpler to deploy initially, it fundamentally limits the user experience. The BSU Engineering Portal requires real-time form validation during 500+ row Excel uploads, role-specific dynamic dashboards, and RTL layout support with theme switching. A clean SPA + API split grants full control over the frontend experience while keeping the backend strictly concerned with data and business logic.
@@ -33,7 +33,7 @@ A traditional Django monolith renders HTML server-side. While simpler to deploy 
 \textbf{Why REST over GraphQL?} \\
 The system's data access patterns are highly predictable and strictly role-bounded. Each dashboard fetches a well-defined set of resources (e.g., students, grades, courses). GraphQL's flexibility---allowing clients to compose arbitrary queries---is overkill for this domain and introduces unnecessary complexity in resolving granular permission enforcement. With REST, each endpoint is shielded by a single, auditable permission class.
 
-\textbf{Why Amazon RDS \& ECS?} \\
+\textbf{Why Amazon RDS and ECS?} \\
 Managing database persistence, backups, and OS patching within standard Docker containers introduces significant operational risk. By offloading data persistence to Amazon RDS, the system guarantees automated point-in-time recovery and Multi-AZ readiness. Utilizing AWS Fargate for the compute tier allows the application containers to run completely serverless, eliminating EC2 host maintenance while maintaining deterministic Docker image deployments.
 
 \begin{table}[H]
@@ -44,15 +44,15 @@ Managing database persistence, backups, and OS patching within standard Docker c
         \textbf{Layer} & \textbf{Technology} & \textbf{Engineering Justification} \\
         \hline
         \textbf{Frontend} & React 19 [3] & Component-based UI, robust state handling. \\
-        \textbf{UI Library} & Material UI (MUI) v5 [5] & Native RTL capability, Cairo font integration. \\
+        \textbf{UI Library} & Material UI (MUI) v7.3 [5] & Native RTL capability, Cairo font integration. \\
         \textbf{Backend} & Django 5.x [1] & Mature ORM, session management, reliable auth. \\
         \textbf{API Framework} & DRF 3.x [2] & Seamless serialization, extensible permission classes. \\
         \textbf{Database} & MySQL 8.0 & ACID compliance for strict academic records. \\
-        \textbf{Infrastructure} & AWS ECS (Fargate) \& RDS & Serverless container compute, zero-maintenance managed database. \\
+        \textbf{Infrastructure} & AWS ECS (Fargate) and RDS & Serverless container compute, zero-maintenance managed database. \\
         \textbf{Cache / Session} & Redis 7.x & In-memory session store and application cache. \\
         \hline
     \end{tabular}
-    \caption{Technology Stack \& Engineering Justification}
+    \caption{Technology Stack and Engineering Justification}
     \label{tab:tech_stack}
 \end{table}
 
@@ -83,7 +83,7 @@ A critical security decision was the \textbf{Virtual Private Cloud (VPC) isolati
 \section{System Modeling (UML)}
 \label{sec:system-modeling}
 
-\subsection{Sequence Diagram: Authentication \& CSRF Handshake}
+\subsection{Sequence Diagram: Authentication and CSRF Handshake}
 
 Because the SPA and API are decoupled, session-based authentication requires a deliberate Cross-Site Request Forgery (CSRF) handshake. The browser must retrieve a CSRF token cookie before dispatching the POST request containing credentials.
 
@@ -148,11 +148,11 @@ class StudentQuizAttempt(models.Model):
 The database is heavily normalized into over 20 tables, organized into five functional domains to ensure a clean separation of concerns:
 
 \begin{enumerate}
-    \item \textbf{Identity \& Access}: Manages user accounts and role-based permissions.
+    \item \textbf{Identity and Access}: Manages user accounts and role-based permissions.
     \item \textbf{Academic Structure}: Defines the faculty's static hierarchy (Departments, Subjects, etc.).
     \item \textbf{Academic Operations}: Contains transactional data like grades and attendance.
     \item \textbf{Assessment}: The complete quiz engine schema.
-    \item \textbf{System \& Communication}: Handles system-level features like audit logs and announcements.
+    \item \textbf{System and Communication}: Handles system-level features like audit logs and announcements.
 \end{enumerate}
 
 \begin{figure}[H]
@@ -246,7 +246,7 @@ The schema is normalized to Third Normal Form (3NF) to eliminate data redundancy
 \section{Backend Design}
 \label{sec:backend-design}
 
-\subsection{Application Structure \& Namespace}
+\subsection{Application Structure and Namespace}
 
 The backend follows a modular monolith structure, organized into four distinct Django applications, each with a single responsibility. This modularity prevents the codebase from becoming a tangled "big ball of mud" and clarifies ownership.
 
@@ -319,7 +319,7 @@ if not request.user.is_superuser and course_offering.doctor != request.user:
 
 Administrative confidence requires traceability. All critical mutations processed by administrative roles generate an \texttt{AuditLog} record. This model leverages Django's \texttt{JSONField} to store context-aware payloads mapping specifically to the event signature. This provides far more useful information than a simple text message.
 
-\begin{lstlisting}[language=Python, caption=AuditLog Model with Flexible JSONField (\texttt{system/models.py})]
+\begin{lstlisting}[language=Python, caption=AuditLog Model with Flexible JSONField (\texttt{academic/models.py})]
 class AuditLog(models.Model):
     class ActionType(models.TextChoices):
         STUDENT_BATCH_UPLOAD = "STUDENT_BATCH_UPLOAD"
@@ -334,10 +334,10 @@ class AuditLog(models.Model):
 
 For example, a \texttt{STUDENT\_BATCH\_UPLOAD} action stores a payload of \texttt{\{"created": 50, "updated": 5, "errors": 2\}}, while a \texttt{DOCTOR\_ASSIGNMENT} action stores \texttt{\{"doctor\_name": "...", "subject": "..."\}}.
 
-\section{Frontend \& UI/UX Design}
+\section{Frontend and UI/UX Design}
 \label{sec:frontend-design}
 
-\subsection{State Management \& Architecture}
+\subsection{State Management and Architecture}
 
 The application eschews heavy state libraries like Redux in favor of the native \textbf{React [3] Context API}. State is session-scoped (authentication context, UI theme context) rather than deeply interconnected. The primary \texttt{AuthProvider} performs a background session validation immediately on load to prevent UI hydration flashes.
 \begin{lstlisting}[language=JavaScript, caption=Session Revalidation in AuthProvider]
@@ -386,11 +386,11 @@ api.interceptors.response.use(
 );
 \end{lstlisting}
 
-\subsection{RTL-First Interface \& Theming}
+\subsection{RTL-First Interface and Theming}
 
 Because the faculty requires an Arabic-native interface, the UI was built RTL-first. It leverages Material-UI's [5] built-in RTL support, which uses the \texttt{stylis-plugin-rtl} library to automatically mirror CSS properties (e.g., converting \texttt{padding-left} to \texttt{padding-right}) when the theme's direction is set to \texttt{'rtl'}. The design incorporates the "Cairo" Google Font, which is heavily optimized for Arabic script legibility. Dark mode integration maps the university's primary color palette to low-luminance backgrounds to reduce eye strain.
 
-\subsection{Build Optimization \& Deployment}
+\subsection{Build Optimization and Deployment}
 
 The project utilizes multi-stage Docker [8] builds to create lean, production-optimized container images. The frontend build process, for example, uses a Node.js image to build the static React assets, then copies only the resulting \texttt{/dist} folder and the Nginx configuration into a lightweight \texttt{nginx:alpine} image for the final artifact. This ensures the production container has a minimal attack surface and does not contain any build-time dependencies.
 
@@ -415,6 +415,17 @@ server {
         proxy_pass http://backend:8000; # Forward to backend service
         proxy_set_header X-Real-IP $remote_addr;
         proxy_read_timeout 300s; # Accommodate long-running batch uploads
+    }
+
+    # Proxy Admin requests
+    location /admin/ {
+        proxy_pass http://backend:8000;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+
+    # Proxy Static files
+    location /static/ {
+        proxy_pass http://backend:8000;
     }
 }
 \end{lstlisting}

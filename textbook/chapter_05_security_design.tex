@@ -6,7 +6,7 @@
 
 Security in the BSU Engineering Portal is not treated as a bolt-on feature, but rather as a structural property woven into every layer of the architecture. From session management at the protocol level to database isolation at the infrastructure level, each design decision was governed by the principle of \textbf{defense in depth}---ensuring that every layer is independently defensible.
 
-\section{Authentication \& Session Management}
+\section{Authentication and Session Management}
 \label{sec:auth-session}
 
 \subsection{Why Session-Based Authentication Over JWT}
@@ -75,7 +75,7 @@ SESSION_CACHE_ALIAS = "default"
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://localhost:6379/0",
+        "LOCATION": os.environ.get('REDIS_URL', 'redis://redis:6379/1'),
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
@@ -94,7 +94,7 @@ Key security properties of this design:
 \section{Role-Based Authorization (RBAC)}
 \label{sec:rbac}
 
-\subsection{The Role Model \& Permission Classes}
+\subsection{The Role Model and Permission Classes}
 
 The system implements a \textbf{five-role authorization model} (Admin, Student, Doctor, Student Affairs, Staff Affairs). Authorization is enforced at the backend through seven custom Django REST Framework (DRF) [2] permission classes. 
 
@@ -155,13 +155,13 @@ However, the architectural principle holds that \textbf{frontend route protectio
 \section{Password Security}
 \label{sec:password-security}
 
-\subsection{Hashing \& Validation}
+\subsection{Hashing and Validation}
 
 Passwords are never stored in plaintext. The system leverages Django's [1] \texttt{PBKDF2-SHA256} hashing algorithm with a 720,000-iteration key derivation function [25]. Furthermore, four strict validators intercept all password creations:
 
 \begin{itemize}
     \item \texttt{UserAttributeSimilarityValidator}: Rejects passwords matching the National ID.
-    \item \texttt{MinimumLengthValidator}: Enforces a baseline 8-character length (customized to 6 for legacy compatibility).
+    \item \texttt{MinimumLengthValidator}: Enforces a baseline 8-character length.
     \item \texttt{CommonPasswordValidator}: Rejects over 20,000 universally breached passwords.
     \item \texttt{NumericPasswordValidator}: Prohibits strictly numerical inputs.
 \end{itemize}
@@ -180,7 +180,7 @@ user.save()
 login(request, user)                 # Atomic re-authentication
 \end{lstlisting}
 
-\section{CSRF \& XSS Protection}
+\section{CSRF and XSS Protection}
 \label{sec:csrf-xss}
 
 \subsection{The Cross-Origin CSRF Challenge}
@@ -222,7 +222,7 @@ add_header X-XSS-Protection "1; mode=block" always;
 add_header Referrer-Policy "strict-origin-when-cross-origin" always;
 \end{lstlisting}
 
-\section{Rate Limiting \& Input Validation}
+\section{Rate Limiting and Input Validation}
 \label{sec:rate-limiting}
 
 \subsection{Two-Tier API Throttling}

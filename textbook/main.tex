@@ -14,7 +14,7 @@
 \usepackage{xcolor}
 \usepackage{listings}
 \usepackage{titlesec}
-\usepackage{tocbibind} % Automatically adds TOC, LOF, LOT to the Table of Contents
+\usepackage[numbib]{tocbibind} % Automatically adds TOC, LOF, LOT to the Table of Contents, and numbers the bibliography
 \usepackage{longtable}
 \usepackage{pifont}
 \usepackage{needspace} % Prevent page breaks in listings
@@ -142,9 +142,6 @@
 \include{chapter_09_results}
 \include{chapter_10_limitations}
 \include{chapter_11_conclusion}
-
-% Bibliography
-\bibliographystyle{unsrtnat}
-\bibliography{references}
+\include{chapter_12_references}
 
 \end{document}
