@@ -279,3 +279,97 @@ class AdminPasswordResetRequestsView(APIView):
         except PasswordResetRequest.DoesNotExist:
             return Response({'error': 'Request not found'}, status=status.HTTP_404_NOT_FOUND)
 
+
+class UploadUsersView(APIView):
+    """Admin endpoint to bulk upload users via Excel file"""
+    permission_classes = [IsAdminRole]
+    parser_classes = [MultiPartParser, FormParser]
+
+    def post(self, request):
+        file = request.FILES.get('file')
+        if not file:
+            return Response({'error': 'No file provided'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Check file extension
+        if not file.name.endswith(('.xlsx', '.xls', '.csv')):
+            return Response(
+                {'error': 'Unsupported file format. Please upload an Excel (.xlsx, .xls) or CSV file.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            import openpyxl
+            import csv
+            import io
+
+            users_created = []
+            errors = []
+
+            if file.name.endswith('.csv'):
+                decoded = file.read().decode('utf-8')
+                reader = csv.DictReader(io.StringIO(decoded))
+                rows = list(reader)
+            else:
+                wb = openpyxl.load_workbook(file)
+                ws = wb.active
+                headers = [cell.value for cell in ws[1]]
+                rows = []
+                for row in ws.iter_rows(min_row=2, values_only=True):
+                    rows.append(dict(zip(headers, row)))
+
+            for i, row in enumerate(rows, start=2):
+                try:
+                    username = str(row.get('username', '') or '').strip()
+                    national_id = str(row.get('national_id', '') or '').strip()
+                    first_name = str(row.get('first_name', '') or '').strip()
+                    last_name = str(row.get('last_name', '') or '').strip()
+                    email = str(row.get('email', '') or '').strip()
+                    role = str(row.get('role', 'STUDENT') or 'STUDENT').strip().upper()
+
+                    if not username:
+                        errors.append(f'Row {i}: username is required')
+                        continue
+
+                    if User.objects.filter(username=username).exists():
+                        errors.append(f'Row {i}: username "{username}" already exists')
+                        continue
+
+                    if national_id and User.objects.filter(national_id=national_id).exists():
+                        errors.append(f'Row {i}: national_id "{national_id}" already exists')
+                        continue
+
+                    # Validate role
+                    valid_roles = [choice[0] for choice in User.Role.choices]
+                    if role not in valid_roles:
+                        errors.append(f'Row {i}: invalid role "{role}". Valid roles: {", ".join(valid_roles)}')
+                        continue
+
+                    user = User(
+                        username=username,
+                        national_id=national_id or None,
+                        first_name=first_name,
+                        last_name=last_name,
+                        email=email,
+                        role=role,
+                    )
+                    # Password defaults to national_id via the model's save() method
+                    user.save()
+                    users_created.append(username)
+
+                except Exception as e:
+                    errors.append(f'Row {i}: {str(e)}')
+
+            return Response({
+                'message': f'Successfully created {len(users_created)} users',
+                'created_count': len(users_created),
+                'users_created': users_created,
+                'errors': errors,
+                'error_count': len(errors),
+            }, status=status.HTTP_201_CREATED)
+
+        except Exception as e:
+            return Response(
+                {'error': f'Failed to process file: {str(e)}'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
