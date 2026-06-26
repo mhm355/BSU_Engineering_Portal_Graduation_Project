@@ -22,6 +22,12 @@ export default function Login() {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [resetDialogOpen, setResetDialogOpen] = useState(false);
+    const [resetNationalId, setResetNationalId] = useState('');
+    const [resetReason, setResetReason] = useState('');
+    const [resetLoading, setResetLoading] = useState(false);
+    const [resetSuccess, setResetSuccess] = useState('');
+    const [resetError, setResetError] = useState('');
     const navigate = useNavigate();
 
     const handleClickShowPassword = () => setShowPassword((show) => !show);
@@ -61,6 +67,33 @@ export default function Login() {
             setError('فشل تسجيل الدخول. تأكد من اسم المستخدم وكلمة المرور.');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleRequestReset = async () => {
+        if (!resetNationalId) {
+            setResetError('الرقم القومي مطلوب');
+            return;
+        }
+        setResetLoading(true);
+        setResetError('');
+        setResetSuccess('');
+        try {
+            await axios.post('/api/auth/password-reset/request/', { 
+                national_id: resetNationalId,
+                reason: resetReason 
+            });
+            setResetSuccess('تم إرسال طلب إعادة تعيين كلمة المرور إلى الإدارة بنجاح. سيتم مراجعة طلبك.');
+            setTimeout(() => {
+                setResetDialogOpen(false);
+                setResetNationalId('');
+                setResetReason('');
+                setResetSuccess('');
+            }, 3000);
+        } catch (err) {
+            setResetError(err.response?.data?.error || 'حدث خطأ أثناء إرسال الطلب');
+        } finally {
+            setResetLoading(false);
         }
     };
 
@@ -253,6 +286,15 @@ export default function Login() {
                                 >
                                     {loading ? 'جاري الدخول...' : 'دخول'}
                                 </Button>
+                                
+                                <Button
+                                    variant="text"
+                                    color="primary"
+                                    onClick={() => setResetDialogOpen(true)}
+                                    sx={{ mt: -1, fontFamily: 'Cairo', fontWeight: 600 }}
+                                >
+                                    نسيت كلمة المرور؟
+                                </Button>
                             </Box>
                         </form>
 
@@ -305,6 +347,56 @@ export default function Login() {
                         />
                     </Box>
                 </Fade>
+
+                {/* Password Reset Dialog */}
+                <Dialog open={resetDialogOpen} onClose={() => !resetLoading && setResetDialogOpen(false)} maxWidth="sm" fullWidth>
+                    <DialogTitle sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>طلب إعادة تعيين كلمة المرور</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText sx={{ fontFamily: 'Cairo', mb: 2 }}>
+                            أدخل رقمك القومي وسنقوم بإرسال طلب إلى الإدارة لإعادة تعيين كلمة المرور الخاصة بك.
+                        </DialogContentText>
+                        
+                        {resetError && <Alert severity="error" sx={{ mb: 2, fontFamily: 'Cairo' }}>{resetError}</Alert>}
+                        {resetSuccess && <Alert severity="success" sx={{ mb: 2, fontFamily: 'Cairo' }}>{resetSuccess}</Alert>}
+                        
+                        <TextField
+                            autoFocus
+                            margin="dense"
+                            label="الرقم القومي"
+                            type="text"
+                            fullWidth
+                            required
+                            value={resetNationalId}
+                            onChange={(e) => setResetNationalId(e.target.value)}
+                            InputLabelProps={{ style: { fontFamily: 'Cairo' } }}
+                            sx={{ mb: 2 }}
+                        />
+                        <TextField
+                            margin="dense"
+                            label="السبب (اختياري)"
+                            type="text"
+                            fullWidth
+                            multiline
+                            rows={2}
+                            value={resetReason}
+                            onChange={(e) => setResetReason(e.target.value)}
+                            InputLabelProps={{ style: { fontFamily: 'Cairo' } }}
+                        />
+                    </DialogContent>
+                    <DialogActions sx={{ p: 2 }}>
+                        <Button onClick={() => setResetDialogOpen(false)} disabled={resetLoading} sx={{ fontFamily: 'Cairo' }}>إلغاء</Button>
+                        <Button 
+                            onClick={handleRequestReset} 
+                            variant="contained" 
+                            color="primary"
+                            disabled={resetLoading || !resetNationalId}
+                            sx={{ fontFamily: 'Cairo' }}
+                            startIcon={resetLoading ? <CircularProgress size={20} color="inherit" /> : null}
+                        >
+                            إرسال الطلب
+                        </Button>
+                    </DialogActions>
+                </Dialog>
             </Container>
         </Box>
     );

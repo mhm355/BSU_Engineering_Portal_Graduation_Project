@@ -178,10 +178,13 @@ class UserViewSet(viewsets.ModelViewSet):
 
 class PasswordResetRequestView(APIView):
     """View to allow users to request a password reset"""
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
 
     def get(self, request):
         """List requests made by this user"""
+        if not request.user.is_authenticated:
+            return Response({'error': 'Authentication required'}, status=status.HTTP_401_UNAUTHORIZED)
+            
         requests = PasswordResetRequest.objects.filter(user=request.user).order_by('-requested_at')
         result = []
         for req in requests:
@@ -196,15 +199,26 @@ class PasswordResetRequestView(APIView):
 
     def post(self, request):
         """Create a new password reset request"""
+        if request.user.is_authenticated:
+            user = request.user
+        else:
+            national_id = request.data.get('national_id')
+            if not national_id:
+                return Response({'error': 'National ID is required'}, status=status.HTTP_400_BAD_REQUEST)
+            try:
+                user = User.objects.get(national_id=national_id)
+            except User.DoesNotExist:
+                return Response({'error': 'User with this National ID not found'}, status=status.HTTP_404_NOT_FOUND)
+
         # Check if already pending
-        if PasswordResetRequest.objects.filter(user=request.user, status=PasswordResetRequest.Status.PENDING).exists():
+        if PasswordResetRequest.objects.filter(user=user, status=PasswordResetRequest.Status.PENDING).exists():
             return Response(
                 {'error': 'لديك طلب قيد الانتظار بالفعل'}, 
                 status=status.HTTP_400_BAD_REQUEST
             )
             
         reason = request.data.get('reason', '')
-        req = PasswordResetRequest.objects.create(user=request.user, reason=reason)
+        req = PasswordResetRequest.objects.create(user=user, reason=reason)
         
         return Response({
             'message': 'تم إرسال طلبك بنجاح',
