@@ -26,8 +26,8 @@ export default function UnifiedNews() {
                         '& .MuiTab-root': { fontFamily: 'Cairo', fontWeight: 'bold', fontSize: '1.1rem' }
                     }}
                 >
-                    <Tab icon={<ArticleIcon />} iconPosition="start" label="الأخبار العمة" />
-                    <Tab icon={<CampaignIcon />} iconPosition="start" label="إعلانات النظام (تنبيهات)" />
+                    <Tab icon={<ArticleIcon />} iconPosition="start" label="إدارة الأخبار" />
+                    <Tab icon={<CampaignIcon />} iconPosition="start" label="إعلانات النظام" />
                 </Tabs>
             </Paper>
 
