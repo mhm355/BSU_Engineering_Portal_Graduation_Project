@@ -109,7 +109,6 @@ const TemplateCard = ({ template, onEdit, delay = 0 }) => {
     const totalWeight = (
         parseInt(template.attendance_weight || 0) +
         parseInt(template.quizzes_weight || 0) +
-        parseInt(template.coursework_weight || 0) +
         parseInt(template.midterm_weight || 0) +
         parseInt(template.practical_weight || 0) +
         parseInt(template.final_weight || 0)
@@ -257,7 +256,7 @@ export default function ManageGradingTemplates() {
         attendance_slots: 14,
         quizzes_weight: 10,
         quiz_count: 2,
-        coursework_weight: 10,
+        practical_weight: 10,
         midterm_weight: 20,
         final_weight: 50,
         is_default: false
@@ -293,7 +292,7 @@ export default function ManageGradingTemplates() {
                 attendance_slots: 14,
                 quizzes_weight: 10,
                 quiz_count: 2,
-                coursework_weight: 10,
+                practical_weight: 10,
                 midterm_weight: 20,
                 final_weight: 50,
                 is_default: false
