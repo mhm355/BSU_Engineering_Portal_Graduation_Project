@@ -56,13 +56,18 @@ export const exportToExcel = (data, columns, filename, sheetName = 'Sheet1') => 
  * @param {string} filename - Filename prefix
  */
 export const exportGradesToExcel = (students, subjects, filename) => {
-    // Build headers: Name, National ID, then for each subject: coursework, midterm, final
+    // Build headers: Name, National ID, then for each subject: midterm, attendance, quizzes, coursework, practical, final, subject total. Finally: Overall total
     const headers = ['الاسم', 'الرقم القومي'];
     subjects.forEach(subj => {
-        headers.push(`${subj.name} - أعمال`);
-        headers.push(`${subj.name} - ميدترم`);
+        headers.push(`${subj.name} - ميد تيرم`);
+        headers.push(`${subj.name} - الحضور`);
+        headers.push(`${subj.name} - الكويزات`);
+        headers.push(`${subj.name} - أعمال فصلية`);
+        headers.push(`${subj.name} - عملي/شفوي`);
         headers.push(`${subj.name} - نهائي`);
+        headers.push(`${subj.name} - المجموع`);
     });
+    headers.push('المجموع الكلي');
 
     const data = students.map(student => {
         const row = {
@@ -70,13 +75,32 @@ export const exportGradesToExcel = (students, subjects, filename) => {
             'الرقم القومي': student.national_id,
         };
 
+        let studentTotal = 0;
+
         // Add grade for each subject
         subjects.forEach(subj => {
             const studentSubject = student.subjects?.find(s => s.subject_id === subj.id) || {};
-            row[`${subj.name} - أعمال`] = studentSubject.coursework ?? '-';
-            row[`${subj.name} - ميدترم`] = studentSubject.midterm ?? '-';
+            
+            const midterm = studentSubject.midterm !== null && studentSubject.midterm !== undefined ? studentSubject.midterm : 0;
+            const attendance = studentSubject.attendance !== null && studentSubject.attendance !== undefined ? studentSubject.attendance : 0;
+            const quizzes = studentSubject.quizzes !== null && studentSubject.quizzes !== undefined ? studentSubject.quizzes : 0;
+            const coursework = midterm + attendance + quizzes;
+            const practical = studentSubject.practical !== null && studentSubject.practical !== undefined ? studentSubject.practical : 0;
+            const finalGrade = studentSubject.final !== null && studentSubject.final !== undefined ? studentSubject.final : 0;
+            const subjectTotal = coursework + practical + finalGrade;
+            
+            studentTotal += subjectTotal;
+
+            row[`${subj.name} - ميد تيرم`] = studentSubject.midterm ?? '-';
+            row[`${subj.name} - الحضور`] = studentSubject.attendance ?? '-';
+            row[`${subj.name} - الكويزات`] = studentSubject.quizzes ?? '-';
+            row[`${subj.name} - أعمال فصلية`] = coursework > 0 ? coursework : '-';
+            row[`${subj.name} - عملي/شفوي`] = studentSubject.practical ?? '-';
             row[`${subj.name} - نهائي`] = studentSubject.final ?? '-';
+            row[`${subj.name} - المجموع`] = subjectTotal > 0 ? subjectTotal : '-';
         });
+
+        row['المجموع الكلي'] = studentTotal > 0 ? studentTotal : '-';
 
         return row;
     });

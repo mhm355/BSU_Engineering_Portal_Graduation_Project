@@ -422,57 +422,104 @@ export default function StudentGradesView() {
                                                 {gradesData.subjects.map((subject) => (
                                                     <TableCell
                                                         key={subject.id}
-                                                        colSpan={3}
+                                                        colSpan={7}
                                                         align="center"
-                                                        sx={{ fontFamily: 'Cairo', fontWeight: 'bold', bgcolor: '#3F51B5', color: '#fff', minWidth: 200, fontSize: '1rem' }}
+                                                        sx={{ fontFamily: 'Cairo', fontWeight: 'bold', bgcolor: '#3F51B5', color: '#fff', minWidth: 400, fontSize: '1rem', borderLeft: '1px solid rgba(255,255,255,0.2)' }}
                                                     >
                                                         {subject.name}
                                                         <br />
                                                         <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.8)' }}>{subject.code}</Typography>
                                                     </TableCell>
                                                 ))}
+                                                <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold', bgcolor: '#1a2744', color: '#fff', minWidth: 100, fontSize: '1rem', textAlign: 'center' }}>
+                                                    المجموع الكلي
+                                                </TableCell>
                                             </TableRow>
                                             <TableRow>
                                                 <TableCell sx={{ bgcolor: '#f5f5f5' }}></TableCell>
                                                 {gradesData.subjects.map((subject) => (
                                                     <React.Fragment key={`header-${subject.id}`}>
+                                                        <TableCell align="center" sx={{ fontFamily: 'Cairo', fontSize: '0.85rem', fontWeight: 'bold', bgcolor: '#e3f2fd', color: '#1976d2', borderLeft: '1px solid #ddd' }}>
+                                                            ميد تيرم
+                                                        </TableCell>
                                                         <TableCell align="center" sx={{ fontFamily: 'Cairo', fontSize: '0.85rem', fontWeight: 'bold', bgcolor: '#e3f2fd', color: '#1976d2' }}>
-                                                            منتصف
+                                                            الحضور
+                                                        </TableCell>
+                                                        <TableCell align="center" sx={{ fontFamily: 'Cairo', fontSize: '0.85rem', fontWeight: 'bold', bgcolor: '#e3f2fd', color: '#1976d2' }}>
+                                                            الكويزات
                                                         </TableCell>
                                                         <TableCell align="center" sx={{ fontFamily: 'Cairo', fontSize: '0.85rem', fontWeight: 'bold', bgcolor: '#fff3e0', color: '#FF9800' }}>
-                                                            أعمال
+                                                            أعمال فصلية
+                                                        </TableCell>
+                                                        <TableCell align="center" sx={{ fontFamily: 'Cairo', fontSize: '0.85rem', fontWeight: 'bold', bgcolor: '#f3e5f5', color: '#9C27B0' }}>
+                                                            عملي / شفوي
                                                         </TableCell>
                                                         <TableCell align="center" sx={{ fontFamily: 'Cairo', fontSize: '0.85rem', fontWeight: 'bold', bgcolor: '#e8f5e9', color: '#4CAF50' }}>
                                                             نهائي
                                                         </TableCell>
+                                                        <TableCell align="center" sx={{ fontFamily: 'Cairo', fontSize: '0.85rem', fontWeight: 'bold', bgcolor: '#e0f7fa', color: '#006064' }}>
+                                                            المجموع
+                                                        </TableCell>
                                                     </React.Fragment>
                                                 ))}
+                                                <TableCell sx={{ bgcolor: '#f5f5f5' }}></TableCell>
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
-                                            {gradesData.students.map((student, index) => (
-                                                <TableRow key={student.id} hover sx={{ '&:nth-of-type(odd)': { bgcolor: '#fafafa' } }}>
-                                                    <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold', fontSize: '1rem' }}>
-                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                                                            <Avatar src={student.profile_picture || undefined} sx={{ width: 35, height: 35, bgcolor: '#3F51B5', fontSize: 14 }}>{student.full_name?.charAt(0)}</Avatar>
-                                                            {student.full_name}
-                                                        </Box>
-                                                    </TableCell>
-                                                    {student.subjects.map((subjectGrade) => (
-                                                        <React.Fragment key={`${student.id}-${subjectGrade.subject_id}`}>
-                                                            <TableCell align="center" sx={{ fontFamily: 'Cairo', fontSize: '1rem', color: subjectGrade.midterm !== null ? '#1976d2' : '#ccc' }}>
-                                                                {subjectGrade.midterm !== null ? subjectGrade.midterm : '-'}
-                                                            </TableCell>
-                                                            <TableCell align="center" sx={{ fontFamily: 'Cairo', fontSize: '1rem', color: subjectGrade.coursework !== null ? '#FF9800' : '#ccc' }}>
-                                                                {subjectGrade.coursework !== null ? subjectGrade.coursework : '-'}
-                                                            </TableCell>
-                                                            <TableCell align="center" sx={{ fontFamily: 'Cairo', fontSize: '1rem', color: subjectGrade.final !== null ? '#4CAF50' : '#ccc' }}>
-                                                                {subjectGrade.final !== null ? subjectGrade.final : '-'}
-                                                            </TableCell>
-                                                        </React.Fragment>
-                                                    ))}
-                                                </TableRow>
-                                            ))}
+                                            {gradesData.students.map((student, index) => {
+                                                let studentTotal = 0;
+                                                return (
+                                                    <TableRow key={student.id} hover sx={{ '&:nth-of-type(odd)': { bgcolor: '#fafafa' } }}>
+                                                        <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold', fontSize: '1rem' }}>
+                                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                                                                <Avatar src={student.profile_picture || undefined} sx={{ width: 35, height: 35, bgcolor: '#3F51B5', fontSize: 14 }}>{student.full_name?.charAt(0)}</Avatar>
+                                                                {student.full_name}
+                                                            </Box>
+                                                        </TableCell>
+                                                        {student.subjects.map((subjectGrade) => {
+                                                            const midterm = subjectGrade.midterm !== null ? subjectGrade.midterm : 0;
+                                                            const attendance = subjectGrade.attendance !== null ? subjectGrade.attendance : 0;
+                                                            const quizzes = subjectGrade.quizzes !== null ? subjectGrade.quizzes : 0;
+                                                            const coursework = midterm + attendance + quizzes;
+                                                            const practical = subjectGrade.practical !== null ? subjectGrade.practical : 0;
+                                                            const final = subjectGrade.final !== null ? subjectGrade.final : 0;
+                                                            const subjectTotal = coursework + practical + final;
+                                                            
+                                                            // Add to student overall total
+                                                            studentTotal += subjectTotal;
+                                                            
+                                                            return (
+                                                                <React.Fragment key={`${student.id}-${subjectGrade.subject_id}`}>
+                                                                    <TableCell align="center" sx={{ fontFamily: 'Cairo', fontSize: '1rem', color: subjectGrade.midterm !== null ? '#1976d2' : '#ccc', borderLeft: '1px solid #eee' }}>
+                                                                        {subjectGrade.midterm !== null ? subjectGrade.midterm : '-'}
+                                                                    </TableCell>
+                                                                    <TableCell align="center" sx={{ fontFamily: 'Cairo', fontSize: '1rem', color: subjectGrade.attendance !== null ? '#1976d2' : '#ccc' }}>
+                                                                        {subjectGrade.attendance !== null ? subjectGrade.attendance : '-'}
+                                                                    </TableCell>
+                                                                    <TableCell align="center" sx={{ fontFamily: 'Cairo', fontSize: '1rem', color: subjectGrade.quizzes !== null ? '#1976d2' : '#ccc' }}>
+                                                                        {subjectGrade.quizzes !== null ? subjectGrade.quizzes : '-'}
+                                                                    </TableCell>
+                                                                    <TableCell align="center" sx={{ fontFamily: 'Cairo', fontSize: '1rem', fontWeight: 'bold', color: coursework > 0 ? '#FF9800' : '#ccc' }}>
+                                                                        {coursework > 0 ? coursework : '-'}
+                                                                    </TableCell>
+                                                                    <TableCell align="center" sx={{ fontFamily: 'Cairo', fontSize: '1rem', color: subjectGrade.practical !== null ? '#9C27B0' : '#ccc' }}>
+                                                                        {subjectGrade.practical !== null ? subjectGrade.practical : '-'}
+                                                                    </TableCell>
+                                                                    <TableCell align="center" sx={{ fontFamily: 'Cairo', fontSize: '1rem', color: subjectGrade.final !== null ? '#4CAF50' : '#ccc' }}>
+                                                                        {subjectGrade.final !== null ? subjectGrade.final : '-'}
+                                                                    </TableCell>
+                                                                    <TableCell align="center" sx={{ fontFamily: 'Cairo', fontSize: '1.05rem', fontWeight: 'bold', color: subjectTotal > 0 ? '#006064' : '#ccc' }}>
+                                                                        {subjectTotal > 0 ? subjectTotal : '-'}
+                                                                    </TableCell>
+                                                                </React.Fragment>
+                                                            );
+                                                        })}
+                                                        <TableCell align="center" sx={{ fontFamily: 'Cairo', fontSize: '1.1rem', fontWeight: 'bold', color: '#1a2744', bgcolor: 'rgba(26, 39, 68, 0.05)' }}>
+                                                            {studentTotal > 0 ? studentTotal : '-'}
+                                                        </TableCell>
+                                                    </TableRow>
+                                                );
+                                            })}
                                         </TableBody>
                                     </Table>
                                 </TableContainer>
