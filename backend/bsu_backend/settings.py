@@ -206,7 +206,16 @@ if AZURE_STORAGE_CONNECTION_STRING:
     }
     AZURE_CONTAINER = os.environ.get('AZURE_STORAGE_CONTAINER', 'media')
     AZURE_URL_EXPIRATION_SECS = None  # Public blobs, no expiration
+    
+    # Try to get account name from env, or extract from connection string
     AZURE_ACCOUNT_NAME = os.environ.get('AZURE_STORAGE_ACCOUNT_NAME', '')
+    if not AZURE_ACCOUNT_NAME and AZURE_STORAGE_CONNECTION_STRING:
+        try:
+            parts = dict(item.split('=', 1) for item in AZURE_STORAGE_CONNECTION_STRING.split(';') if '=' in item)
+            AZURE_ACCOUNT_NAME = parts.get('AccountName', '')
+        except Exception:
+            pass
+            
     if AZURE_ACCOUNT_NAME:
         MEDIA_URL = f'https://{AZURE_ACCOUNT_NAME}.blob.core.windows.net/{AZURE_CONTAINER}/'
 
