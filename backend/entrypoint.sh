@@ -35,6 +35,10 @@ else:
     print('WARNING: Could not connect to Redis. Sessions will fall back to database.')
 "
 
+# Generate missing migrations dynamically based on model changes
+echo "Generating missing migrations..."
+python manage.py makemigrations --noinput || true
+
 # Run migrations in correct order (users first due to custom User model)
 echo "Running migrations..."
 python manage.py migrate --noinput || { echo "ERROR: migrations failed, aborting startup"; exit 1; }
