@@ -27,7 +27,7 @@ services:
     volumes:
       - redis_data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: [ "CMD", "redis-cli", "ping" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -75,7 +75,6 @@ volumes:
   db_data:
   media_data:
   redis_data:
-
 
 networks:
   bsu_network:
