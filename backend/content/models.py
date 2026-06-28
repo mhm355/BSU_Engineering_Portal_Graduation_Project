@@ -46,3 +46,21 @@ class News(models.Model):
             self.creator_role = self.created_by.role
         super().save(*args, **kwargs)
 
+
+class NewsImage(models.Model):
+    news = models.ForeignKey(News, on_delete=models.CASCADE, related_name='additional_images')
+    image = models.ImageField(upload_to='news_images/additional/')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Image for {self.news.title}"
+
+
+class NewsAttachment(models.Model):
+    news = models.ForeignKey(News, on_delete=models.CASCADE, related_name='additional_attachments')
+    file = models.FileField(upload_to='news_attachments/additional/')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Attachment for {self.news.title}"
+

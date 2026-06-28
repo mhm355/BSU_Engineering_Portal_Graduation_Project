@@ -610,24 +610,64 @@ export default function Home() {
                             >
                                 {selectedNews.content}
                             </Typography>
-                            {selectedNews.attachment && (
+                            {selectedNews.additional_images?.length > 0 && (
                                 <Box sx={{ mt: 4 }}>
-                                    <Button
-                                        variant="contained"
-                                        startIcon={<DownloadIcon />}
-                                        href={selectedNews.attachment}
-                                        target="_blank"
-                                        sx={{
-                                            fontFamily: 'Cairo',
-                                            fontWeight: 'bold',
-                                            bgcolor: '#0A2342',
-                                            borderRadius: 3,
-                                            px: 4,
-                                            py: 1.5,
-                                        }}
-                                    >
-                                        تحميل المرفق
-                                    </Button>
+                                    <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', mb: 2, color: '#0A2342' }}>صور إضافية:</Typography>
+                                    <Grid container spacing={2}>
+                                        {selectedNews.additional_images.map(img => (
+                                            <Grid item xs={6} sm={4} key={img.id}>
+                                                <Box sx={{ borderRadius: 2, overflow: 'hidden', height: 120, bgcolor: '#f5f5f5' }}>
+                                                    <img src={getImageUrl(img.image)} alt="additional" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                                </Box>
+                                            </Grid>
+                                        ))}
+                                    </Grid>
+                                </Box>
+                            )}
+                            
+                            {(selectedNews.attachment || selectedNews.additional_attachments?.length > 0) && (
+                                <Box sx={{ mt: 4 }}>
+                                    <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', mb: 2, color: '#0A2342' }}>المرفقات:</Typography>
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                        {selectedNews.attachment && (
+                                            <Button
+                                                variant="contained"
+                                                startIcon={<DownloadIcon />}
+                                                href={selectedNews.attachment}
+                                                target="_blank"
+                                                sx={{
+                                                    fontFamily: 'Cairo',
+                                                    fontWeight: 'bold',
+                                                    bgcolor: '#0A2342',
+                                                    borderRadius: 3,
+                                                    px: 4,
+                                                    py: 1.5,
+                                                    alignSelf: 'flex-start'
+                                                }}
+                                            >
+                                                تحميل المرفق الرئيسي
+                                            </Button>
+                                        )}
+                                        {selectedNews.additional_attachments?.map(att => (
+                                            <Button
+                                                key={att.id}
+                                                variant="outlined"
+                                                startIcon={<DownloadIcon />}
+                                                href={att.file}
+                                                target="_blank"
+                                                sx={{
+                                                    fontFamily: 'Cairo',
+                                                    fontWeight: 'bold',
+                                                    borderRadius: 3,
+                                                    px: 4,
+                                                    py: 1.5,
+                                                    alignSelf: 'flex-start'
+                                                }}
+                                            >
+                                                تحميل: {att.file.split('/').pop()}
+                                            </Button>
+                                        ))}
+                                    </Box>
                                 </Box>
                             )}
                         </DialogContent>

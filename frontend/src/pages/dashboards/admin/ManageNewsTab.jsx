@@ -3,12 +3,13 @@ import { Box, Container, Typography, Paper, Table, TableBody, TableCell, TableCo
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
+import CloseIcon from '@mui/icons-material/Close';
 import axios from 'axios';
 import { sanitizeFileUrl } from '../../../utils/urlHelper';
 export default function ManageNews() {
     const [newsList, setNewsList] = useState([]);
     const [open, setOpen] = useState(false);
-    const [currentNews, setCurrentNews] = useState({ title: '', content: '', image: null, target_audience: 'ALL' });
+    const [currentNews, setCurrentNews] = useState({ title: '', content: '', image: null, target_audience: 'ALL', new_images: [], new_attachments: [], additional_images: [], additional_attachments: [] });
     const [isEdit, setIsEdit] = useState(false);
     const [error, setError] = useState('');
     const [uploading, setUploading] = useState(false);
@@ -26,8 +27,8 @@ export default function ManageNews() {
         }
     };
 
-    const handleOpen = (news = { title: '', content: '', image: null }) => {
-        setCurrentNews(news);
+    const handleOpen = (news = { title: '', content: '', image: null, additional_images: [], additional_attachments: [] }) => {
+        setCurrentNews({ ...news, new_images: [], new_attachments: [] });
         setIsEdit(!!news.id);
         setOpen(true);
         setError('');
@@ -54,6 +55,12 @@ export default function ManageNews() {
         if (currentNews.attachment instanceof File) {
             formData.append('attachment', currentNews.attachment);
         }
+        if (currentNews.new_images) {
+            Array.from(currentNews.new_images).forEach(file => formData.append('new_images', file));
+        }
+        if (currentNews.new_attachments) {
+            Array.from(currentNews.new_attachments).forEach(file => formData.append('new_attachments', file));
+        }
 
         try {
             if (isEdit) {
@@ -74,6 +81,24 @@ export default function ManageNews() {
             console.error(err);
         } finally {
             setUploading(false);
+        }
+    };
+
+    const handleDeleteMedia = async (mediaType, mediaId) => {
+        if (window.confirm('هل أنت متأكد من حذف هذا المرفق؟')) {
+            try {
+                await axios.delete(`/api/content/news/${currentNews.id}/delete_media/${mediaType}/${mediaId}/`, { withCredentials: true });
+                // Update local state
+                if (mediaType === 'image') {
+                    setCurrentNews({ ...currentNews, additional_images: currentNews.additional_images.filter(img => img.id !== mediaId) });
+                } else {
+                    setCurrentNews({ ...currentNews, additional_attachments: currentNews.additional_attachments.filter(att => att.id !== mediaId) });
+                }
+                fetchNews(); // Refresh list to get updated data
+            } catch (err) {
+                console.error('Error deleting media:', err);
+                setError('فشل في حذف المرفق.');
+            }
         }
     };
 
@@ -162,32 +187,55 @@ export default function ManageNews() {
                             onChange={(e) => setCurrentNews({ ...currentNews, content: e.target.value })}
                             InputLabelProps={{ style: { fontFamily: 'Cairo' } }}
                         />
-                        <Button
-                            variant="outlined"
-                            component="label"
-                            sx={{ fontFamily: 'Cairo' }}
-                        >
-                            {currentNews.image instanceof File ? currentNews.image.name : 'رفع صورة'}
-                            <input
-                                type="file"
-                                hidden
-                                accept="image/*"
-                                onChange={(e) => setCurrentNews({ ...currentNews, image: e.target.files[0] })}
-                            />
+                        {/* Primary Image Upload */}
+                        <Button variant="outlined" component="label" sx={{ fontFamily: 'Cairo' }}>
+                            {currentNews.image instanceof File ? currentNews.image.name : 'رفع صورة رئيسية'}
+                            <input type="file" hidden accept="image/*" onChange={(e) => setCurrentNews({ ...currentNews, image: e.target.files[0] })} />
                         </Button>
-                        <Button
-                            variant="outlined"
-                            component="label"
-                            sx={{ fontFamily: 'Cairo' }}
-                        >
-                            {currentNews.attachment instanceof File ? currentNews.attachment.name : 'رفع ملف مرفق (PDF, Excel, Word)'}
-                            <input
-                                type="file"
-                                hidden
-                                accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip,.rar"
-                                onChange={(e) => setCurrentNews({ ...currentNews, attachment: e.target.files[0] })}
-                            />
+                        
+                        {/* Multiple Additional Images Upload */}
+                        <Button variant="outlined" component="label" sx={{ fontFamily: 'Cairo' }}>
+                            {currentNews.new_images?.length ? `تم اختيار ${currentNews.new_images.length} صور إضافية` : 'رفع صور إضافية'}
+                            <input type="file" hidden multiple accept="image/*" onChange={(e) => setCurrentNews({ ...currentNews, new_images: e.target.files })} />
                         </Button>
+                        {/* Display existing additional images */}
+                        {isEdit && currentNews.additional_images?.length > 0 && (
+                            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mt: 1 }}>
+                                {currentNews.additional_images.map(img => (
+                                    <Box key={img.id} sx={{ position: 'relative' }}>
+                                        <Avatar src={sanitizeFileUrl(img.image)} variant="rounded" sx={{ width: 60, height: 60 }} />
+                                        <IconButton size="small" color="error" sx={{ position: 'absolute', top: -10, right: -10, bgcolor: 'white' }} onClick={() => handleDeleteMedia('image', img.id)}>
+                                            <CloseIcon fontSize="small" />
+                                        </IconButton>
+                                    </Box>
+                                ))}
+                            </Box>
+                        )}
+
+                        {/* Primary Attachment Upload */}
+                        <Button variant="outlined" component="label" sx={{ fontFamily: 'Cairo' }}>
+                            {currentNews.attachment instanceof File ? currentNews.attachment.name : 'رفع ملف مرفق رئيسي (PDF, Excel, Word)'}
+                            <input type="file" hidden accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip,.rar" onChange={(e) => setCurrentNews({ ...currentNews, attachment: e.target.files[0] })} />
+                        </Button>
+
+                        {/* Multiple Additional Attachments Upload */}
+                        <Button variant="outlined" component="label" sx={{ fontFamily: 'Cairo' }}>
+                            {currentNews.new_attachments?.length ? `تم اختيار ${currentNews.new_attachments.length} ملفات إضافية` : 'رفع ملفات مرفقة إضافية'}
+                            <input type="file" hidden multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip,.rar" onChange={(e) => setCurrentNews({ ...currentNews, new_attachments: e.target.files })} />
+                        </Button>
+                        {/* Display existing additional attachments */}
+                        {isEdit && currentNews.additional_attachments?.length > 0 && (
+                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mt: 1 }}>
+                                {currentNews.additional_attachments.map(att => (
+                                    <Box key={att.id} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                        <Typography variant="body2" sx={{ fontFamily: 'Cairo', flexGrow: 1 }}>{att.file.split('/').pop()}</Typography>
+                                        <IconButton size="small" color="error" onClick={() => handleDeleteMedia('attachment', att.id)}>
+                                            <CloseIcon fontSize="small" />
+                                        </IconButton>
+                                    </Box>
+                                ))}
+                            </Box>
+                        )}
                         <FormControl fullWidth sx={{ mt: 2 }}>
                             <Typography variant="body2" sx={{ fontFamily: 'Cairo', mb: 1 }}>الجمهور المستهدف</Typography>
                             <Select

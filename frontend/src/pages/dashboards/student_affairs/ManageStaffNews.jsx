@@ -49,7 +49,12 @@ export default function ManageStaffNews() {
         content: '',
         target_audience: 'ALL',
         status: 'PUBLISHED',
-        image: null
+        image: null,
+        attachment: null,
+        new_images: [],
+        new_attachments: [],
+        additional_images: [],
+        additional_attachments: []
     });
 
     useEffect(() => {
@@ -79,7 +84,12 @@ export default function ManageStaffNews() {
                 content: newsItem.content,
                 target_audience: newsItem.target_audience || 'ALL',
                 status: newsItem.status || 'PUBLISHED',
-                image: null
+                image: null,
+                attachment: null,
+                new_images: [],
+                new_attachments: [],
+                additional_images: newsItem.additional_images || [],
+                additional_attachments: newsItem.additional_attachments || []
             });
         } else {
             setEditingNews(null);
@@ -88,7 +98,12 @@ export default function ManageStaffNews() {
                 content: '',
                 target_audience: 'ALL',
                 status: 'PUBLISHED',
-                image: null
+                image: null,
+                attachment: null,
+                new_images: [],
+                new_attachments: [],
+                additional_images: [],
+                additional_attachments: []
             });
         }
         setDialogOpen(true);
@@ -97,7 +112,7 @@ export default function ManageStaffNews() {
     const handleCloseDialog = () => {
         setDialogOpen(false);
         setEditingNews(null);
-        setFormData({ title: '', content: '', target_audience: 'ALL', status: 'PUBLISHED', image: null });
+        setFormData({ title: '', content: '', target_audience: 'ALL', status: 'PUBLISHED', image: null, attachment: null, new_images: [], new_attachments: [], additional_images: [], additional_attachments: [] });
     };
 
     const handleImageChange = (e) => {
@@ -113,8 +128,17 @@ export default function ManageStaffNews() {
             data.append('content', formData.content);
             data.append('target_audience', formData.target_audience);
             data.append('status', formData.status);
-            if (formData.image) {
+            if (formData.image instanceof File) {
                 data.append('image', formData.image);
+            }
+            if (formData.attachment instanceof File) {
+                data.append('attachment', formData.attachment);
+            }
+            if (formData.new_images) {
+                Array.from(formData.new_images).forEach(file => data.append('new_images', file));
+            }
+            if (formData.new_attachments) {
+                Array.from(formData.new_attachments).forEach(file => data.append('new_attachments', file));
             }
 
             const config = {
@@ -147,6 +171,23 @@ export default function ManageStaffNews() {
         } catch (err) {
             console.error('Error deleting news:', err);
             setError('فشل حذف الخبر');
+        }
+    };
+
+    const handleDeleteMedia = async (mediaType, mediaId) => {
+        if (window.confirm('هل أنت متأكد من حذف هذا المرفق؟')) {
+            try {
+                await axios.delete(`/api/content/news/${editingNews.id}/delete_media/${mediaType}/${mediaId}/`, { withCredentials: true });
+                if (mediaType === 'image') {
+                    setFormData({ ...formData, additional_images: formData.additional_images.filter(img => img.id !== mediaId) });
+                } else {
+                    setFormData({ ...formData, additional_attachments: formData.additional_attachments.filter(att => att.id !== mediaId) });
+                }
+                fetchNews();
+            } catch (err) {
+                console.error('Error deleting media:', err);
+                setError('فشل في حذف المرفق.');
+            }
         }
     };
 
@@ -467,17 +508,48 @@ export default function ManageStaffNews() {
                         />
 
                         <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', mb: 1.5, color: '#1a2744' }}>
-                            صورة الخبر (اختياري)
+                            المرفقات
                         </Typography>
-                        <TextField
-                            type="file"
-                            fullWidth
-                            onChange={handleImageChange}
-                            InputProps={{
-                                inputProps: { accept: 'image/*' }
-                            }}
-                            sx={{ mb: 3, '& .MuiOutlinedInput-root': { borderRadius: 2, bgcolor: '#fafafa' } }}
-                        />
+                        <Button variant="outlined" component="label" fullWidth sx={{ mb: 2, fontFamily: 'Cairo', height: 50, borderRadius: 2 }}>
+                            {formData.image instanceof File ? formData.image.name : 'رفع صورة رئيسية (اختياري)'}
+                            <input type="file" hidden accept="image/*" onChange={(e) => setFormData({ ...formData, image: e.target.files[0] })} />
+                        </Button>
+                        <Button variant="outlined" component="label" fullWidth sx={{ mb: 2, fontFamily: 'Cairo', height: 50, borderRadius: 2 }}>
+                            {formData.new_images?.length ? `تم اختيار ${formData.new_images.length} صور إضافية` : 'رفع صور إضافية (اختياري)'}
+                            <input type="file" hidden multiple accept="image/*" onChange={(e) => setFormData({ ...formData, new_images: e.target.files })} />
+                        </Button>
+                        {editingNews && formData.additional_images?.length > 0 && (
+                            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 2 }}>
+                                {formData.additional_images.map(img => (
+                                    <Box key={img.id} sx={{ position: 'relative' }}>
+                                        <Avatar src={sanitizeFileUrl(img.image)} variant="rounded" sx={{ width: 60, height: 60 }} />
+                                        <IconButton size="small" color="error" sx={{ position: 'absolute', top: -10, right: -10, bgcolor: 'white' }} onClick={() => handleDeleteMedia('image', img.id)}>
+                                            <CloseIcon fontSize="small" />
+                                        </IconButton>
+                                    </Box>
+                                ))}
+                            </Box>
+                        )}
+                        <Button variant="outlined" component="label" fullWidth sx={{ mb: 2, fontFamily: 'Cairo', height: 50, borderRadius: 2 }}>
+                            {formData.attachment instanceof File ? formData.attachment.name : 'رفع ملف مرفق رئيسي (PDF, Excel, Word)'}
+                            <input type="file" hidden accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip,.rar" onChange={(e) => setFormData({ ...formData, attachment: e.target.files[0] })} />
+                        </Button>
+                        <Button variant="outlined" component="label" fullWidth sx={{ mb: 3, fontFamily: 'Cairo', height: 50, borderRadius: 2 }}>
+                            {formData.new_attachments?.length ? `تم اختيار ${formData.new_attachments.length} ملفات إضافية` : 'رفع ملفات مرفقة إضافية'}
+                            <input type="file" hidden multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip,.rar" onChange={(e) => setFormData({ ...formData, new_attachments: e.target.files })} />
+                        </Button>
+                        {editingNews && formData.additional_attachments?.length > 0 && (
+                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 3 }}>
+                                {formData.additional_attachments.map(att => (
+                                    <Box key={att.id} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                        <Typography variant="body2" sx={{ fontFamily: 'Cairo', flexGrow: 1 }}>{att.file.split('/').pop()}</Typography>
+                                        <IconButton size="small" color="error" onClick={() => handleDeleteMedia('attachment', att.id)}>
+                                            <CloseIcon fontSize="small" />
+                                        </IconButton>
+                                    </Box>
+                                ))}
+                            </Box>
+                        )}
 
                         <Grid container spacing={3}>
                             <Grid item xs={12} sm={6}>

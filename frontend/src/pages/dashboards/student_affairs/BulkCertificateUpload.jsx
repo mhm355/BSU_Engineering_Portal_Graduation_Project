@@ -109,8 +109,8 @@ export default function BulkCertificateUpload() {
                 </Alert>
             )}
 
-            <Grid container spacing={3} sx={{ mb: 3 }}>
-                <Grid item xs={12} md={6}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, maxWidth: 800, mx: 'auto', mb: 3 }}>
+                <Box>
                     <Paper sx={{ p: 3, height: '100%', display: 'flex', flexDirection: 'column' }}>
                         <Typography variant="h6" gutterBottom sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1976d2' }}>
                             Sync Certificates
@@ -129,9 +129,9 @@ export default function BulkCertificateUpload() {
                             {loadingSync ? 'Syncing...' : 'Sync Certificates'}
                         </Button>
                     </Paper>
-                </Grid>
+                </Box>
 
-                <Grid item xs={12} md={6}>
+                <Box>
                     <Paper sx={{ p: 3, height: '100%', display: 'flex', flexDirection: 'column' }}>
                         <Typography variant="h6" gutterBottom sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#00bcd4' }}>
                             Bulk Certificates
@@ -183,8 +183,8 @@ export default function BulkCertificateUpload() {
                             {loadingBulk ? 'Uploading...' : 'Bulk Certificates'}
                         </Button>
                     </Paper>
-                </Grid>
-            </Grid>
+                </Box>
+            </Box>
 
             {/* Error Details */}
             {result?.errors?.length > 0 && (
