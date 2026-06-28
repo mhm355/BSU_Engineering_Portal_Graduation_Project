@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import {
     Box, Container, Typography, Paper, Button, Alert,
-    CircularProgress, Chip,
+    CircularProgress, Chip, Grid,
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import FolderZipIcon from '@mui/icons-material/FolderZip';
+import SyncIcon from '@mui/icons-material/Sync';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ErrorIcon from '@mui/icons-material/Error';
 import axios from 'axios';
@@ -14,8 +14,9 @@ import { useNavigate } from 'react-router-dom';
 
 export default function BulkCertificateUpload() {
     const navigate = useNavigate();
-    const [file, setFile] = useState(null);
-    const [loading, setLoading] = useState(false);
+    const [files, setFiles] = useState([]);
+    const [loadingSync, setLoadingSync] = useState(false);
+    const [loadingBulk, setLoadingBulk] = useState(false);
     const [error, setError] = useState('');
     const [result, setResult] = useState(null);
 
@@ -23,40 +24,57 @@ export default function BulkCertificateUpload() {
     const config = { headers: { Authorization: `Bearer ${token}` }, withCredentials: true };
 
     const handleFileChange = (e) => {
-        const selected = e.target.files[0];
-        if (selected && selected.name.endsWith('.zip')) {
-            setFile(selected);
+        const selected = Array.from(e.target.files);
+        if (selected.length > 0) {
+            setFiles(selected);
             setError('');
         } else {
-            setError('يجب أن يكون الملف بصيغة ZIP');
-            setFile(null);
+            setFiles([]);
         }
     };
 
-    const handleUpload = async () => {
-        if (!file) {
-            setError('يرجى رفع ملف ZIP');
+    const handleSync = async () => {
+        setLoadingSync(true);
+        setError('');
+        setResult(null);
+
+        try {
+            const res = await axios.post('/api/academic/student-affairs/certificates/sync/', {}, config);
+            setResult(res.data);
+        } catch (err) {
+            setError(err.response?.data?.error || 'فشل في مزامنة الشهادات');
+        } finally {
+            setLoadingSync(false);
+        }
+    };
+
+    const handleBulkUpload = async () => {
+        if (files.length === 0) {
+            setError('يرجى اختيار ملفات الشهادات');
             return;
         }
 
-        setLoading(true);
+        setLoadingBulk(true);
         setError('');
         setResult(null);
 
         try {
             const formData = new FormData();
-            formData.append('file', file);
+            files.forEach(file => {
+                formData.append('files', file);
+            });
 
-            const res = await axios.post('/api/academic/student-affairs/bulk-certificates/', formData, {
+            const res = await axios.post('/api/academic/student-affairs/certificates/bulk-direct/', formData, {
                 ...config,
                 headers: { ...config.headers, 'Content-Type': 'multipart/form-data' }
             });
 
             setResult(res.data);
+            setFiles([]);
         } catch (err) {
             setError(err.response?.data?.error || 'فشل في رفع الشهادات');
         } finally {
-            setLoading(false);
+            setLoadingBulk(false);
         }
     };
 
@@ -71,11 +89,11 @@ export default function BulkCertificateUpload() {
             </Button>
 
             <Typography variant="h4" gutterBottom sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1E293B' }}>
-                رفع الشهادات بالجملة
+                شهادات التخرج
             </Typography>
 
             <Typography variant="body1" sx={{ fontFamily: 'Cairo', color: '#666', mb: 3 }}>
-                قم برفع ملف ZIP يحتوي على ملفات PDF للشهادات — اسم كل ملف يجب أن يكون الرقم القومي للطالب
+                اختر إحدى الطرق التالية لإضافة الشهادات للطلاب
             </Typography>
 
             {error && <Alert severity="error" sx={{ mb: 2, fontFamily: 'Cairo' }}>{error}</Alert>}
@@ -91,59 +109,82 @@ export default function BulkCertificateUpload() {
                 </Alert>
             )}
 
-            <Paper sx={{ p: 3, mb: 3 }}>
-                <Typography variant="h6" gutterBottom sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
-                    رفع ملف الشهادات
-                </Typography>
+            <Grid container spacing={3} sx={{ mb: 3 }}>
+                <Grid item xs={12} md={6}>
+                    <Paper sx={{ p: 3, height: '100%', display: 'flex', flexDirection: 'column' }}>
+                        <Typography variant="h6" gutterBottom sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1976d2' }}>
+                            Sync Certificates
+                        </Typography>
+                        <Typography variant="body2" sx={{ fontFamily: 'Cairo', color: '#666', mb: 3, flexGrow: 1 }}>
+                            Use this option if you have already uploaded certificates directly to the Azure Cloud Storage. This process scans the cloud and syncs database records.
+                        </Typography>
+                        <Button
+                            variant="outlined"
+                            fullWidth
+                            onClick={handleSync}
+                            disabled={loadingSync || loadingBulk}
+                            sx={{ fontFamily: 'Cairo', py: 1.5, borderColor: '#1976d2', color: '#1976d2' }}
+                            startIcon={loadingSync ? <CircularProgress size={20} color="inherit" /> : <SyncIcon />}
+                        >
+                            {loadingSync ? 'Syncing...' : 'Sync Certificates'}
+                        </Button>
+                    </Paper>
+                </Grid>
 
-                <Box
-                    sx={{
-                        border: '2px dashed #00bcd4',
-                        borderRadius: 2,
-                        p: 4,
-                        textAlign: 'center',
-                        bgcolor: file ? '#e0f7fa' : '#fafafa',
-                        cursor: 'pointer',
-                        transition: 'all 0.3s',
-                        '&:hover': { bgcolor: '#e0f7fa' }
-                    }}
-                    component="label"
-                >
-                    <input type="file" hidden accept=".zip" onChange={handleFileChange} />
-                    {file ? (
-                        <>
-                            <FolderZipIcon sx={{ fontSize: 48, color: '#00bcd4', mb: 1 }} />
-                            <Typography sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
-                                {file.name}
-                            </Typography>
-                            <Typography variant="body2" sx={{ fontFamily: 'Cairo', color: '#666' }}>
-                                {(file.size / (1024 * 1024)).toFixed(2)} MB
-                            </Typography>
-                        </>
-                    ) : (
-                        <>
-                            <CloudUploadIcon sx={{ fontSize: 48, color: '#00bcd4', mb: 1 }} />
-                            <Typography sx={{ fontFamily: 'Cairo' }}>
-                                اضغط لرفع ملف ZIP يحتوي على الشهادات
-                            </Typography>
-                            <Typography variant="body2" sx={{ fontFamily: 'Cairo', color: '#999', mt: 1 }}>
-                                كل ملف PDF يجب تسميته بالرقم القومي (مثل: 12345678901234.pdf)
-                            </Typography>
-                        </>
-                    )}
-                </Box>
+                <Grid item xs={12} md={6}>
+                    <Paper sx={{ p: 3, height: '100%', display: 'flex', flexDirection: 'column' }}>
+                        <Typography variant="h6" gutterBottom sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#00bcd4' }}>
+                            Bulk Certificates
+                        </Typography>
+                        <Typography variant="body2" sx={{ fontFamily: 'Cairo', color: '#666', mb: 3, flexGrow: 1 }}>
+                            Select multiple certificate files (.pdf, .png, .jpg) from your device. They will be uploaded and assigned automatically.
+                        </Typography>
+                        
+                        <Box
+                            sx={{
+                                border: '2px dashed #00bcd4',
+                                borderRadius: 2,
+                                p: 2,
+                                mb: 2,
+                                textAlign: 'center',
+                                bgcolor: files.length > 0 ? '#e0f7fa' : '#fafafa',
+                                cursor: 'pointer',
+                                transition: 'all 0.3s',
+                                '&:hover': { bgcolor: '#e0f7fa' }
+                            }}
+                            component="label"
+                        >
+                            <input type="file" hidden multiple accept=".pdf,.png,.jpg,.jpeg" onChange={handleFileChange} />
+                            {files.length > 0 ? (
+                                <>
+                                    <CheckCircleIcon sx={{ fontSize: 32, color: '#00bcd4', mb: 1 }} />
+                                    <Typography sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
+                                        {files.length} Files Selected
+                                    </Typography>
+                                </>
+                            ) : (
+                                <>
+                                    <CloudUploadIcon sx={{ fontSize: 32, color: '#00bcd4', mb: 1 }} />
+                                    <Typography sx={{ fontFamily: 'Cairo' }}>
+                                        Click to select files
+                                    </Typography>
+                                </>
+                            )}
+                        </Box>
 
-                <Button
-                    variant="contained"
-                    fullWidth
-                    onClick={handleUpload}
-                    disabled={loading || !file}
-                    sx={{ mt: 3, fontFamily: 'Cairo', py: 1.5, bgcolor: '#00bcd4', '&:hover': { bgcolor: '#0097a7' } }}
-                    startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <CloudUploadIcon />}
-                >
-                    {loading ? 'جاري الرفع...' : 'رفع الشهادات'}
-                </Button>
-            </Paper>
+                        <Button
+                            variant="contained"
+                            fullWidth
+                            onClick={handleBulkUpload}
+                            disabled={loadingBulk || loadingSync || files.length === 0}
+                            sx={{ fontFamily: 'Cairo', py: 1.5, bgcolor: '#00bcd4', '&:hover': { bgcolor: '#0097a7' } }}
+                            startIcon={loadingBulk ? <CircularProgress size={20} color="inherit" /> : <CloudUploadIcon />}
+                        >
+                            {loadingBulk ? 'Uploading...' : 'Bulk Certificates'}
+                        </Button>
+                    </Paper>
+                </Grid>
+            </Grid>
 
             {/* Error Details */}
             {result?.errors?.length > 0 && (
@@ -178,10 +219,9 @@ export default function BulkCertificateUpload() {
                     تعليمات التجهيز
                 </Typography>
                 <Box component="ol" sx={{ fontFamily: 'Cairo', pr: 3 }}>
-                    <li>جهّز ملفات PDF للشهادات</li>
-                    <li>سمِّ كل ملف PDF بالرقم القومي للطالب (مثال: <code>12345678901234.pdf</code>)</li>
-                    <li>اضغط على الملفات في ملف ZIP واحد</li>
-                    <li>ارفع ملف ZIP من هذه الصفحة</li>
+                    <li>يجب تسمية كل ملف باسم الرقم القومي للطالب (مثال: <code>12345678901234.pdf</code> أو <code>12345678901234.png</code>).</li>
+                    <li>يجب أن يكون الطالب في الفرقة الرابعة.</li>
+                    <li>في حالة رفع شهادة لطالب يمتلك شهادة بالفعل، سيتم تحديث الشهادة القديمة.</li>
                 </Box>
             </Paper>
         </Container>

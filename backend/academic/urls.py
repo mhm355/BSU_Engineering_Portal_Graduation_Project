@@ -12,7 +12,8 @@ from .views import (
 from .student_affairs_views import (
     UploadStudentsView, StudentListView, ResetStudentPasswordView,
     FourthYearStudentsView, StudentAffairsGradesView, BulkCertificateUploadView,
-    PreviewStudentsUploadView
+    PreviewStudentsUploadView, SyncCertificatesFromStorageView,
+    DirectBulkCertificateUploadView
 )
 from .staff_affairs_views import (
     UploadDoctorsView, UploadStaffAffairsUsersView, DoctorListView,
@@ -120,6 +121,8 @@ urlpatterns = [
 
     # Bulk certificate upload (Student Affairs)
     path('student-affairs/bulk-certificates/', BulkCertificateUploadView.as_view(), name='bulk-certificates'),
+    path('student-affairs/certificates/sync/', SyncCertificatesFromStorageView.as_view(), name='sync_azure_certificates'),
+    path('student-affairs/certificates/bulk-direct/', DirectBulkCertificateUploadView.as_view(), name='bulk_direct_certificates'),
 
     # Bulk quiz import (Doctor)
     path('quizzes/bulk-import/', BulkQuizImportView.as_view(), name='bulk-quiz-import'),

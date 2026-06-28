@@ -10,6 +10,9 @@ from django.db.models import Q
 from django.contrib.auth import get_user_model
 import pandas as pd
 import io
+import os
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
 
 from .models import Student, Level, AcademicYear, Department, Specialization, AuditLog, UploadHistory, Certificate
 from users.permissions import IsStudentAffairsRole, IsStudentRole
@@ -1182,4 +1185,187 @@ class BulkCertificateUploadView(APIView):
             'created_count': created_count,
             'error_count': len(errors),
             'errors': errors,
+        }, status=status.HTTP_201_CREATED)
+
+
+class SyncCertificatesFromStorageView(APIView):
+    """
+    Sync certificates directly from Azure Blob Storage to the database.
+    Looks for files in 'certificates/' and creates/updates Certificate records for 4th year students.
+    """
+    permission_classes = [IsStudentAffairsRole]
+
+    def post(self, request):
+        created_count = 0
+        updated_count = 0
+        errors = []
+
+        try:
+            # Azure Blob Storage lists files using listdir
+            # default_storage.listdir('certificates') returns (directories, files)
+            _, files = default_storage.listdir('certificates')
+            
+            # Filter supported extensions
+            supported_exts = ['.pdf', '.png', '.jpg', '.jpeg']
+            cert_files = [f for f in files if any(f.lower().endswith(ext) for ext in supported_exts)]
+
+            for file_name in cert_files:
+                try:
+                    # Extract national_id
+                    name_without_ext = os.path.splitext(file_name)[0]
+                    national_id = name_without_ext.strip()
+                    
+                    # Handle nested folders (e.g., "certs/12345678901234.pdf")
+                    if '/' in national_id:
+                        national_id = national_id.rsplit('/', 1)[1]
+
+                    # Find 4th year student
+                    try:
+                        student = Student.objects.get(national_id=national_id, level__name='FOURTH')
+                    except Student.DoesNotExist:
+                        errors.append(f"{file_name}: لم يتم العثور على طالب في الفرقة الرابعة بهذا الرقم القومي")
+                        continue
+
+                    if not student.user:
+                        errors.append(f"{file_name}: الطالب ليس لديه حساب مستخدم")
+                        continue
+                    
+                    # Path as stored in Azure
+                    file_path = f"certificates/{file_name}"
+
+                    # Check if certificate exists
+                    cert = Certificate.objects.filter(student=student.user).first()
+
+                    if cert:
+                        # Update existing certificate
+                        cert.file = file_path
+                        cert.description = f'تم تحديث المزامنة من Azure Storage - {student.full_name}'
+                        cert.save()
+                        updated_count += 1
+                    else:
+                        # Create
+                        Certificate.objects.create(
+                            student=student.user,
+                            file=file_path,
+                            description=f'تمت المزامنة من Azure Storage - {student.full_name}'
+                        )
+                        created_count += 1
+
+                except Exception as e:
+                    errors.append(f"{file_name}: {str(e)}")
+
+            # Track audit log
+            try:
+                AuditLog.objects.create(
+                    action=AuditLog.ActionType.CERTIFICATE_GENERATED,
+                    performed_by=request.user,
+                    entity_type='SYNC_CERTIFICATES',
+                    details={
+                        'created': created_count,
+                        'updated': updated_count,
+                        'errors': len(errors)
+                    }
+                )
+            except Exception:
+                pass
+
+            return Response({
+                'message': f'تمت مزامنة الشهادات بنجاح. تم إنشاء {created_count} وتحديث {updated_count}',
+                'created_count': created_count,
+                'updated_count': updated_count,
+                'error_count': len(errors),
+                'errors': errors
+            }, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class DirectBulkCertificateUploadView(APIView):
+    """
+    Upload multiple certificate files directly.
+    Expects multipart/form-data with multiple 'files' fields.
+    """
+    parser_classes = (MultiPartParser, FormParser)
+    permission_classes = [IsStudentAffairsRole]
+
+    def post(self, request):
+        files = request.FILES.getlist('files')
+        
+        if not files:
+            return Response(
+                {'error': 'يرجى اختيار ملفات الشهادات'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        created_count = 0
+        updated_count = 0
+        errors = []
+        supported_exts = ['.pdf', '.png', '.jpg', '.jpeg']
+
+        for file in files:
+            file_name = file.name
+            try:
+                # Check extension
+                ext = os.path.splitext(file_name)[1].lower()
+                if ext not in supported_exts:
+                    errors.append(f"{file_name}: صيغة غير مدعومة")
+                    continue
+
+                # Extract national_id
+                national_id = os.path.splitext(file_name)[0].strip()
+
+                # Find 4th year student
+                try:
+                    student = Student.objects.get(national_id=national_id, level__name='FOURTH')
+                except Student.DoesNotExist:
+                    errors.append(f"{file_name}: لم يتم العثور على طالب في الفرقة الرابعة بهذا الرقم القومي")
+                    continue
+
+                if not student.user:
+                    errors.append(f"{file_name}: الطالب ليس لديه حساب مستخدم")
+                    continue
+
+                # Check if certificate exists
+                cert = Certificate.objects.filter(student=student.user).first()
+
+                if cert:
+                    # Update
+                    cert.file = file
+                    cert.description = f'شهادة محدثة مباشرة - {student.full_name}'
+                    cert.save()
+                    updated_count += 1
+                else:
+                    # Create
+                    Certificate.objects.create(
+                        student=student.user,
+                        file=file,
+                        description=f'شهادة مرفوعة مباشرة - {student.full_name}'
+                    )
+                    created_count += 1
+
+            except Exception as e:
+                errors.append(f"{file_name}: {str(e)}")
+
+        # Track audit log
+        try:
+            UploadHistory.objects.create(
+                upload_type='CERTIFICATE',
+                file_name='Direct Bulk Upload',
+                uploaded_by=request.user,
+                total_rows=len(files),
+                created_count=created_count,
+                updated_count=updated_count,
+                error_count=len(errors),
+                errors_json=errors if errors else None,
+            )
+        except Exception:
+            pass
+
+        return Response({
+            'message': f'تم رفع الشهادات بنجاح. تم إنشاء {created_count} وتحديث {updated_count}',
+            'created_count': created_count,
+            'updated_count': updated_count,
+            'error_count': len(errors),
+            'errors': errors
         }, status=status.HTTP_201_CREATED)
