@@ -225,7 +225,7 @@ export default function StudentAffairsDashboard() {
             title: 'الشهادات',
             description: 'رفع وإدارة شهادات التخرج للطلاب',
             buttonText: 'الشهادات',
-            onClick: () => navigate('/student-affairs/certificates'),
+            onClick: () => navigate('/student-affairs/bulk-certificates'),
             color: 'secondary',
         },
         {
