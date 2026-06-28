@@ -21,7 +21,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../../../context/AuthContext';
-
+import { sanitizeFileUrl } from '../../../utils/urlHelper';
 // Animations
 const float = keyframes`
   0%, 100% { transform: translateY(0px); }
@@ -373,11 +373,11 @@ export default function ManageStaffNews() {
                                             </Box>
 
                                             {item.image && (
-                                                <Box sx={{ mb: 2, borderRadius: 2, overflow: 'hidden' }}>
+                                                <Box sx={{ mb: 2, borderRadius: 2, overflow: 'hidden', bgcolor: '#f5f5f5' }}>
                                                     <img
-                                                        src={item.image}
+                                                        src={sanitizeFileUrl(item.image)}
                                                         alt={item.title}
-                                                        style={{ width: '100%', height: 200, objectFit: 'cover' }}
+                                                        style={{ width: '100%', maxHeight: 400, objectFit: 'contain' }}
                                                     />
                                                 </Box>
                                             )}

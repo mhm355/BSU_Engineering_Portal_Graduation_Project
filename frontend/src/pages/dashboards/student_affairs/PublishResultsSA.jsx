@@ -12,6 +12,8 @@ import FilterListIcon from '@mui/icons-material/FilterList';
 import PublicIcon from '@mui/icons-material/Public';
 import LockIcon from '@mui/icons-material/Lock';
 import SearchIcon from '@mui/icons-material/Search';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const LEVELS = [
@@ -32,6 +34,7 @@ export default function PublishResultsSA() {
     const [error, setError] = useState('');
     const [updatingId, setUpdatingId] = useState(null);
     const [isSearched, setIsSearched] = useState(false);
+    const navigate = useNavigate();
 
     // Filter states
     const [selectedYear, setSelectedYear] = useState('');
@@ -196,6 +199,18 @@ export default function PublishResultsSA() {
     return (
         <Fade in={true}>
             <Container maxWidth="xl" sx={{ pb: 6, pt: 2 }}>
+                <Button
+                    onClick={() => navigate('/student-affairs/dashboard')}
+                    startIcon={<ArrowBackIcon />}
+                    sx={{
+                        mb: 2,
+                        fontFamily: 'Cairo',
+                        color: '#64748b',
+                        '&:hover': { bgcolor: 'rgba(0,0,0,0.05)' }
+                    }}
+                >
+                    عودة للوحة التحكم
+                </Button>
                 {/* Header */}
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 4, flexWrap: 'wrap', gap: 2 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
