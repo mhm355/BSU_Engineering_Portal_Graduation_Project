@@ -147,7 +147,7 @@ export default function ManageStaffNews() {
             };
 
             if (editingNews) {
-                await axios.put(`/api/content/news/${editingNews.id}/`, data, config);
+                await axios.patch(`/api/content/news/${editingNews.id}/`, data, config);
                 setSuccess('تم تحديث الخبر بنجاح');
             } else {
                 await axios.post('/api/content/news/', data, config);
