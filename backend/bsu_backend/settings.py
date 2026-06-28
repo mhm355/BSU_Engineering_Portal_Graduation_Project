@@ -206,6 +206,7 @@ if AZURE_STORAGE_CONNECTION_STRING:
     }
     AZURE_CONTAINER = os.environ.get('AZURE_STORAGE_CONTAINER', 'media')
     AZURE_URL_EXPIRATION_SECS = None  # Public blobs, no expiration
+    AZURE_CONNECTION_STRING = AZURE_STORAGE_CONNECTION_STRING
     
     # Try to get account name from env, or extract from connection string
     AZURE_ACCOUNT_NAME = os.environ.get('AZURE_STORAGE_ACCOUNT_NAME', '')
