@@ -783,7 +783,7 @@ class BulkStudentGradeView(APIView):
                     except:
                         return None
 
-                if 'coursework_grade' in item: defaults['coursework'] = parse_decimal(item['coursework_grade'])
+                # coursework is a computed property on the model, do not try to set it.
                 if 'practical_grade' in item: defaults['practical'] = parse_decimal(item['practical_grade'])
                 if 'midterm_grade' in item: defaults['midterm'] = parse_decimal(item['midterm_grade'])
                 if 'final_grade' in item: defaults['final'] = parse_decimal(item['final_grade'])
