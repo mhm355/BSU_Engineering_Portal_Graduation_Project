@@ -103,7 +103,7 @@ const NewsCard = ({ news, onReadMore, getImageUrl, delay = 0 }) => (
                         image={getImageUrl(news.image)}
                         alt={news.title}
                         className="news-image"
-                        sx={{ objectFit: 'cover', transition: 'transform 0.5s ease' }}
+                        sx={{ objectFit: 'contain', bgcolor: '#f5f5f5', transition: 'transform 0.5s ease' }}
                     />
                 ) : (
                     <Box
@@ -504,11 +504,14 @@ export default function Home() {
                         <Box sx={{ position: 'relative' }}>
                             {selectedNews.image && (
                                 <Box
+                                    component="img"
+                                    src={getImageUrl(selectedNews.image)}
+                                    alt={selectedNews.title}
                                     sx={{
-                                        height: 300,
-                                        backgroundImage: `url(${getImageUrl(selectedNews.image)})`,
-                                        backgroundSize: 'cover',
-                                        backgroundPosition: 'center',
+                                        width: '100%',
+                                        maxHeight: 500,
+                                        objectFit: 'contain',
+                                        bgcolor: '#f5f5f5',
                                     }}
                                 />
                             )}

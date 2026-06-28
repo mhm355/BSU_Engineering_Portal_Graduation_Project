@@ -4,7 +4,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import axios from 'axios';
-
+import { sanitizeFileUrl } from '../../../utils/urlHelper';
 export default function ManageNews() {
     const [newsList, setNewsList] = useState([]);
     const [open, setOpen] = useState(false);
@@ -118,7 +118,7 @@ export default function ManageNews() {
                         {newsList.map((news) => (
                             <TableRow key={news.id}>
                                 <TableCell>
-                                    {news.image && <Avatar src={news.image} variant="rounded" sx={{ width: 50, height: 50 }} />}
+                                    {news.image && <Avatar src={sanitizeFileUrl(news.image)} variant="rounded" sx={{ width: 50, height: 50 }} />}
                                 </TableCell>
                                 <TableCell sx={{ fontFamily: 'Cairo', textAlign: 'right' }}>{news.title}</TableCell>
                                 <TableCell sx={{ fontFamily: 'Cairo', textAlign: 'right' }}>
