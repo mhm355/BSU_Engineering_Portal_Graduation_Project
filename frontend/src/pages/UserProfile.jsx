@@ -113,10 +113,7 @@ export default function UserProfile() {
             }
 
             const response = await axios.patch('/api/auth/profile/', dataToSend, { 
-                withCredentials: true,
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                }
+                withCredentials: true
             });
 
             // Update context
