@@ -1019,7 +1019,15 @@ class StudentAffairsGradesView(APIView):
                 subject__in=subjects,
                 level=level,
                 academic_year_id=academic_year_id
-            )
+            ).select_related('grading_template')
+
+            offerings_max_total = {}
+            for off in offerings:
+                gt = off.grading_template
+                if gt:
+                    offerings_max_total[off.subject_id] = float(gt.attendance_weight or 0) + float(gt.quizzes_weight or 0) + float(gt.midterm_weight or 0) + float(gt.practical_weight or 0) + float(gt.final_weight or 0)
+                else:
+                    offerings_max_total[off.subject_id] = 100
 
             # Get all grades for these students and offerings
             grades = StudentGrade.objects.filter(
@@ -1060,7 +1068,14 @@ class StudentAffairsGradesView(APIView):
                 result.append(student_data)
 
             # Also return subjects list for table headers
-            subjects_list = [{'id': s.id, 'name': s.name, 'code': s.code} for s in subjects]
+            subjects_list = []
+            for s in subjects:
+                subjects_list.append({
+                    'id': s.id,
+                    'name': s.name,
+                    'code': s.code,
+                    'max_total': offerings_max_total.get(s.id, 100)
+                })
 
             return Response({
                 'students': result,

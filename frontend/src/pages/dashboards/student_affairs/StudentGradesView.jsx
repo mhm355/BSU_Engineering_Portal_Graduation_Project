@@ -432,7 +432,7 @@ export default function StudentGradesView() {
                                                     </TableCell>
                                                 ))}
                                                 <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold', bgcolor: '#1a2744', color: '#fff', minWidth: 100, fontSize: '1rem', textAlign: 'center' }}>
-                                                    المجموع الكلي
+                                                    المجموع الكلي<br /><small>(أقصى: {gradesData.subjects.reduce((sum, s) => sum + (s.max_total || 100), 0)})</small>
                                                 </TableCell>
                                             </TableRow>
                                             <TableRow>
@@ -458,7 +458,7 @@ export default function StudentGradesView() {
                                                             نهائي
                                                         </TableCell>
                                                         <TableCell align="center" sx={{ fontFamily: 'Cairo', fontSize: '0.85rem', fontWeight: 'bold', bgcolor: '#e0f7fa', color: '#006064' }}>
-                                                            المجموع
+                                                            المجموع<br /><small>({subject.max_total || 100})</small>
                                                         </TableCell>
                                                     </React.Fragment>
                                                 ))}
@@ -485,6 +485,9 @@ export default function StudentGradesView() {
                                                             const final = subjectGrade.final !== null ? subjectGrade.final : 0;
                                                             const subjectTotal = coursework + practical + final;
                                                             
+                                                            const subjectDef = gradesData.subjects.find(s => s.id === subjectGrade.subject_id);
+                                                            const subjectMaxTotal = subjectDef ? (subjectDef.max_total || 100) : 100;
+                                                            
                                                             // Add to student overall total
                                                             studentTotal += subjectTotal;
                                                             
@@ -508,14 +511,14 @@ export default function StudentGradesView() {
                                                                     <TableCell align="center" sx={{ fontFamily: 'Cairo', fontSize: '1rem', color: subjectGrade.final !== null ? '#4CAF50' : '#ccc' }}>
                                                                         {subjectGrade.final !== null ? subjectGrade.final : '-'}
                                                                     </TableCell>
-                                                                    <TableCell align="center" sx={{ fontFamily: 'Cairo', fontSize: '1.05rem', fontWeight: 'bold', color: subjectTotal > 0 ? '#006064' : '#ccc' }}>
-                                                                        {subjectTotal > 0 ? subjectTotal : '-'}
+                                                                    <TableCell align="center" sx={{ fontFamily: 'Cairo', fontSize: '1.05rem', fontWeight: 'bold', color: subjectTotal > 0 ? '#006064' : '#ccc', direction: 'ltr' }}>
+                                                                        {subjectTotal > 0 ? `${subjectTotal} / ${subjectMaxTotal}` : '-'}
                                                                     </TableCell>
                                                                 </React.Fragment>
                                                             );
                                                         })}
-                                                        <TableCell align="center" sx={{ fontFamily: 'Cairo', fontSize: '1.1rem', fontWeight: 'bold', color: '#1a2744', bgcolor: 'rgba(26, 39, 68, 0.05)' }}>
-                                                            {studentTotal > 0 ? studentTotal : '-'}
+                                                        <TableCell align="center" sx={{ fontFamily: 'Cairo', fontSize: '1.1rem', fontWeight: 'bold', color: '#1a2744', bgcolor: 'rgba(26, 39, 68, 0.05)', direction: 'ltr' }}>
+                                                            {studentTotal > 0 ? `${studentTotal} / ${gradesData.subjects.reduce((sum, s) => sum + (s.max_total || 100), 0)}` : '-'}
                                                         </TableCell>
                                                     </TableRow>
                                                 );
