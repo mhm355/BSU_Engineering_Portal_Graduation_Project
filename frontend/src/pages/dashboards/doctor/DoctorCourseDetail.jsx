@@ -283,6 +283,20 @@ export default function DoctorCourseDetail() {
                 };
             });
             await axios.post('/api/academic/student-grades/bulk/', gradesData, config);
+            
+            // Update local grades state
+            setGrades(prev => {
+                const updated = { ...prev };
+                gradesData.forEach(g => {
+                    if (updated[g.student_id]) {
+                        updated[g.student_id] = { ...updated[g.student_id], attendance: g.attendance_grade };
+                    } else {
+                        updated[g.student_id] = { attendance: g.attendance_grade };
+                    }
+                });
+                return updated;
+            });
+
             setSuccess('تم احتساب درجات الحضور تلقائياً وإضافتها للدرجات');
         } catch (err) {
             setError('فشل في احتساب درجات الحضور');
@@ -361,7 +375,7 @@ export default function DoctorCourseDetail() {
     const handleSaveGrades = async () => {
         setSavingGrades(true);
         try {
-            const gradesData = students.map(s => ({ student_id: s.id, course_offering_id: courseId, attendance_grade: grades[s.id]?.attendance || null, quizzes_grade: grades[s.id]?.quizzes || null, coursework_grade: grades[s.id]?.coursework || null, midterm_grade: grades[s.id]?.midterm || null, final_grade: grades[s.id]?.final || null }));
+            const gradesData = students.map(s => ({ student_id: s.id, course_offering_id: courseId, attendance_grade: grades[s.id]?.attendance || null, quizzes_grade: grades[s.id]?.quizzes || null, coursework_grade: grades[s.id]?.coursework || null, practical_grade: grades[s.id]?.practical || null, midterm_grade: grades[s.id]?.midterm || null, final_grade: grades[s.id]?.final || null }));
             await axios.post('/api/academic/student-grades/bulk/', gradesData, config);
             setSuccess('تم حفظ الدرجات بنجاح');
         } catch (err) {

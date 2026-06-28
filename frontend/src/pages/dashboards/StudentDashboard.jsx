@@ -494,15 +494,17 @@ export default function StudentDashboard() {
                                         }}
                                         onClick={() => {
                                             let fileUrl = certificate.file || '';
-                                            // Strip internal Docker hostname if present
+                                            // Only strip internal Docker hostname, preserve Azure Blob Storage URLs
                                             if (fileUrl.includes('://')) {
                                                 try {
                                                     const url = new URL(fileUrl);
-                                                    fileUrl = url.pathname;
+                                                    if (url.hostname === 'backend' || url.hostname === 'localhost' || url.hostname === '127.0.0.1') {
+                                                        fileUrl = url.pathname;
+                                                    }
                                                 } catch (e) { /* use as-is */ }
                                             }
-                                            // Ensure it starts with /
-                                            if (fileUrl && !fileUrl.startsWith('/')) fileUrl = '/' + fileUrl;
+                                            // Ensure it starts with / if it's a relative path
+                                            if (!fileUrl.startsWith('http') && fileUrl && !fileUrl.startsWith('/')) fileUrl = '/' + fileUrl;
                                             window.open(fileUrl, '_blank');
                                         }}
                                     >

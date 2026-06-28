@@ -740,6 +740,7 @@ class BulkStudentGradeView(APIView):
                 'attendance': float(g.attendance) if g.attendance is not None else '',
                 'quizzes': float(g.quizzes) if g.quizzes is not None else '',
                 'coursework': float(g.coursework) if g.coursework is not None else '',
+                'practical': float(g.practical) if g.practical is not None else '',
                 'midterm': float(g.midterm) if g.midterm is not None else '',
                 'final': float(g.final) if g.final is not None else '',
             }
@@ -783,6 +784,7 @@ class BulkStudentGradeView(APIView):
                         return None
 
                 if 'coursework_grade' in item: defaults['coursework'] = parse_decimal(item['coursework_grade'])
+                if 'practical_grade' in item: defaults['practical'] = parse_decimal(item['practical_grade'])
                 if 'midterm_grade' in item: defaults['midterm'] = parse_decimal(item['midterm_grade'])
                 if 'final_grade' in item: defaults['final'] = parse_decimal(item['final_grade'])
                 if 'attendance_grade' in item: defaults['attendance'] = parse_decimal(item['attendance_grade'])
