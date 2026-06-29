@@ -690,13 +690,17 @@ Azure components provide equivalent functionality with native integration:
         \hline
         \textbf{Component} & \textbf{AWS} & \textbf{Azure} & \textbf{Notes} \\
         \hline
-        Compute (monthly) & \textasciitilde\$20-40 & \textasciitilde\$15-30 & Fargate vs Container Apps (low traffic) \\
+        Frontend (Compute) & \textasciitilde\$10-20 & \textasciitilde\$5-10 & Fargate vs Container Apps (ACA) \\
         \hline
-        Database & \textasciitilde\$15 & \textasciitilde\$15 & db.t3.micro / B1s tier \\
+        Backend (Compute) & \textasciitilde\$10-20 & \textasciitilde\$5-10 & Fargate vs Container Apps (ACA) \\
         \hline
-        Load Balancer & \textasciitilde\$20 & Included & ALB hourly charges \\
+        Redis (Cache) & \textasciitilde\$5-10 & \textasciitilde\$5-10 & ElastiCache vs Container Apps (ACA) \\
         \hline
-        \textbf{Total (Dev)} & \textasciitilde\$60-85 & \textasciitilde\$35-55 & Azure more cost-effective for this workload \\
+        Database (MySQL) & \textasciitilde\$15 & \textasciitilde\$15 & RDS (db.t3.micro) / Azure Database for MySQL (B1s) \\
+        \hline
+        Load Balancer & \textasciitilde\$20 & Included & ALB hourly charges vs native ACA ingress \\
+        \hline
+        \textbf{Total (Dev)} & \textasciitilde\$60-85 & \textasciitilde\$30-45 & Azure more cost-effective for this workload \\
         \hline
     \end{tabular}
     \caption{Monthly Infrastructure Cost Comparison (Development Environment)}
