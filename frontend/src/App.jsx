@@ -63,7 +63,7 @@ import ManageDoctors from './pages/dashboards/staff_affairs/ManageDoctors';
 import DeletionRequests from './pages/dashboards/admin/DeletionRequests';
 
 import ManageAcademicYears from './pages/dashboards/admin/ManageAcademicYears';
-import ManageGradingTemplates from './pages/dashboards/admin/ManageGradingTemplates';
+import ManageGradingTemplates from './pages/dashboards/staff_affairs/ManageGradingTemplates';
 import AuditLogViewer from './pages/dashboards/admin/AuditLogViewer';
 
 import ComplaintsDashboard from './pages/dashboards/admin/ComplaintsDashboard';
@@ -159,7 +159,7 @@ function App() {
                 {/* Admin Routes */}
                 <Route path="admin/dashboard" element={<ProtectedRoute roles={['ADMIN']}><AdminDashboard /></ProtectedRoute>} />
                 <Route path="admin/academic-years" element={<ProtectedRoute roles={['ADMIN']}><ManageAcademicYears /></ProtectedRoute>} />
-                <Route path="admin/grading-templates" element={<ProtectedRoute roles={['ADMIN']}><ManageGradingTemplates /></ProtectedRoute>} />
+                <Route path="staff-affairs/grading-templates" element={<ProtectedRoute roles={['STAFF_AFFAIRS']}><ManageGradingTemplates /></ProtectedRoute>} />
                 <Route path="admin/departments" element={<ProtectedRoute roles={['ADMIN']}><ManageDepartments /></ProtectedRoute>} />
                 <Route path="admin/years" element={<ProtectedRoute roles={['ADMIN']}><ManageYears /></ProtectedRoute>} />
                 <Route path="admin/levels" element={<ProtectedRoute roles={['ADMIN']}><ManageLevels /></ProtectedRoute>} />

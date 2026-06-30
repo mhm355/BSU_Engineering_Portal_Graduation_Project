@@ -372,14 +372,7 @@ export default function AdminDashboard() {
             onClick: () => navigate('/admin/academic-years'),
             gradient: 'linear-gradient(135deg, #11998e, #38ef7d)',
         },
-        {
-            icon: GradingIcon,
-            title: 'قوالب التقييم',
-            description: 'تعريف توزيع الدرجات ونماذج التقييم',
-            buttonText: 'إدارة القوالب',
-            onClick: () => navigate('/admin/grading-templates'),
-            gradient: 'linear-gradient(135deg, #8E2DE2, #4A00E0)',
-        },
+
         {
             icon: AccountTreeIcon,
             title: 'الهيكل الأكاديمي',

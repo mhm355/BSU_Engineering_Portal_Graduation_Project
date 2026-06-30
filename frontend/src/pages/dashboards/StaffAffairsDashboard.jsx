@@ -19,6 +19,7 @@ import {
     Logout as LogoutIcon,
     History as HistoryIcon,
     Newspaper as NewspaperIcon,
+    Grading as GradingIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -134,6 +135,14 @@ const StaffAffairsDashboard = () => {
             icon: HistoryIcon,
             buttonText: 'سجل التعيينات',
             onClick: () => navigate('/staff-affairs/assignment-history'),
+            color: 'secondary',
+        },
+        {
+            title: 'قوالب التقييم',
+            description: 'تعريف توزيع الدرجات ونماذج التقييم',
+            icon: GradingIcon,
+            buttonText: 'إدارة القوالب',
+            onClick: () => navigate('/staff-affairs/grading-templates'),
             color: 'secondary',
         },
         {
