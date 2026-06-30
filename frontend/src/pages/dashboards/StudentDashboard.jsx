@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import {
     Box, Container, Grid, Paper, Typography, Card, CardContent, Button, Chip, Alert,
-    Divider, CircularProgress, Avatar, IconButton, LinearProgress, Fade, Grow, Tooltip
+    Divider, CircularProgress, Avatar, IconButton, LinearProgress, Fade, Grow, Tooltip,
+    Dialog, DialogTitle, DialogContent, DialogActions
 } from '@mui/material';
 import { keyframes } from '@mui/system';
 import SchoolIcon from '@mui/icons-material/School';
@@ -25,6 +26,8 @@ import WarningIcon from '@mui/icons-material/Warning';
 import StarIcon from '@mui/icons-material/Star';
 import LogoutIcon from '@mui/icons-material/Logout';
 import SettingsIcon from '@mui/icons-material/Settings';
+import QrCode2Icon from '@mui/icons-material/QrCode2';
+import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
@@ -61,6 +64,7 @@ export default function StudentDashboard() {
     const [certificate, setCertificate] = useState(null);
     const [loading, setLoading] = useState(true);
     const [certificateLoading, setCertificateLoading] = useState(false);
+    const [showQrModal, setShowQrModal] = useState(false);
     const [quizzes, setQuizzes] = useState([]);
     const [grades, setGrades] = useState(null);
     const [attendanceStats, setAttendanceStats] = useState({ percentage: 0, present: 0, total: 0 });
@@ -256,6 +260,16 @@ export default function StudentDashboard() {
             path: '/student/quizzes'
         },
     ];
+
+    if (isFourthYear || studentInfo?.graduation_status === 'GRADUATED') {
+        quickActions.push({
+            title: 'بوابة التوظيف والتدريب',
+            icon: BusinessCenterIcon,
+            description: 'فرص عمل وتدريب وفعاليات للخريجين',
+            gradient: 'linear-gradient(135deg, #0ba360 0%, #3cba92 100%)',
+            path: '/student/career-portal'
+        });
+    }
 
     const currentHour = new Date().getHours();
     const greeting = currentHour < 12 ? 'صباح الخير' : currentHour < 17 ? 'مساء الخير' : 'مساء الخير';
@@ -494,38 +508,59 @@ export default function StudentDashboard() {
                                 {certificateLoading ? (
                                     <CircularProgress sx={{ color: '#fff' }} />
                                 ) : hasCertificate ? (
-                                    <Button
-                                        variant="contained"
-                                        size="large"
-                                        startIcon={<DownloadIcon />}
-                                        sx={{
-                                            fontFamily: 'Cairo',
-                                            fontWeight: 'bold',
-                                            bgcolor: '#fff',
-                                            color: '#4CAF50',
-                                            px: 4,
-                                            py: 1.5,
-                                            borderRadius: 3,
-                                            '&:hover': { bgcolor: 'rgba(255,255,255,0.9)' }
-                                        }}
-                                        onClick={() => {
-                                            let fileUrl = certificate.file || '';
-                                            // Only strip internal Docker hostname, preserve Azure Blob Storage URLs
-                                            if (fileUrl.includes('://')) {
-                                                try {
-                                                    const url = new URL(fileUrl);
-                                                    if (url.hostname === 'backend' || url.hostname === 'localhost' || url.hostname === '127.0.0.1') {
-                                                        fileUrl = url.pathname;
-                                                    }
-                                                } catch (e) { /* use as-is */ }
-                                            }
-                                            // Ensure it starts with / if it's a relative path
-                                            if (!fileUrl.startsWith('http') && fileUrl && !fileUrl.startsWith('/')) fileUrl = '/' + fileUrl;
-                                            window.open(fileUrl, '_blank');
-                                        }}
-                                    >
-                                        تحميل الشهادة
-                                    </Button>
+                                    <Box sx={{ display: 'flex', gap: 2 }}>
+                                        <Button
+                                            variant="contained"
+                                            size="large"
+                                            startIcon={<DownloadIcon />}
+                                            sx={{
+                                                fontFamily: 'Cairo',
+                                                fontWeight: 'bold',
+                                                bgcolor: '#fff',
+                                                color: '#4CAF50',
+                                                px: 4,
+                                                py: 1.5,
+                                                borderRadius: 3,
+                                                '&:hover': { bgcolor: 'rgba(255,255,255,0.9)' }
+                                            }}
+                                            onClick={() => {
+                                                let fileUrl = certificate.file || '';
+                                                if (fileUrl.includes('://')) {
+                                                    try {
+                                                        const url = new URL(fileUrl);
+                                                        if (url.hostname === 'backend' || url.hostname === 'localhost' || url.hostname === '127.0.0.1') {
+                                                            fileUrl = url.pathname;
+                                                        }
+                                                    } catch (e) { /* use as-is */ }
+                                                }
+                                                if (!fileUrl.startsWith('http') && fileUrl && !fileUrl.startsWith('/')) fileUrl = '/' + fileUrl;
+                                                window.open(fileUrl, '_blank');
+                                            }}
+                                        >
+                                            تحميل الشهادة
+                                        </Button>
+                                        
+                                        {certificate.verification_code && (
+                                            <Button
+                                                variant="outlined"
+                                                size="large"
+                                                startIcon={<QrCode2Icon />}
+                                                sx={{
+                                                    fontFamily: 'Cairo',
+                                                    fontWeight: 'bold',
+                                                    color: '#fff',
+                                                    borderColor: 'rgba(255,255,255,0.5)',
+                                                    px: 3,
+                                                    py: 1.5,
+                                                    borderRadius: 3,
+                                                    '&:hover': { bgcolor: 'rgba(255,255,255,0.1)', borderColor: '#fff' }
+                                                }}
+                                                onClick={() => setShowQrModal(true)}
+                                            >
+                                                رمز التحقق
+                                            </Button>
+                                        )}
+                                    </Box>
                                 ) : (
                                     <Chip
                                         icon={<AccessTimeIcon />}
@@ -755,6 +790,30 @@ export default function StudentDashboard() {
                     )}
                 </Paper>
             </Container>
+
+            {/* QR Code Modal */}
+            <Dialog open={showQrModal} onClose={() => setShowQrModal(false)} maxWidth="xs" fullWidth>
+                <DialogTitle sx={{ fontFamily: 'Cairo', fontWeight: 'bold', textAlign: 'center' }}>رمز التحقق (QR Code)</DialogTitle>
+                <DialogContent sx={{ textAlign: 'center', py: 3 }}>
+                    <Typography variant="body2" sx={{ fontFamily: 'Cairo', color: '#666', mb: 3 }}>
+                        امسح هذا الرمز للتحقق من صحة الشهادة واعتمادها من قبل الجامعة.
+                    </Typography>
+                    {certificate?.verification_code && (
+                        <Box sx={{ p: 2, bgcolor: '#fff', display: 'inline-block', borderRadius: 2, border: '1px solid #ddd' }}>
+                            <img 
+                                src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(window.location.origin + '/verify/' + certificate.verification_code)}`} 
+                                alt="Verification QR Code" 
+                                style={{ display: 'block', maxWidth: '100%' }}
+                            />
+                        </Box>
+                    )}
+                </DialogContent>
+                <DialogActions sx={{ justifyContent: 'center', pb: 3 }}>
+                    <Button variant="contained" onClick={() => setShowQrModal(false)} sx={{ fontFamily: 'Cairo', borderRadius: 2, px: 4 }}>
+                        إغلاق
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Box>
     );
 }
