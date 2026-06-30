@@ -46,7 +46,7 @@ The existing approach is architecturally incompatible with the operational requi
         \textbf{Dimension} & \textbf{Current State} & \textbf{Required State} & \textbf{Severity} \\
         \hline
         \textbf{Data Integrity} & Multiple inconsistent Excel files. & Single source of truth with referential integrity. & Critical \\
-        \textbf{Access Control} & File-level (all or nothing). & Role-based (5 distinct levels). & Critical \\
+        \textbf{Access Control} & File-level (all or nothing). & Role-based (7 distinct levels). & Critical \\
         \textbf{Auditability} & None. Changes are untraceable. & Full audit trail with identity/timestamp. & Critical \\
         \textbf{Information Latency} & Days to weeks (manual pipelines). & Real-time (sub-second API queries). & High \\
         \textbf{Error Rate} & 1--5\% per manual transcription. & Near zero (database constraints). & High \\
@@ -143,11 +143,15 @@ The system utilizes a four-tier containerized architecture~\cite{docker} separat
         \hline
         \textbf{Doctor} & Assigned course views, file-validated lecture uploads, Excel-exported batch attendance, bulk grade entry, and multi-type quiz management. \\
         \hline
-        \textbf{Student Affairs} & Validated Excel batch uploads for students, exam grade uploads pending admin approval, certificate management, and password resets. \\
+        \textbf{Student Affairs} & Validated Excel batch uploads for students, exam grade uploads pending Dean approval, certificate management, and password resets. \\
         \hline
-        \textbf{Staff Affairs} & Batch faculty uploads, structured doctor-to-course assignments, and doctor deletion request workflows. \\
+        \textbf{Staff Affairs} & Batch faculty uploads and doctor deletion request workflows. \\
         \hline
-        \textbf{Admin} & Academic year/term generation, department management, grading template configuration, targeted announcements, and full audit log reviews. \\
+        \textbf{Dean} & Approves final exam grades, publishes results to students, and exports data for closed academic years. \\
+        \hline
+        \textbf{HOD} & Assigns doctors to specific course offerings within their department. \\
+        \hline
+        \textbf{Admin} & Academic year/term generation and open/close statuses, department management, grading template configuration, targeted announcements, and full audit log reviews. \\
         \hline
     \end{tabular}
     \caption{System Outcomes per Stakeholder}
@@ -168,19 +172,21 @@ The following capabilities are fully implemented in the current release:
         \hline
         \textbf{ID} & \textbf{Capability} & \textbf{Description} \\
         \hline
-        S1 & Multi-role Auth & Session-based login (Admin, Student, Doctor, Staff/Student Affairs). \\
+        S1 & Multi-role Auth & Session-based login (Admin, Dean, HOD, Student, Doctor, Staff/Student Affairs). \\
         S2 & Password Enforcement & Default National ID password forced to change on first login. \\
         S3/S4 & Bulk Uploads & Excel-based batch imports with pre-flight validation. \\
-        S5 & Course Offerings & Doctor assignment scoped by year, term, level, and specialization. \\
+        S5 & Course Offerings & HOD assignment scoped by year, term, level, and specialization. \\
         S6 & Grading Engine & 7 templates with customizable weight distributions. \\
         S7 & Attendance & Bulk tracking with automatic Excel generation. \\
         S8 & Quiz Engine & MCQ (auto-graded), Essay (manual), Image, and Mixed types. \\
         S9 & Lecture Management & Validated uploads for PDF, Slides, and Video. \\
-        S11 & Approval Workflows & Exam grades require Admin approval before student visibility. \\
+        S11 & Approval Workflows & Exam grades require Dean approval and Student Affairs verification before student visibility. \\
         S12 & Audit Trail & 15 distinct action types logged with JSON details. \\
         S16 & UX/UI Theming & Client-side persisted Dark/Light mode and full RTL interface. \\
         S18 & Containerization & Multi-stage Docker builds and Compose orchestration. \\
         S19 & Manual Build Workflow & Docker Buildx with Trivy security scan and version-tagged releases. \\
+        S20 & Academic Cycle & Ability to open and close Academic Years and Terms. \\
+        S21 & Financial Constraints & Basic tuition payment status is tracked to lock academic features like quizzes. \\
         \hline
     \end{tabular}
     \caption{In-Scope System Capabilities}
@@ -202,7 +208,7 @@ The project scope was deliberately bounded by the engineering principle: \textit
         \hline
         X2 & Real-time Chat & Requires WebSocket infrastructure (Redis/Channels). In-app announcements suffice for broadcasting. \\
         \hline
-        X4 & Financial Management & Mixing academic and fee data introduces unnecessary security and legal exposure. \\
+        X4 & Financial Management & Full financial ledgers are excluded, but basic tuition payment status is tracked to enforce academic feature locks. \\
         \hline
         X5 & Horizontal Scaling & The current user load is well within single-server Gunicorn/MySQL capacity. Load balancing adds unneeded complexity. \\
         \hline

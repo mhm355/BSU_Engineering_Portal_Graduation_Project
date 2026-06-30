@@ -30,7 +30,7 @@ Identifying the exact users of the system is the first step in requirements engi
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{stakeholders.png}
-    \caption{Stakeholder Interaction Diagram showing all five roles (Admin, Doctor, Student, Student Affairs, Staff Affairs) and their primary data flows into the centralized system.}
+    \caption{Stakeholder Interaction Diagram showing all seven roles (Admin, Dean, HOD, Doctor, Student, Student Affairs, Staff Affairs) and their primary data flows into the centralized system.}
     \label{fig:stakeholders}
 \end{figure}
 
@@ -47,9 +47,13 @@ Identifying the exact users of the system is the first step in requirements engi
         \hline
         \textbf{Student Affairs} & Admin staff managing student lifecycles & Manual Excel-based registration and redundant grade re-entry. & Batch-upload students, view grades, manage certificates. \\
         \hline
-        \textbf{Staff Affairs} & Admin staff managing HR & No structured system for managing doctor course assignments. & Batch-upload doctors, assign to courses, manage deletions. \\
+        \textbf{Staff Affairs} & Admin staff managing HR & No structured system for managing doctor course assignments. & Batch-upload doctors, manage deletions. \\
         \hline
-        \textbf{Admin} & IT/System Administrator & No central configuration tool; ad-hoc management. & Manage academic years, approve deletions, view audit logs. \\
+        \textbf{Dean} & Executive Academic Head & Lack of visibility into grading pipelines and results. & Approve final grades, publish results, view analytics. \\
+        \hline
+        \textbf{HOD} & Head of Department & Disjointed assignment tracking. & Assign doctors to specific courses. \\
+        \hline
+        \textbf{Admin} & IT/System Administrator & No central configuration tool; ad-hoc management. & Manage academic years/terms, approve deletions, view audit logs. \\
         \hline
     \end{tabular}
     \caption{Stakeholder Summary and System Interaction Points}
@@ -101,6 +105,7 @@ Agile permitted the engineering team to:
         Sprint 6 & Student Portal & Dashboards, schedules, grade views. \\
         Sprint 7 & Admin and Operations & Announcements, audit logging, deletion workflows. \\
         Sprint 8 & DevOps and Polish & Docker Compose, Nginx proxy, RTL (Arabic) UI support. \\
+        Sprint 9 & Decentralized Workflows & Dean approvals, HOD assignments, Tuition constraints. \\
         \hline
     \end{tabular}
     \caption{Agile Sprint Plan Overview}
@@ -118,8 +123,10 @@ The following functional requirements are classified using IEEE 830-style [18] p
     \item \textbf{FR-01 [Must]}: The system shall authenticate users via session-based login using a username (national ID) and password.
     \item \textbf{FR-02 [Must]}: The system shall enforce a mandatory password change on first login. The default password shall equal the user's national ID.
     \item \textbf{FR-03 [Must]}: The system shall reject new passwords that match the national ID or are under 6 characters.
-    \item \textbf{FR-04 [Must]}: The system shall enforce isolated UI dashboards for all five defined user roles.
+    \item \textbf{FR-04 [Must]}: The system shall enforce isolated UI dashboards for all seven defined user roles.
     \item \textbf{FR-05 [Must]}: Admin and authorized personnel shall be able to reset any user's password, automatically re-triggering the first-login requirement flag.
+    \item \textbf{FR-05b [Must]}: The system shall require the Dean to explicitly approve exam grades before results can be published to students.
+    \item \textbf{FR-05c [Must]}: The system shall restrict access to quizzes and attendance views for students who have not paid their tuition.
 \end{itemize}
 
 \begin{lstlisting}[language=Python, caption=Enforcing First-Login Requirement in Model Save (\texttt{models.py})]
