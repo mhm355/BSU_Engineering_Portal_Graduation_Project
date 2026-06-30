@@ -98,7 +98,7 @@ const getLevelColor = (name) => {
 };
 
 const getRoleLabel = (role) => {
-    const map = { 'STUDENT_AFFAIRS': 'شئون الطلاب', 'STAFF_AFFAIRS': 'شئون العاملين', 'DOCTOR': 'دكتور' };
+    const map = { 'STUDENT_AFFAIRS': 'شئون الطلاب', 'STAFF_AFFAIRS': 'شئون العاملين', 'DOCTOR': 'دكتور', 'GRADUATE_AFFAIRS': 'شئون الخريجين' };
     return map[role] || role;
 };
 
@@ -112,6 +112,7 @@ export default function ManageUsers() {
     const [studentAffairsUsers, setStudentAffairsUsers] = useState([]);
     const [staffAffairsUsers, setStaffAffairsUsers] = useState([]);
     const [doctorUsers, setDoctorUsers] = useState([]);
+    const [graduateAffairsUsers, setGraduateAffairsUsers] = useState([]);
 
     const [departments, setDepartments] = useState([]);
     const [years, setYears] = useState([]);
@@ -140,6 +141,7 @@ export default function ManageUsers() {
             setStudentAffairsUsers(users.filter(u => u.role === 'STUDENT_AFFAIRS'));
             setStaffAffairsUsers(users.filter(u => u.role === 'STAFF_AFFAIRS'));
             setDoctorUsers(users.filter(u => u.role === 'DOCTOR'));
+            setGraduateAffairsUsers(users.filter(u => u.role === 'GRADUATE_AFFAIRS'));
         } catch (err) {
             console.error('Error fetching users:', err);
         }
@@ -475,7 +477,7 @@ export default function ManageUsers() {
         </Box>
     );
 
-    const tabColors = ['linear-gradient(135deg, #FF6B35, #F7931E)', 'linear-gradient(135deg, #2196F3, #21CBF3)', 'linear-gradient(135deg, #9C27B0, #E040FB)', 'linear-gradient(135deg, #4CAF50, #8BC34A)'];
+    const tabColors = ['linear-gradient(135deg, #FF6B35, #F7931E)', 'linear-gradient(135deg, #2196F3, #21CBF3)', 'linear-gradient(135deg, #9C27B0, #E040FB)', 'linear-gradient(135deg, #4CAF50, #8BC34A)', 'linear-gradient(135deg, #E91E63, #F06292)'];
 
     return (
         <Box sx={{ minHeight: '100vh', background: 'linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%)', pb: 6 }}>
@@ -504,10 +506,11 @@ export default function ManageUsers() {
                 {success && <Fade in={true}><Alert severity="success" sx={{ mb: 3, borderRadius: 3, fontFamily: 'Cairo' }} onClose={() => setSuccess('')}>{success}</Alert></Fade>}
 
                 <Grid container spacing={3} sx={{ mb: 4 }}>
-                    <Grid item xs={12} sm={6} md={3}><StatCard icon={SchoolIcon} value={students.length || '-'} label="الطلاب" color="#FF6B35" delay={0} /></Grid>
-                    <Grid item xs={12} sm={6} md={3}><StatCard icon={BadgeIcon} value={studentAffairsUsers.length} label="شئون الطلاب" color="#2196F3" delay={100} /></Grid>
-                    <Grid item xs={12} sm={6} md={3}><StatCard icon={SupervisorAccountIcon} value={staffAffairsUsers.length} label="شئون العاملين" color="#9C27B0" delay={200} /></Grid>
-                    <Grid item xs={12} sm={6} md={3}><StatCard icon={PersonIcon} value={doctorUsers.length} label="الدكاترة" color="#4CAF50" delay={300} /></Grid>
+                    <Grid item xs={12} sm={6} md><StatCard icon={SchoolIcon} value={students.length || '-'} label="الطلاب" color="#FF6B35" delay={0} /></Grid>
+                    <Grid item xs={12} sm={6} md><StatCard icon={BadgeIcon} value={studentAffairsUsers.length} label="شئون الطلاب" color="#2196F3" delay={100} /></Grid>
+                    <Grid item xs={12} sm={6} md><StatCard icon={SupervisorAccountIcon} value={staffAffairsUsers.length} label="شئون العاملين" color="#9C27B0" delay={200} /></Grid>
+                    <Grid item xs={12} sm={6} md><StatCard icon={PersonIcon} value={doctorUsers.length} label="الدكاترة" color="#4CAF50" delay={300} /></Grid>
+                    <Grid item xs={12} sm={6} md><StatCard icon={SchoolIcon} value={graduateAffairsUsers.length} label="شئون الخريجين" color="#E91E63" delay={400} /></Grid>
                 </Grid>
 
                 <Paper elevation={0} sx={{ borderRadius: 4, background: '#fff', boxShadow: '0 4px 20px rgba(0,0,0,0.08)', overflow: 'hidden' }}>
@@ -517,6 +520,7 @@ export default function ManageUsers() {
                             <Tab icon={<BadgeIcon />} iconPosition="start" label={`شئون الطلاب (${studentAffairsUsers.length})`} />
                             <Tab icon={<SupervisorAccountIcon />} iconPosition="start" label={`شئون العاملين (${staffAffairsUsers.length})`} />
                             <Tab icon={<PersonIcon />} iconPosition="start" label={`الدكاترة (${doctorUsers.length})`} />
+                            <Tab icon={<SchoolIcon />} iconPosition="start" label={`شئون الخريجين (${graduateAffairsUsers.length})`} />
                         </Tabs>
                     </Box>
                     <Box sx={{ p: 3 }}>
@@ -524,6 +528,7 @@ export default function ManageUsers() {
                         <TabPanel value={tabValue} index={1}>{renderEditableTable(studentAffairsUsers, 'STUDENT_AFFAIRS', tabColors[1])}</TabPanel>
                         <TabPanel value={tabValue} index={2}>{renderEditableTable(staffAffairsUsers, 'STAFF_AFFAIRS', tabColors[2])}</TabPanel>
                         <TabPanel value={tabValue} index={3}>{renderEditableTable(doctorUsers, 'DOCTOR', tabColors[3])}</TabPanel>
+                        <TabPanel value={tabValue} index={4}>{renderEditableTable(graduateAffairsUsers, 'GRADUATE_AFFAIRS', tabColors[4])}</TabPanel>
                     </Box>
                 </Paper>
             </Container>
