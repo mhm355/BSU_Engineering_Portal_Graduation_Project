@@ -21,10 +21,12 @@ from .views import (
     EventRegistrationViewSet,
     NotificationViewSet,
     VerifyCertificateView,
+    StudentGraduateRequestViewSet
 )
 
 router = DefaultRouter()
 router.register(r'requests', GraduateRequestViewSet, basename='graduate-request')
+router.register(r'student-requests', StudentGraduateRequestViewSet, basename='student-graduate-request')
 router.register(r'clearances', GraduationClearanceViewSet, basename='graduation-clearance')
 router.register(r'companies', CompanyViewSet, basename='company')
 router.register(r'jobs', JobPostingViewSet, basename='job-posting')

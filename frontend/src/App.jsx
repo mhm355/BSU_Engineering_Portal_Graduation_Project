@@ -81,6 +81,7 @@ import ManageCompanies from './pages/dashboards/graduate_affairs/ManageCompanies
 import ManageJobs from './pages/dashboards/graduate_affairs/ManageJobs';
 import ManageEvents from './pages/dashboards/graduate_affairs/ManageEvents';
 import CareerPortal from './pages/dashboards/student/CareerPortal';
+import StudentGraduateRequests from './pages/dashboards/student/StudentGraduateRequests';
 import VerifyCertificate from './pages/public/VerifyCertificate';
 
 import { AuthProvider } from './context/AuthContext';
@@ -132,6 +133,7 @@ function App() {
                 <Route path="student/quiz/:quizId" element={<ProtectedRoute roles={['STUDENT']}><TakeQuiz /></ProtectedRoute>} />
                 <Route path="student/quiz/:quizId/results" element={<ProtectedRoute roles={['STUDENT']}><StudentQuizResults /></ProtectedRoute>} />
                 <Route path="student/career-portal" element={<ProtectedRoute roles={['STUDENT']}><CareerPortal /></ProtectedRoute>} />
+                <Route path="student/graduate-requests" element={<ProtectedRoute roles={['STUDENT']}><StudentGraduateRequests /></ProtectedRoute>} />
                 <Route path="profile" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
 
                 {/* Doctor Routes */}

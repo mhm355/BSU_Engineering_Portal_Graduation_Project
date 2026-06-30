@@ -262,13 +262,22 @@ export default function StudentDashboard() {
     ];
 
     if (isFourthYear || studentInfo?.graduation_status === 'GRADUATED') {
-        quickActions.push({
-            title: 'بوابة التوظيف والتدريب',
-            icon: BusinessCenterIcon,
-            description: 'فرص عمل وتدريب وفعاليات للخريجين',
-            gradient: 'linear-gradient(135deg, #0ba360 0%, #3cba92 100%)',
-            path: '/student/career-portal'
-        });
+        quickActions.push(
+            {
+                title: 'بوابة التوظيف والتدريب',
+                icon: BusinessCenterIcon,
+                description: 'فرص عمل وتدريب وفعاليات للخريجين',
+                gradient: 'linear-gradient(135deg, #0ba360 0%, #3cba92 100%)',
+                path: '/student/career-portal'
+            },
+            {
+                title: 'خدمات وطلبات الخريجين',
+                icon: AssignmentIcon,
+                description: 'تقديم طلبات الإفادة وتحديث البيانات',
+                gradient: 'linear-gradient(135deg, #ff0844 0%, #ffb199 100%)',
+                path: '/student/graduate-requests'
+            }
+        );
     }
 
     const currentHour = new Date().getHours();

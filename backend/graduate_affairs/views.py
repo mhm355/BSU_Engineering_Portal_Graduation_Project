@@ -25,7 +25,8 @@ from .serializers import (
     GraduateInfoUpdateRequestSerializer
 )
 from academic.models import Student, Certificate, AuditLog, UploadHistory
-from users.permissions import IsGraduateAffairsRole
+from users.permissions import IsGraduateAffairsRole, IsStudentRole
+from rest_framework.permissions import IsAuthenticated
 
 User = get_user_model()
 
@@ -199,6 +200,35 @@ class UpdateRequestStatusView(APIView):
         )
 
         return Response(GraduateRequestSerializer(grad_request).data)
+
+
+class StudentGraduateRequestViewSet(viewsets.ModelViewSet):
+    """CRUD for graduate service requests from the student's perspective"""
+    serializer_class = GraduateRequestSerializer
+    permission_classes = [IsAuthenticated, IsStudentRole]
+    parser_classes = [MultiPartParser, FormParser]
+
+    def get_queryset(self):
+        return GraduateRequest.objects.filter(
+            graduate=self.request.user
+        ).prefetch_related('status_history').order_by('-created_at')
+
+    def perform_create(self, serializer):
+        instance = serializer.save(graduate=self.request.user, status='PENDING')
+        # Create initial status history
+        GraduateRequestStatusHistory.objects.create(
+            request=instance,
+            from_status='',
+            to_status='PENDING',
+            changed_by=self.request.user,
+            comment='تم تقديم الطلب من قبل الخريج/الطالب'
+        )
+
+    def update(self, request, *args, **kwargs):
+        return Response({'error': 'Students cannot update their requests directly.'}, status=status.HTTP_403_FORBIDDEN)
+
+    def destroy(self, request, *args, **kwargs):
+        return Response({'error': 'Students cannot delete requests.'}, status=status.HTTP_403_FORBIDDEN)
 
 
 # ============================================================================

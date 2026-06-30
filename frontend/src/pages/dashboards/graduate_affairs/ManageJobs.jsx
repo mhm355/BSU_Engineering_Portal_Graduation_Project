@@ -21,6 +21,9 @@ export default function ManageJobs() {
     const [error, setError] = useState('');
     const [openDialog, setOpenDialog] = useState(false);
     const [isEdit, setIsEdit] = useState(false);
+    const [openApplicantsDialog, setOpenApplicantsDialog] = useState(false);
+    const [selectedJobApps, setSelectedJobApps] = useState([]);
+    const [selectedJobTitle, setSelectedJobTitle] = useState('');
     
     const theme = useTheme();
     const isDark = theme.palette.mode === 'dark';
@@ -119,6 +122,39 @@ export default function ManageJobs() {
         }
     };
 
+    const handleOpenApplicants = async (job) => {
+        try {
+            const config = { withCredentials: true };
+            const res = await axios.get('/api/graduate-affairs/applications/', config);
+            const apps = Array.isArray(res.data) ? res.data : (res.data?.results || []);
+            setSelectedJobApps(apps.filter(app => app.job === job.id));
+            setSelectedJobTitle(job.title);
+            setOpenApplicantsDialog(true);
+        } catch (err) {
+            setError('فشل تحميل المتقدمين');
+        }
+    };
+
+    const handleUpdateAppStatus = async (appId, newStatus) => {
+        try {
+            const config = { withCredentials: true };
+            await axios.patch(`/api/graduate-affairs/applications/${appId}/`, { status: newStatus }, config);
+            setSelectedJobApps(selectedJobApps.map(app => app.id === appId ? { ...app, status: newStatus, status_display: getAppStatusLabel(newStatus) } : app));
+        } catch (err) {
+            setError('فشل تحديث حالة الطلب');
+        }
+    };
+
+    const getAppStatusLabel = (status) => {
+        switch (status) {
+            case 'PENDING': return 'قيد المراجعة';
+            case 'REVIEWED': return 'تمت المراجعة';
+            case 'ACCEPTED': return 'مقبول';
+            case 'REJECTED': return 'مرفوض';
+            default: return status;
+        }
+    };
+
     return (
         <Container maxWidth="lg" sx={{ py: 4 }}>
             <Button
@@ -185,10 +221,13 @@ export default function ManageJobs() {
                                             />
                                         </TableCell>
                                         <TableCell>
-                                            <IconButton color="primary" onClick={() => handleOpenDialog(job)}>
+                                            <IconButton color="info" onClick={() => handleOpenApplicants(job)} title="عرض المتقدمين">
+                                                <PeopleIcon />
+                                            </IconButton>
+                                            <IconButton color="primary" onClick={() => handleOpenDialog(job)} title="تعديل">
                                                 <EditIcon />
                                             </IconButton>
-                                            <IconButton color="error" onClick={() => handleDelete(job.id)}>
+                                            <IconButton color="error" onClick={() => handleDelete(job.id)} title="حذف">
                                                 <DeleteIcon />
                                             </IconButton>
                                         </TableCell>
@@ -327,6 +366,78 @@ export default function ManageJobs() {
                     <Button onClick={handleSave} variant="contained" sx={{ fontFamily: 'Cairo' }}>
                         {isEdit ? 'تحديث' : 'حفظ'}
                     </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* Applicants Dialog */}
+            <Dialog open={openApplicantsDialog} onClose={() => setOpenApplicantsDialog(false)} maxWidth="md" fullWidth>
+                <DialogTitle sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
+                    المتقدمين لوظيفة: {selectedJobTitle}
+                </DialogTitle>
+                <DialogContent dividers>
+                    {selectedJobApps.length === 0 ? (
+                        <Typography sx={{ fontFamily: 'Cairo', textAlign: 'center', py: 4, color: '#666' }}>
+                            لا يوجد متقدمين حتى الآن
+                        </Typography>
+                    ) : (
+                        <TableContainer>
+                            <Table size="small">
+                                <TableHead sx={{ bgcolor: isDark ? 'background.default' : '#f5f5f5' }}>
+                                    <TableRow>
+                                        <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>اسم المتقدم</TableCell>
+                                        <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>تاريخ التقديم</TableCell>
+                                        <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>الحالة</TableCell>
+                                        <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>السيرة الذاتية</TableCell>
+                                        <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>إجراءات</TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {selectedJobApps.map(app => (
+                                        <TableRow key={app.id}>
+                                            <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>{app.applicant_name}</TableCell>
+                                            <TableCell sx={{ fontFamily: 'Cairo' }}>{new Date(app.applied_at).toLocaleDateString('ar-EG')}</TableCell>
+                                            <TableCell>
+                                                <Chip 
+                                                    label={app.status_display || getAppStatusLabel(app.status)} 
+                                                    size="small"
+                                                    color={app.status === 'ACCEPTED' ? 'success' : app.status === 'REJECTED' ? 'error' : app.status === 'REVIEWED' ? 'info' : 'warning'}
+                                                    sx={{ fontFamily: 'Cairo' }}
+                                                />
+                                            </TableCell>
+                                            <TableCell>
+                                                {app.resume ? (
+                                                    <Button 
+                                                        size="small" 
+                                                        variant="outlined" 
+                                                        onClick={() => window.open(app.resume.startsWith('http') ? app.resume : '/' + app.resume, '_blank')}
+                                                        sx={{ fontFamily: 'Cairo' }}
+                                                    >
+                                                        عرض
+                                                    </Button>
+                                                ) : '-'}
+                                            </TableCell>
+                                            <TableCell>
+                                                <Select
+                                                    size="small"
+                                                    value={app.status}
+                                                    onChange={(e) => handleUpdateAppStatus(app.id, e.target.value)}
+                                                    sx={{ fontFamily: 'Cairo', minWidth: 120 }}
+                                                >
+                                                    <MenuItem value="PENDING" sx={{ fontFamily: 'Cairo' }}>قيد المراجعة</MenuItem>
+                                                    <MenuItem value="REVIEWED" sx={{ fontFamily: 'Cairo' }}>تمت المراجعة</MenuItem>
+                                                    <MenuItem value="ACCEPTED" sx={{ fontFamily: 'Cairo' }}>قبول</MenuItem>
+                                                    <MenuItem value="REJECTED" sx={{ fontFamily: 'Cairo' }}>رفض</MenuItem>
+                                                </Select>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                    )}
+                </DialogContent>
+                <DialogActions sx={{ p: 2 }}>
+                    <Button onClick={() => setOpenApplicantsDialog(false)} sx={{ fontFamily: 'Cairo' }}>إغلاق</Button>
                 </DialogActions>
             </Dialog>
         </Container>
