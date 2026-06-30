@@ -150,8 +150,8 @@ The database is heavily normalized into over 20 tables, organized into five func
 \begin{enumerate}
     \item \textbf{Identity and Access}: Manages user accounts and role-based permissions.
     \item \textbf{Academic Structure}: Defines the faculty's static hierarchy (Departments, Subjects, etc.).
-    \item \textbf{Academic Operations}: Contains transactional data like grades and attendance.
-    \item \textbf{Assessment}: The complete quiz engine schema.
+    \item \textbf{Academic Operations}: Contains transactional data like grades, attendance, and tuition status.
+    \item \textbf{Assessment}: The complete quiz engine schema and result publishing pipelines.
     \item \textbf{System and Communication}: Handles system-level features like audit logs and announcements.
 \end{enumerate}
 
@@ -299,7 +299,7 @@ Security is not delegated to a single layer. Instead, Role-Based Access Control 
 class CourseOfferingViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         if self.action in ['create', 'update', 'partial_update', 'destroy']:
-            return [IsStaffAffairsRole()]
+            return [IsHODRole()]
         return [permissions.IsAuthenticated()]
 \end{lstlisting}
 
@@ -372,6 +372,8 @@ const ProtectedRoute = ({ children, roles }) => {
     return children;
 };
 \end{lstlisting}
+
+\textbf{UI Feature Locking:} Beyond entire route protection, the frontend gracefully degrades the user experience by locking specific interactive features when constraints are not met. For example, if a student has unpaid tuition, the Quiz and Attendance buttons on their dashboard are grayed out and rendered with a lock icon, while a prominent alert explains the restriction.
 
 \begin{lstlisting}[language=JavaScript, caption=API Request Interception for Expiry Handling]
 api.interceptors.response.use(
