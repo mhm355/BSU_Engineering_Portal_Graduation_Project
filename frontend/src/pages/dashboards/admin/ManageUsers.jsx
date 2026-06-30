@@ -112,6 +112,8 @@ export default function ManageUsers() {
     const [studentAffairsUsers, setStudentAffairsUsers] = useState([]);
     const [staffAffairsUsers, setStaffAffairsUsers] = useState([]);
     const [doctorUsers, setDoctorUsers] = useState([]);
+    const [hodUsers, setHodUsers] = useState([]);
+    const [deanUsers, setDeanUsers] = useState([]);
 
     const [departments, setDepartments] = useState([]);
     const [years, setYears] = useState([]);
@@ -125,7 +127,7 @@ export default function ManageUsers() {
     const [selectedSpecialization, setSelectedSpecialization] = useState(null);
 
     const [open, setOpen] = useState(false);
-    const [currentUser, setCurrentUser] = useState({ first_name: '', last_name: '', email: '', role: 'STUDENT_AFFAIRS', national_id: '' });
+    const [currentUser, setCurrentUser] = useState({ first_name: '', last_name: '', email: '', role: 'STUDENT_AFFAIRS', national_id: '', department: '' });
     const [isEdit, setIsEdit] = useState(false);
 
     useEffect(() => {
@@ -140,6 +142,8 @@ export default function ManageUsers() {
             setStudentAffairsUsers(users.filter(u => u.role === 'STUDENT_AFFAIRS'));
             setStaffAffairsUsers(users.filter(u => u.role === 'STAFF_AFFAIRS'));
             setDoctorUsers(users.filter(u => u.role === 'DOCTOR'));
+            setHodUsers(users.filter(u => u.role === 'HOD'));
+            setDeanUsers(users.filter(u => u.role === 'DEAN'));
         } catch (err) {
             console.error('Error fetching users:', err);
         }
@@ -264,7 +268,7 @@ export default function ManageUsers() {
             setCurrentUser({ ...user, role });
             setIsEdit(true);
         } else {
-            setCurrentUser({ first_name: '', last_name: '', email: '', role, national_id: '' });
+            setCurrentUser({ first_name: '', last_name: '', email: '', role, national_id: '', department: '' });
             setIsEdit(false);
         }
         setOpen(true);
@@ -272,7 +276,7 @@ export default function ManageUsers() {
 
     const handleClose = () => {
         setOpen(false);
-        setCurrentUser({ first_name: '', last_name: '', email: '', role: 'STUDENT_AFFAIRS', national_id: '' });
+        setCurrentUser({ first_name: '', last_name: '', email: '', role: 'STUDENT_AFFAIRS', national_id: '', department: '' });
         setIsEdit(false);
     };
 
@@ -280,17 +284,33 @@ export default function ManageUsers() {
         try {
             const token = localStorage.getItem('token');
             const headers = { Authorization: `Bearer ${token}` };
+            
+            // Clean payload to prevent empty string error for ForeignKey
+            const payload = { ...currentUser };
+            if (!payload.department) {
+                payload.department = null;
+            }
+
             if (isEdit) {
-                await axios.patch(`/api/auth/users/${currentUser.id}/`, currentUser, { headers, withCredentials: true });
+                await axios.patch(`/api/auth/users/${currentUser.id}/`, payload, { headers, withCredentials: true });
                 setSuccess('تم تحديث البيانات بنجاح');
             } else {
-                await axios.post('/api/auth/users/', { ...currentUser, username: currentUser.national_id, password: currentUser.national_id }, { headers, withCredentials: true });
+                await axios.post('/api/auth/users/', { ...payload, username: currentUser.national_id, password: currentUser.national_id }, { headers, withCredentials: true });
                 setSuccess('تم إضافة المستخدم بنجاح');
             }
             handleClose();
             fetchAllUsers();
         } catch (err) {
-            setError(err.response?.data?.detail || 'حدث خطأ');
+            if (err.response?.data) {
+                if (err.response.data.detail) {
+                    setError(err.response.data.detail);
+                } else {
+                    const firstError = Object.values(err.response.data)[0];
+                    setError(Array.isArray(firstError) ? firstError[0] : (typeof firstError === 'string' ? firstError : 'حدث خطأ في البيانات المدخلة'));
+                }
+            } else {
+                setError('حدث خطأ');
+            }
         }
     };
 
@@ -428,7 +448,7 @@ export default function ManageUsers() {
         <Box>
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 3 }}>
                 <Button variant="contained" startIcon={<AddIcon />} onClick={() => handleOpen(null, role)} sx={{ fontFamily: 'Cairo', fontWeight: 'bold', px: 4, py: 1.5, borderRadius: 3, background: gradient, boxShadow: '0 8px 24px rgba(0,0,0,0.15)', '&:hover': { background: gradient, boxShadow: '0 12px 32px rgba(0,0,0,0.2)' } }}>
-                    إضافة موظف {getRoleLabel(role)}
+                    إضافة {role === 'HOD' ? 'رئيس قسم' : role === 'DEAN' ? 'عميد' : `موظف ${getRoleLabel(role)}`}
                 </Button>
             </Box>
             {users.length === 0 ? (
@@ -475,7 +495,7 @@ export default function ManageUsers() {
         </Box>
     );
 
-    const tabColors = ['linear-gradient(135deg, #FF6B35, #F7931E)', 'linear-gradient(135deg, #2196F3, #21CBF3)', 'linear-gradient(135deg, #9C27B0, #E040FB)', 'linear-gradient(135deg, #4CAF50, #8BC34A)'];
+    const tabColors = ['linear-gradient(135deg, #FF6B35, #F7931E)', 'linear-gradient(135deg, #2196F3, #21CBF3)', 'linear-gradient(135deg, #9C27B0, #E040FB)', 'linear-gradient(135deg, #4CAF50, #8BC34A)', 'linear-gradient(135deg, #f44336, #e57373)', 'linear-gradient(135deg, #607d8b, #90a4ae)'];
 
     return (
         <Box sx={{ minHeight: '100vh', background: 'linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%)', pb: 6 }}>
@@ -512,11 +532,13 @@ export default function ManageUsers() {
 
                 <Paper elevation={0} sx={{ borderRadius: 4, background: '#fff', boxShadow: '0 4px 20px rgba(0,0,0,0.08)', overflow: 'hidden' }}>
                     <Box sx={{ borderBottom: 1, borderColor: 'divider', px: 2, pt: 2 }}>
-                        <Tabs value={tabValue} onChange={(e, v) => setTabValue(v)} sx={{ '& .MuiTab-root': { fontFamily: 'Cairo', fontWeight: 'bold', fontSize: '1rem', minHeight: 56 } }}>
+                        <Tabs variant="scrollable" scrollButtons="auto" value={tabValue} onChange={(e, v) => setTabValue(v)} sx={{ '& .MuiTab-root': { fontFamily: 'Cairo', fontWeight: 'bold', fontSize: '1rem', minHeight: 56 } }}>
                             <Tab icon={<SchoolIcon />} iconPosition="start" label="الطلاب" />
                             <Tab icon={<BadgeIcon />} iconPosition="start" label={`شئون الطلاب (${studentAffairsUsers.length})`} />
                             <Tab icon={<SupervisorAccountIcon />} iconPosition="start" label={`شئون العاملين (${staffAffairsUsers.length})`} />
                             <Tab icon={<PersonIcon />} iconPosition="start" label={`الدكاترة (${doctorUsers.length})`} />
+                            <Tab icon={<SupervisorAccountIcon />} iconPosition="start" label={`رؤساء الأقسام (${hodUsers.length})`} />
+                            <Tab icon={<BadgeIcon />} iconPosition="start" label={`العميد (${deanUsers.length})`} />
                         </Tabs>
                     </Box>
                     <Box sx={{ p: 3 }}>
@@ -524,6 +546,8 @@ export default function ManageUsers() {
                         <TabPanel value={tabValue} index={1}>{renderEditableTable(studentAffairsUsers, 'STUDENT_AFFAIRS', tabColors[1])}</TabPanel>
                         <TabPanel value={tabValue} index={2}>{renderEditableTable(staffAffairsUsers, 'STAFF_AFFAIRS', tabColors[2])}</TabPanel>
                         <TabPanel value={tabValue} index={3}>{renderEditableTable(doctorUsers, 'DOCTOR', tabColors[3])}</TabPanel>
+                        <TabPanel value={tabValue} index={4}>{renderEditableTable(hodUsers, 'HOD', tabColors[4])}</TabPanel>
+                        <TabPanel value={tabValue} index={5}>{renderEditableTable(deanUsers, 'DEAN', tabColors[5])}</TabPanel>
                     </Box>
                 </Paper>
             </Container>
@@ -536,6 +560,23 @@ export default function ManageUsers() {
                         <TextField label="اسم العائلة" fullWidth required value={currentUser.last_name} onChange={(e) => setCurrentUser({ ...currentUser, last_name: e.target.value })} InputLabelProps={{ sx: { fontFamily: 'Cairo' } }} InputProps={{ sx: { borderRadius: 2 } }} />
                         <TextField label="الرقم القومي (14 رقم)" fullWidth required value={currentUser.national_id} onChange={(e) => { const value = e.target.value.replace(/\D/g, '').slice(0, 14); setCurrentUser({ ...currentUser, national_id: value }); }} InputLabelProps={{ sx: { fontFamily: 'Cairo' } }} InputProps={{ sx: { borderRadius: 2 } }} disabled={isEdit} helperText={`${currentUser.national_id.length}/14 - سيكون اسم المستخدم وكلمة المرور`} error={!isEdit && currentUser.national_id.length > 0 && currentUser.national_id.length !== 14} />
                         <TextField label="البريد الإلكتروني (اختياري)" fullWidth value={currentUser.email} onChange={(e) => setCurrentUser({ ...currentUser, email: e.target.value })} InputLabelProps={{ sx: { fontFamily: 'Cairo' } }} InputProps={{ sx: { borderRadius: 2 } }} />
+                        {currentUser.role === 'HOD' && (
+                            <TextField
+                                select
+                                label="القسم"
+                                fullWidth
+                                required
+                                value={currentUser.department || ''}
+                                onChange={(e) => setCurrentUser({ ...currentUser, department: e.target.value })}
+                                InputLabelProps={{ sx: { fontFamily: 'Cairo' } }}
+                                SelectProps={{ native: true }}
+                            >
+                                <option value="" disabled></option>
+                                {departments.map((dept) => (
+                                    <option key={dept.id} value={dept.id}>{dept.name}</option>
+                                ))}
+                            </TextField>
+                        )}
                     </Box>
                 </DialogContent>
                 <DialogActions sx={{ p: 3, pt: 1 }}>

@@ -17,6 +17,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import EventIcon from '@mui/icons-material/Event';
 import TodayIcon from '@mui/icons-material/Today';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
@@ -79,7 +80,7 @@ const StatCard = ({ icon: Icon, value, label, color, delay = 0 }) => (
 );
 
 // Year Card Component (for card view)
-const YearCard = ({ year, idx, onEdit, onToggleStatus, onSetCurrent, terms, onToggleTermStatus, delay = 0 }) => (
+const YearCard = ({ year, idx, onEdit, onToggleStatus, onSetCurrent, terms, onToggleTermStatus, onExport, delay = 0 }) => (
     <Grow in={true} timeout={800 + delay}>
         <Card
             sx={{
@@ -185,7 +186,25 @@ const YearCard = ({ year, idx, onEdit, onToggleStatus, onSetCurrent, terms, onTo
                                             }}
                                         />
                                     </Box>
-                                    <Tooltip title={term.status === 'OPEN' ? 'إغلاق الفصل' : 'فتح الفصل'}>
+                                    <Box sx={{ display: 'flex', gap: 1 }}>
+                                        {term.status === 'CLOSED' && (
+                                            <Tooltip title="تصدير بيانات الفصل الدراسي (Zip)">
+                                                <IconButton
+                                                    size="small"
+                                                    onClick={() => onExport('term', term.id)}
+                                                    sx={{
+                                                        width: 28,
+                                                        height: 28,
+                                                        bgcolor: '#e8eaf6',
+                                                        color: '#3f51b5',
+                                                        '&:hover': { bgcolor: '#c5cae9' }
+                                                    }}
+                                                >
+                                                    <FileDownloadIcon sx={{ fontSize: 16 }} />
+                                                </IconButton>
+                                            </Tooltip>
+                                        )}
+                                        <Tooltip title={term.status === 'OPEN' ? 'إغلاق الفصل' : 'فتح الفصل'}>
                                         <IconButton
                                             size="small"
                                             onClick={() => onToggleTermStatus(term)}
@@ -203,6 +222,7 @@ const YearCard = ({ year, idx, onEdit, onToggleStatus, onSetCurrent, terms, onTo
                                         </IconButton>
                                     </Tooltip>
                                 </Box>
+                            </Box>
                             ))}
                         </Box>
                     </Box>
@@ -236,6 +256,20 @@ const YearCard = ({ year, idx, onEdit, onToggleStatus, onSetCurrent, terms, onTo
                             {year.status === 'OPEN' ? <LockIcon /> : <LockOpenIcon />}
                         </IconButton>
                     </Tooltip>
+                    {year.status === 'CLOSED' && (
+                        <Tooltip title="تصدير بيانات العام الدراسي (Zip)">
+                            <IconButton
+                                onClick={() => onExport('year', year.id)}
+                                sx={{
+                                    bgcolor: '#e8eaf6',
+                                    color: '#3f51b5',
+                                    '&:hover': { bgcolor: '#c5cae9' }
+                                }}
+                            >
+                                <FileDownloadIcon />
+                            </IconButton>
+                        </Tooltip>
+                    )}
                     {!year.is_current && (
                         <Tooltip title="تعيين كالعام الحالي">
                             <IconButton
@@ -267,7 +301,7 @@ export default function ManageAcademicYears() {
     const [currentYear, setCurrentYear] = useState({ name: '', is_current: false });
     const [isEdit, setIsEdit] = useState(false);
 
-    const token = localStorage.getItem('access_token');
+    const token = localStorage.getItem('token');
     const config = {
         headers: { Authorization: `Bearer ${token}` },
         withCredentials: true
@@ -368,6 +402,31 @@ export default function ManageAcademicYears() {
             fetchYears();
         } catch (err) {
             setError('فشل في تعيين العام الدراسي كحالي');
+        }
+    };
+
+    const handleExport = async (type, id) => {
+        try {
+            const url = type === 'year' 
+                ? `/api/academic/export/?academic_year_id=${id}` 
+                : `/api/academic/export/?term_id=${id}`;
+                
+            const response = await axios.get(url, {
+                ...config,
+                responseType: 'blob'
+            });
+            
+            const blob = new Blob([response.data], { type: 'application/zip' });
+            const downloadUrl = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = downloadUrl;
+            link.setAttribute('download', `${type}_${id}_database_export.zip`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        } catch (err) {
+            console.error('Export error:', err);
+            setError('فشل في تصدير البيانات');
         }
     };
 
@@ -617,6 +676,7 @@ export default function ManageAcademicYears() {
                                     onSetCurrent={handleSetCurrent}
                                     terms={terms.filter(t => t.academic_year === year.id)}
                                     onToggleTermStatus={handleToggleTermStatus}
+                                    onExport={handleExport}
                                     delay={idx * 100}
                                 />
                             </Grid>

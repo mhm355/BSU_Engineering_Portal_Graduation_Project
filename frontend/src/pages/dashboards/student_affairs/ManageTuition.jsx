@@ -3,7 +3,7 @@ import {
     Box, Container, Typography, Paper, Grid, Card, CardContent, Button, Breadcrumbs, Link,
     CircularProgress, Chip, IconButton, Tooltip, Table, TableBody, TableCell, TableContainer,
     TableHead, TableRow, Dialog, DialogTitle, DialogContent, DialogActions, Alert, Avatar, Fade, Grow,
-    TextField, InputAdornment
+    TextField, InputAdornment, Switch, Snackbar
 } from '@mui/material';
 import { keyframes } from '@mui/system';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
@@ -126,7 +126,7 @@ const StatCard = ({ icon: Icon, value, label, color }) => (
     </Paper>
 );
 
-export default function HierarchyView() {
+export default function ManageTuition() {
     const navigate = useNavigate();
     const [departments, setDepartments] = useState([]);
     const [academicYears, setAcademicYears] = useState([]);
@@ -141,6 +141,8 @@ export default function HierarchyView() {
 
     const [loading, setLoading] = useState(true);
     const [studentSearch, setStudentSearch] = useState('');
+    const [snackbarMessage, setSnackbarMessage] = useState('');
+    const [snackbarSeverity, setSnackbarSeverity] = useState('success');
 
     useEffect(() => {
         fetchDepartments();
@@ -282,6 +284,21 @@ export default function HierarchyView() {
         fetchDepartments();
     };
 
+    const handleToggleTuition = async (studentId, currentStatus) => {
+        try {
+            const response = await axios.post(`/api/academic/student-affairs/students/${studentId}/toggle-tuition/`, {}, { withCredentials: true });
+            if (response.data.success) {
+                setStudents(prev => prev.map(s => s.id === studentId ? { ...s, has_paid_tuition: response.data.has_paid_tuition } : s));
+                setSnackbarMessage('تم تحديث حالة المصروفات بنجاح');
+                setSnackbarSeverity('success');
+            }
+        } catch (err) {
+            console.error('Error toggling tuition:', err);
+            setSnackbarMessage('حدث خطأ أثناء تحديث حالة المصروفات');
+            setSnackbarSeverity('error');
+        }
+    };
+
     const getLevelDisplayName = (levelName) => {
         const names = {
             'PREPARATORY': 'السنة التحضيرية',
@@ -327,10 +344,10 @@ export default function HierarchyView() {
                                 </Avatar>
                                 <Box>
                                     <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#fff', textShadow: '0 2px 10px rgba(0,0,0,0.2)' }}>
-                                        الهيكل الأكاديمي
+                                        إدارة المصروفات
                                     </Typography>
                                     <Typography variant="h6" sx={{ fontFamily: 'Cairo', color: 'rgba(255,255,255,0.9)' }}>
-                                        إدارة الطلاب حسب القسم والسنة والفرقة
+                                        متابعة وتحديث حالة سداد المصروفات الدراسية
                                     </Typography>
                                 </Box>
                             </Box>
@@ -432,7 +449,8 @@ export default function HierarchyView() {
                                                 { key: 'username', label: 'اسم المستخدم' },
                                                 { key: 'national_id', label: 'الرقم القومي' },
                                                 { key: 'level_name', label: 'المستوى' },
-                                            ], 'students_list');
+                                                { key: 'has_paid_tuition', label: 'دفع المصروفات' },
+                                            ], 'students_tuition');
                                         }}
                                         sx={{ fontFamily: 'Cairo', borderRadius: 2, whiteSpace: 'nowrap' }}
                                     >
@@ -458,7 +476,7 @@ export default function HierarchyView() {
                                                     <TableCell sx={{ color: 'white', fontFamily: 'Cairo', fontWeight: 'bold' }}>اسم المستخدم</TableCell>
                                                     <TableCell sx={{ color: 'white', fontFamily: 'Cairo', fontWeight: 'bold' }}>الرقم القومي</TableCell>
                                                     <TableCell sx={{ color: 'white', fontFamily: 'Cairo', fontWeight: 'bold' }}>المستوى</TableCell>
-                                                    <TableCell sx={{ color: 'white', fontFamily: 'Cairo', fontWeight: 'bold' }}>الحالة</TableCell>
+                                                    <TableCell sx={{ color: 'white', fontFamily: 'Cairo', fontWeight: 'bold' }}>المصروفات</TableCell>
 
                                                 </TableRow>
                                             </TableHead>
@@ -476,11 +494,10 @@ export default function HierarchyView() {
                                                         <TableCell sx={{ fontFamily: 'monospace' }}>{student.national_id}</TableCell>
                                                         <TableCell sx={{ fontFamily: 'Cairo' }}>{getLevelDisplayName(student.level_name)}</TableCell>
                                                         <TableCell>
-                                                            <Chip
-                                                                icon={student.first_login_required ? <PendingIcon sx={{ fontSize: 16 }} /> : <CheckCircleIcon sx={{ fontSize: 16 }} />}
-                                                                label={student.first_login_required ? 'أول دخول' : 'فعّال'}
-                                                                size="small"
-                                                                sx={{ fontFamily: 'Cairo', fontWeight: 'bold', bgcolor: student.first_login_required ? '#fff3e0' : '#e8f5e9', color: student.first_login_required ? '#e65100' : '#2e7d32' }}
+                                                            <Switch
+                                                                checked={student.has_paid_tuition || false}
+                                                                onChange={() => handleToggleTuition(student.id, student.has_paid_tuition)}
+                                                                color="primary"
                                                             />
                                                         </TableCell>
 
@@ -501,6 +518,16 @@ export default function HierarchyView() {
                 )}
             </Container>
 
+            <Snackbar
+                open={!!snackbarMessage}
+                autoHideDuration={4000}
+                onClose={() => setSnackbarMessage('')}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            >
+                <Alert onClose={() => setSnackbarMessage('')} severity={snackbarSeverity} sx={{ width: '100%', fontFamily: 'Cairo' }}>
+                    {snackbarMessage}
+                </Alert>
+            </Snackbar>
 
         </Box>
     );

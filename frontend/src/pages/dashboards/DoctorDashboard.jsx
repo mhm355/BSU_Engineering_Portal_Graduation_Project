@@ -19,6 +19,7 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import LogoutIcon from '@mui/icons-material/Logout';
 import SearchIcon from '@mui/icons-material/Search';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import SettingsIcon from '@mui/icons-material/Settings';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
@@ -310,6 +311,18 @@ export default function DoctorDashboard() {
                       </Select>
                     </FormControl>
                   </Paper>
+                  <IconButton
+                    onClick={() => navigate('/profile')}
+                    sx={{
+                      bgcolor: 'rgba(255,255,255,0.15)',
+                      color: '#fff',
+                      width: 50,
+                      height: 50,
+                      '&:hover': { bgcolor: 'rgba(255,255,255,0.25)' }
+                    }}
+                  >
+                    <SettingsIcon />
+                  </IconButton>
                   <IconButton
                     onClick={handleLogout}
                     sx={{

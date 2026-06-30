@@ -15,6 +15,7 @@ import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import CampaignIcon from '@mui/icons-material/Campaign';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import AssessmentIcon from '@mui/icons-material/Assessment';
+import PaymentsIcon from '@mui/icons-material/Payments';
 import LogoutIcon from '@mui/icons-material/Logout';
 import HistoryIcon from '@mui/icons-material/History';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
@@ -259,6 +260,14 @@ export default function StudentAffairsDashboard() {
             buttonText: 'سجل الرفع',
             onClick: () => navigate('/student-affairs/upload-history'),
             color: 'secondary',
+        },
+        {
+            icon: PaymentsIcon,
+            title: 'إدارة المصروفات',
+            description: 'متابعة وتحديث حالة سداد المصروفات الدراسية للطلاب',
+            buttonText: 'المصروفات',
+            onClick: () => navigate('/student-affairs/manage-tuition'),
+            color: 'primary',
         },
     ];
 

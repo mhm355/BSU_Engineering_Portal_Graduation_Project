@@ -105,14 +105,7 @@ const StaffAffairsDashboard = () => {
             onClick: () => navigate('/staff-affairs/manage-doctors'),
             color: 'error',
         },
-        {
-            title: 'تعيين الدكاترة',
-            description: 'تعيين دكتور لمادة معينة',
-            icon: AssignmentIcon,
-            buttonText: 'تعيين الدكاترة',
-            onClick: () => navigate('/staff-affairs/assign-doctors'),
-            color: 'warning',
-        },
+
         {
             title: 'عرض الدكاترة',
             description: 'عرض قائمة الدكاترة المسجلين',
@@ -129,22 +122,7 @@ const StaffAffairsDashboard = () => {
             onClick: () => navigate('/staff-affairs/academic-structure'),
             color: 'info',
         },
-        {
-            title: 'سجل التعيينات',
-            description: 'تتبع جميع عمليات تعيين وإلغاء تعيين الدكاترة',
-            icon: HistoryIcon,
-            buttonText: 'سجل التعيينات',
-            onClick: () => navigate('/staff-affairs/assignment-history'),
-            color: 'secondary',
-        },
-        {
-            title: 'قوالب التقييم',
-            description: 'تعريف توزيع الدرجات ونماذج التقييم',
-            icon: GradingIcon,
-            buttonText: 'إدارة القوالب',
-            onClick: () => navigate('/staff-affairs/grading-templates'),
-            color: 'secondary',
-        },
+
         {
             title: 'الأخبار والإعلانات',
             description: 'نشر وإدارة الأخبار الخاصة بشئون العاملين',
@@ -261,21 +239,6 @@ const StaffAffairsDashboard = () => {
                     </Grid>
                     <Grid item xs={12} sm={6} md={3}>
                         <Grow in={true} timeout={500}>
-                            <Paper elevation={0} sx={{ p: 2, borderRadius: 3, boxShadow: '0 2px 10px rgba(0,0,0,0.08)', display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                                <Box sx={{ width: 45, height: 45, borderRadius: 2, background: 'linear-gradient(135deg, #ed6c02, #ff9800)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                    <AssignmentIcon sx={{ fontSize: 22, color: '#fff' }} />
-                                </Box>
-                                <Box>
-                                    <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744' }}>
-                                        {loading ? <CircularProgress size={20} /> : assignmentCount}
-                                    </Typography>
-                                    <Typography variant="caption" sx={{ fontFamily: 'Cairo', color: '#666' }}>التعيينات</Typography>
-                                </Box>
-                            </Paper>
-                        </Grow>
-                    </Grid>
-                    <Grid item xs={12} sm={6} md={3}>
-                        <Grow in={true} timeout={600}>
                             <Paper elevation={0} sx={{ p: 2, borderRadius: 3, boxShadow: '0 2px 10px rgba(0,0,0,0.08)', display: 'flex', alignItems: 'center', gap: 1.5 }}>
                                 <Box sx={{ width: 45, height: 45, borderRadius: 2, background: 'linear-gradient(135deg, #4CAF50, #8BC34A)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                     <TrendingUpIcon sx={{ fontSize: 22, color: '#fff' }} />

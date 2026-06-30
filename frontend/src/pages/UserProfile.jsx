@@ -79,24 +79,27 @@ export default function UserProfile() {
 
             let hasChanges = !!profilePicture;
 
+            if (
+                formData.first_name !== user?.first_name ||
+                formData.last_name !== user?.last_name ||
+                formData.email !== user?.email ||
+                formData.phone_number !== user?.phone_number ||
+                formData.address !== user?.address
+            ) {
+                hasChanges = true;
+                dataToSend.append('first_name', formData.first_name);
+                dataToSend.append('last_name', formData.last_name);
+                dataToSend.append('email', formData.email);
+                dataToSend.append('phone_number', formData.phone_number);
+                dataToSend.append('address', formData.address);
+            }
+
             if (isAdmin) {
-                // Check if any text field changed
                 if (
-                    formData.first_name !== user?.first_name ||
-                    formData.last_name !== user?.last_name ||
-                    formData.email !== user?.email ||
-                    formData.phone_number !== user?.phone_number ||
-                    formData.address !== user?.address ||
                     formData.username !== user?.username ||
                     (formData.password && formData.password.trim() !== '')
                 ) {
                     hasChanges = true;
-                    dataToSend.append('first_name', formData.first_name);
-                    dataToSend.append('last_name', formData.last_name);
-                    dataToSend.append('email', formData.email);
-                    dataToSend.append('phone_number', formData.phone_number);
-                    dataToSend.append('address', formData.address);
-                    
                     if (formData.username !== user?.username) {
                         dataToSend.append('username', formData.username);
                     }
@@ -223,7 +226,6 @@ export default function UserProfile() {
                                 label="الاسم الأول"
                                 value={formData.first_name}
                                 onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
-                                disabled={!isAdmin}
                                 InputLabelProps={{ style: { fontFamily: 'Cairo' } }}
                             />
                         </Grid>
@@ -233,7 +235,6 @@ export default function UserProfile() {
                                 label="الاسم الأخير"
                                 value={formData.last_name}
                                 onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
-                                disabled={!isAdmin}
                                 InputLabelProps={{ style: { fontFamily: 'Cairo' } }}
                             />
                         </Grid>
@@ -243,7 +244,6 @@ export default function UserProfile() {
                                 label="البريد الإلكتروني"
                                 value={formData.email}
                                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                disabled={!isAdmin}
                                 InputLabelProps={{ style: { fontFamily: 'Cairo' } }}
                             />
                         </Grid>
@@ -253,7 +253,6 @@ export default function UserProfile() {
                                 label="رقم الهاتف"
                                 value={formData.phone_number}
                                 onChange={(e) => setFormData({ ...formData, phone_number: e.target.value })}
-                                disabled={!isAdmin}
                                 InputLabelProps={{ style: { fontFamily: 'Cairo' } }}
                             />
                         </Grid>
@@ -263,7 +262,6 @@ export default function UserProfile() {
                                 label="العنوان"
                                 value={formData.address}
                                 onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                                disabled={!isAdmin}
                                 InputLabelProps={{ style: { fontFamily: 'Cairo' } }}
                             />
                         </Grid>
@@ -300,7 +298,7 @@ export default function UserProfile() {
                                 disabled={loading}
                                 sx={{ bgcolor: '#4F46E5', fontFamily: 'Cairo' }}
                             >
-                                {loading ? 'جاري الحفظ...' : (isAdmin ? 'حفظ التغييرات' : 'حفظ الصورة الجديدة')}
+                                {loading ? 'جاري الحفظ...' : 'حفظ التغييرات'}
                             </Button>
 
                             {!isAdmin && (

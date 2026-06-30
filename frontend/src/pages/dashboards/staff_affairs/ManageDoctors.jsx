@@ -7,7 +7,6 @@ import {
 } from '@mui/material';
 import { keyframes } from '@mui/system';
 import EditIcon from '@mui/icons-material/Edit';
-import LockResetIcon from '@mui/icons-material/LockReset';
 import DeleteIcon from '@mui/icons-material/Delete';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -37,9 +36,6 @@ export default function ManageDoctors() {
     // Edit dialog
     const [editDialog, setEditDialog] = useState({ open: false, doctor: null });
     const [editForm, setEditForm] = useState({ first_name: '', last_name: '', email: '' });
-
-    // Reset password dialog
-    const [resetDialog, setResetDialog] = useState({ open: false, doctor: null });
 
     // Delete dialog
     const [deleteDialog, setDeleteDialog] = useState({ open: false, doctor: null, reason: '' });
@@ -108,16 +104,6 @@ export default function ManageDoctors() {
             fetchDoctors();
         } catch (err) {
             setError('فشل تحديث البيانات');
-        }
-    };
-
-    const handleResetPassword = async () => {
-        try {
-            await axios.post(`/api/academic/staff-affairs/doctors/${resetDialog.doctor.id}/reset-password/`, {}, config);
-            setSuccess(`تم إعادة تعيين كلمة مرور ${resetDialog.doctor.full_name} إلى الرقم القومي`);
-            setResetDialog({ open: false, doctor: null });
-        } catch (err) {
-            setError('فشل إعادة تعيين كلمة المرور');
         }
     };
 
@@ -278,11 +264,7 @@ export default function ManageDoctors() {
                                                             <EditIcon color="primary" />
                                                         </IconButton>
                                                     </Tooltip>
-                                                    <Tooltip title="إعادة تعيين كلمة المرور">
-                                                        <IconButton sx={{ bgcolor: '#fff3e0', mr: 1, '&:hover': { bgcolor: '#ffe0b2' } }} onClick={() => setResetDialog({ open: true, doctor })}>
-                                                            <LockResetIcon sx={{ color: '#ff9800' }} />
-                                                        </IconButton>
-                                                    </Tooltip>
+
                                                     <Tooltip title="طلب حذف">
                                                         <IconButton sx={{ bgcolor: '#ffebee', '&:hover': { bgcolor: '#ffcdd2' } }} onClick={() => setDeleteDialog({ open: true, doctor, reason: '' })} disabled={hasPendingRequest(doctor.id)}>
                                                             <DeleteIcon color="error" />
@@ -365,26 +347,6 @@ export default function ManageDoctors() {
                 <DialogActions sx={{ p: 3 }}>
                     <Button variant="outlined" onClick={() => setEditDialog({ open: false, doctor: null })} sx={{ fontFamily: 'Cairo', borderRadius: 2, px: 4 }}>إلغاء</Button>
                     <Button variant="contained" onClick={handleEditSubmit} sx={{ fontFamily: 'Cairo', fontWeight: 'bold', borderRadius: 2, px: 4, background: 'linear-gradient(135deg, #1976d2, #42a5f5)' }}>حفظ</Button>
-                </DialogActions>
-            </Dialog>
-
-            {/* Reset Password Dialog */}
-            <Dialog open={resetDialog.open} onClose={() => setResetDialog({ open: false, doctor: null })} PaperProps={{ sx: { borderRadius: 4 } }}>
-                <DialogTitle sx={{ fontFamily: 'Cairo', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: 2, bgcolor: '#fff3e0', py: 2 }}>
-                    <Avatar sx={{ bgcolor: '#ff9800' }}><LockResetIcon /></Avatar>
-                    إعادة تعيين كلمة المرور
-                </DialogTitle>
-                <DialogContent sx={{ pt: 3 }}>
-                    <Typography variant="h6" sx={{ fontFamily: 'Cairo' }}>
-                        هل تريد إعادة تعيين كلمة مرور "<strong>{resetDialog.doctor?.full_name}</strong>"؟
-                    </Typography>
-                    <Alert severity="info" sx={{ mt: 2, fontFamily: 'Cairo', borderRadius: 2 }}>
-                        سيتم تعيين كلمة المرور إلى الرقم القومي
-                    </Alert>
-                </DialogContent>
-                <DialogActions sx={{ p: 3 }}>
-                    <Button variant="outlined" onClick={() => setResetDialog({ open: false, doctor: null })} sx={{ fontFamily: 'Cairo', borderRadius: 2, px: 4 }}>إلغاء</Button>
-                    <Button variant="contained" onClick={handleResetPassword} sx={{ fontFamily: 'Cairo', fontWeight: 'bold', borderRadius: 2, px: 4, background: 'linear-gradient(135deg, #ff9800, #ffb74d)' }}>تأكيد</Button>
                 </DialogActions>
             </Dialog>
 

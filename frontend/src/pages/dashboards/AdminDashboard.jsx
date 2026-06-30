@@ -297,13 +297,16 @@ export default function AdminDashboard() {
         if (storedUser) {
             setUser(JSON.parse(storedUser));
 
-            // Fetch pending approval count (correct endpoint)
-            axios.get('/api/academic/exam-grades/pending-count/', { withCredentials: true })
-                .then(res => setPendingCount(res.data.pending_grades_count || 0))
+            const token = localStorage.getItem('token');
+            const config = { headers: { Authorization: `Bearer ${token}` }, withCredentials: true };
+
+            // Fetch pending deletion requests count
+            axios.get('/api/academic/admin/deletion-requests/?status=PENDING', config)
+                .then(res => setPendingCount(res.data.length || 0))
                 .catch(() => { });
 
             // Fetch real department count
-            axios.get('/api/academic/departments/', { withCredentials: true })
+            axios.get('/api/academic/departments/', config)
                 .then(res => {
                     const depts = Array.isArray(res.data) ? res.data : (res.data?.results || []);
                     setStats(prev => ({ ...prev, departments: depts.length }));
@@ -311,7 +314,7 @@ export default function AdminDashboard() {
                 .catch(() => { });
 
             // Fetch real user count
-            axios.get('/api/auth/users/', { withCredentials: true })
+            axios.get('/api/auth/users/', config)
                 .then(res => {
                     const users = Array.isArray(res.data) ? res.data : (res.data?.results || []);
                     setStats(prev => ({ ...prev, users: users.length }));
@@ -319,7 +322,7 @@ export default function AdminDashboard() {
                 .catch(() => { });
 
             // Fetch current academic year
-            axios.get('/api/academic/years/', { withCredentials: true })
+            axios.get('/api/academic/years/', config)
                 .then(res => {
                     const years = Array.isArray(res.data) ? res.data : (res.data?.results || []);
                     const currentYear = years.find(y => y.is_current);
@@ -390,21 +393,13 @@ export default function AdminDashboard() {
             gradient: 'linear-gradient(135deg, #FF6B35, #F7931E)',
         },
         {
-            icon: PendingActionsIcon,
-            title: 'مركز الموافقات',
-            description: 'مراجعة الموافقة على الدرجات وطلبات حذف الأعضاء في مكان واحد',
+            icon: DeleteIcon,
+            title: 'طلبات الحذف',
+            description: 'مراجعة طلبات حذف الأعضاء والموافقة عليها أو رفضها',
             buttonText: 'عرض الطلبات',
-            onClick: () => navigate('/admin/pending-approvals'),
+            onClick: () => navigate('/admin/approvals'),
             gradient: 'linear-gradient(135deg, #FFD93D, #FF9800)',
             badge: pendingCount,
-        },
-        {
-            icon: AssessmentIcon,
-            title: 'إدارة إعلان النتائج',
-            description: 'اعتماد نتائج الامتحانات ونشرها للطلاب',
-            buttonText: 'إدارة النتائج',
-            onClick: () => navigate('/admin/publish-results'),
-            gradient: 'linear-gradient(135deg, #11998E, #38EF7D)',
         },
         {
             icon: healthStatus.status === 'healthy' ? CheckCircleIcon : WarningIcon,

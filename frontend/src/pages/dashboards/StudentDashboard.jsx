@@ -25,6 +25,9 @@ import WarningIcon from '@mui/icons-material/Warning';
 import StarIcon from '@mui/icons-material/Star';
 import LogoutIcon from '@mui/icons-material/Logout';
 import SettingsIcon from '@mui/icons-material/Settings';
+import LockIcon from '@mui/icons-material/Lock';
+import AssessmentIcon from '@mui/icons-material/Assessment';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
@@ -85,6 +88,7 @@ export default function StudentDashboard() {
                     graduationStatus: response.data.graduation_status,
                     fullName: response.data.full_name,
                     specialization: response.data.specialization,
+                    hasPaidTuition: response.data.has_paid_tuition,
                 });
             } catch (err) {
                 console.error('Error fetching student info:', err);
@@ -97,6 +101,7 @@ export default function StudentDashboard() {
                     academicYear: null,
                     graduationStatus: user.graduation_status || 'PENDING',
                     fullName: `${user.first_name} ${user.last_name}`,
+                    hasPaidTuition: false,
                 });
             } finally {
                 setLoading(false);
@@ -205,39 +210,36 @@ export default function StudentDashboard() {
 
     const quickActions = [
         {
-            title: 'النتائج النهائية',
-            icon: GradeIcon,
-            description: 'الاستعلام عن النتائج النهائية المعتمدة',
-            gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-            path: '/student/results'
-        },
-        {
-            title: isPreparatory ? 'المواد العامة' : 'مواد القسم',
+            title: 'المواد الدراسية',
             icon: MenuBookIcon,
-            description: 'تصفح المحاضرات والمراجع',
-            gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-            path: '/student/materials'
+            description: 'عرض المقررات والمحاضرات',
+            gradient: 'linear-gradient(135deg, #1976d2 0%, #64b5f6 100%)',
+            path: '/student/materials',
+            requiresPayment: false
         },
         {
-            title: 'جدول الامتحانات',
-            icon: EventIcon,
-            description: 'مواعيد الامتحانات القادمة',
-            gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-            path: '/student/exams'
+            title: 'الغياب',
+            icon: CheckCircleOutlineIcon,
+            description: 'متابعة نسبة الحضور والغياب',
+            gradient: 'linear-gradient(135deg, #2e7d32 0%, #81c784 100%)',
+            path: '/student/attendance',
+            requiresPayment: true
         },
         {
-            title: 'سجل الحضور',
-            icon: AccessTimeIcon,
-            description: 'متابعة حضورك وغيابك',
-            gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
-            path: '/student/attendance'
+            title: 'النتائج',
+            icon: AssessmentIcon,
+            description: 'نتائج الامتحانات والتقييمات',
+            gradient: 'linear-gradient(135deg, #ed6c02 0%, #ffb74d 100%)',
+            path: '/student/results',
+            requiresPayment: true
         },
         {
             title: 'الكويزات',
             icon: QuizIcon,
             description: 'الاختبارات القصيرة والتقييمات',
             gradient: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
-            path: '/student/quizzes'
+            path: '/student/quizzes',
+            requiresPayment: true
         },
     ];
 
@@ -258,10 +260,6 @@ export default function StudentDashboard() {
                 overflow: 'hidden',
                 borderRadius: { xs: 0, md: '0 0 30px 30px' },
             }}>
-                {/* Decorative circles - REMOVED */}
-                {/* <Box sx={{ position: 'absolute', top: -100, right: -100, width: 300, height: 300, borderRadius: '50%', bgcolor: 'rgba(255,255,255,0.05)' }} />
-                <Box sx={{ position: 'absolute', bottom: -50, left: -50, width: 200, height: 200, borderRadius: '50%', bgcolor: 'rgba(255,255,255,0.05)' }} /> */}
-
                 <Container maxWidth="lg">
                     <Fade in={true} timeout={800}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, flexWrap: 'wrap' }}>
@@ -336,7 +334,30 @@ export default function StudentDashboard() {
                 </Container>
             </Box>
 
-            <Container maxWidth="lg" sx={{ mt: -3, pb: 4, position: 'relative', zIndex: 10 }}>
+            {!loading && studentInfo && !studentInfo.hasPaidTuition && (
+                <Container maxWidth="lg" sx={{ mt: 2 }}>
+                    <Fade in={true} timeout={1000}>
+                        <Alert 
+                            severity="error" 
+                            variant="filled"
+                            icon={<WarningIcon fontSize="inherit" />}
+                            sx={{ 
+                                fontFamily: 'Cairo', 
+                                fontWeight: 'bold', 
+                                fontSize: '1.1rem',
+                                borderRadius: 3,
+                                mb: 2,
+                                display: 'flex',
+                                alignItems: 'center'
+                            }}
+                        >
+                            عذراً، يرجى سداد المصروفات الدراسية للوصول الي نتائج الامتحانات، المحاضرات، و اداء الاختبارات، أو استخراج شهادة التخرج.
+                        </Alert>
+                    </Fade>
+                </Container>
+            )}
+
+            <Container maxWidth="lg" sx={{ mt: !studentInfo?.hasPaidTuition ? 0 : -3, pb: 4, position: 'relative', zIndex: 10 }}>
                 {/* Stats Cards Row */}
                 <Grid container spacing={2} sx={{ mb: 3 }}>
                     <Grid item xs={6} md={3}>
@@ -493,6 +514,10 @@ export default function StudentDashboard() {
                                             '&:hover': { bgcolor: 'rgba(255,255,255,0.9)' }
                                         }}
                                         onClick={() => {
+                                            if (!studentInfo?.hasPaidTuition) {
+                                                alert("يرجى سداد المصروفات الدراسية أولاً");
+                                                return;
+                                            }
                                             let fileUrl = certificate.file || '';
                                             // Only strip internal Docker hostname, preserve Azure Blob Storage URLs
                                             if (fileUrl.includes('://')) {
@@ -533,9 +558,15 @@ export default function StudentDashboard() {
                                 icon={action.icon}
                                 title={action.title}
                                 description={action.description}
-                                buttonText="عرض"
-                                onClick={() => navigate(action.path)}
-                                color={index === 0 ? 'primary' : index === 1 ? 'secondary' : index === 2 ? 'info' : index === 3 ? 'warning' : 'purple'}
+                                buttonText={!studentInfo?.hasPaidTuition ? "مغلق" : "عرض"}
+                                onClick={() => {
+                                    if (!studentInfo?.hasPaidTuition) {
+                                        alert("عذراً، يرجى سداد المصروفات الدراسية للوصول لهذه الخدمة.");
+                                        return;
+                                    }
+                                    navigate(action.path);
+                                }}
+                                color={!studentInfo?.hasPaidTuition ? 'inherit' : index === 0 ? 'primary' : index === 1 ? 'secondary' : index === 2 ? 'info' : index === 3 ? 'warning' : 'purple'}
                             />
                         </Grid>
                     ))}
@@ -545,7 +576,7 @@ export default function StudentDashboard() {
                 <Grid container spacing={3}>
                     {/* Available Quizzes */}
                     <Grid item xs={12} md={6}>
-                        <Paper elevation={0} sx={{ p: 3, borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.08)', height: '100%' }}>
+                        <Paper elevation={0} sx={{ p: 3, borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.08)', height: '100%', opacity: !studentInfo?.hasPaidTuition ? 0.6 : 1 }}>
                             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                                     <Avatar sx={{ bgcolor: '#fff3e0' }}>
@@ -558,7 +589,13 @@ export default function StudentDashboard() {
                                 <Button
                                     size="small"
                                     endIcon={<ArrowForwardIcon />}
-                                    onClick={() => navigate('/student/quizzes')}
+                                    onClick={() => {
+                                        if (!studentInfo?.hasPaidTuition) {
+                                            alert("عذراً، يرجى سداد المصروفات الدراسية للوصول لهذه الخدمة.");
+                                            return;
+                                        }
+                                        navigate('/student/quizzes');
+                                    }}
                                     sx={{ fontFamily: 'Cairo' }}
                                 >
                                     عرض الكل
@@ -569,7 +606,10 @@ export default function StudentDashboard() {
                                     {quizzes.map((quiz, idx) => (
                                         <Box
                                             key={quiz.id || idx}
-                                            onClick={() => navigate(`/student/quizzes`)}
+                                            onClick={() => {
+                                                if (!studentInfo?.hasPaidTuition) return;
+                                                navigate(`/student/quizzes`);
+                                            }}
                                             sx={{
                                                 p: 2,
                                                 borderRadius: 3,
