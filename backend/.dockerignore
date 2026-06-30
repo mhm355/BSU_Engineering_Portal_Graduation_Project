@@ -23,7 +23,7 @@ env/
 *.swp
 *.swo
 *~
-
+*.md
 # Git
 .git/
 .gitignore
@@ -43,3 +43,7 @@ docs/
 # macOS
 .DS_Store
 
+
+# Local SQLite DB
+db.sqlite3
+*.sqlite3

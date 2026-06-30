@@ -27,6 +27,7 @@ dist/
 .vscode/
 *.swp
 *.swo
+*.devin
 
 # OS
 .DS_Store
@@ -55,3 +56,7 @@ htmlcov/
 # Local Cache
 .docker-cache
 
+
+# Local SQLite DB
+db.sqlite3
+*.sqlite3
