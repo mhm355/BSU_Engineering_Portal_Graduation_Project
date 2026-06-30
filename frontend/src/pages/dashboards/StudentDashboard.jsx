@@ -66,6 +66,22 @@ export default function StudentDashboard() {
     const [attendanceStats, setAttendanceStats] = useState({ percentage: 0, present: 0, total: 0 });
     const [news, setNews] = useState([]);
 
+    const getImageUrl = (image) => {
+        if (!image) return null;
+        if (image.includes('://')) {
+            try {
+                const url = new URL(image);
+                if (url.hostname === 'backend' || url.hostname === 'localhost' || url.hostname === '127.0.0.1') {
+                    return url.pathname;
+                }
+            } catch (e) { /* use as-is */ }
+        }
+        if (!image.startsWith('http') && !image.startsWith('/')) {
+            return '/' + image;
+        }
+        return image;
+    };
+
     useEffect(() => {
         if (!user) {
             navigate('/login');
@@ -697,14 +713,14 @@ export default function StudentDashboard() {
                                     </Typography>
                                     {item.image && (
                                         <Box sx={{ borderRadius: 2, overflow: 'hidden', mt: 1, mb: 1 }}>
-                                            <img src={item.image} alt={item.title} style={{ width: '100%', maxHeight: 200, objectFit: 'cover' }} />
+                                            <img src={getImageUrl(item.image)} alt={item.title} style={{ width: '100%', maxHeight: 200, objectFit: 'cover' }} />
                                         </Box>
                                     )}
                                     {item.additional_images?.length > 0 && (
                                         <Box sx={{ display: 'flex', gap: 1, overflowX: 'auto', mt: 1, mb: 2, pb: 1 }}>
                                             {item.additional_images.map(img => (
                                                 <Box key={img.id} sx={{ flexShrink: 0, width: 100, height: 100, borderRadius: 2, overflow: 'hidden' }}>
-                                                    <img src={img.image} alt="additional" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                                    <img src={getImageUrl(img.image)} alt="additional" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                                 </Box>
                                             ))}
                                         </Box>
@@ -712,12 +728,12 @@ export default function StudentDashboard() {
                                     {(item.attachment || item.additional_attachments?.length > 0) && (
                                         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 2 }}>
                                             {item.attachment && (
-                                                <Button size="small" variant="outlined" startIcon={<DownloadIcon />} href={item.attachment} target="_blank" sx={{ fontFamily: 'Cairo', alignSelf: 'flex-start' }}>
+                                                <Button size="small" variant="outlined" startIcon={<DownloadIcon />} href={getImageUrl(item.attachment)} target="_blank" sx={{ fontFamily: 'Cairo', alignSelf: 'flex-start' }}>
                                                     تحميل المرفق الرئيسي
                                                 </Button>
                                             )}
                                             {item.additional_attachments?.map(att => (
-                                                <Button key={att.id} size="small" variant="outlined" startIcon={<DownloadIcon />} href={att.file} target="_blank" sx={{ fontFamily: 'Cairo', alignSelf: 'flex-start' }}>
+                                                <Button key={att.id} size="small" variant="outlined" startIcon={<DownloadIcon />} href={getImageUrl(att.file)} target="_blank" sx={{ fontFamily: 'Cairo', alignSelf: 'flex-start' }}>
                                                     تحميل: {att.file.split('/').pop()}
                                                 </Button>
                                             ))}
