@@ -32,7 +32,6 @@ Focuses on directory management, assignments, and personnel tracking.
 - `/staff-affairs/dashboard` - Main Dashboard Overview
 - `/staff-affairs/upload-doctors` - Bulk creation of Doctor accounts (CSV)
 - `/staff-affairs/upload-staff` - Bulk creation of other Staff accounts
-- `/staff-affairs/assign-doctors` - Mapping doctors to specific courses/departments
 - `/staff-affairs/manage-doctors` - Directory and CRUD operations for Doctors
 - `/staff-affairs/view-users` - Master list of all staff personnel
 - `/staff-affairs/academic-structure` - View structure to aid in assignment routing
@@ -48,20 +47,13 @@ Focuses on directory management, assignments, and personnel tracking.
 
 ### Step-by-Step User Journeys (Top 3 Core Actions)
 
-**Action 1: Assigning a Doctor to a Course**
-1. User navigates to `/staff-affairs/assign-doctors`.
-2. Left panel lists all Departments -> Courses. Right panel lists available Doctors.
-3. User selects a Course (e.g., "Advanced Mechanics").
-4. User searches for a Doctor in the right panel and clicks "Assign".
-5. A relationship is created, appearing in a "Current Assignments" table below.
-
-**Action 2: Bulk Uploading Doctors**
+**Action 1: Bulk Uploading Doctors**
 1. Navigates to `/staff-affairs/upload-doctors`.
 2. Downloads Excel template.
 3. Uploads filled template (Name, Email, Degree, Department).
 4. System validates and registers users, automatically sending them temporary passwords via email.
 
-**Action 3: Managing Doctor Information**
+**Action 2: Managing Doctor Information**
 1. Navigates to `/staff-affairs/manage-doctors`.
 2. Filters the data table by Department.
 3. Clicks on a specific doctor's row to open a side drawer with their full profile.
@@ -80,10 +72,6 @@ Focuses on directory management, assignments, and personnel tracking.
 ### Screen 1: Dashboard
 - **Layout:** Top widgets showing counts: Total Doctors, Total TAs, Total Staff. A primary table showing "Recent Personnel Changes".
 
-### Screen 2: Assign Doctors (`/assign-doctors`)
-- **Layout:** Dual-pane list builder or drag-and-drop interface.
-- **UI Components:** Searchable lists with multi-select checkboxes. "Transfer" buttons (left/right arrows) between the unassigned pool and the course list.
-
-### Screen 3: Assignment History (`/assignment-history`)
+### Screen 2: Assignment History (`/assignment-history`)
 - **Layout:** Full width log table.
 - **UI Components:** Columns for Timestamp, Action (Assigned/Removed), Doctor Name, Course Name, Performed By.

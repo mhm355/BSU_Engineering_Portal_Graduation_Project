@@ -114,6 +114,7 @@ Built on a consistent 4px baseline grid.
   - Question Block: Bold question text, distinct radio button list for answers.
   - Progress Bar: Shows X of Y questions answered.
 - **States:** Selected radio button border turns `#0056D2`.
+- **Feature Lock:** If the student has unpaid tuition, the Start Quiz button is disabled, grayed out, and shows a Lock Icon.
 
 ### Screen 3: Grades / Results
 - **Layout:** Full width data table.

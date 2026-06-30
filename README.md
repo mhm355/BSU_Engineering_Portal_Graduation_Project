@@ -1,4 +1,10 @@
 <div align="center">
+  <p>
+    <img src="./textbook/images/Beni-Suef_University_logo.png" alt="Beni-Suef University Logo" width="130" />
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <img src="./textbook/images/faculty_of_engineering_logo.jpeg" alt="Faculty of Engineering Logo" width="130" />
+  </p>
+
   <!-- Note: Replace the image src below with an actual screenshot or GIF of the portal in production -->
   <img src="https://via.placeholder.com/1000x400.png?text=BSU+Engineering+Portal+Dashboard" alt="BSU Engineering Portal" width="100%">
   
@@ -25,20 +31,23 @@ The **BSU Engineering Portal** is a unified, highly robust Faculty Website metic
 It provides immense value by acting as a single source of truth for:
 - **Students:** Accessing course materials, tracking attendance, submitting assignments, taking online quizzes, and checking final grades.
 - **Doctors / Faculty:** Managing course syllabi, uploading study materials, creating rigorous online assessments, and seamlessly grading student performance.
-- **Administrative Staff (Student & Staff Affairs):** Managing the master academic structure, bulk-uploading records (students, staff, doctors), configuring grading templates, publishing official exam results, and issuing certificates.
+- **Heads of Department (HOD):** Assigning doctors to specific courses within their departments.
+- **Deans:** Approving and publishing final exam results, and analyzing academic performance metrics.
+- **Administrative Staff (Student & Staff Affairs):** Managing the master academic structure, bulk-uploading records, configuring grading templates, managing tuition statuses, and issuing certificates.
 - **System Administrators:** Overseeing the entire technical operation, auditing system logs, and handling user security.
 
 ### Role-Based Feature Matrix
 To guarantee security and data integrity, the system implements strict Role-Based Access Control (RBAC):
 
-| Feature / Capability | Student | Doctor | Student Affairs | Staff Affairs | Admin |
-| :--- | :---: | :---: | :---: | :---: | :---: |
-| **Take Quizzes & View Grades** | ✅ | ❌ | ❌ | ❌ | ❌ |
-| **Upload Materials & Grade Exams** | ❌ | ✅ | ❌ | ❌ | ❌ |
-| **Publish Final Results & Certificates** | ❌ | ❌ | ✅ | ❌ | ❌ |
-| **Assign Doctors to Courses** | ❌ | ❌ | ❌ | ✅ | ❌ |
-| **Configure Grading Templates** | ❌ | ❌ | ❌ | ✅ | ❌ |
-| **System Auditing & Security** | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Feature / Capability | Student | Doctor | HOD | Dean | Student Affairs | Staff Affairs | Admin |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Take Quizzes & View Grades** | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Upload Materials & Grade Exams** | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Publish Final Results** | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ |
+| **Assign Doctors to Courses** | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| **Issue Certificates** | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ |
+| **Configure Grading Templates** | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ |
+| **System Auditing & Security** | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
 
 ---
 

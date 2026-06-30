@@ -38,14 +38,14 @@ Requires high clarity for managing large volumes of student records and academic
 - `/student-affairs/news` - Manage news/announcements for students
 - `/student-affairs/exam-grades` - Upload official exam grades
 - `/student-affairs/grades` - View comprehensive student grades
-- `/student-affairs/publish-results` - Interface to officially publish results to students
+- `/student-affairs/tuition` - Bulk upload and manage student tuition status
 - `/student-affairs/upload-history` - Audit logs of all data uploads
 - `/profile` - Profile settings
 - `/change-password` - Security settings
 
 ### Navigation Flow Map
 - **Global Header:** Contains Department context, Global Search for Student ID.
-- **Sidebar:** Sections grouped by logical operation: Operations (Dashboard, Hierarchy, News), Data Entry (Upload Students, Exam Grades, Publish Results), Documents (Certificates, Bulk Certificates), Logs (Upload History).
+- **Sidebar:** Sections grouped by logical operation: Operations (Dashboard, Hierarchy, News), Data Entry (Upload Students, Exam Grades, Tuition), Documents (Certificates, Bulk Certificates), Logs (Upload History).
 
 ### Step-by-Step User Journeys (Top 3 Core Actions)
 
@@ -56,12 +56,11 @@ Requires high clarity for managing large volumes of student records and academic
 4. A validation preview table appears, highlighting valid rows (green check) and invalid rows (red warning icon).
 5. User clicks "Execute Upload". System shows a progress bar.
 
-**Action 2: Publishing Exam Results**
-1. User navigates to `/student-affairs/publish-results`.
-2. Selects the Academic Year and Term from dropdowns.
-3. System shows a status board of which courses have grades fully uploaded by Doctors.
-4. User clicks "Publish All Ready Results".
-5. A confirmation modal requires typing "CONFIRM" to prevent accidental early publishing.
+**Action 2: Managing Student Tuition**
+1. User navigates to `/student-affairs/tuition`.
+2. Uploads a CSV/Excel file containing Student IDs and Payment Status.
+3. System verifies against the database and updates the `has_paid_tuition` flag.
+4. Students who have not paid are automatically locked out of Quizzes and Attendance modules.
 
 **Action 3: Managing Student News**
 1. Navigates to `/student-affairs/news`.
