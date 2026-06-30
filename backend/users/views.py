@@ -80,6 +80,11 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
     def get_object(self):
         return self.request.user
 
+    def perform_update(self, serializer):
+        user = serializer.save()
+        from django.contrib.auth import update_session_auth_hash
+        update_session_auth_hash(self.request, user)
+
 class ChangePasswordView(APIView):
     """
     Change password endpoint - particularly for first login requirement.
@@ -147,9 +152,21 @@ from .models import PasswordResetRequest
 User = get_user_model()
 
 class UserViewSet(viewsets.ModelViewSet):
+    """User Management ViewSet (Admin only for write, Admin/Dean for read)"""
     queryset = User.objects.all()
     serializer_class = UserManagementSerializer
-    permission_classes = [IsAdminRole]
+
+    def get_permissions(self):
+        from .permissions import IsAdminRole, IsDeanRole
+        if self.action in ['list', 'retrieve']:
+            return [IsAdminRole() | IsDeanRole()]
+        return [IsAdminRole()]
+
+    def perform_update(self, serializer):
+        user = serializer.save()
+        if self.request.user == user:
+            from django.contrib.auth import update_session_auth_hash
+            update_session_auth_hash(self.request, user)
 
     def perform_destroy(self, instance):
         try:

@@ -9,6 +9,8 @@ class User(AbstractUser):
         DOCTOR = "DOCTOR", "Doctor"
         STUDENT_AFFAIRS = "STUDENT_AFFAIRS", "Student Affairs"
         STAFF_AFFAIRS = "STAFF_AFFAIRS", "Staff Affairs"
+        HOD = "HOD", "Head of Department"
+        DEAN = "DEAN", "Dean"
 
     class GraduationStatus(models.TextChoices):
         PENDING = "PENDING", "Pending"
@@ -20,6 +22,7 @@ class User(AbstractUser):
     phone_number = models.CharField(max_length=15, null=True, blank=True)
     address = models.TextField(null=True, blank=True)
     profile_picture = models.ImageField(upload_to='profile_pics/', null=True, blank=True)
+    department = models.ForeignKey('academic.Department', on_delete=models.SET_NULL, null=True, blank=True)
     first_login_required = models.BooleanField(default=False)
     graduation_status = models.CharField(
         max_length=20, 
@@ -36,7 +39,7 @@ class User(AbstractUser):
                 self.set_password(self.national_id or self.username)
             
             # Require password change on first login for staff users AND students
-            if self.role in ['STUDENT', 'STUDENT_AFFAIRS', 'STAFF_AFFAIRS', 'DOCTOR']:
+            if self.role in ['STUDENT', 'STUDENT_AFFAIRS', 'STAFF_AFFAIRS', 'DOCTOR', 'HOD', 'DEAN']:
                 self.first_login_required = True
         return super().save(*args, **kwargs)
 
@@ -49,6 +52,10 @@ class User(AbstractUser):
             return reverse('student_affairs_dashboard')
         elif self.role == 'STAFF_AFFAIRS':
             return reverse('staff_affairs_dashboard')
+        elif self.role == 'HOD':
+            return '/hod/dashboard'  # Assuming frontend route, no reverse named yet
+        elif self.role == 'DEAN':
+            return '/dean/dashboard'
         elif self.role == 'ADMIN':
             return reverse('admin_dashboard')
         else:

@@ -10,14 +10,14 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'username', 'email', 'first_name', 'last_name', 'role', 
                   'national_id', 'phone_number', 'address', 'profile_picture',
-                  'first_login_required', 'graduation_status', 'password']
-        read_only_fields = ['role', 'national_id', 'first_login_required', 'graduation_status']
+                  'first_login_required', 'graduation_status', 'password', 'department']
+        read_only_fields = ['role', 'national_id', 'first_login_required', 'graduation_status', 'department']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         request = self.context.get('request')
         if request and hasattr(request, 'user') and getattr(request.user, 'role', None) != 'ADMIN':
-            for field in ['username', 'email', 'first_name', 'last_name', 'phone_number', 'address', 'password']:
+            for field in ['username', 'password']:
                 if field in self.fields:
                     self.fields[field].read_only = True
 
@@ -50,7 +50,7 @@ class UserManagementSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'role', 'national_id', 'password']
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'role', 'national_id', 'password', 'department']
     
     def create(self, validated_data):
         password = validated_data.pop('password', None)

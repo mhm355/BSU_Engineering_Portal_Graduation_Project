@@ -49,3 +49,52 @@ class IsAdminOrStaffAffairs(permissions.BasePermission):
         if not request.user or not request.user.is_authenticated:
             return False
         return request.user.role in ['ADMIN', 'STAFF_AFFAIRS']
+
+
+class IsHODRole(permissions.BasePermission):
+    """Head of Department role - manages department specific academic aspects"""
+    def has_permission(self, request, view):
+        if not request.user or not request.user.is_authenticated:
+            return False
+        return request.user.role in ['HOD', 'ADMIN']
+
+
+class IsStaffAffairsOrHODRole(permissions.BasePermission):
+    """Either Staff Affairs or HOD role"""
+    def has_permission(self, request, view):
+        if not request.user or not request.user.is_authenticated:
+            return False
+        return request.user.role in ['STAFF_AFFAIRS', 'HOD', 'ADMIN']
+
+
+class IsDeanRole(permissions.BasePermission):
+    """Dean role - ultimate approver for grades and publishing"""
+    def has_permission(self, request, view):
+        if not request.user or not request.user.is_authenticated:
+            return False
+        return request.user.role in ['DEAN', 'ADMIN']
+
+
+class HasPaidTuition(permissions.BasePermission):
+    """Checks if a student has paid tuition to access locked services"""
+    message = "عذراً، يرجى سداد المصروفات الدراسية للتمكن من الوصول لهذه الخدمة."
+    
+    def has_permission(self, request, view):
+        if not request.user or not request.user.is_authenticated:
+            return False
+            
+        # Admin and staff always have permission
+        if request.user.role != 'STUDENT':
+            return True
+            
+        # Check if student exists and has paid
+        if hasattr(request.user, 'student_profile'):
+            return request.user.student_profile.has_paid_tuition
+        
+        # Fallback check looking up Student model directly
+        from academic.models import Student
+        try:
+            student = Student.objects.get(user=request.user)
+            return student.has_paid_tuition
+        except Student.DoesNotExist:
+            return False
