@@ -11,9 +11,8 @@ from .views import (
 )
 from .student_affairs_views import (
     UploadStudentsView, StudentListView, ResetStudentPasswordView,
-    FourthYearStudentsView, StudentAffairsGradesView, BulkCertificateUploadView,
-    PreviewStudentsUploadView, SyncCertificatesFromStorageView,
-    DirectBulkCertificateUploadView
+    FourthYearStudentsView, StudentAffairsGradesView,
+    PreviewStudentsUploadView
 )
 from .staff_affairs_views import (
     UploadDoctorsView, UploadStaffAffairsUsersView, DoctorListView,
@@ -119,10 +118,8 @@ urlpatterns = [
     # Upload history (Student Affairs)
     path('student-affairs/upload-history/', UploadHistoryListView.as_view(), name='upload-history'),
 
-    # Bulk certificate upload (Student Affairs)
-    path('student-affairs/bulk-certificates/', BulkCertificateUploadView.as_view(), name='bulk-certificates'),
-    path('student-affairs/certificates/sync/', SyncCertificatesFromStorageView.as_view(), name='sync_azure_certificates'),
-    path('student-affairs/certificates/bulk-direct/', DirectBulkCertificateUploadView.as_view(), name='bulk_direct_certificates'),
+    # NOTE: Certificate management has been moved to Graduate Affairs app
+    # See: /api/graduate-affairs/certificates/
 
     # Bulk quiz import (Doctor)
     path('quizzes/bulk-import/', BulkQuizImportView.as_view(), name='bulk-quiz-import'),

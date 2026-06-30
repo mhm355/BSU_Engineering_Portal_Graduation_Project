@@ -186,16 +186,15 @@ export default function StudentAffairsDashboard() {
         const fetchStats = async () => {
             try {
                 const config = { withCredentials: true };
-                const [studentsRes, deptsRes, certsRes, levelsRes] = await Promise.all([
+                const [studentsRes, deptsRes, levelsRes] = await Promise.all([
                     axios.get('/api/academic/student-affairs/students/', config).catch(() => ({ data: [] })),
                     axios.get('/api/academic/departments/', config).catch(() => ({ data: [] })),
-                    axios.get('/api/academic/certificates/', config).catch(() => ({ data: [] })),
                     axios.get('/api/academic/levels/', config).catch(() => ({ data: [] })),
                 ]);
                 setStats({
                     students: (Array.isArray(studentsRes.data) ? studentsRes.data : studentsRes.data?.results || []).length,
                     departments: (Array.isArray(deptsRes.data) ? deptsRes.data : deptsRes.data?.results || []).length,
-                    certificates: (Array.isArray(certsRes.data) ? certsRes.data : certsRes.data?.results || []).length,
+                    certificates: 0, // Migrated to Graduate Affairs
                     levels: (Array.isArray(levelsRes.data) ? levelsRes.data : levelsRes.data?.results || []).length,
                 });
             } catch { /* fail silently */ }
@@ -220,14 +219,7 @@ export default function StudentAffairsDashboard() {
             onClick: () => navigate('/student-affairs/upload-students'),
             color: 'warning',
         },
-        {
-            icon: EmojiEventsIcon,
-            title: 'الشهادات',
-            description: 'رفع وإدارة شهادات التخرج للطلاب',
-            buttonText: 'الشهادات',
-            onClick: () => navigate('/student-affairs/bulk-certificates'),
-            color: 'secondary',
-        },
+
         {
             icon: CampaignIcon,
             title: 'الأخبار والإعلانات',
@@ -337,7 +329,7 @@ export default function StudentAffairsDashboard() {
             <Container maxWidth="xl">
                 {/* Stats Row */}
                 <Grid container spacing={2} sx={{ mb: 3 }}>
-                    <Grid item xs={12} sm={6} md={3}>
+                    <Grid item xs={12} sm={4}>
                         <StatCard
                             icon={PeopleIcon}
                             value={String(stats.students)}
@@ -346,7 +338,7 @@ export default function StudentAffairsDashboard() {
                             delay={0}
                         />
                     </Grid>
-                    <Grid item xs={12} sm={6} md={3}>
+                    <Grid item xs={12} sm={4}>
                         <StatCard
                             icon={DomainIcon}
                             value={String(stats.departments)}
@@ -355,16 +347,7 @@ export default function StudentAffairsDashboard() {
                             delay={100}
                         />
                     </Grid>
-                    <Grid item xs={12} sm={6} md={3}>
-                        <StatCard
-                            icon={EmojiEventsIcon}
-                            value={String(stats.certificates)}
-                            label="الشهادات"
-                            color="#4CAF50"
-                            delay={200}
-                        />
-                    </Grid>
-                    <Grid item xs={12} sm={6} md={3}>
+                    <Grid item xs={12} sm={4}>
                         <StatCard
                             icon={SchoolIcon}
                             value={String(stats.levels)}
