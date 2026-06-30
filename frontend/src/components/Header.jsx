@@ -31,6 +31,7 @@ import { useAuth } from '../context/AuthContext';
 import { useThemeMode } from '../context/ThemeContext';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import LightModeIcon from '@mui/icons-material/LightMode';
+import NotificationBell from './NotificationBell';
 import GlobalSearch from './GlobalSearch';
 import SearchIcon from '@mui/icons-material/Search';
 
@@ -350,6 +351,10 @@ export default function Header() {
               {isDark ? <LightModeIcon /> : <DarkModeIcon />}
             </IconButton>
 
+            {user && ['STUDENT', 'GRADUATE', 'GRADUATE_AFFAIRS'].includes(user.role) && (
+              <NotificationBell />
+            )}
+
             {/* User Avatar Menu */}
             {user && (
               <Box sx={{ display: { xs: 'none', lg: 'block' }, ml: 1 }}>
@@ -392,6 +397,17 @@ export default function Header() {
                       {user.role}
                     </Typography>
                   </Box>
+                  <MenuItem onClick={() => { 
+                    setAvatarAnchorEl(null); 
+                    if (user.role === 'STUDENT') navigate('/student/dashboard');
+                    else if (user.role === 'DOCTOR') navigate('/doctor/dashboard');
+                    else if (user.role === 'STUDENT_AFFAIRS') navigate('/student-affairs/dashboard');
+                    else if (user.role === 'STAFF_AFFAIRS') navigate('/staff-affairs/dashboard');
+                    else if (user.role === 'GRADUATE_AFFAIRS') navigate('/graduate-affairs/dashboard');
+                    else if (user.role === 'ADMIN') navigate('/admin/dashboard');
+                  }}>
+                    لوحة التحكم
+                  </MenuItem>
                   <MenuItem onClick={() => { setAvatarAnchorEl(null); navigate('/profile'); }}>
                     إعدادات الحساب
                   </MenuItem>
