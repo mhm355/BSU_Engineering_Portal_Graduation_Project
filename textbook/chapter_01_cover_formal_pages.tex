@@ -46,31 +46,25 @@
     \vspace{1.5cm}
     
     % Authors Section
-    \begin{center}
-        \textbf{Prepared by:}\\[0.3cm]
-        Mahmoud Hussein Mahmoud\\
-        Mohamed Gamal Shehata\\
-        Mohamed Essam Sayed\\[1.5cm]
-        
-        \textbf{Supervised by:}\\[0.3cm]
-        Associate Prof. Dr. Fathy Mostafa
-    \end{center}
+    {\Large \textbf{Prepared by:}}\\[0.3cm]
+    {\large Mahmoud Hussein Mahmoud}\\
+    {\large Mohamed Gamal Shehata}\\
+    {\large Mohamed Essam Sayed}\\[1cm]
     
-    \vspace{1.5cm}
-    
-    % Degree Information
-    {\Large Graduation Project Report}\\[0.5cm]
-    {\large Submitted in Partial Fulfillment of the Requirements}\\[0.2cm]
-    {\large for the Degree of Bachelor of Science in}\\[0.2cm]
-    {\large Electronics and Communications Engineering}\\[0.2cm]
-    {\large at Beni-Suef University}\\[1cm]
-    
-    % Academic Year
-    {\Large Academic Year 2025--2026}
+    {\Large \textbf{Supervised by:}}\\[0.3cm]
+    {\large Associate Prof. Dr. Fathy Mostafa}
     
     \vfill
     
-    % Date
+    % Degree Information
+    {\Large \textbf{Graduation Project Report}}\\[0.5cm]
+    {\large Submitted in Partial Fulfillment of the Requirements}\\[0.2cm]
+    {\large for the Degree of Bachelor of Science in}\\[0.2cm]
+    {\large \textbf{Electronics and Communications Engineering}}\\[0.2cm]
+    {\large at Beni-Suef University}\\[1.5cm]
+    
+    % Academic Year and Date block
+    {\Large \textbf{Academic Year 2025--2026}}\\[0.3cm]
     {\large July 2026}
     
 \end{titlepage}
@@ -87,7 +81,7 @@ The Faculty of Engineering at Beni-Suef University (BSU) has historically relied
 
 \textbf{Release BSU Engineering Portal} addresses these systemic challenges through a modern, decoupled web architecture comprising: (a) a \textbf{Django 5.0}~\cite{django} backend with Django REST Framework~\cite{djangorest} providing secure, stateless API endpoints with cross-origin Session/CSRF protection; (b) a \textbf{React 19}~\cite{react} frontend built via Vite, utilizing Material-UI~\cite{mui} to deliver highly responsive, state-driven user interfaces; (c) \textbf{MySQL 8.0}~\cite{mysql} as the relational database ensuring strict ACID compliance for grade and attendance transactions; (d) \textbf{Redis}~\cite{redis} for session storage and application-level caching to improve performance and scalability; and (e) \textbf{Docker}~\cite{docker} containerization enabling deterministic, portable deployments across any cloud or on-premises infrastructure.
 
-Key system capabilities include hierarchical academic entity modeling (departments $\rightarrow$ specializations $\rightarrow$ levels $\rightarrow$ students), transaction-safe batch CSV/Excel import pipelines using Pandas for student enrollment and grade uploads, and a highly interactive multi-modal quiz engine. To guarantee data integrity and security, the system enforces the principle of least privilege across five distinct user roles (Admin, Doctor, Student, Student Affairs, Staff Affairs) via custom Role-Based Access Control (RBAC) middleware, coupled with comprehensive audit logging for all administrative actions.
+Key system capabilities include hierarchical academic entity modeling (departments $\rightarrow$ specializations $\rightarrow$ levels $\rightarrow$ students), transaction-safe batch CSV/Excel import pipelines using Pandas for student enrollment and grade uploads, and a highly interactive multi-modal quiz engine. To guarantee data integrity and security, the system enforces the principle of least privilege across seven distinct user roles (Admin, Dean, HOD, Doctor, Student, Student Affairs, Staff Affairs) via custom Role-Based Access Control (RBAC) middleware, coupled with comprehensive audit logging for all administrative actions.
 
 The project demonstrates engineering maturity through robust DevOps practices, security-hardened deployment strategies (configured CORS/CSRF boundaries, input validation, rate limiting), and explicitly defined system boundaries. By abstracting complex administrative workflows into streamlined digital processes, the portal drastically reduces operational overhead, eliminates data silos, and provides a highly scalable foundation for Beni-Suef University's ongoing digital transformation.
 
@@ -104,15 +98,11 @@ The project demonstrates engineering maturity through robust DevOps practices, s
 
 We extend our deepest gratitude to our supervisor, Associate Prof. Dr. Fathy Mostafa, for his invaluable guidance, patience, and unwavering support throughout this project. His expertise, constructive feedback, and encouragement were instrumental in shaping our technical decisions and ensuring the success of this work.
 
-We would also like to express our appreciation to the faculty members and staff of the Faculty of Engineering, Beni-Suef University. Their insights and assistance were invaluable in understanding the requirements and challenges of academic operations.
+We also express our appreciation to the faculty members and staff of the Faculty of Engineering, Beni-Suef University, whose insights were vital in understanding the core requirements and operational challenges of the institution.
 
-Special thanks to our families and friends for their endless support and encouragement during this demanding period.
+We acknowledge the robust open-source communities behind Django, React, Pandas, Docker, and the myriad of technologies that form the backbone of this system. Standing on the shoulders of these reliable frameworks allowed us to focus heavily on solving domain-specific institutional challenges without reinventing foundational infrastructure.
 
-We also acknowledge the open-source communities behind Django, React, Docker, and other technologies that formed the backbone of this system. Their contributions have greatly advanced the field of software engineering.
-
-We acknowledge the robust open-source community behind Django, React, Pandas, and Docker. Standing on the shoulders of these reliable frameworks allowed us to focus heavily on solving domain-specific institutional challenges, rather than spending crucial time reinventing foundational infrastructure.
-
-Finally, we thank our families and peers for their unwavering support throughout our academic journey. Your continuous encouragement, patience, and willingness to beta-test early versions of the portal sustained us through late debugging sessions, complex database migrations, and demanding project deadlines.
+Finally, we thank our families and peers for their endless support, continuous encouragement, and patience. Your willingness to beta-test early versions of the portal sustained us through late debugging sessions, complex database migrations, and demanding deadlines.
 
 
 % ============================================================================
