@@ -10,20 +10,20 @@ from .views import (
     ContactMessageView, AnnouncementListCreateView, UploadHistoryListView
 )
 from .student_affairs_views import (
-    UploadStudentsView, StudentListView, ResetStudentPasswordView,
+    UploadStudentsView, StudentListView,
     FourthYearStudentsView, StudentAffairsGradesView, BulkCertificateUploadView,
     PreviewStudentsUploadView, SyncCertificatesFromStorageView,
-    DirectBulkCertificateUploadView
+    DirectBulkCertificateUploadView, ToggleTuitionStatusView
 )
 from .staff_affairs_views import (
     UploadDoctorsView, UploadStaffAffairsUsersView, DoctorListView,
     StudentAffairsUserListView, AssignDoctorToSubjectView, DoctorAssignmentsView,
-    TermListView, GradingTemplateListView, DoctorDetailView, DoctorResetPasswordView,
+    TermListView, GradingTemplateListView, DoctorDetailView,
     DoctorDeletionRequestView, AdminDeletionRequestsView, AssignmentHistoryView,
     UnassignDoctorView
 )
 from .exam_grades_views import (
-    UploadExamGradesView, PendingExamGradesView, ApproveExamGradesView,
+    UploadExamGradesView, PendingExamGradesListView, ApproveExamGradesView,
     PendingExamGradesCountView, StudentExamGradesView
 )
 from .quiz_views import (
@@ -31,6 +31,7 @@ from .quiz_views import (
     BulkQuizImportView, QuizAttemptDetailView, GradeQuizAttemptView
 )
 from .student_results_views import PublishingStatusView, StudentResultsQueryView
+from .export_views import ExportAcademicDataView
 
 router = DefaultRouter()
 router.register(r'departments', DepartmentViewSet)
@@ -59,12 +60,14 @@ urlpatterns = [
     path('results/query/', StudentResultsQueryView.as_view(), name='results-query'),
     
     path('', include(router.urls)),
+    
+    # Export endpoints
+    path('export/', ExportAcademicDataView.as_view(), name='export-academic-data'),
 
     # Student Affairs endpoints
     path('student-affairs/upload/', UploadStudentsView.as_view(), name='student-affairs-upload'),
     path('student-affairs/upload-preview/', PreviewStudentsUploadView.as_view(), name='student-affairs-upload-preview'),
     path('student-affairs/students/', StudentListView.as_view(), name='student-affairs-students'),
-    path('student-affairs/students/<int:student_id>/reset-password/', ResetStudentPasswordView.as_view(), name='reset-student-password'),
     path('student-affairs/fourth-year-students/', FourthYearStudentsView.as_view(), name='fourth-year-students'),
     path('student-affairs/grades/', StudentAffairsGradesView.as_view(), name='student-affairs-grades'),
 
@@ -79,7 +82,6 @@ urlpatterns = [
     path('staff-affairs/terms/', TermListView.as_view(), name='term-list'),
     path('staff-affairs/grading-templates/', GradingTemplateListView.as_view(), name='grading-template-list'),
     path('staff-affairs/doctors/<int:pk>/', DoctorDetailView.as_view(), name='doctor-detail'),
-    path('staff-affairs/doctors/<int:pk>/reset-password/', DoctorResetPasswordView.as_view(), name='doctor-reset-password'),
     path('staff-affairs/doctors/<int:pk>/delete-request/', DoctorDeletionRequestView.as_view(), name='doctor-delete-request'),
     path('staff-affairs/deletion-requests/', DoctorDeletionRequestView.as_view(), name='my-deletion-requests'),
     
@@ -92,7 +94,7 @@ urlpatterns = [
 
     # Exam Grades endpoints
     path('exam-grades/upload/', UploadExamGradesView.as_view(), name='upload-exam-grades'),
-    path('exam-grades/pending/', PendingExamGradesView.as_view(), name='pending-exam-grades'),
+    path('exam-grades/pending/', PendingExamGradesListView.as_view(), name='pending-exam-grades'),
     path('exam-grades/approve/<int:level_id>/', ApproveExamGradesView.as_view(), name='approve-exam-grades'),
     path('exam-grades/pending-count/', PendingExamGradesCountView.as_view(), name='pending-exam-grades-count'),
     path('exam-grades/my-grades/', StudentExamGradesView.as_view(), name='student-exam-grades'),
@@ -123,6 +125,9 @@ urlpatterns = [
     path('student-affairs/bulk-certificates/', BulkCertificateUploadView.as_view(), name='bulk-certificates'),
     path('student-affairs/certificates/sync/', SyncCertificatesFromStorageView.as_view(), name='sync_azure_certificates'),
     path('student-affairs/certificates/bulk-direct/', DirectBulkCertificateUploadView.as_view(), name='bulk_direct_certificates'),
+
+    # Tuition Status Toggle
+    path('student-affairs/students/<int:student_id>/toggle-tuition/', ToggleTuitionStatusView.as_view(), name='toggle-tuition-status'),
 
     # Bulk quiz import (Doctor)
     path('quizzes/bulk-import/', BulkQuizImportView.as_view(), name='bulk-quiz-import'),

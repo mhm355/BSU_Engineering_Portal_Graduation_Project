@@ -9,7 +9,7 @@ from django.db import transaction
 import pandas as pd
 
 from .models import ExamGrade, Student, Subject, Level, AcademicYear
-from users.permissions import IsAdminRole, IsStudentAffairsRole, IsStudentRole
+from users.permissions import IsAdminRole, IsStudentAffairsRole, IsStudentRole, IsDeanRole
 
 
 from rest_framework.permissions import IsAdminUser
@@ -40,6 +40,9 @@ class UploadExamGradesView(APIView):
             level = Level.objects.get(id=level_id)
         except Level.DoesNotExist:
             return Response({'error': 'الفرقة غير موجودة'}, status=status.HTTP_404_NOT_FOUND)
+
+        if level.academic_year.status != 'OPEN':
+            return Response({'error': 'العام الدراسي مغلق - لا يمكن رفع درجات'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             df = pd.read_excel(file)
@@ -125,9 +128,9 @@ class UploadExamGradesView(APIView):
         })
 
 
-class PendingExamGradesView(APIView):
-    """Admin views pending grades (count only, no individual grades)"""
-    permission_classes = [IsAdminRole]
+class PendingExamGradesListView(APIView):
+    """Admin/Dean views pending grades grouped by level"""
+    permission_classes = [IsDeanRole]
 
     def get(self, request):
         from django.db.models import Count, Q
@@ -166,14 +169,18 @@ class PendingExamGradesView(APIView):
 
 
 class ApproveExamGradesView(APIView):
-    """Admin approves grades for a level"""
-    permission_classes = [IsAdminRole]
+    """Dean approves grades for a level"""
+    permission_classes = [IsDeanRole]
 
     def post(self, request, level_id):
         try:
             level = Level.objects.get(id=level_id)
         except Level.DoesNotExist:
             return Response({'error': 'الفرقة غير موجودة'}, status=status.HTTP_404_NOT_FOUND)
+
+        if level.academic_year.status != 'OPEN':
+            # Allow Deans to approve grades even after the year is closed.
+            pass
 
         updated = ExamGrade.objects.filter(level=level, is_approved=False).update(is_approved=True)
 
@@ -202,7 +209,7 @@ class ApproveExamGradesView(APIView):
 
 class PendingExamGradesCountView(APIView):
     """Get total count of pending grades for dashboard badge"""
-    permission_classes = [IsAdminRole]
+    permission_classes = [IsDeanRole]
 
     def get(self, request):
         count = ExamGrade.objects.filter(is_approved=False).count()

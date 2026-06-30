@@ -868,51 +868,24 @@ class StudentListView(generics.ListAPIView):
                 'level_name': student.level.name,
                 'first_login_required': student.user.first_login_required if student.user else None,
                 'graduation_status': student.user.graduation_status if student.user else None,
+                'has_paid_tuition': student.has_paid_tuition,
             })
 
         return Response(students)
 
-
-class ResetStudentPasswordView(APIView):
-    """Reset a student's password to their national_id"""
+class ToggleTuitionStatusView(APIView):
+    """Toggle the tuition paid status for a student"""
     permission_classes = [IsStudentAffairsRole]
 
     def post(self, request, student_id):
         try:
             student = Student.objects.get(id=student_id)
-            if not student.user:
-                return Response(
-                    {'error': 'الطالب ليس لديه حساب مستخدم'},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-
-            # Reset password to national_id
-            student.user.set_password(student.national_id)
-            student.user.first_login_required = True
-            student.user.save()
-
-            # Create audit log
-            try:
-                AuditLog.objects.create(
-                    action=AuditLog.ActionType.STUDENT_PASSWORD_RESET,
-                    performed_by=request.user,
-                    entity_type='STUDENT',
-                    entity_id=student.id,
-                    details={
-                        'student_name': student.full_name,
-                        'national_id': student.national_id,
-                    }
-                )
-            except Exception:
-                pass  # Don't fail if audit log fails
-
-            return Response({'message': 'تم إعادة تعيين كلمة المرور بنجاح'})
-
+            student.has_paid_tuition = not student.has_paid_tuition
+            student.save()
+            return Response({'success': True, 'has_paid_tuition': student.has_paid_tuition})
         except Student.DoesNotExist:
-            return Response(
-                {'error': 'الطالب غير موجود'},
-                status=status.HTTP_404_NOT_FOUND
-            )
+            return Response({'error': 'الطالب غير موجود'}, status=status.HTTP_404_NOT_FOUND)
+
 
 
 

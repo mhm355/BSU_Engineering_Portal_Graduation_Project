@@ -25,8 +25,8 @@ from .serializers import (
     UploadHistorySerializer
 )
 from users.permissions import (
-    IsAdminRole, IsDoctorRole, IsStudentRole,
-    IsStudentAffairsRole, IsStaffAffairsRole
+    IsAdminRole, IsDoctorRole, IsStudentRole, HasPaidTuition,
+    IsStudentAffairsRole, IsStaffAffairsRole, IsHODRole
 )
 
 
@@ -164,7 +164,7 @@ class GradingTemplateViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         if self.action in ['create', 'update', 'partial_update', 'destroy']:
-            return [IsStaffAffairsRole()]
+            return [IsHODRole()]
         return [permissions.IsAuthenticated()]
 
 
@@ -308,7 +308,7 @@ class CourseOfferingViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         if self.action in ['create', 'update', 'partial_update', 'destroy']:
-            return [IsStaffAffairsRole()]
+            return [IsHODRole()]
         return [permissions.IsAuthenticated()]
 
     def get_queryset(self):
@@ -525,6 +525,8 @@ class CertificateViewSet(viewsets.ModelViewSet):
         # Only Student Affairs can create/update/delete certificates
         if self.action in ['create', 'update', 'partial_update', 'destroy']:
             return [IsStudentAffairsRole()]
+        if self.request and hasattr(self.request, 'user') and self.request.user.role == 'STUDENT':
+            return [permissions.IsAuthenticated(), HasPaidTuition()]
         return [permissions.IsAuthenticated()]
 
     def get_queryset(self):
@@ -556,6 +558,7 @@ class StudentProfileView(APIView):
                 'specialization': student.specialization.name if student.specialization else None,
                 'specialization_id': student.specialization.id if student.specialization else None,
                 'specialization_name': student.specialization.name if student.specialization else None,
+                'has_paid_tuition': student.has_paid_tuition,
             })
         except Student.DoesNotExist:
             return Response({
@@ -569,6 +572,7 @@ class StudentProfileView(APIView):
                 'specialization': None,
                 'specialization_id': None,
                 'specialization_name': None,
+                'has_paid_tuition': False,
             })
 
 
@@ -577,7 +581,11 @@ class AttendanceViewSet(viewsets.ReadOnlyModelViewSet):
     """List attendance records - Doctors can view their course attendances, Students view their own"""
     queryset = Attendance.objects.all()
     serializer_class = AttendanceSerializer
-    permission_classes = [permissions.IsAuthenticated]
+
+    def get_permissions(self):
+        if self.request and hasattr(self.request, 'user') and self.request.user.role == 'STUDENT':
+            return [permissions.IsAuthenticated(), HasPaidTuition()]
+        return [permissions.IsAuthenticated()]
 
     def get_queryset(self):
         queryset = Attendance.objects.select_related('student', 'course_offering__subject')
@@ -858,7 +866,7 @@ class StudentExamsView(APIView):
 
 class StudentCoursesView(APIView):
     """Get all courses for logged in student (with or without lectures)"""
-    permission_classes = [IsStudentRole]
+    permission_classes = [IsStudentRole, HasPaidTuition]
 
     @staticmethod
     def _sanitize_file_url(file_field):

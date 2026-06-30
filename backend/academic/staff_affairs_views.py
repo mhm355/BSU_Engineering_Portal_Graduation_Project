@@ -15,7 +15,7 @@ from .models import (
     AuditLog, TeachingAssignment, Subject, Level, AcademicYear,
     Term, GradingTemplate, CourseOffering, Specialization, UploadHistory
 )
-from users.permissions import IsStaffAffairsRole
+from users.permissions import IsStaffAffairsRole, IsDoctorRole, IsHODRole, IsStaffAffairsOrHODRole
 
 User = get_user_model()
 
@@ -250,7 +250,7 @@ class UploadStaffAffairsUsersView(APIView):
 
 class DoctorListView(APIView):
     """List all doctors with optional search (read-only for Staff Affairs)"""
-    permission_classes = [IsStaffAffairsRole]
+    permission_classes = [IsStaffAffairsOrHODRole]
 
     def get(self, request):
         search = request.query_params.get('search', '')
@@ -303,7 +303,7 @@ class StudentAffairsUserListView(APIView):
 
 class TermListView(APIView):
     """List all terms for an academic year"""
-    permission_classes = [IsStaffAffairsRole]
+    permission_classes = [IsStaffAffairsOrHODRole]
 
     def get(self, request):
         academic_year_id = request.query_params.get('academic_year')
@@ -327,7 +327,7 @@ class TermListView(APIView):
 
 class GradingTemplateListView(APIView):
     """List all grading templates"""
-    permission_classes = [IsStaffAffairsRole]
+    permission_classes = [IsHODRole]
 
     def get(self, request):
         templates = GradingTemplate.objects.all()
@@ -353,7 +353,7 @@ class GradingTemplateListView(APIView):
 
 class AssignDoctorToSubjectView(APIView):
     """Assign a doctor to a course offering (subject + level + term + year)"""
-    permission_classes = [IsStaffAffairsRole]
+    permission_classes = [IsHODRole]
 
     def post(self, request):
         doctor_id = request.data.get('doctor_id')
@@ -376,6 +376,9 @@ class AssignDoctorToSubjectView(APIView):
 
         try:
             subject = Subject.objects.get(id=subject_id)
+            # Ensure HOD is assigning to their own department
+            if request.user.role == 'HOD' and request.user.department and subject.department != request.user.department:
+                return Response({'error': 'غير مسموح لك بتعيين دكاترة لمواد خارج قسمك'}, status=status.HTTP_403_FORBIDDEN)
         except Subject.DoesNotExist:
             return Response({'error': 'المادة غير موجودة'}, status=status.HTTP_404_NOT_FOUND)
 
@@ -413,10 +416,10 @@ class AssignDoctorToSubjectView(APIView):
         if not grading_template:
             grading_template = GradingTemplate.objects.filter(is_default=True).first()
 
-        # Check if academic year is open
-        if term.academic_year.status != 'OPEN':
+        # Check if academic year or term is open
+        if term.academic_year.status != 'OPEN' or term.status != 'OPEN':
             return Response(
-                {'error': 'العام الدراسي مغلق - لا يمكن إضافة تعيينات جديدة'},
+                {'error': 'العام الدراسي أو الفصل مغلق - لا يمكن إضافة تعيينات جديدة'},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
@@ -461,7 +464,7 @@ class AssignDoctorToSubjectView(APIView):
 
 class DoctorAssignmentsView(APIView):
     """View all course offerings (doctor assignments)"""
-    permission_classes = [IsStaffAffairsRole]
+    permission_classes = [IsHODRole]
 
     def get(self, request):
         academic_year_id = request.query_params.get('academic_year')
@@ -499,18 +502,22 @@ class DoctorAssignmentsView(APIView):
 
 class UnassignDoctorView(APIView):
     """Remove a doctor's assignment (delete course offering)"""
-    permission_classes = [IsStaffAffairsRole]
+    permission_classes = [IsHODRole]
 
     def delete(self, request, pk):
         try:
             offering = CourseOffering.objects.get(id=pk)
             
-            # Check if academic year is open
-            if offering.academic_year.status != 'OPEN':
+            # Check if academic year or term is open
+            if offering.academic_year.status != 'OPEN' or offering.term.status != 'OPEN':
                 return Response(
-                    {'error': 'العام الدراسي مغلق - لا يمكن إلغاء التعيينات'},
+                    {'error': 'العام الدراسي أو الفصل مغلق - لا يمكن إلغاء التعيينات'},
                     status=status.HTTP_400_BAD_REQUEST
                 )
+
+            # Ensure HOD is unassigning from their own department
+            if request.user.role == 'HOD' and request.user.department and offering.subject.department != request.user.department:
+                return Response({'error': 'غير مسموح لك بإلغاء تعيين دكاترة من مواد خارج قسمك'}, status=status.HTTP_403_FORBIDDEN)
 
             # Store info for audit log before deletion
             doctor_name = f"{offering.doctor.first_name} {offering.doctor.last_name}".strip()
@@ -592,25 +599,6 @@ class DoctorDetailView(APIView):
         except User.DoesNotExist:
             return Response({'error': 'Doctor not found'}, status=status.HTTP_404_NOT_FOUND)
 
-
-class DoctorResetPasswordView(APIView):
-    """Reset doctor password to national_id"""
-    permission_classes = [IsStaffAffairsRole]
-
-    def post(self, request, pk):
-        try:
-            doctor = User.objects.get(id=pk, role='DOCTOR')
-            # Reset password to national_id
-            doctor.set_password(doctor.national_id)
-            doctor.first_login_required = True
-            doctor.save()
-            
-            return Response({
-                'message': 'تم إعادة تعيين كلمة المرور بنجاح',
-                'new_password': 'الرقم القومي'
-            })
-        except User.DoesNotExist:
-            return Response({'error': 'Doctor not found'}, status=status.HTTP_404_NOT_FOUND)
 
 
 class DoctorDeletionRequestView(APIView):
@@ -785,7 +773,7 @@ class AdminDeletionRequestsView(APIView):
 
 class AssignmentHistoryView(APIView):
     """View assignment history from audit logs — Staff Affairs"""
-    permission_classes = [IsStaffAffairsRole]
+    permission_classes = [IsHODRole]
 
     def get(self, request):
         qs = AuditLog.objects.filter(

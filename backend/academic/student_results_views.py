@@ -4,12 +4,12 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from .models import ResultPublishing, Term, Level, AcademicYear, Specialization, CourseOffering, StudentGrade, Student
-from users.permissions import IsAdminRole, IsStudentAffairsRole, IsStudentRole
+from users.permissions import IsAdminRole, IsStudentAffairsRole, IsStudentRole, HasPaidTuition, IsDeanRole
 
 
 class PublishingStatusView(APIView):
-    """View and toggle publishing status for results (Admin and Student Affairs)"""
-    permission_classes = [IsAdminRole | IsStudentAffairsRole]
+    """View and toggle publishing status for results (Dean and Student Affairs)"""
+    permission_classes = [IsDeanRole | IsStudentAffairsRole]
 
     def get(self, request):
         """List result publishing status by specific academic tier (On-Demand Search)"""
@@ -76,7 +76,11 @@ class PublishingStatusView(APIView):
         except ResultPublishing.DoesNotExist:
             return Response({'error': 'Record not found'}, status=status.HTTP_404_NOT_FOUND)
             
-        if request.user.role == 'ADMIN':
+        if pub.academic_year.status != 'OPEN' or pub.term.status != 'OPEN':
+            # We allow Deans to publish results even if the term is closed (often happens end of year)
+            pass
+            
+        if request.user.role in ['DEAN', 'ADMIN']:
             pub.admin_approved = not pub.admin_approved
         elif request.user.role == 'STUDENT_AFFAIRS':
             pub.student_affairs_approved = not pub.student_affairs_approved
@@ -86,7 +90,7 @@ class PublishingStatusView(APIView):
         # Log action
         try:
             from .models import AuditLog
-            action_name = "TOGGLE_ADMIN_PUBLISH" if request.user.role == 'ADMIN' else "TOGGLE_SA_PUBLISH"
+            action_name = "TOGGLE_DEAN_PUBLISH" if request.user.role == 'DEAN' else "TOGGLE_SA_PUBLISH"
             AuditLog.objects.create(
                 action=action_name,
                 performed_by=request.user,

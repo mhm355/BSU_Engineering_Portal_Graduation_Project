@@ -14,7 +14,7 @@ from .models import (
     CourseOffering, Student
 )
 from .serializers import QuizSerializer
-from users.permissions import IsDoctorRole, IsStudentRole
+from users.permissions import IsDoctorRole, IsStudentRole, HasPaidTuition
 
 
 def get_relative_url(file_field):
@@ -230,7 +230,7 @@ class QuizViewSet(viewsets.ModelViewSet):
 
 class StudentQuizListView(APIView):
     """List quizzes available for the student"""
-    permission_classes = [IsStudentRole]
+    permission_classes = [IsStudentRole, HasPaidTuition]
 
     def get(self, request):
         try:
@@ -269,7 +269,7 @@ class StudentQuizListView(APIView):
 
 class StudentQuizAttemptView(APIView):
     """Start or submit a quiz attempt"""
-    permission_classes = [IsStudentRole]
+    permission_classes = [IsStudentRole, HasPaidTuition]
 
     def get(self, request, quiz_id):
         """Get quiz for taking (start attempt if not started)"""
