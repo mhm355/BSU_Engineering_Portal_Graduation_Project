@@ -32,7 +32,7 @@ The BSU Engineering Portal directly addresses the \textbf{five systemic problems
         \hline
         \textbf{USB Drive Materials}---Scattered course materials with no access control or version management & Centralized lecture upload per course with file type validation, served via Nginx with 30-day cache headers & \texttt{Lecture.file} with type validation + Nginx \texttt{expires 30d} \\
         \hline
-        \textbf{Administrative Silos}---Isolated departments with no shared platform or accountability & Unified portal with 5 role-based dashboards, comprehensive audit trail, and structured approval workflows & 7 permission classes + \texttt{DeleteRequest} approval model \\
+        \textbf{Administrative Silos}---Isolated departments with no shared platform or accountability & Unified portal with 7 role-based dashboards, comprehensive audit trail, and structured approval workflows & 10 permission classes + \texttt{DeleteRequest} approval model \\
         \hline
     \end{tabular}
     \caption{Problems Solved and Their Solutions}
@@ -47,7 +47,7 @@ Beyond solving operational problems, this project demonstrates the application o
 \begin{itemize}
     \item \textbf{Three-tier containerized architecture} with clear separation between presentation (React [3]), business logic (Django [1]/DRF [2]), and data persistence (MySQL [12])
     \item \textbf{REST API contract} [21] enabling frontend-backend independence---the API serves as a stable interface between teams
-    \item \textbf{Five-role RBAC model} with 7 custom permission classes enforcing the principle of least privilege at every endpoint
+    \item \textbf{Seven-role RBAC model} with 10 custom permission classes enforcing the principle of least privilege at every endpoint
 \end{itemize}
 
 \subsubsection{Security}

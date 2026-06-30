@@ -256,6 +256,8 @@ The frontend React application uses \textbf{client-side data tables} with sortin
         \hline
         Quiz attempts & Per-quiz bounded & None needed & Max \textasciitilde200 per course \\
         \hline
+        Dean Analytics & High volume & Server-side \texttt{PageNumberPagination} & Prevents "all zeros" memory exhaustion bug on large user datasets \\
+        \hline
     \end{tabular}
     \caption{Pagination Strategy by Endpoint}
     \label{tab:pagination}
@@ -282,7 +284,7 @@ React Router ensures that only the code for the current page is loaded:
 } />
 \end{lstlisting}
 
-\textbf{Impact:} A student user never downloads the Admin Dashboard code, reducing their initial bundle size.
+\textbf{Impact:} A student user never downloads the Admin Dashboard code, reducing their initial bundle size. Furthermore, heavy analytical views like the Dean Dashboard are only hydrated with paginated data blocks when actively focused, preventing browser memory crashes and the "all zeros" rendering bug previously encountered when mapping over large, unbounded backend arrays.
 
 \textbf{Data Fetching on Navigation:}
 

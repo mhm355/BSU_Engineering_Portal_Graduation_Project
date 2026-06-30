@@ -68,6 +68,34 @@ Doctors manage course-related operations through a unified interface. The bulk a
     \label{fig:bulk-attendance}
 \end{figure}
 
+\subsection{Dean \& HOD Dashboards [NEW FEATURES]}
+
+Following the decentralized workflow enhancements, the Dean and Head of Department (HOD) interfaces provide targeted capabilities:
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{dean_dashboard_analytics.png}
+        \caption{\small (a) Dean Dashboard with Academic Analytics}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{dean_grade_approval.png}
+        \caption{\small (b) Dean Grade Approval Interface}
+    \end{minipage}
+    \caption{Dean workflows: (a) Paginated analytics and statistics, and (b) Interface for approving and publishing exam grades to students.}
+    \label{fig:dean-workflows}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{hod_course_assignment.png}
+    \caption{HOD Dashboard interface allowing department heads to assign doctors to specific course offerings within their jurisdiction.}
+    \label{fig:hod-assignment}
+\end{figure}
+
 \subsection{Student Portal: Course Access}
 
 The student-facing interface provides \textbf{24/7 self-service access} to enrolled courses and study materials. Students can view their subjects, download course materials, and access quizzes assigned by doctors.
@@ -80,6 +108,15 @@ The student-facing interface provides \textbf{24/7 self-service access} to enrol
 \end{figure}
 
 \textbf{Engineering Highlight---Course Materials:} All course content is centralized and accessible anytime, replacing the need for physical handouts or scattered digital files.
+
+\textbf{Feature Locking---Tuition Checks:} If a student has unpaid tuition, academic interfaces (like Quizzes and Attendance) degrade gracefully. Buttons are grayed out, accompanied by lock icons and payment alerts.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{student_tuition_locked.png}
+    \caption{Student Portal UI demonstrating the locked state for quizzes and attendance due to unpaid tuition.}
+    \label{fig:student-tuition-locked}
+\end{figure}
 
 \subsection{Quiz System}
 
@@ -155,7 +192,7 @@ The following diagram visualizes the transformation from the previous manual/pap
         \hline
         Grade Tampering & Anyone with file access could modify & Audit-logged with actor identity & \texttt{AuditLog.action = 'GRADE\_UPDATED'} \\
         \hline
-        Unauthorized Access & Anyone with Excel has full access & Role-based---7 permission classes & \texttt{IsAdminRole}, \texttt{IsDoctorRole} \\
+        Unauthorized Access & Anyone with Excel has full access & Role-based---10 permission classes & \texttt{IsAdminRole}, \texttt{IsDeanRole} \\
         \hline
         Data Loss & High risk---paper, local files & Docker volumes + version-controlled config & \texttt{volumes: db\_data:/var/lib/mysql} \\
         \hline
