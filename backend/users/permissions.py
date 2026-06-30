@@ -49,3 +49,20 @@ class IsAdminOrStaffAffairs(permissions.BasePermission):
         if not request.user or not request.user.is_authenticated:
             return False
         return request.user.role in ['ADMIN', 'STAFF_AFFAIRS']
+
+
+class IsGraduateAffairsRole(permissions.BasePermission):
+    """Graduate Affairs role - manages graduates, certificates, post-graduation services"""
+    def has_permission(self, request, view):
+        if not request.user or not request.user.is_authenticated:
+            return False
+        return request.user.role in ['GRADUATE_AFFAIRS', 'ADMIN']
+
+
+class IsAdminOrGraduateAffairs(permissions.BasePermission):
+    """Either Admin or Graduate Affairs role"""
+    def has_permission(self, request, view):
+        if not request.user or not request.user.is_authenticated:
+            return False
+        return request.user.role in ['ADMIN', 'GRADUATE_AFFAIRS']
+

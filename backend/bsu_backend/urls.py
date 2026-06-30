@@ -27,6 +27,7 @@ urlpatterns = [
     path('api/academic/', include('academic.urls')),
     path('api/system/', include('system.urls')),
     path('api/content/', include('content.urls')),
+    path('api/graduate-affairs/', include('graduate_affairs.urls')),
     path('', include('django_prometheus.urls')),
 ]
 

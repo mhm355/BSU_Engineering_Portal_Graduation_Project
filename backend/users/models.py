@@ -9,6 +9,7 @@ class User(AbstractUser):
         DOCTOR = "DOCTOR", "Doctor"
         STUDENT_AFFAIRS = "STUDENT_AFFAIRS", "Student Affairs"
         STAFF_AFFAIRS = "STAFF_AFFAIRS", "Staff Affairs"
+        GRADUATE_AFFAIRS = "GRADUATE_AFFAIRS", "Graduate Affairs"
 
     class GraduationStatus(models.TextChoices):
         PENDING = "PENDING", "Pending"
@@ -36,7 +37,7 @@ class User(AbstractUser):
                 self.set_password(self.national_id or self.username)
             
             # Require password change on first login for staff users AND students
-            if self.role in ['STUDENT', 'STUDENT_AFFAIRS', 'STAFF_AFFAIRS', 'DOCTOR']:
+            if self.role in ['STUDENT', 'STUDENT_AFFAIRS', 'STAFF_AFFAIRS', 'DOCTOR', 'GRADUATE_AFFAIRS']:
                 self.first_login_required = True
         return super().save(*args, **kwargs)
 
@@ -49,6 +50,8 @@ class User(AbstractUser):
             return reverse('student_affairs_dashboard')
         elif self.role == 'STAFF_AFFAIRS':
             return reverse('staff_affairs_dashboard')
+        elif self.role == 'GRADUATE_AFFAIRS':
+            return reverse('graduate_affairs_dashboard')
         elif self.role == 'ADMIN':
             return reverse('admin_dashboard')
         else:
