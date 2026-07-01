@@ -10,8 +10,10 @@ import EventIcon from '@mui/icons-material/Event';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import SendIcon from '@mui/icons-material/Send';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import axios from 'axios';
 import { useAuth } from '../../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 function TabPanel(props) {
     const { children, value, index, ...other } = props;
@@ -28,6 +30,7 @@ function TabPanel(props) {
 
 export default function CareerPortal() {
     const { user } = useAuth();
+    const navigate = useNavigate();
     const [tabValue, setTabValue] = useState(0);
     const [jobs, setJobs] = useState([]);
     const [events, setEvents] = useState([]);
@@ -127,6 +130,15 @@ export default function CareerPortal() {
 
     return (
         <Container maxWidth="lg" sx={{ py: 4, minHeight: '80vh' }}>
+            <Box sx={{ mb: 2 }}>
+                <Button 
+                    startIcon={<ArrowBackIcon />} 
+                    onClick={() => navigate('/student/dashboard')}
+                    sx={{ fontFamily: 'Cairo', mb: 2 }}
+                >
+                    العودة للوحة التحكم
+                </Button>
+            </Box>
             <Box sx={{ mb: 4, textAlign: 'center' }}>
                 <Typography variant="h3" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: isDark ? 'text.primary' : '#1a2744', mb: 2 }}>
                     بوابة التوظيف والتدريب
