@@ -66,7 +66,6 @@ import AuditLogViewer from './pages/dashboards/admin/AuditLogViewer';
 import ComplaintsDashboard from './pages/dashboards/admin/ComplaintsDashboard';
 import PasswordResets from './pages/dashboards/admin/PasswordResets';
 import UploadHistory from './pages/dashboards/student_affairs/UploadHistory';
-import BulkCertificateUpload from './pages/dashboards/student_affairs/BulkCertificateUpload';
 import AssignmentHistory from './pages/dashboards/staff_affairs/AssignmentHistory';
 
 import DeanDashboard from './pages/dashboards/dean/DeanDashboard';
@@ -160,7 +159,6 @@ function App() {
                 <Route path="student-affairs/exam-grades" element={<ProtectedRoute roles={['STUDENT_AFFAIRS']}><UploadExamGrades /></ProtectedRoute>} />
                 <Route path="student-affairs/grades" element={<ProtectedRoute roles={['STUDENT_AFFAIRS']}><StudentGradesView /></ProtectedRoute>} />
                 <Route path="student-affairs/upload-history" element={<ProtectedRoute roles={['STUDENT_AFFAIRS']}><UploadHistory /></ProtectedRoute>} />
-                <Route path="student-affairs/bulk-certificates" element={<ProtectedRoute roles={['STUDENT_AFFAIRS']}><BulkCertificateUpload /></ProtectedRoute>} />
                 <Route path="student-affairs/publish-results" element={<ProtectedRoute roles={['STUDENT_AFFAIRS']}><PublishResultsSA /></ProtectedRoute>} />
                 <Route path="student-affairs/manage-tuition" element={<ProtectedRoute roles={['STUDENT_AFFAIRS']}><ManageTuition /></ProtectedRoute>} />
                 
