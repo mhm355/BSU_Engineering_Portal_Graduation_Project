@@ -776,14 +776,14 @@ export default function StudentDashboard() {
                                     </Typography>
                                     {item.image && (
                                         <Box sx={{ borderRadius: 2, overflow: 'hidden', mt: 1, mb: 1 }}>
-                                            <img src={sanitizeFileUrl(item.image)} alt={item.title} style={{ width: '100%', maxHeight: 200, objectFit: 'cover' }} />
+                                            <img src={sanitizeFileUrl(item.image)} alt={item.title} style={{ width: '100%', height: 'auto', maxHeight: 800, objectFit: 'contain' }} />
                                         </Box>
                                     )}
                                     {item.additional_images?.length > 0 && (
-                                        <Box sx={{ display: 'flex', gap: 1, overflowX: 'auto', mt: 1, mb: 2, pb: 1 }}>
+                                        <Box sx={{ display: 'flex', gap: 2, overflowX: 'auto', mt: 1, mb: 2, pb: 1 }}>
                                             {item.additional_images.map(img => (
-                                                <Box key={img.id} sx={{ flexShrink: 0, width: 100, height: 100, borderRadius: 2, overflow: 'hidden' }}>
-                                                    <img src={sanitizeFileUrl(img.image)} alt="additional" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                                <Box key={img.id} sx={{ flexShrink: 0, width: 250, borderRadius: 2, overflow: 'hidden' }}>
+                                                    <img src={sanitizeFileUrl(img.image)} alt="additional" style={{ width: '100%', height: 'auto', objectFit: 'contain' }} />
                                                 </Box>
                                             ))}
                                         </Box>
