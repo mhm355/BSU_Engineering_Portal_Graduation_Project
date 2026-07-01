@@ -144,9 +144,7 @@ export default function ManageEvents() {
 
     const getRegistrationStatusLabel = (status) => {
         switch (status) {
-            case 'PENDING': return 'قيد الانتظار';
-            case 'CONFIRMED': return 'مؤكد';
-            case 'WAITLIST': return 'قائمة الانتظار';
+            case 'REGISTERED': return 'تم التسجيل';
             case 'ATTENDED': return 'حضر';
             case 'CANCELLED': return 'ملغى';
             default: return status;
@@ -397,7 +395,7 @@ export default function ManageEvents() {
                                                 <Chip 
                                                     label={reg.status_display || getRegistrationStatusLabel(reg.status)} 
                                                     size="small"
-                                                    color={reg.status === 'CONFIRMED' || reg.status === 'ATTENDED' ? 'success' : reg.status === 'CANCELLED' ? 'error' : reg.status === 'WAITLIST' ? 'secondary' : 'warning'}
+                                                    color={reg.status === 'ATTENDED' ? 'success' : reg.status === 'CANCELLED' ? 'error' : 'primary'}
                                                     sx={{ fontFamily: 'Cairo' }}
                                                 />
                                             </TableCell>
@@ -408,9 +406,7 @@ export default function ManageEvents() {
                                                     onChange={(e) => handleUpdateRegistrationStatus(reg.id, e.target.value)}
                                                     sx={{ fontFamily: 'Cairo', minWidth: 120 }}
                                                 >
-                                                    <MenuItem value="PENDING" sx={{ fontFamily: 'Cairo' }}>قيد الانتظار</MenuItem>
-                                                    <MenuItem value="CONFIRMED" sx={{ fontFamily: 'Cairo' }}>تأكيد التسجيل</MenuItem>
-                                                    <MenuItem value="WAITLIST" sx={{ fontFamily: 'Cairo' }}>قائمة الانتظار</MenuItem>
+                                                    <MenuItem value="REGISTERED" sx={{ fontFamily: 'Cairo' }}>تم التسجيل</MenuItem>
                                                     <MenuItem value="ATTENDED" sx={{ fontFamily: 'Cairo' }}>تم الحضور</MenuItem>
                                                     <MenuItem value="CANCELLED" sx={{ fontFamily: 'Cairo' }}>إلغاء</MenuItem>
                                                 </Select>
