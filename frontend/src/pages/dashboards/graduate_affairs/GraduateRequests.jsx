@@ -69,9 +69,10 @@ export default function GraduateRequests() {
     const handleUpdateRequest = async () => {
         try {
             const config = { withCredentials: true };
-            await axios.patch(`/api/graduate-affairs/requests/${selectedRequest.id}/update-status/`, {
+            await axios.post(`/api/graduate-affairs/requests/${selectedRequest.id}/update-status/`, {
                 status: statusUpdate,
-                admin_notes: adminNotes
+                comment: adminNotes,
+                internal_notes: selectedRequest.internal_notes || ''
             }, config);
             setOpenDialog(false);
             fetchRequests();
@@ -122,11 +123,11 @@ export default function GraduateRequests() {
                                 requests.map((req) => (
                                     <TableRow key={req.id} hover>
                                         <TableCell>#{req.id}</TableCell>
-                                        <TableCell sx={{ fontFamily: 'Cairo' }}>{req.student_name || req.graduate?.user?.full_name || 'غير معروف'}</TableCell>
-                                        <TableCell sx={{ fontFamily: 'Cairo' }}>{req.request_type === 'CERTIFICATE' ? 'إفادة تخرج' : 'تحديث بيانات'}</TableCell>
+                                        <TableCell sx={{ fontFamily: 'Cairo' }}>{req.graduate_name || 'غير معروف'}</TableCell>
+                                        <TableCell sx={{ fontFamily: 'Cairo' }}>{req.request_type_display || req.request_type}</TableCell>
                                         <TableCell>{new Date(req.created_at).toLocaleDateString('ar-EG')}</TableCell>
                                         <TableCell>
-                                            <Chip label={getStatusText(req.status)} color={getStatusColor(req.status)} size="small" sx={{ fontFamily: 'Cairo' }} />
+                                            <Chip label={req.status_display || getStatusText(req.status)} color={getStatusColor(req.status)} size="small" sx={{ fontFamily: 'Cairo' }} />
                                         </TableCell>
                                         <TableCell>
                                             <IconButton color="primary" onClick={() => handleViewRequest(req)}>
@@ -146,7 +147,7 @@ export default function GraduateRequests() {
                 <DialogContent>
                     <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 3 }}>
                         <Box sx={{ p: 2, bgcolor: '#f5f5f5', borderRadius: 2 }}>
-                            <Typography variant="body2" sx={{ fontFamily: 'Cairo', mb: 1 }}><strong>تفاصيل الطلب:</strong> {selectedRequest?.details || 'لا توجد تفاصيل إضافية'}</Typography>
+                            <Typography variant="body2" sx={{ fontFamily: 'Cairo', mb: 1 }}><strong>تفاصيل الطلب:</strong> {selectedRequest?.notes || 'لا توجد تفاصيل إضافية'}</Typography>
                         </Box>
 
                         <FormControl fullWidth>

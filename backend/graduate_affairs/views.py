@@ -171,20 +171,20 @@ class UpdateRequestStatusView(APIView):
 
         if old_status != new_status:
             Notification.objects.create(
-                recipient=grad_request.user,
+                recipient=grad_request.graduate,
                 title="تحديث حالة الطلب",
                 message=f"تم تحديث حالة طلبك ({grad_request.get_request_type_display()}) إلى: {grad_request.get_status_display()}",
                 notification_type=Notification.NotificationType.INFO if new_status != 'APPROVED' else Notification.NotificationType.SUCCESS,
                 link='/student/requests'
             )
             # Send Email
-            if grad_request.user.email:
+            if grad_request.graduate.email:
                 try:
                     send_mail(
                         subject='بوابة الخريجين - تحديث حالة الطلب',
-                        message=f'عزيزي {grad_request.user.first_name}،\n\nتم تحديث حالة طلبك إلى: {grad_request.get_status_display()}.\n\nمع تحيات,\nشؤون الخريجين',
+                        message=f'عزيزي {grad_request.graduate.first_name}،\n\nتم تحديث حالة طلبك إلى: {grad_request.get_status_display()}.\n\nمع تحيات,\nشؤون الخريجين',
                         from_email=settings.DEFAULT_FROM_EMAIL,
-                        recipient_list=[grad_request.user.email],
+                        recipient_list=[grad_request.graduate.email],
                         fail_silently=True,
                     )
                 except Exception:
