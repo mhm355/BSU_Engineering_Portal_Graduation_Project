@@ -109,21 +109,18 @@ export default function GraduateAffairsDashboard() {
         const fetchStats = async () => {
             try {
                 const config = { withCredentials: true };
-                // Fetch stats from Graduate Affairs app
-                const [graduatesRes, requestsRes, certsRes, clearanceRes] = await Promise.all([
-                    axios.get('/api/graduate-affairs/graduates/stats/', config).catch(() => ({ data: { total: 0 } })),
-                    axios.get('/api/graduate-affairs/requests/stats/', config).catch(() => ({ data: { pending: 0 } })),
-                    axios.get('/api/graduate-affairs/certificates/', config).catch(() => ({ data: { count: 0 } })),
-                    axios.get('/api/graduate-affairs/clearances/stats/', config).catch(() => ({ data: { completed: 0 } })),
-                ]);
+                const res = await axios.get('/api/graduate-affairs/stats/', config);
+                const data = res.data;
                 
                 setStats({
-                    graduates: graduatesRes.data.total || 0,
-                    pendingRequests: requestsRes.data.pending || 0,
-                    certificates: certsRes.data.count || (Array.isArray(certsRes.data) ? certsRes.data.length : (certsRes.data?.results?.length || 0)),
-                    clearances: clearanceRes.data.completed || 0,
+                    graduates: data.total_graduates || 0,
+                    pendingRequests: data.pending_requests || 0,
+                    certificates: data.total_certificates || 0,
+                    clearances: data.completed_clearances || 0,
                 });
-            } catch { /* fail silently */ }
+            } catch (error) {
+                console.error("Failed to fetch graduate affairs stats:", error);
+            }
         };
         fetchStats();
     }, []);
