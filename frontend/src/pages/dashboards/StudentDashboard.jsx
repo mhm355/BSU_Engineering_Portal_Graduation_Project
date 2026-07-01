@@ -246,7 +246,7 @@ export default function StudentDashboard() {
         },
     ];
 
-    if (studentInfo?.level?.includes('الرابعة') || studentInfo?.level?.includes('fourth') || studentInfo?.graduation_status === 'APPROVED') {
+    if (studentInfo?.level === 'FOURTH' || studentInfo?.level?.includes('الرابعة') || studentInfo?.level?.toLowerCase().includes('fourth') || studentInfo?.graduation_status === 'APPROVED') {
         quickActions.push(
             { title: 'بوابة التدريب والتوظيف', icon: BusinessCenterIcon, description: 'فرص عمل وتدريب', path: '/student/career-portal', gradient: 'linear-gradient(135deg, #ff9800 0%, #ffb74d 100%)', requiresPayment: false },
             { title: 'خدمات وطلبات الخريجين', icon: AssessmentIcon, description: 'طلبات الافادة والبيانات', path: '/student/graduate-requests', gradient: 'linear-gradient(135deg, #8bc34a 0%, #aed581 100%)', requiresPayment: false }
