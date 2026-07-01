@@ -426,7 +426,15 @@ export default function ManageJobs() {
                                                     <Button 
                                                         size="small" 
                                                         variant="outlined" 
-                                                        onClick={() => window.open(app.resume.startsWith('http') ? app.resume : '/' + app.resume, '_blank')}
+                                                        onClick={() => {
+                                                            let url = app.resume;
+                                                            if (url.startsWith('http')) {
+                                                                try { url = new URL(url).pathname; } catch (e) {}
+                                                            } else if (!url.startsWith('/')) {
+                                                                url = '/' + url;
+                                                            }
+                                                            window.open(url, '_blank');
+                                                        }}
                                                         sx={{ fontFamily: 'Cairo' }}
                                                     >
                                                         عرض
