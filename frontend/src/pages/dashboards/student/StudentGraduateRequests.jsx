@@ -53,8 +53,8 @@ export default function StudentGraduateRequests() {
     
     const [openDialog, setOpenDialog] = useState(false);
     const [formData, setFormData] = useState({
-        request_type: 'CERTIFICATE',
-        details: ''
+        request_type: 'GRADUATION_STATEMENT',
+        notes: ''
     });
 
     useEffect(() => {
@@ -104,7 +104,7 @@ export default function StudentGraduateRequests() {
     };
 
     const handleCreateRequest = async () => {
-        if (!formData.details && formData.request_type !== 'CERTIFICATE') {
+        if (!formData.notes && formData.request_type !== 'GRADUATION_STATEMENT') {
             setRequestsError('يرجى إضافة تفاصيل الطلب');
             return;
         }
@@ -113,7 +113,7 @@ export default function StudentGraduateRequests() {
             const config = { withCredentials: true };
             await axios.post('/api/graduate-affairs/student-requests/', formData, config);
             setOpenDialog(false);
-            setFormData({ request_type: 'CERTIFICATE', details: '' });
+            setFormData({ request_type: 'GRADUATION_STATEMENT', notes: '' });
             fetchRequests();
         } catch (err) {
             setRequestsError('فشل تقديم الطلب');
@@ -214,8 +214,7 @@ export default function StudentGraduateRequests() {
                                                 <TableRow key={req.id} hover>
                                                     <TableCell sx={{ fontFamily: 'monospace' }}>#{req.id}</TableCell>
                                                     <TableCell sx={{ fontFamily: 'Cairo' }}>
-                                                        {req.request_type === 'CERTIFICATE' ? 'إفادة تخرج' : 
-                                                         req.request_type === 'UPDATE_INFO' ? 'تحديث بيانات' : 'أخرى'}
+                                                        {req.request_type_display || req.request_type}
                                                     </TableCell>
                                                     <TableCell sx={{ fontFamily: 'Cairo' }}>
                                                         {new Date(req.created_at).toLocaleDateString('ar-EG')}
@@ -293,9 +292,15 @@ export default function StudentGraduateRequests() {
                                 label="نوع الطلب"
                                 sx={{ fontFamily: 'Cairo' }}
                             >
-                                <MenuItem value="CERTIFICATE" sx={{ fontFamily: 'Cairo' }}>طلب إفادة تخرج / شهادة</MenuItem>
-                                <MenuItem value="UPDATE_INFO" sx={{ fontFamily: 'Cairo' }}>طلب تحديث بيانات</MenuItem>
-                                <MenuItem value="OTHER" sx={{ fontFamily: 'Cairo' }}>طلب آخر</MenuItem>
+                                <MenuItem value="GRADUATION_STATEMENT" sx={{ fontFamily: 'Cairo' }}>إفادة تخرج</MenuItem>
+                                <MenuItem value="TEMP_CERTIFICATE" sx={{ fontFamily: 'Cairo' }}>شهادة تخرج مؤقتة</MenuItem>
+                                <MenuItem value="OFFICIAL_CERTIFICATE" sx={{ fontFamily: 'Cairo' }}>شهادة تخرج رسمية</MenuItem>
+                                <MenuItem value="CERTIFICATE_REPLACEMENT" sx={{ fontFamily: 'Cairo' }}>بدل فاقد شهادة</MenuItem>
+                                <MenuItem value="TRANSCRIPT_AR" sx={{ fontFamily: 'Cairo' }}>كشف درجات عربي</MenuItem>
+                                <MenuItem value="TRANSCRIPT_EN" sx={{ fontFamily: 'Cairo' }}>كشف درجات إنجليزي</MenuItem>
+                                <MenuItem value="DEGREE_VERIFICATION" sx={{ fontFamily: 'Cairo' }}>خطاب تأكيد درجة</MenuItem>
+                                <MenuItem value="CERTIFICATE_AUTH" sx={{ fontFamily: 'Cairo' }}>توثيق شهادة</MenuItem>
+                                <MenuItem value="INFO_UPDATE" sx={{ fontFamily: 'Cairo' }}>تحديث بيانات</MenuItem>
                             </Select>
                         </FormControl>
 
@@ -303,8 +308,8 @@ export default function StudentGraduateRequests() {
                             label="تفاصيل الطلب (أو سبب الطلب)"
                             multiline
                             rows={3}
-                            value={formData.details}
-                            onChange={(e) => setFormData({ ...formData, details: e.target.value })}
+                            value={formData.notes}
+                            onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                             fullWidth
                             InputProps={{ sx: { fontFamily: 'Cairo' } }}
                             InputLabelProps={{ sx: { fontFamily: 'Cairo' } }}

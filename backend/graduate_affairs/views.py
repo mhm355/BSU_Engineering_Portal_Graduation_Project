@@ -214,12 +214,12 @@ class StudentGraduateRequestViewSet(viewsets.ModelViewSet):
         ).prefetch_related('status_history').order_by('-created_at')
 
     def perform_create(self, serializer):
-        instance = serializer.save(graduate=self.request.user, status='PENDING')
+        instance = serializer.save(graduate=self.request.user, status='SUBMITTED')
         # Create initial status history
         GraduateRequestStatusHistory.objects.create(
             request=instance,
             from_status='',
-            to_status='PENDING',
+            to_status='SUBMITTED',
             changed_by=self.request.user,
             comment='تم تقديم الطلب من قبل الخريج/الطالب'
         )
