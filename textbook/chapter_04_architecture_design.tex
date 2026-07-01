@@ -153,6 +153,7 @@ The database is heavily normalized into over 20 tables, organized into five func
     \item \textbf{Academic Operations}: Contains transactional data like grades, attendance, and tuition status.
     \item \textbf{Assessment}: The complete quiz engine schema and result publishing pipelines.
     \item \textbf{System and Communication}: Handles system-level features like audit logs and announcements.
+    \item \textbf{Graduate Affairs and Career Services}: Manages graduation clearance, job postings, partner companies, and document requests.
 \end{enumerate}
 
 \begin{figure}[H]
@@ -252,11 +253,12 @@ The backend follows a modular monolith structure, organized into four distinct D
 
 \begin{verbatim}
 backend/
-|-- bsu_backend/  # Project settings, WSGI, root URL config
-|-- users/        # Authentication, user models, RBAC permissions
-|-- academic/     # Core academic operations (largest module)
-|-- content/      # CMS-like features (News, Announcements)
-`-- system/       # System-level operations (Audit Logs)
+|-- bsu_backend/       # Project settings, WSGI, root URL config
+|-- users/             # Authentication, user models, RBAC permissions
+|-- academic/          # Core academic operations (largest module)
+|-- graduate_affairs/  # Graduation clearance, Career portal, Requests
+|-- content/           # CMS-like features (News, Announcements)
+`-- system/            # System-level operations (Audit Logs)
 \end{verbatim}
 
 Routing is encapsulated under dedicated API namespaces to ensure predictable and maintainable URL structures. For instance, all 120+ endpoints handling faculty workflows live under the \texttt{/api/academic/} boundary, while authentication endpoints are grouped under \texttt{/api/auth/}.

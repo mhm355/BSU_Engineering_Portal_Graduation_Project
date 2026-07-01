@@ -216,6 +216,12 @@ class NewsViewSet(viewsets.ModelViewSet):
     @method_decorator(cache_page(900))  # 15 minutes
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
+
+class VerifyCertificateView(APIView):
+    @method_decorator(cache_page(3600))  # 1 hour
+    def get(self, request, verification_code):
+        # Public endpoint accessed by external employers; aggressive caching prevents DB spikes
+        ...
 \end{lstlisting}
 
 \section{Pagination and Lazy Loading}

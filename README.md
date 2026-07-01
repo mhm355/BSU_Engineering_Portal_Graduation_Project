@@ -1,7 +1,7 @@
 <div align="center">
   <p>
     <img src="./textbook/images/Beni-Suef_University_logo.png" alt="Beni-Suef University Logo" width="130" />
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    andnbsp;andnbsp;andnbsp;andnbsp;andnbsp;andnbsp;andnbsp;andnbsp;
     <img src="./textbook/images/faculty_of_engineering_logo.jpeg" alt="Faculty of Engineering Logo" width="130" />
   </p>
 
@@ -9,45 +9,47 @@
   <img src="https://via.placeholder.com/1000x400.png?text=BSU+Engineering+Portal+Dashboard" alt="BSU Engineering Portal" width="100%">
   
   <h1>BSU Engineering Portal</h1>
-  <h3>A comprehensive, role-based Faculty ERP & Website serving students, faculty, and administrative staff.</h3>
+  <h3>A comprehensive, role-based Faculty ERP and Website serving students, faculty, and administrative staff.</h3>
 
   <!-- Professional Badges -->
   <p>
-    <img src="https://img.shields.io/badge/Frontend-ReactJS-61DAFB?logo=react&logoColor=black" alt="ReactJS">
-    <img src="https://img.shields.io/badge/Backend-Django-092E20?logo=django&logoColor=white" alt="Django">
-    <img src="https://img.shields.io/badge/Database-Azure%20MySQL-0078D4?logo=microsoft-azure&logoColor=white" alt="Azure MySQL">
-    <img src="https://img.shields.io/badge/Hosting-Azure%20Container%20Apps-0078D4?logo=microsoft-azure&logoColor=white" alt="Azure Container Apps">
-    <img src="https://img.shields.io/badge/Server-Nginx-009639?logo=nginx&logoColor=white" alt="Nginx">
-    <img src="https://img.shields.io/badge/Docker-Bake-2496ED?logo=docker&logoColor=white" alt="Docker">
+    <img src="https://img.shields.io/badge/Frontend-ReactJS-61DAFB?logo=reactandlogoColor=black" alt="ReactJS">
+    <img src="https://img.shields.io/badge/Backend-Django-092E20?logo=djangoandlogoColor=white" alt="Django">
+    <img src="https://img.shields.io/badge/Database-Azure%20MySQL-0078D4?logo=microsoft-azureandlogoColor=white" alt="Azure MySQL">
+    <img src="https://img.shields.io/badge/Hosting-Azure%20Container%20Apps-0078D4?logo=microsoft-azureandlogoColor=white" alt="Azure Container Apps">
+    <img src="https://img.shields.io/badge/Server-Nginx-009639?logo=nginxandlogoColor=white" alt="Nginx">
+    <img src="https://img.shields.io/badge/Docker-Bake-2496ED?logo=dockerandlogoColor=white" alt="Docker">
   </p>
 </div>
 
 <br/>
 
-## 1. Project Overview & Purpose
+## 1. Project Overview and Purpose
 
 The **BSU Engineering Portal** is a unified, highly robust Faculty Website meticulously designed to serve the complete operational lifecycle of an engineering faculty. By centralizing information, modernizing administrative workflows, and providing specialized dashboards for every user type, the system eliminates traditional bureaucratic bottlenecks. 
 
 It provides immense value by acting as a single source of truth for:
-- **Students:** Accessing course materials, tracking attendance, submitting assignments, taking online quizzes, and checking final grades.
+- **Students:** Accessing course materials, tracking attendance, submitting assignments, taking online quizzes, checking final grades, and applying to jobs.
 - **Doctors / Faculty:** Managing course syllabi, uploading study materials, creating rigorous online assessments, and seamlessly grading student performance.
 - **Heads of Department (HOD):** Assigning doctors to specific courses within their departments.
-- **Deans:** Approving and publishing final exam results, and analyzing academic performance metrics.
-- **Administrative Staff (Student & Staff Affairs):** Managing the master academic structure, bulk-uploading records, configuring grading templates, managing tuition statuses, and issuing certificates.
+- **Deans:** Analyzing academic performance metrics and publishing final exam results.
+- **Administrative Staff (Student and Staff Affairs):** Managing the master academic structure, bulk-uploading records, configuring grading templates, and managing tuition statuses.
+- **Graduate Affairs:** Handling graduation clearance, issuing official certificates, and managing the alumni career portal (job postings and training events).
 - **System Administrators:** Overseeing the entire technical operation, auditing system logs, and handling user security.
 
 ### Role-Based Feature Matrix
 To guarantee security and data integrity, the system implements strict Role-Based Access Control (RBAC):
 
-| Feature / Capability | Student | Doctor | HOD | Dean | Student Affairs | Staff Affairs | Admin |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Take Quizzes & View Grades** | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **Upload Materials & Grade Exams** | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **Publish Final Results** | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ |
-| **Assign Doctors to Courses** | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| **Issue Certificates** | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ |
-| **Configure Grading Templates** | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ |
-| **System Auditing & Security** | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Feature / Capability | Student | Doctor | HOD | Dean | Student Affairs | Staff Affairs | Graduate Affairs | Admin |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Take Quizzes and View Grades** | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Upload Materials and Grade Exams** | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Publish Final Results** | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| **Assign Doctors to Courses** | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Configure Grading Templates** | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ |
+| **Graduation Clearance and Career Portal**| ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ |
+| **Issue Official Certificates** | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ |
+| **System Auditing and Security** | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
 
 ---
 
@@ -62,7 +64,7 @@ The application relies on a modern, decoupled, containerized architecture hosted
 4. **Application Tier:** 
    - API requests are forwarded from Nginx to the **Django REST Framework** backend via WSGI/ASGI.
    - The Django backend handles business logic, executing queries, and validating RBAC permissions.
-5. **State & Storage Tier:** 
+5. **State and Storage Tier:** 
    - **Redis** (hosted within the ACA environment) is utilized for high-speed caching and rapid session management.
    - **Azure Database for MySQL** acts as the primary relational data store.
    - **Azure Blob Storage** seamlessly handles all uploaded media (course materials, profile pictures, certificates).
@@ -85,22 +87,22 @@ graph TD
 
 ---
 
-## 3. Technical Stack & Architecture Decision Records (ADRs)
+## 3. Technical Stack and Architecture Decision Records (ADRs)
 
 Every technology in this stack was deliberately chosen to balance performance, developer experience, and long-term maintainability.
 
-- **Domain & DNS (`bsu-engineering.app`):** Registered via Name.com for a 1-year term. DNS records point directly to the Azure Container Apps environment to ensure a seamless, professional entry point for all users.
+- **Domain and DNS (`bsu-engineering.app`):** Registered via Name.com for a 1-year term. DNS records point directly to the Azure Container Apps environment to ensure a seamless, professional entry point for all users.
 - **Frontend (ReactJS):** Chosen for its component-based architecture. React allows for the creation of a highly dynamic, Single Page Application (SPA) feel, essential for complex dashboards where state changes frequently without requiring page reloads.
 - **Web Server / Reverse Proxy (Nginx):** Justified by its unmatched efficiency in serving static assets. Placing Nginx in front of the application server bolsters security (hiding backend details) and improves performance by efficiently managing client connections and routing API traffic.
 - **Backend (Django):** Selected for its rapid development cycle, incredibly robust built-in admin panel, and "batteries-included" security features (CSRF protection, SQL injection prevention). This makes it ideal for an educational portal handling sensitive academic data.
 - **Database (Azure Database for MySQL):** MySQL provides the strong relational data integrity required for mapping complex faculty structures (Years -> Departments -> Courses -> Students). Utilizing a fully managed Azure service heavily reduces database maintenance and backup overhead.
 - **Storage (Azure Blob Storage for Media):** Decoupling media storage from the application server ensures the backend remains stateless. This allows the application containers to scale horizontally without worrying about local file synchronization, significantly improving performance for heavy PDF/Video downloads.
-- **Containerization (Docker & Docker Bake):** Docker ensures absolute consistency between local development and production. `Docker Bake` is utilized to efficiently manage, target, and build multiple complex image targets (Frontend, Backend, Nginx) concurrently from a single declarative configuration.
+- **Containerization (Docker and Docker Bake):** Docker ensures absolute consistency between local development and production. `Docker Bake` is utilized to efficiently manage, target, and build multiple complex image targets (Frontend, Backend, Nginx) concurrently from a single declarative configuration.
 - **Hosting (Azure Container Apps - ACA):** ACA was selected for serverless container execution. It abstracts away the massive complexity of raw Kubernetes while still offering automated horizontal scaling based on HTTP traffic, built-in ingress, and simplified VNET networking.
 
 ---
 
-## 4. Infrastructure & Deployment Strategy
+## 4. Infrastructure and Deployment Strategy
 
 **CRITICAL NOTE ON WORKFLOW:** Because this is a highly stable faculty website where feature updates are infrequent and deliberate, a fully automated CI/CD pipeline was intentionally omitted. This architectural decision heavily reduces operational overhead, prevents accidental deployments of academic systems during active exam periods, and simplifies the repository.
 
@@ -126,14 +128,14 @@ When a new version is ready for production, the deployment is executed via a tig
 
 ---
 
-## 5. Prerequisites & Local Setup
+## 5. Prerequisites and Local Setup
 
 To run this project locally for development or testing, ensure your machine meets the following prerequisites.
 
 ### Dependencies
 - **Node.js** (v18+) and **npm**
 - **Python** (v3.10+)
-- **Docker** & **Docker Compose**
+- **Docker** and **Docker Compose**
 - **Git**
 
 ### Step-by-Step Local Initialization
@@ -152,7 +154,7 @@ npm install
 cd ..
 ```
 
-**3. Setup the Backend & Database Migrations:**
+**3. Setup the Backend and Database Migrations:**
 ```bash
 cd backend
 python -m venv venv

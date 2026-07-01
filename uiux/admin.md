@@ -1,6 +1,6 @@
 # UI/UX Specification: Administrator Role
 
-## 1. Design System & Visual Language
+## 1. Design System and Visual Language
 
 ### Typography
 Maximum data density, system oversight, and technical configurations.
@@ -22,13 +22,13 @@ Maximum data density, system oversight, and technical configurations.
 - **Text Primary:** `#0F172A`
 - **Semantic (Alert/Delete):** `#DC2626` (Red 600)
 
-### Spacing & Geometry
+### Spacing and Geometry
 - **Spacing Scale:** High density. 2, 4, 8, 12, 16px.
 - **Border Radii:** Sharp (`4px` to `8px`). Flat design, relying on borders rather than shadows.
 
 ---
 
-## 2. Information Architecture & Navigation
+## 2. Information Architecture and Navigation
 
 ### Complete Admin Sitemap
 - `/admin/dashboard` - Master System Overview
@@ -49,7 +49,7 @@ Maximum data density, system oversight, and technical configurations.
 
 ### Navigation Flow Map
 - **Global Header:** Environment Indicator, Server Time clock, Global Search, Admin Profile.
-- **Sidebar:** Multi-level accordion menu. Grouped by: Dashboard, Structure (Years, Levels, Departments), Users & Security (Users, Resets, Logs), Workflows (Approvals, Complaints, Deletion), Operations (News, Results, Templates).
+- **Sidebar:** Multi-level accordion menu. Grouped by: Dashboard, Structure (Years, Levels, Departments), Users and Security (Users, Resets, Logs), Workflows (Approvals, Complaints, Deletion), Operations (News, Results, Templates).
 
 ### Step-by-Step User Journeys (Top 3 Core Actions)
 
@@ -57,7 +57,7 @@ Maximum data density, system oversight, and technical configurations.
 1. Navigates to `/admin/deletion-requests`.
 2. Views list of users requesting account deletion.
 3. Clicks a request to review context.
-4. Clicks "Approve & Purge Data".
+4. Clicks "Approve and Purge Data".
 5. Double confirmation dialog requires typing the exact User ID.
 6. System executes soft/hard delete and logs the action.
 
@@ -68,9 +68,9 @@ Maximum data density, system oversight, and technical configurations.
 
 ---
 
-## 3. Page-by-Page Layout & Interface Elements
+## 3. Page-by-Page Layout and Interface Elements
 
-### General Grid & Responsiveness
+### General Grid and Responsiveness
 - **Desktop (1440px+):** Fluid width. 15% Sidebar, 85% Content.
 - **Mobile/Tablet:** Not recommended. Warns user to switch to desktop for full functionality.
 

@@ -1,6 +1,6 @@
 # UI/UX Specification: Dean / Vice Dean Role
 
-## 1. Design System & Visual Language
+## 1. Design System and Visual Language
 
 ### Typography
 Focuses on high-level administrative oversight, final approvals, and statistics.
@@ -19,18 +19,17 @@ Focuses on high-level administrative oversight, final approvals, and statistics.
 - **Background:** `#fef2f2` (Red 50) for navigation; `#FFFFFF` for content surfaces.
 - **Border Default:** `#fecaca` (Red 200)
 
-### Spacing & Geometry
+### Spacing and Geometry
 - **Spacing Scale:** 4, 8, 16, 24px.
 - **Border Radii:** Sharp and formal (`4px` to `8px`) to convey structural integrity.
 
 ---
 
-## 2. Information Architecture & Navigation
+## 2. Information Architecture and Navigation
 
 ### Complete Dean Sitemap
-- `/dean` - Base route
-- `/dean/dashboard` - Main Dashboard Overview & Statistics
-- `/dean/approve-grades` - Final approval and publishing of student grades
+- `/dean/dashboard` - Main Analytics Dashboard
+- `/dean/publish-results` - Interface to officially release grades to students
 - `/profile` - Profile settings
 - `/change-password` - Security settings
 
@@ -38,23 +37,23 @@ Focuses on high-level administrative oversight, final approvals, and statistics.
 - **Global Header:** Contains role badge "DEAN / VICE DEAN", quick access to pending approvals.
 - **Sidebar:** Grouped by Executive Actions (Approve Grades) and Reports (Statistics).
 
-### Step-by-Step User Journeys (Top Core Actions)
+### Step-by-Step User Journeys (Top 2 Core Actions)
 
-**Action 1: Viewing Faculty Statistics**
+**Action 1: Publishing Final Results**
+1. User navigates to `/dean/publish-results`.
+2. Views a table of courses with their grading status (e.g., "Grades Submitted").
+3. Selects the courses ready for publication.
+4. Clicks "Publish Selected".
+5. The system flips the `is_published` flag, making grades immediately visible on the Student Portal.
+
+**Action 2: Analyzing Academic Performance**
 1. User navigates to `/dean/dashboard`.
 2. The page presents high-level statistics cards showing total numbers of Students, Doctors, Staff Affairs, Student Affairs, and HODs.
 3. The dashboard provides an at-a-glance health overview of the faculty's digital ecosystem.
 
-**Action 2: Approving and Publishing Grades**
-1. User navigates to `/dean/approve-grades`.
-2. System presents a list of pending grades categorized by Level and Term.
-3. The Dean reviews the submitted grades (already verified by Student Affairs).
-4. Clicks "إعتماد و نشر النتائج" (Approve & Publish Results).
-5. A confirmation dialog appears. Upon confirmation, results become visible to students who have paid their tuition.
-
 ---
 
-## 3. Page-by-Page Layout & Interface Elements
+## 3. Page-by-Page Layout and Interface Elements
 
 ### Screen 1: Dashboard (`/dean/dashboard`)
 - **Layout:** Grid of statistical summary cards.

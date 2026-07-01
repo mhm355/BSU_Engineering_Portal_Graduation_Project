@@ -1,6 +1,6 @@
 # UI/UX Specification: Head of Department (HOD) Role
 
-## 1. Design System & Visual Language
+## 1. Design System and Visual Language
 
 ### Typography
 Focuses on department management, assigning doctors, and managing grading templates.
@@ -19,13 +19,13 @@ Focuses on department management, assigning doctors, and managing grading templa
 - **Background:** `#f0f9ff` (Light Blue 50) for navigation; `#FFFFFF` for content surfaces.
 - **Border Default:** `#e0f2fe` (Light Blue 100)
 
-### Spacing & Geometry
+### Spacing and Geometry
 - **Spacing Scale:** 4, 8, 16, 24px.
 - **Border Radii:** Rounded edges (`8px` to `12px`) for an approachable yet professional feel.
 
 ---
 
-## 2. Information Architecture & Navigation
+## 2. Information Architecture and Navigation
 
 ### Complete HOD Sitemap
 - `/hod` - Base route
@@ -58,7 +58,7 @@ Focuses on department management, assigning doctors, and managing grading templa
 
 ---
 
-## 3. Page-by-Page Layout & Interface Elements
+## 3. Page-by-Page Layout and Interface Elements
 
 ### Screen 1: Dashboard (`/hod/dashboard`)
 - **Layout:** Top widgets showing summary statistics specific to the HOD's department (e.g., number of courses, assigned doctors).

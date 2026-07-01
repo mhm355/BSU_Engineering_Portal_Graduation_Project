@@ -1,10 +1,10 @@
 # UI/UX Specification: Doctor Role
 
-## 1. Design System & Visual Language
+## 1. Design System and Visual Language
 
 ### Typography
 Optimized for dense grading grids and course management.
-- **Primary Font Family (Headings & UI Elements):** `Inter`, sans-serif
+- **Primary Font Family (Headings and UI Elements):** `Inter`, sans-serif
 - **Secondary Font Family (Body Copy):** `Roboto`, sans-serif
 - **Monospace Font Family:** `JetBrains Mono`, monospace
 
@@ -23,13 +23,13 @@ Optimized for dense grading grids and course management.
 - **Error (Failing Grade/Missing):** `#EF4444`
 - **Success (Submitted/Graded):** `#10B981`
 
-### Spacing & Geometry
+### Spacing and Geometry
 - **Spacing Scale:** 4px, 8px, 16px, 24px. Dense padding (8px) used in grading tables.
 - **Border Radii:** Inputs/Buttons `6px`, Cards `12px`.
 
 ---
 
-## 2. Information Architecture & Navigation
+## 2. Information Architecture and Navigation
 
 ### Complete Doctor Sitemap
 - `/doctor/dashboard` - Main Dashboard Overview
@@ -38,7 +38,7 @@ Optimized for dense grading grids and course management.
 - `/doctor/courses/:courseId/manage` - Course Manager (Settings, Material Uploads, Syllabus)
 - `/doctor/courses/:courseId/upload-grades` - Grade Upload Interface (CSV/Excel)
 - `/doctor/courses/:courseId/quiz` - Create / Manage Quizzes
-- `/doctor/courses/:courseId/quiz/:quizId/results` - View aggregate quiz results & analytics
+- `/doctor/courses/:courseId/quiz/:quizId/results` - View aggregate quiz results and analytics
 - `/doctor/courses/:courseId/quiz/:quizId/grade/:attemptId` - Grade specific student attempt manually
 - `/profile` - Profile settings
 - `/change-password` - Security settings
@@ -62,7 +62,7 @@ Optimized for dense grading grids and course management.
 2. Interface provides a "Download Excel Template" button.
 3. User drags and drops the filled `.xlsx` file into the dropzone.
 4. System parses the file and displays a preview data table of the grades.
-5. User clicks "Confirm & Upload".
+5. User clicks "Confirm and Upload".
 
 **Action 3: Grading a Manual Quiz Attempt**
 1. Navigates to `/doctor/courses/:courseId/quiz/:quizId/grade/:attemptId`.
@@ -73,7 +73,7 @@ Optimized for dense grading grids and course management.
 
 ---
 
-## 3. Page-by-Page Layout & Interface Elements
+## 3. Page-by-Page Layout and Interface Elements
 
 ### Screen 1: Doctor Dashboard
 - **Layout:** 2-column grid. Left: "My Courses" list cards. Right: "Recent Activity / Pending Grading" alerts.

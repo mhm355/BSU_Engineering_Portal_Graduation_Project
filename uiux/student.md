@@ -1,14 +1,14 @@
 # UI/UX Specification: Student Role
 
-## 1. Design System & Visual Language
+## 1. Design System and Visual Language
 
 ### Typography
 The application uses a modern, highly legible typographic scale optimized for readability and data density.
-- **Primary Font Family (Headings & UI Elements):** `Inter`, sans-serif
-- **Secondary Font Family (Body Copy & Long Form Text):** `Roboto`, sans-serif
-- **Monospace Font Family (Code Snippets & Technical Data):** `JetBrains Mono`, monospace
+- **Primary Font Family (Headings and UI Elements):** `Inter`, sans-serif
+- **Secondary Font Family (Body Copy and Long Form Text):** `Roboto`, sans-serif
+- **Monospace Font Family (Code Snippets and Technical Data):** `JetBrains Mono`, monospace
 
-**Typographic Scale & Weights:**
+**Typographic Scale and Weights:**
 - **H1 (Page Titles):** 36px (2.25rem), Line Height: 1.2, Weight: 700 (Bold)
 - **H2 (Section Headers):** 28px (1.75rem), Line Height: 1.3, Weight: 600 (Semi-Bold)
 - **H3 (Card Titles, Modals):** 24px (1.5rem), Line Height: 1.3, Weight: 600 (Semi-Bold)
@@ -44,7 +44,7 @@ The color system ensures high contrast, accessibility (WCAG AA compliant), and c
 - **Text Secondary:** `#94A3B8` (Slate 400)
 - **Border Default:** `#334155` (Slate 700)
 
-### Spacing & Geometry
+### Spacing and Geometry
 Built on a consistent 4px baseline grid.
 - **Spacing Scale:** 4px, 8px, 16px, 24px, 32px.
 - **Border Radii:** Small `6px`, Medium `12px`, Large `24px`.
@@ -52,7 +52,7 @@ Built on a consistent 4px baseline grid.
 
 ---
 
-## 2. Information Architecture & Navigation
+## 2. Information Architecture and Navigation
 
 ### Complete Student Sitemap
 - `/student/dashboard` - Main Dashboard Overview
@@ -64,12 +64,14 @@ Built on a consistent 4px baseline grid.
 - `/student/quiz/:quizId` - Active Quiz Taking Interface
 - `/student/quiz/:quizId/results` - Specific Quiz Results and feedback
 - `/student/results` - Query public/final results
+- `/student/career-portal` - Browse and apply to jobs/events
+- `/student/requests` - Submit graduate/document requests
 - `/profile` - User Profile settings and personal data
 - `/change-password` - Account security settings
 
 ### Navigation Flow Map
 - **Global Header (Top Bar):** Brand Logo, Theme Toggle, Profile Avatar dropdown (Link to Profile, Change Password, Logout).
-- **Sidebar (Left Navigation):** Links exactly matching the sitemap: Dashboard, Grades, Attendance, Materials, Exams, Quizzes.
+- **Sidebar (Left Navigation):** Links exactly matching the sitemap: Dashboard, Grades, Attendance, Materials, Exams, Quizzes, Career Portal, Graduate Requests.
 - **Mobile Navigation:** Bottom tab bar for primary sections (Dashboard, Grades, Materials) and a Hamburger menu for the rest.
 
 ### Step-by-Step User Journeys (Top 3 Core Actions)
@@ -94,11 +96,17 @@ Built on a consistent 4px baseline grid.
 3. Table lists PDFs, Docs, or Links.
 4. User clicks the "Download" icon.
 
+**Action 4: Applying for a Job via Career Portal**
+1. User navigates to `/student/career-portal`.
+2. Browses active job postings and clicks "Apply".
+3. Uploads CV/Resume and provides a cover letter.
+4. System queues the application for company review via Graduate Affairs.
+
 ---
 
-## 3. Page-by-Page Layout & Interface Elements
+## 3. Page-by-Page Layout and Interface Elements
 
-### General Grid & Responsiveness
+### General Grid and Responsiveness
 - **Desktop (1200px+):** 12-column grid. Sidebar fixed at 260px.
 - **Tablet (768px - 1199px):** 8-column grid. Sidebar collapses to icons.
 - **Mobile (<768px):** 4-column grid. Sidebar becomes bottom navigation.

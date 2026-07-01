@@ -96,7 +96,7 @@ Key security properties of this design:
 
 \subsection{The Role Model and Permission Classes}
 
-The system implements a \textbf{seven-role authorization model} (Admin, Dean, HOD, Doctor, Student, Student Affairs, Staff Affairs). Authorization is enforced at the backend through ten custom Django REST Framework (DRF) [2] permission classes. 
+The system implements an \textbf{eight-role authorization model} (Admin, Dean, HOD, Doctor, Student, Student Affairs, Staff Affairs, Graduate Affairs). Authorization is enforced at the backend through ten custom Django REST Framework (DRF) [2] permission classes. 
 
 A key design decision was to grant the Admin role inherited capabilities across all administrative views. Rather than relying on a complex hierarchical tree, this inheritance is made explicit in each permission class for strict auditability.
 
@@ -121,31 +121,25 @@ However, the architectural principle holds that \textbf{frontend route protectio
     \renewcommand{\arraystretch}{1.2}
     \caption{Role-Based Access Control (RBAC) Permission Matrix}
     \label{tab:rbac_matrix}
-    \begin{tabular}{|p{0.22\textwidth}|c|c|c|c|c|c|c|}
+    \begin{tabular}{|p{0.22\textwidth}|c|c|c|c|c|c|c|c|}
         \hline
-        \textbf{Operation} & \textbf{Admin} & \textbf{Dean} & \textbf{HOD} & \textbf{Doctor} & \textbf{Student} & \textbf{Student Aff.} & \textbf{Staff Aff.} \\
+        \textbf{Operation} & \textbf{Admin} & \textbf{Dean} & \textbf{HOD} & \textbf{Doctor} & \textbf{Student} & \textbf{Student Aff.} & \textbf{Staff Aff.} & \textbf{Grad Aff.} \\
         \hline
-        User Management & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark \\ \hline
-        Academic Year CRUD & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark \\ \hline
-        Grading Template CRUD & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark \\ \hline
-        Department CRUD & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark \\ \hline
-        Upload Students & \cmark & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark \\ \hline
-        Upload Doctors & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark \\ \hline
-        Assign Doctor & \cmark & \xmark & \cmark & \xmark & \xmark & \xmark & \xmark \\ \hline
-        Record Attendance & \cmark & \xmark & \xmark & \cmark (Own) & \xmark & \xmark & \xmark \\ \hline
-        Enter Grades & \cmark & \xmark & \xmark & \cmark (Own) & \xmark & \xmark & \xmark \\ \hline
-        Upload Exam Grades & \cmark & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark \\ \hline
-        Approve Exam Grades & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark \\ \hline
-        Publish Results & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark \\ \hline
-        Create Quizzes & \cmark & \xmark & \xmark & \cmark (Own) & \xmark & \xmark & \xmark \\ \hline
-        Take Quizzes & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark & \xmark \\ \hline
-        View Own Grades & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark & \xmark \\ \hline
-        Upload Lectures & \cmark & \xmark & \xmark & \cmark (Own) & \xmark & \xmark & \xmark \\ \hline
-        Manage News & \cmark & \xmark & \xmark & \xmark & \xmark & \cmark & \cmark \\ \hline
-        Send Announcements & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark \\ \hline
-        View Audit Logs & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark \\ \hline
-        Approve Deletions & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark \\ \hline
-        Manage Certificates & \cmark & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark \\
+        User Management & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark \\ \hline
+        Academic Year CRUD & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark \\ \hline
+        Department CRUD & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark \\ \hline
+        Upload Students & \cmark & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark & \xmark \\ \hline
+        Upload Doctors & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark \\ \hline
+        Assign Doctor & \cmark & \xmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark \\ \hline
+        Enter Grades & \cmark & \xmark & \xmark & \cmark (Own) & \xmark & \xmark & \xmark & \xmark \\ \hline
+        Upload Exam Grades & \cmark & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark & \xmark \\ \hline
+        Publish Results & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark \\ \hline
+        Take Quizzes & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark & \xmark & \xmark \\ \hline
+        View Own Grades & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark & \xmark & \xmark \\ \hline
+        Manage News & \cmark & \xmark & \xmark & \xmark & \xmark & \cmark & \cmark & \xmark \\ \hline
+        Manage Certificates & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark \\ \hline
+        Manage Clearance & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark \\ \hline
+        Manage Career Portal & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark \\
         \hline
     \end{tabular}
 \end{sidewaystable}
@@ -272,10 +266,6 @@ services:
 \end{lstlisting}
 
 This guarantees that even if the host machine's firewall is misconfigured, the database remains inaccessible from external networks, accepting traffic exclusively from the internal \texttt{bsu\_backend} container.
-
-\subsection{CI/CD Vulnerability Scanning}
-
-The project's GitHub Actions [15] deployment pipeline integrates \textbf{Trivy [14]} to execute static application security testing (SAST) on all generated Docker [8] artifacts. The pipeline is instructed to fail automatically (\texttt{exit-code: '1'}) if any CRITICAL or HIGH severity OS/library vulnerabilities are detected, preventing vulnerable code from reaching production.
 
 \section{Audit Trail Architecture}
 \label{sec:audit-trail}

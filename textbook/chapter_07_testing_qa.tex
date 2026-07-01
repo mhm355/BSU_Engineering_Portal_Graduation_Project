@@ -120,24 +120,26 @@ class Command(BaseCommand):
                   f"* {template.attendance_weight} = {calc}")
 \end{lstlisting}
 
-\subsection{Decentralized Approval Pipeline Testing}
+\subsection{Graduation Clearance Pipeline Testing}
 
-To verify the integrity of the Dean approval workflow, integration tests simulate the multi-actor state transitions required to publish grades.
+To verify the integrity of the alumni transition workflow, integration tests simulate the multi-step state transitions required to clear a student for graduation.
 
-\begin{lstlisting}[language=Python, caption=Grade Approval Integration Test]
-def test_dean_approval_workflow(self):
-    # 1. Doctor enters grades (Status: PENDING)
-    self.client.post('/api/academic/grades/submit/', {'course': self.course.id})
-    self.assertEqual(ExamGrade.objects.get(course=self.course).status, 'PENDING')
+\begin{lstlisting}[language=Python, caption=Graduation Clearance Integration Test]
+def test_graduation_clearance_workflow(self):
+    # 1. Graduate Affairs initiates clearance (Status: PENDING)
+    self.client.force_authenticate(user=self.graduate_affairs_user)
+    response = self.client.post('/api/academic/clearance/initiate/', {'student': self.student.id})
+    self.assertEqual(GraduationClearance.objects.get(student=self.student).status, 'PENDING')
     
-    # 2. Dean approves grades (Status: APPROVED)
-    self.client.force_authenticate(user=self.dean_user)
-    self.client.post(f'/api/academic/grades/{self.course.id}/approve/')
+    # 2. Check off library and finance requirements
+    self.client.patch(f'/api/academic/clearance/{self.student.id}/', {
+        'library_cleared': True,
+        'finance_cleared': True
+    })
     
-    # 3. Student views grades (Must be visible now)
-    self.client.force_authenticate(user=self.student_user)
-    response = self.client.get('/api/academic/grades/my_grades/')
-    self.assertIn(self.course.subject.name, response.data)
+    # 3. Finalize clearance (Status -> CLEARED)
+    self.client.post(f'/api/academic/clearance/{self.student.id}/finalize/')
+    self.assertEqual(GraduationClearance.objects.get(student=self.student).status, 'CLEARED')
 \end{lstlisting}
 
 \subsection{Transaction Integrity Testing}
@@ -253,7 +255,7 @@ Manual testing validates end-to-end workflows for each role.
         \hline
         TC-SA01 & Upload Excel & 50 students & Created successfully & \textcolor{green!80!black}{\ding{51}} Passed \\
         \hline
-        TC-DN01 & Dean Approval & Click "Approve" & Status $\rightarrow$ APPROVED & \textcolor{green!80!black}{\ding{51}} Passed \\
+        TC-GA01 & Graduate Clearance & Mark 100\% Complete & Status $\rightarrow$ CLEARED & \textcolor{green!80!black}{\ding{51}} Passed \\
         \hline
         TC-HD01 & HOD Assignment & Select Doctor X & Doctor assigned to course & \textcolor{green!80!black}{\ding{51}} Passed \\
         \hline
@@ -323,6 +325,8 @@ The heaviest operations involve the Dean Dashboard (which computes faculty-wide 
         Student Grade View & 500 & 120 & 310 & \textcolor{green!80!black}{\ding{51}} Passed \\
         \hline
         Batch Upload (500 rows) & 5 & 18,500 & 22,100 & \textcolor{green!80!black}{\ding{51}} Passed \\
+        \hline
+        Public Cert Verification & 1,000 & 80 & 150 & \textcolor{green!80!black}{\ding{51}} Passed \\
         \hline
     \end{tabular}
     \caption{Locust Load Testing Benchmarks}
