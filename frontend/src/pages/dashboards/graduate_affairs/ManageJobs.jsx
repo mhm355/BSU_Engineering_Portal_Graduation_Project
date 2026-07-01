@@ -96,7 +96,22 @@ export default function ManageJobs() {
         try {
             const config = { withCredentials: true };
             const payload = { ...formData };
-            if (!payload.deadline) delete payload.deadline;
+            
+            if (!isEdit) {
+                delete payload.id;
+            }
+            if (!payload.deadline) {
+                delete payload.deadline;
+            }
+            
+            if (payload.external_link) {
+                payload.external_link = payload.external_link.trim();
+                if (!payload.external_link.startsWith('http')) {
+                    payload.external_link = 'https://' + payload.external_link;
+                }
+            } else {
+                delete payload.external_link;
+            }
 
             if (isEdit) {
                 await axios.put(`/api/graduate-affairs/jobs/${formData.id}/`, payload, config);
@@ -106,7 +121,9 @@ export default function ManageJobs() {
             setOpenDialog(false);
             fetchData();
         } catch (err) {
-            setError('حدث خطأ أثناء حفظ البيانات');
+            console.error('Job save error:', err.response?.data);
+            const errorMsg = err.response?.data ? Object.values(err.response.data).flat().join(', ') : 'حدث خطأ أثناء حفظ البيانات';
+            setError(errorMsg);
         }
     };
 
@@ -409,7 +426,15 @@ export default function ManageJobs() {
                                                     <Button 
                                                         size="small" 
                                                         variant="outlined" 
-                                                        onClick={() => window.open(app.resume.startsWith('http') ? app.resume : '/' + app.resume, '_blank')}
+                                                        onClick={() => {
+                                                            let url = app.resume;
+                                                            if (url.startsWith('http')) {
+                                                                try { url = new URL(url).pathname; } catch (e) {}
+                                                            } else if (!url.startsWith('/')) {
+                                                                url = '/' + url;
+                                                            }
+                                                            window.open(url, '_blank');
+                                                        }}
                                                         sx={{ fontFamily: 'Cairo' }}
                                                     >
                                                         عرض

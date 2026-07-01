@@ -71,15 +71,38 @@ export default function ManageCompanies() {
     const handleSave = async () => {
         try {
             const config = { withCredentials: true };
-            if (isEdit) {
-                await axios.put(`/api/graduate-affairs/companies/${formData.id}/`, formData, config);
+            const payload = { ...formData };
+            if (!isEdit) {
+                delete payload.id;
+            }
+            
+            // Clean inputs
+            if (payload.contact_email) {
+                payload.contact_email = payload.contact_email.trim();
             } else {
-                await axios.post('/api/graduate-affairs/companies/', formData, config);
+                delete payload.contact_email;
+            }
+            
+            if (payload.website) {
+                payload.website = payload.website.trim();
+                if (!payload.website.startsWith('http')) {
+                    payload.website = 'https://' + payload.website;
+                }
+            } else {
+                delete payload.website;
+            }
+            
+            if (isEdit) {
+                await axios.put(`/api/graduate-affairs/companies/${formData.id}/`, payload, config);
+            } else {
+                await axios.post('/api/graduate-affairs/companies/', payload, config);
             }
             setOpenDialog(false);
             fetchCompanies();
         } catch (err) {
-            setError('حدث خطأ أثناء حفظ البيانات');
+            console.error('Save error:', err.response?.data);
+            const errorMsg = err.response?.data ? Object.values(err.response.data).flat().join(', ') : 'حدث خطأ أثناء حفظ البيانات';
+            setError(errorMsg);
         }
     };
 

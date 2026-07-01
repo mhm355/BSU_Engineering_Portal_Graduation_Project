@@ -56,6 +56,7 @@ export default function StudentGraduateRequests() {
         request_type: 'GRADUATION_STATEMENT',
         notes: ''
     });
+    const [isInitiating, setIsInitiating] = useState(false);
 
     useEffect(() => {
         if (tabValue === 0) fetchRequests();
@@ -91,6 +92,20 @@ export default function StudentGraduateRequests() {
             }
         } finally {
             setClearanceLoading(false);
+        }
+    };
+
+    const handleInitiateClearance = async () => {
+        setIsInitiating(true);
+        try {
+            const config = { withCredentials: true };
+            await axios.post('/api/graduate-affairs/student-clearance/', {}, config);
+            // Refresh to get the newly created clearance
+            fetchClearance();
+        } catch (err) {
+            setClearanceError(err.response?.data?.error || 'حدث خطأ أثناء إنشاء إخلاء الطرف');
+        } finally {
+            setIsInitiating(false);
         }
     };
 
@@ -240,7 +255,24 @@ export default function StudentGraduateRequests() {
                     {/* Tab 2: Clearance */}
                     <TabPanel value={tabValue} index={1}>
                         {clearanceError ? (
-                            <Alert severity="warning" sx={{ mb: 3, fontFamily: 'Cairo' }}>{clearanceError}</Alert>
+                            <Box sx={{ textAlign: 'center', py: 6 }}>
+                                <Alert severity="warning" sx={{ mb: 3, fontFamily: 'Cairo', maxWidth: 600, mx: 'auto' }}>
+                                    {clearanceError}
+                                </Alert>
+                                {clearanceError.includes('لا يوجد بيانات إخلاء طرف') && (
+                                    <Button
+                                        variant="contained"
+                                        size="large"
+                                        color="primary"
+                                        onClick={handleInitiateClearance}
+                                        disabled={isInitiating}
+                                        startIcon={isInitiating ? <CircularProgress size={20} color="inherit" /> : <AssignmentTurnedInIcon />}
+                                        sx={{ fontFamily: 'Cairo', fontWeight: 'bold', mt: 2, px: 4, py: 1.5, borderRadius: 2 }}
+                                    >
+                                        {isInitiating ? 'جاري بدء الإجراءات...' : 'بدء إجراءات إخلاء الطرف'}
+                                    </Button>
+                                )}
+                            </Box>
                         ) : clearanceLoading ? (
                             <Box sx={{ display: 'flex', justifyContent: 'center', my: 5 }}><CircularProgress /></Box>
                         ) : clearance ? (
