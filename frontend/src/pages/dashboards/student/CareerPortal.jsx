@@ -11,6 +11,8 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import SendIcon from '@mui/icons-material/Send';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import AssessmentIcon from '@mui/icons-material/Assessment';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 import axios from 'axios';
 import { useAuth } from '../../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -34,6 +36,8 @@ export default function CareerPortal() {
     const [tabValue, setTabValue] = useState(0);
     const [jobs, setJobs] = useState([]);
     const [events, setEvents] = useState([]);
+    const [myApplications, setMyApplications] = useState([]);
+    const [myRegistrations, setMyRegistrations] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
@@ -51,9 +55,11 @@ export default function CareerPortal() {
     const fetchData = async () => {
         try {
             const config = { withCredentials: true };
-            const [jobsRes, eventsRes] = await Promise.all([
+            const [jobsRes, eventsRes, appsRes, regsRes] = await Promise.all([
                 axios.get('/api/graduate-affairs/jobs/', config),
-                axios.get('/api/graduate-affairs/events/', config)
+                axios.get('/api/graduate-affairs/events/', config),
+                axios.get('/api/graduate-affairs/applications/', config),
+                axios.get('/api/graduate-affairs/event-registrations/', config)
             ]);
             
             // Filter only active postings
@@ -62,6 +68,8 @@ export default function CareerPortal() {
             
             setJobs(activeJobs);
             setEvents(activeEvents);
+            setMyApplications(Array.isArray(appsRes.data) ? appsRes.data : (appsRes.data?.results || []));
+            setMyRegistrations(Array.isArray(regsRes.data) ? regsRes.data : (regsRes.data?.results || []));
             setError('');
         } catch (err) {
             setError('فشل تحميل البيانات من الخادم');
@@ -106,6 +114,7 @@ export default function CareerPortal() {
             
             setSuccessMessage('تم تقديم طلبك بنجاح!');
             setOpenAppDialog(false);
+            fetchData();
             setTimeout(() => setSuccessMessage(''), 5000);
         } catch (err) {
             setError(err.response?.data?.error || 'حدث خطأ أثناء التقديم. قد تكون قدمت مسبقاً.');
@@ -118,6 +127,7 @@ export default function CareerPortal() {
         try {
             await axios.post('/api/graduate-affairs/event-registrations/', { event: eventId }, { withCredentials: true });
             setSuccessMessage('تم تسجيلك في الفعالية بنجاح!');
+            fetchData();
             setTimeout(() => setSuccessMessage(''), 5000);
         } catch (err) {
             setError('فشل التسجيل. قد تكون مسجلاً بالفعل.');
@@ -160,6 +170,7 @@ export default function CareerPortal() {
                 >
                     <Tab icon={<BusinessCenterIcon />} iconPosition="start" label="الوظائف والتدريب" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', fontSize: '1.1rem', py: 2 }} />
                     <Tab icon={<EventIcon />} iconPosition="start" label="الفعاليات والورش" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', fontSize: '1.1rem', py: 2 }} />
+                    <Tab icon={<AssessmentIcon />} iconPosition="start" label="طلباتي ومشاركاتي" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', fontSize: '1.1rem', py: 2 }} />
                 </Tabs>
 
                 <Box sx={{ p: 3, bgcolor: isDark ? 'background.default' : '#fafafa', minHeight: 400 }}>
@@ -242,6 +253,84 @@ export default function CareerPortal() {
                                     </Grid>
                                 ))}
                             </Grid>
+                        )}
+                    </TabPanel>
+
+                    <TabPanel value={tabValue} index={2}>
+                        <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', mb: 3, color: isDark ? '#fff' : '#1a2744' }}>
+                            طلبات الوظائف والتدريب
+                        </Typography>
+                        {myApplications.length === 0 ? (
+                            <Alert severity="info" sx={{ fontFamily: 'Cairo', mb: 4, borderRadius: 2 }}>لم تقم بالتقديم على أي وظائف بعد.</Alert>
+                        ) : (
+                            <TableContainer component={Paper} elevation={0} sx={{ mb: 5, borderRadius: 3, border: '1px solid', borderColor: 'divider' }}>
+                                <Table>
+                                    <TableHead sx={{ bgcolor: isDark ? 'background.default' : '#f5f5f5' }}>
+                                        <TableRow>
+                                            <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>الوظيفة</TableCell>
+                                            <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>الشركة</TableCell>
+                                            <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>تاريخ التقديم</TableCell>
+                                            <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>الحالة</TableCell>
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {myApplications.map(app => (
+                                            <TableRow key={app.id} hover>
+                                                <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>{app.job_title}</TableCell>
+                                                <TableCell sx={{ fontFamily: 'Cairo' }}>{app.company_name}</TableCell>
+                                                <TableCell sx={{ fontFamily: 'Cairo' }}>{new Date(app.applied_at).toLocaleDateString('ar-EG')}</TableCell>
+                                                <TableCell>
+                                                    <Chip 
+                                                        label={app.status_display || (app.status === 'PENDING' ? 'قيد المراجعة' : app.status === 'REVIEWED' ? 'تمت المراجعة' : app.status === 'ACCEPTED' ? 'مقبول' : 'مرفوض')}
+                                                        color={app.status === 'ACCEPTED' ? 'success' : app.status === 'REJECTED' ? 'error' : app.status === 'REVIEWED' ? 'info' : 'warning'}
+                                                        size="small"
+                                                        sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}
+                                                    />
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
+                        )}
+
+                        <Typography variant="h5" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', mb: 3, color: isDark ? '#fff' : '#1a2744' }}>
+                            الفعاليات والورش المسجل بها
+                        </Typography>
+                        {myRegistrations.length === 0 ? (
+                            <Alert severity="info" sx={{ fontFamily: 'Cairo', borderRadius: 2 }}>لم تقم بالتسجيل في أي فعاليات بعد.</Alert>
+                        ) : (
+                            <TableContainer component={Paper} elevation={0} sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider' }}>
+                                <Table>
+                                    <TableHead sx={{ bgcolor: isDark ? 'background.default' : '#f5f5f5' }}>
+                                        <TableRow>
+                                            <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>الفعالية</TableCell>
+                                            <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>تاريخ الفعالية</TableCell>
+                                            <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>تاريخ التسجيل</TableCell>
+                                            <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>حالة الحضور</TableCell>
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {myRegistrations.map(reg => (
+                                            <TableRow key={reg.id} hover>
+                                                <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>{reg.event_title}</TableCell>
+                                                <TableCell sx={{ fontFamily: 'Cairo', direction: 'ltr', textAlign: 'right' }}>
+                                                    {reg.event_date ? new Date(reg.event_date).toLocaleString('ar-EG') : '-'}
+                                                </TableCell>
+                                                <TableCell sx={{ fontFamily: 'Cairo' }}>{new Date(reg.registered_at).toLocaleDateString('ar-EG')}</TableCell>
+                                                <TableCell>
+                                                    <Chip 
+                                                        label={reg.status_display || (reg.status === 'REGISTERED' ? 'مسجل' : reg.status === 'ATTENDED' ? 'حضر' : 'ملغى')}
+                                                        color={reg.status === 'ATTENDED' ? 'success' : reg.status === 'CANCELLED' ? 'error' : 'primary'}
+                                                        size="small"
+                                                        sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}
+                                                    />
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
                         )}
                     </TabPanel>
                 </Box>
