@@ -8,9 +8,12 @@ import SearchIcon from '@mui/icons-material/Search';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import WarningIcon from '@mui/icons-material/Warning';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 export default function StudentResults() {
+    const navigate = useNavigate();
     const [nationalId, setNationalId] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -42,6 +45,13 @@ export default function StudentResults() {
     return (
         <Box sx={{ minHeight: '100vh', bgcolor: '#f8fafc', py: 4 }}>
             <Container maxWidth="lg">
+                <Button 
+                    startIcon={<ArrowBackIcon />} 
+                    onClick={() => navigate('/student/dashboard')} 
+                    sx={{ mb: 2, fontFamily: 'Cairo', color: '#1976d2' }}
+                >
+                    العودة للوحة التحكم
+                </Button>
                 <Fade in={true} timeout={600}>
                     <Box sx={{ mb: 4 }}>
                         <Typography variant="h4" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744', display: 'flex', alignItems: 'center', gap: 2 }}>
