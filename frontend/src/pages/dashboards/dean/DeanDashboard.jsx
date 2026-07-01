@@ -10,7 +10,6 @@ import PeopleIcon from '@mui/icons-material/People';
 import PersonIcon from '@mui/icons-material/Person';
 import DashboardCard from '../../../components/DashboardCard';
 import AssessmentIcon from '@mui/icons-material/Assessment';
-import PendingActionsIcon from '@mui/icons-material/PendingActions';
 import SchoolIcon from '@mui/icons-material/School';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { useNavigate } from 'react-router-dom';
@@ -125,14 +124,6 @@ export default function DeanDashboard() {
     if (!user) return null;
 
     const navigationCards = [
-        {
-            icon: PendingActionsIcon,
-            title: 'إعتماد الدرجات',
-            description: 'مراجعة واعتماد درجات الطلاب النهائية',
-            buttonText: 'الدرجات',
-            onClick: () => navigate('/dean/grade-approvals'),
-            color: 'warning',
-        },
         {
             icon: AssessmentIcon,
             title: 'نشر النتائج',

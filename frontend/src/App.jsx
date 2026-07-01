@@ -69,7 +69,6 @@ import UploadHistory from './pages/dashboards/student_affairs/UploadHistory';
 import AssignmentHistory from './pages/dashboards/staff_affairs/AssignmentHistory';
 
 import DeanDashboard from './pages/dashboards/dean/DeanDashboard';
-import GradeApprovals from './pages/dashboards/dean/GradeApprovals';
 
 import HODDashboard from './pages/dashboards/hod/HODDashboard';
 import AssignDoctorsHOD from './pages/dashboards/hod/AssignDoctorsHOD';
@@ -203,7 +202,6 @@ function App() {
                 <Route path="dean/dashboard" element={<ProtectedRoute roles={['DEAN', 'ADMIN']}><DeanDashboard /></ProtectedRoute>} />
                 <Route path="dean/publish-results" element={<ProtectedRoute roles={['DEAN', 'ADMIN']}><PublishResultsDean /></ProtectedRoute>} />
                 <Route path="dean/export-data" element={<ProtectedRoute roles={['DEAN', 'ADMIN']}><DeanExportData /></ProtectedRoute>} />
-                <Route path="dean/grade-approvals" element={<ProtectedRoute roles={['DEAN', 'ADMIN']}><GradeApprovals /></ProtectedRoute>} />
                 {/* HOD Routes */}
                 <Route path="hod/dashboard" element={<ProtectedRoute roles={['HOD', 'ADMIN']}><HODDashboard /></ProtectedRoute>} />
                 <Route path="hod/assign-doctors" element={<ProtectedRoute roles={['HOD', 'ADMIN']}><AssignDoctorsHOD /></ProtectedRoute>} />
