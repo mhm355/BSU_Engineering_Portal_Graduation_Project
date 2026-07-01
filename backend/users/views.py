@@ -159,7 +159,7 @@ class UserViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         from .permissions import IsAdminRole, IsDeanRole
         if self.action in ['list', 'retrieve']:
-            return [IsAdminRole() | IsDeanRole()]
+            return [IsDeanRole()]
         return [IsAdminRole()]
 
     def perform_update(self, serializer):
