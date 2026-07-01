@@ -9,6 +9,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import PeopleIcon from '@mui/icons-material/People';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
@@ -20,6 +21,9 @@ export default function ManageEvents() {
     const [error, setError] = useState('');
     const [openDialog, setOpenDialog] = useState(false);
     const [isEdit, setIsEdit] = useState(false);
+    const [openAttendeesDialog, setOpenAttendeesDialog] = useState(false);
+    const [selectedEventAttendees, setSelectedEventAttendees] = useState([]);
+    const [selectedEventTitle, setSelectedEventTitle] = useState('');
     
     const theme = useTheme();
     const isDark = theme.palette.mode === 'dark';
@@ -115,6 +119,40 @@ export default function ManageEvents() {
         }
     };
 
+    const handleOpenAttendees = async (event) => {
+        try {
+            const config = { withCredentials: true };
+            const res = await axios.get('/api/graduate-affairs/event-registrations/', config);
+            const registrations = Array.isArray(res.data) ? res.data : (res.data?.results || []);
+            setSelectedEventAttendees(registrations.filter(reg => reg.event === event.id));
+            setSelectedEventTitle(event.title);
+            setOpenAttendeesDialog(true);
+        } catch (err) {
+            setError('فشل تحميل المسجلين');
+        }
+    };
+
+    const handleUpdateRegistrationStatus = async (regId, newStatus) => {
+        try {
+            const config = { withCredentials: true };
+            await axios.patch(`/api/graduate-affairs/event-registrations/${regId}/`, { status: newStatus }, config);
+            setSelectedEventAttendees(selectedEventAttendees.map(reg => reg.id === regId ? { ...reg, status: newStatus, status_display: getRegistrationStatusLabel(newStatus) } : reg));
+        } catch (err) {
+            setError('فشل تحديث حالة التسجيل');
+        }
+    };
+
+    const getRegistrationStatusLabel = (status) => {
+        switch (status) {
+            case 'PENDING': return 'قيد الانتظار';
+            case 'CONFIRMED': return 'مؤكد';
+            case 'WAITLIST': return 'قائمة الانتظار';
+            case 'ATTENDED': return 'حضر';
+            case 'CANCELLED': return 'ملغى';
+            default: return status;
+        }
+    };
+
     const handleDelete = async (id) => {
         if (window.confirm('هل أنت متأكد من حذف هذه الفعالية؟')) {
             try {
@@ -191,10 +229,13 @@ export default function ManageEvents() {
                                             />
                                         </TableCell>
                                         <TableCell>
-                                            <IconButton color="primary" onClick={() => handleOpenDialog(event)}>
+                                            <IconButton color="info" onClick={() => handleOpenAttendees(event)} title="عرض المسجلين">
+                                                <PeopleIcon />
+                                            </IconButton>
+                                            <IconButton color="primary" onClick={() => handleOpenDialog(event)} title="تعديل">
                                                 <EditIcon />
                                             </IconButton>
-                                            <IconButton color="error" onClick={() => handleDelete(event.id)}>
+                                            <IconButton color="error" onClick={() => handleDelete(event.id)} title="حذف">
                                                 <DeleteIcon />
                                             </IconButton>
                                         </TableCell>
@@ -325,6 +366,67 @@ export default function ManageEvents() {
                     </Button>
                 </DialogActions>
             </Dialog>
+
+            {/* Attendees Dialog */}
+            <Dialog open={openAttendeesDialog} onClose={() => setOpenAttendeesDialog(false)} maxWidth="md" fullWidth>
+                <DialogTitle sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>
+                    المسجلين في فعالية: {selectedEventTitle}
+                </DialogTitle>
+                <DialogContent dividers>
+                    {selectedEventAttendees.length === 0 ? (
+                        <Typography variant="body1" sx={{ textAlign: 'center', py: 3, fontFamily: 'Cairo' }}>
+                            لا يوجد مسجلين حتى الآن
+                        </Typography>
+                    ) : (
+                        <TableContainer>
+                            <Table size="small">
+                                <TableHead sx={{ bgcolor: isDark ? 'background.default' : '#f5f5f5' }}>
+                                    <TableRow>
+                                        <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>اسم المسجل</TableCell>
+                                        <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>تاريخ التسجيل</TableCell>
+                                        <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>الحالة</TableCell>
+                                        <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>إجراءات</TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {selectedEventAttendees.map(reg => (
+                                        <TableRow key={reg.id}>
+                                            <TableCell sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }}>{reg.attendee_name}</TableCell>
+                                            <TableCell sx={{ fontFamily: 'Cairo' }}>{new Date(reg.registered_at).toLocaleDateString('ar-EG')}</TableCell>
+                                            <TableCell>
+                                                <Chip 
+                                                    label={reg.status_display || getRegistrationStatusLabel(reg.status)} 
+                                                    size="small"
+                                                    color={reg.status === 'CONFIRMED' || reg.status === 'ATTENDED' ? 'success' : reg.status === 'CANCELLED' ? 'error' : reg.status === 'WAITLIST' ? 'secondary' : 'warning'}
+                                                    sx={{ fontFamily: 'Cairo' }}
+                                                />
+                                            </TableCell>
+                                            <TableCell>
+                                                <Select
+                                                    size="small"
+                                                    value={reg.status}
+                                                    onChange={(e) => handleUpdateRegistrationStatus(reg.id, e.target.value)}
+                                                    sx={{ fontFamily: 'Cairo', minWidth: 120 }}
+                                                >
+                                                    <MenuItem value="PENDING" sx={{ fontFamily: 'Cairo' }}>قيد الانتظار</MenuItem>
+                                                    <MenuItem value="CONFIRMED" sx={{ fontFamily: 'Cairo' }}>تأكيد التسجيل</MenuItem>
+                                                    <MenuItem value="WAITLIST" sx={{ fontFamily: 'Cairo' }}>قائمة الانتظار</MenuItem>
+                                                    <MenuItem value="ATTENDED" sx={{ fontFamily: 'Cairo' }}>تم الحضور</MenuItem>
+                                                    <MenuItem value="CANCELLED" sx={{ fontFamily: 'Cairo' }}>إلغاء</MenuItem>
+                                                </Select>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                    )}
+                </DialogContent>
+                <DialogActions sx={{ p: 2 }}>
+                    <Button onClick={() => setOpenAttendeesDialog(false)} variant="contained" sx={{ fontFamily: 'Cairo' }}>إغلاق</Button>
+                </DialogActions>
+            </Dialog>
+
         </Container>
     );
 }
