@@ -137,6 +137,7 @@ function App() {
                 <Route path="student/quiz/:quizId/results" element={<ProtectedRoute roles={['STUDENT']}><StudentQuizResults /></ProtectedRoute>} />
                 <Route path="student/career-portal" element={<ProtectedRoute roles={['STUDENT']}><CareerPortal /></ProtectedRoute>} />
                 <Route path="student/graduate-requests" element={<ProtectedRoute roles={['STUDENT']}><StudentGraduateRequests /></ProtectedRoute>} />
+                <Route path="student/requests" element={<ProtectedRoute roles={['STUDENT']}><StudentGraduateRequests /></ProtectedRoute>} />
                 <Route path="profile" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
 
                 {/* Doctor Routes */}

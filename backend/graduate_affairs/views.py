@@ -175,7 +175,7 @@ class UpdateRequestStatusView(APIView):
                 title="تحديث حالة الطلب",
                 message=f"تم تحديث حالة طلبك ({grad_request.get_request_type_display()}) إلى: {grad_request.get_status_display()}",
                 notification_type=Notification.NotificationType.INFO if new_status != 'APPROVED' else Notification.NotificationType.SUCCESS,
-                link='/student/requests'
+                link='/student/graduate-requests'
             )
             # Send Email
             if grad_request.graduate.email:
