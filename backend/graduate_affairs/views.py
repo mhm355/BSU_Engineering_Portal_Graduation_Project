@@ -350,6 +350,19 @@ class StudentClearanceView(APIView):
         except GraduationClearance.DoesNotExist:
             return Response({'error': 'لا يوجد بيانات إخلاء طرف مسجلة لك حتى الآن.'}, status=status.HTTP_404_NOT_FOUND)
 
+    def post(self, request):
+        # Check if one already exists
+        if GraduationClearance.objects.filter(graduate=request.user).exists():
+            return Response({'error': 'لديك سجل إخلاء طرف بالفعل.'}, status=status.HTTP_400_BAD_REQUEST)
+            
+        # Create new clearance
+        clearance = GraduationClearance.objects.create(
+            graduate=request.user,
+            overall_status='PENDING'
+        )
+        serializer = GraduationClearanceSerializer(clearance)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
 
 # ============================================================================
 # Certificate Management (Migrated from Student Affairs)
