@@ -33,6 +33,7 @@ import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
+import { sanitizeFileUrl } from '../../utils/urlHelper';
 
 import DashboardCard from '../../components/DashboardCard';
 
@@ -769,14 +770,14 @@ export default function StudentDashboard() {
                                     </Typography>
                                     {item.image && (
                                         <Box sx={{ borderRadius: 2, overflow: 'hidden', mt: 1, mb: 1 }}>
-                                            <img src={item.image} alt={item.title} style={{ width: '100%', maxHeight: 200, objectFit: 'cover' }} />
+                                            <img src={sanitizeFileUrl(item.image)} alt={item.title} style={{ width: '100%', maxHeight: 200, objectFit: 'cover' }} />
                                         </Box>
                                     )}
                                     {item.additional_images?.length > 0 && (
                                         <Box sx={{ display: 'flex', gap: 1, overflowX: 'auto', mt: 1, mb: 2, pb: 1 }}>
                                             {item.additional_images.map(img => (
                                                 <Box key={img.id} sx={{ flexShrink: 0, width: 100, height: 100, borderRadius: 2, overflow: 'hidden' }}>
-                                                    <img src={img.image} alt="additional" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                                    <img src={sanitizeFileUrl(img.image)} alt="additional" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                                 </Box>
                                             ))}
                                         </Box>
@@ -784,12 +785,12 @@ export default function StudentDashboard() {
                                     {(item.attachment || item.additional_attachments?.length > 0) && (
                                         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 2 }}>
                                             {item.attachment && (
-                                                <Button size="small" variant="outlined" startIcon={<DownloadIcon />} href={item.attachment} target="_blank" sx={{ fontFamily: 'Cairo', alignSelf: 'flex-start' }}>
+                                                <Button size="small" variant="outlined" startIcon={<DownloadIcon />} href={sanitizeFileUrl(item.attachment)} target="_blank" sx={{ fontFamily: 'Cairo', alignSelf: 'flex-start' }}>
                                                     تحميل المرفق الرئيسي
                                                 </Button>
                                             )}
                                             {item.additional_attachments?.map(att => (
-                                                <Button key={att.id} size="small" variant="outlined" startIcon={<DownloadIcon />} href={att.file} target="_blank" sx={{ fontFamily: 'Cairo', alignSelf: 'flex-start' }}>
+                                                <Button key={att.id} size="small" variant="outlined" startIcon={<DownloadIcon />} href={sanitizeFileUrl(att.file)} target="_blank" sx={{ fontFamily: 'Cairo', alignSelf: 'flex-start' }}>
                                                     تحميل: {att.file.split('/').pop()}
                                                 </Button>
                                             ))}
