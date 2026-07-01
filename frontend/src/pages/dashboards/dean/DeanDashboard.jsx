@@ -78,6 +78,7 @@ export default function DeanDashboard() {
         staff_affairs: 0,
         student_affairs: 0,
         hods: 0,
+        graduate_affairs: 0,
     });
 
     useEffect(() => {
@@ -99,7 +100,7 @@ export default function DeanDashboard() {
                 // Using existing admin users endpoint since DEAN might have access or we can create a quick count endpoint.
                 // Assuming we have /api/academic/admin/users/ or similar, but for now we'll mock or try to fetch.
                 // It's better to request the admin users endpoint if Dean has access.
-                const res = await axios.get('/api/users/admin/users/', config);
+                const res = await axios.get('/api/auth/users/', config);
                 const users = res.data;
                 const usersList = Array.isArray(users) ? users : (users.results || []);
                 setStats({
@@ -108,6 +109,7 @@ export default function DeanDashboard() {
                     staff_affairs: usersList.filter(u => u.role === 'STAFF_AFFAIRS').length,
                     student_affairs: usersList.filter(u => u.role === 'STUDENT_AFFAIRS').length,
                     hods: usersList.filter(u => u.role === 'HOD').length,
+                    graduate_affairs: usersList.filter(u => u.role === 'GRADUATE_AFFAIRS').length,
                 });
             } catch (err) {
                 console.error("Failed to fetch user stats", err);
@@ -233,20 +235,23 @@ export default function DeanDashboard() {
             <Container maxWidth="xl">
                 {/* Stats Row */}
                 <Grid container spacing={3} sx={{ mb: 4 }}>
-                    <Grid item xs={12} sm={6} md={2.4}>
+                    <Grid item xs={12} sm={6} md={2}>
                         <StatCard icon={SchoolIcon} value={stats.students} label="الطلاب" color="#2196F3" delay={0} />
                     </Grid>
-                    <Grid item xs={12} sm={6} md={2.4}>
+                    <Grid item xs={12} sm={6} md={2}>
                         <StatCard icon={PersonIcon} value={stats.doctors} label="أعضاء هيئة التدريس" color="#4CAF50" delay={100} />
                     </Grid>
-                    <Grid item xs={12} sm={6} md={2.4}>
+                    <Grid item xs={12} sm={6} md={2}>
                         <StatCard icon={PeopleIcon} value={stats.hods} label="رؤساء الأقسام" color="#FF9800" delay={200} />
                     </Grid>
-                    <Grid item xs={12} sm={6} md={2.4}>
+                    <Grid item xs={12} sm={6} md={2}>
                         <StatCard icon={PeopleIcon} value={stats.student_affairs} label="شؤون الطلاب" color="#9C27B0" delay={300} />
                     </Grid>
-                    <Grid item xs={12} sm={6} md={2.4}>
+                    <Grid item xs={12} sm={6} md={2}>
                         <StatCard icon={PeopleIcon} value={stats.staff_affairs} label="شؤون العاملين" color="#f44336" delay={400} />
+                    </Grid>
+                    <Grid item xs={12} sm={6} md={2}>
+                        <StatCard icon={PeopleIcon} value={stats.graduate_affairs} label="شؤون الخريجين" color="#00BCD4" delay={500} />
                     </Grid>
                 </Grid>
 
