@@ -77,6 +77,7 @@ import ManageGradingTemplatesHOD from './pages/dashboards/hod/ManageGradingTempl
 import GraduateAffairsDashboard from './pages/dashboards/graduate_affairs/GraduateAffairsDashboard';
 import GraduateRequests from './pages/dashboards/graduate_affairs/GraduateRequests';
 import GraduateDatabase from './pages/dashboards/graduate_affairs/GraduateDatabase';
+import BulkCertificateUpload from './pages/dashboards/graduate_affairs/BulkCertificateUpload';
 import GraduationClearance from './pages/dashboards/graduate_affairs/GraduationClearance';
 import GraduateReports from './pages/dashboards/graduate_affairs/GraduateReports';
 import ManageCompanies from './pages/dashboards/graduate_affairs/ManageCompanies';
@@ -164,7 +165,8 @@ function App() {
                 {/* Graduate Affairs Routes */}
                 <Route path="graduate-affairs/dashboard" element={<ProtectedRoute roles={['GRADUATE_AFFAIRS']}><GraduateAffairsDashboard /></ProtectedRoute>} />
                 <Route path="graduate-affairs/requests" element={<ProtectedRoute roles={['GRADUATE_AFFAIRS']}><GraduateRequests /></ProtectedRoute>} />
-                <Route path="graduate-affairs/database" element={<ProtectedRoute roles={['GRADUATE_AFFAIRS']}><GraduateDatabase /></ProtectedRoute>} />
+                <Route path="graduate-affairs/graduates" element={<ProtectedRoute roles={['GRADUATE_AFFAIRS']}><GraduateDatabase /></ProtectedRoute>} />
+                <Route path="graduate-affairs/bulk-certificates" element={<ProtectedRoute roles={['GRADUATE_AFFAIRS']}><BulkCertificateUpload /></ProtectedRoute>} />
                 <Route path="graduate-affairs/clearance" element={<ProtectedRoute roles={['GRADUATE_AFFAIRS']}><GraduationClearance /></ProtectedRoute>} />
                 <Route path="graduate-affairs/reports" element={<ProtectedRoute roles={['GRADUATE_AFFAIRS']}><GraduateReports /></ProtectedRoute>} />
                 <Route path="graduate-affairs/companies" element={<ProtectedRoute roles={['GRADUATE_AFFAIRS']}><ManageCompanies /></ProtectedRoute>} />
