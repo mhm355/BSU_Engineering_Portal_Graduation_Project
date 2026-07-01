@@ -43,6 +43,12 @@ class GraduateRequestSerializer(serializers.ModelSerializer):
         return None
 
 
+class StudentGraduateRequestSerializer(GraduateRequestSerializer):
+    class Meta(GraduateRequestSerializer.Meta):
+        read_only_fields = GraduateRequestSerializer.Meta.read_only_fields + ['graduate', 'status']
+
+
+
 class GraduationClearanceSerializer(serializers.ModelSerializer):
     graduate_name = serializers.SerializerMethodField()
     progress = serializers.SerializerMethodField()

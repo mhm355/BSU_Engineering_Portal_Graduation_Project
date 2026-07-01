@@ -22,7 +22,7 @@ from .models import (
 )
 from .serializers import (
     GraduateRequestSerializer, GraduationClearanceSerializer,
-    GraduateInfoUpdateRequestSerializer
+    GraduateInfoUpdateRequestSerializer, StudentGraduateRequestSerializer
 )
 from academic.models import Student, Certificate, AuditLog, UploadHistory
 from users.permissions import IsGraduateAffairsRole, IsStudentRole
@@ -204,7 +204,7 @@ class UpdateRequestStatusView(APIView):
 
 class StudentGraduateRequestViewSet(viewsets.ModelViewSet):
     """CRUD for graduate service requests from the student's perspective"""
-    serializer_class = GraduateRequestSerializer
+    serializer_class = StudentGraduateRequestSerializer
     permission_classes = [IsAuthenticated, IsStudentRole]
     parser_classes = [MultiPartParser, FormParser, JSONParser]
 
