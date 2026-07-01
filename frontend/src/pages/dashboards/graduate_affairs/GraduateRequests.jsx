@@ -41,8 +41,10 @@ export default function GraduateRequests() {
 
     const getStatusColor = (status) => {
         switch (status) {
-            case 'PENDING': return 'warning';
-            case 'IN_PROGRESS': return 'info';
+            case 'SUBMITTED': return 'primary';
+            case 'UNDER_REVIEW': return 'info';
+            case 'MISSING_DOCUMENTS': return 'warning';
+            case 'APPROVED': return 'success';
             case 'COMPLETED': return 'success';
             case 'REJECTED': return 'error';
             default: return 'default';
@@ -51,8 +53,10 @@ export default function GraduateRequests() {
 
     const getStatusText = (status) => {
         switch (status) {
-            case 'PENDING': return 'قيد الانتظار';
-            case 'IN_PROGRESS': return 'جاري العمل';
+            case 'SUBMITTED': return 'تم التقديم';
+            case 'UNDER_REVIEW': return 'قيد المراجعة';
+            case 'MISSING_DOCUMENTS': return 'مستندات ناقصة';
+            case 'APPROVED': return 'تمت الموافقة';
             case 'COMPLETED': return 'مكتمل';
             case 'REJECTED': return 'مرفوض';
             default: return status;
@@ -158,8 +162,10 @@ export default function GraduateRequests() {
                                 label="الحالة"
                                 sx={{ fontFamily: 'Cairo' }}
                             >
-                                <MenuItem value="PENDING" sx={{ fontFamily: 'Cairo' }}>قيد الانتظار</MenuItem>
-                                <MenuItem value="IN_PROGRESS" sx={{ fontFamily: 'Cairo' }}>جاري العمل</MenuItem>
+                                <MenuItem value="SUBMITTED" sx={{ fontFamily: 'Cairo' }}>تم التقديم</MenuItem>
+                                <MenuItem value="UNDER_REVIEW" sx={{ fontFamily: 'Cairo' }}>قيد المراجعة</MenuItem>
+                                <MenuItem value="MISSING_DOCUMENTS" sx={{ fontFamily: 'Cairo' }}>مستندات ناقصة</MenuItem>
+                                <MenuItem value="APPROVED" sx={{ fontFamily: 'Cairo' }}>تمت الموافقة</MenuItem>
                                 <MenuItem value="COMPLETED" sx={{ fontFamily: 'Cairo' }}>مكتمل</MenuItem>
                                 <MenuItem value="REJECTED" sx={{ fontFamily: 'Cairo' }}>مرفوض</MenuItem>
                             </Select>
