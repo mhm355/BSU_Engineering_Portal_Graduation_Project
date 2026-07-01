@@ -530,6 +530,11 @@ export default function ManageUsers() {
                     <Grid item xs={12} sm={6} md={3}><StatCard icon={BadgeIcon} value={studentAffairsUsers.length} label="شئون الطلاب" color="#2196F3" delay={100} /></Grid>
                     <Grid item xs={12} sm={6} md={3}><StatCard icon={SupervisorAccountIcon} value={staffAffairsUsers.length} label="شئون العاملين" color="#9C27B0" delay={200} /></Grid>
                     <Grid item xs={12} sm={6} md={3}><StatCard icon={PersonIcon} value={doctorUsers.length} label="الدكاترة" color="#4CAF50" delay={300} /></Grid>
+                    
+                    {/* Second Row */}
+                    <Grid item xs={12} sm={6} md={4}><StatCard icon={SupervisorAccountIcon} value={hodUsers.length} label="رؤساء الأقسام" color="#f44336" delay={400} /></Grid>
+                    <Grid item xs={12} sm={6} md={4}><StatCard icon={BadgeIcon} value={deanUsers.length} label="العميد" color="#607d8b" delay={500} /></Grid>
+                    <Grid item xs={12} sm={6} md={4}><StatCard icon={SchoolIcon} value={graduateAffairsUsers.length} label="شئون الخريجين" color="#E91E63" delay={600} /></Grid>
                 </Grid>
 
                 <Paper elevation={0} sx={{ borderRadius: 4, background: '#fff', boxShadow: '0 4px 20px rgba(0,0,0,0.08)', overflow: 'hidden' }}>
