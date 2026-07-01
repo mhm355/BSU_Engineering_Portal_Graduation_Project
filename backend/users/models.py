@@ -11,6 +11,7 @@ class User(AbstractUser):
         STAFF_AFFAIRS = "STAFF_AFFAIRS", "Staff Affairs"
         HOD = "HOD", "Head of Department"
         DEAN = "DEAN", "Dean"
+        GRADUATE_AFFAIRS = "GRADUATE_AFFAIRS", "Graduate Affairs"
 
     class GraduationStatus(models.TextChoices):
         PENDING = "PENDING", "Pending"
@@ -39,7 +40,7 @@ class User(AbstractUser):
                 self.set_password(self.national_id or self.username)
             
             # Require password change on first login for staff users AND students
-            if self.role in ['STUDENT', 'STUDENT_AFFAIRS', 'STAFF_AFFAIRS', 'DOCTOR', 'HOD', 'DEAN']:
+            if self.role in ['STUDENT', 'STUDENT_AFFAIRS', 'STAFF_AFFAIRS', 'DOCTOR', 'HOD', 'DEAN', 'GRADUATE_AFFAIRS']:
                 self.first_login_required = True
         return super().save(*args, **kwargs)
 
@@ -56,6 +57,8 @@ class User(AbstractUser):
             return '/hod/dashboard'  # Assuming frontend route, no reverse named yet
         elif self.role == 'DEAN':
             return '/dean/dashboard'
+        elif self.role == 'GRADUATE_AFFAIRS':
+            return reverse('graduate_affairs_dashboard')
         elif self.role == 'ADMIN':
             return reverse('admin_dashboard')
         else:

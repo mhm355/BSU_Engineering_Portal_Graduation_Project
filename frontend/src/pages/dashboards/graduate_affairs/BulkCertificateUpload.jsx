@@ -39,7 +39,7 @@ export default function BulkCertificateUpload() {
         setResult(null);
 
         try {
-            const res = await axios.post('/api/academic/student-affairs/certificates/sync/', {}, config);
+            const res = await axios.post('/api/graduate-affairs/certificates/sync/', {}, config);
             setResult(res.data);
         } catch (err) {
             setError(err.response?.data?.error || 'فشل في مزامنة الشهادات');
@@ -64,7 +64,7 @@ export default function BulkCertificateUpload() {
                 formData.append('files', file);
             });
 
-            const res = await axios.post('/api/academic/student-affairs/certificates/bulk-direct/', formData, {
+            const res = await axios.post('/api/graduate-affairs/certificates/bulk-direct/', formData, {
                 ...config,
                 headers: { ...config.headers, 'Content-Type': 'multipart/form-data' }
             });
@@ -82,7 +82,7 @@ export default function BulkCertificateUpload() {
         <Container maxWidth="lg" sx={{ py: 4 }}>
             <Button
                 startIcon={<ArrowBackIcon />}
-                onClick={() => navigate('/student-affairs/dashboard')}
+                onClick={() => navigate('/graduate-affairs/dashboard')}
                 sx={{ mb: 2, fontFamily: 'Cairo' }}
             >
                 عودة للوحة التحكم

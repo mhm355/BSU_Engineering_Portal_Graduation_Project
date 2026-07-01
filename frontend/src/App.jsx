@@ -66,15 +66,26 @@ import AuditLogViewer from './pages/dashboards/admin/AuditLogViewer';
 import ComplaintsDashboard from './pages/dashboards/admin/ComplaintsDashboard';
 import PasswordResets from './pages/dashboards/admin/PasswordResets';
 import UploadHistory from './pages/dashboards/student_affairs/UploadHistory';
-import BulkCertificateUpload from './pages/dashboards/student_affairs/BulkCertificateUpload';
 import AssignmentHistory from './pages/dashboards/staff_affairs/AssignmentHistory';
 
 import DeanDashboard from './pages/dashboards/dean/DeanDashboard';
-import GradeApprovals from './pages/dashboards/dean/GradeApprovals';
 
 import HODDashboard from './pages/dashboards/hod/HODDashboard';
 import AssignDoctorsHOD from './pages/dashboards/hod/AssignDoctorsHOD';
 import ManageGradingTemplatesHOD from './pages/dashboards/hod/ManageGradingTemplatesHOD';
+
+import GraduateAffairsDashboard from './pages/dashboards/graduate_affairs/GraduateAffairsDashboard';
+import GraduateRequests from './pages/dashboards/graduate_affairs/GraduateRequests';
+import GraduateDatabase from './pages/dashboards/graduate_affairs/GraduateDatabase';
+import BulkCertificateUpload from './pages/dashboards/graduate_affairs/BulkCertificateUpload';
+import GraduationClearance from './pages/dashboards/graduate_affairs/GraduationClearance';
+import GraduateReports from './pages/dashboards/graduate_affairs/GraduateReports';
+import ManageCompanies from './pages/dashboards/graduate_affairs/ManageCompanies';
+import ManageJobs from './pages/dashboards/graduate_affairs/ManageJobs';
+import ManageEvents from './pages/dashboards/graduate_affairs/ManageEvents';
+import CareerPortal from './pages/dashboards/student/CareerPortal';
+import StudentGraduateRequests from './pages/dashboards/student/StudentGraduateRequests';
+import VerifyCertificate from './pages/public/VerifyCertificate';
 
 import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
@@ -113,6 +124,7 @@ function App() {
 
                 {/* Public Results Query */}
                 <Route path="student/results" element={<StudentResults />} />
+                <Route path="verify-certificate" element={<VerifyCertificate />} />
 
                 {/* Protected Student Routes */}
                 <Route path="student/dashboard" element={<ProtectedRoute roles={['STUDENT']}><StudentDashboard /></ProtectedRoute>} />
@@ -123,6 +135,9 @@ function App() {
                 <Route path="student/quizzes" element={<ProtectedRoute roles={['STUDENT']}><StudentQuizzes /></ProtectedRoute>} />
                 <Route path="student/quiz/:quizId" element={<ProtectedRoute roles={['STUDENT']}><TakeQuiz /></ProtectedRoute>} />
                 <Route path="student/quiz/:quizId/results" element={<ProtectedRoute roles={['STUDENT']}><StudentQuizResults /></ProtectedRoute>} />
+                <Route path="student/career-portal" element={<ProtectedRoute roles={['STUDENT']}><CareerPortal /></ProtectedRoute>} />
+                <Route path="student/graduate-requests" element={<ProtectedRoute roles={['STUDENT']}><StudentGraduateRequests /></ProtectedRoute>} />
+                <Route path="student/requests" element={<ProtectedRoute roles={['STUDENT']}><StudentGraduateRequests /></ProtectedRoute>} />
                 <Route path="profile" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
 
                 {/* Doctor Routes */}
@@ -145,9 +160,20 @@ function App() {
                 <Route path="student-affairs/exam-grades" element={<ProtectedRoute roles={['STUDENT_AFFAIRS']}><UploadExamGrades /></ProtectedRoute>} />
                 <Route path="student-affairs/grades" element={<ProtectedRoute roles={['STUDENT_AFFAIRS']}><StudentGradesView /></ProtectedRoute>} />
                 <Route path="student-affairs/upload-history" element={<ProtectedRoute roles={['STUDENT_AFFAIRS']}><UploadHistory /></ProtectedRoute>} />
-                <Route path="student-affairs/bulk-certificates" element={<ProtectedRoute roles={['STUDENT_AFFAIRS']}><BulkCertificateUpload /></ProtectedRoute>} />
                 <Route path="student-affairs/publish-results" element={<ProtectedRoute roles={['STUDENT_AFFAIRS']}><PublishResultsSA /></ProtectedRoute>} />
                 <Route path="student-affairs/manage-tuition" element={<ProtectedRoute roles={['STUDENT_AFFAIRS']}><ManageTuition /></ProtectedRoute>} />
+                
+                {/* Graduate Affairs Routes */}
+                <Route path="graduate-affairs/dashboard" element={<ProtectedRoute roles={['GRADUATE_AFFAIRS']}><GraduateAffairsDashboard /></ProtectedRoute>} />
+                <Route path="graduate-affairs/requests" element={<ProtectedRoute roles={['GRADUATE_AFFAIRS']}><GraduateRequests /></ProtectedRoute>} />
+                <Route path="graduate-affairs/graduates" element={<ProtectedRoute roles={['GRADUATE_AFFAIRS']}><GraduateDatabase /></ProtectedRoute>} />
+                <Route path="graduate-affairs/bulk-certificates" element={<ProtectedRoute roles={['GRADUATE_AFFAIRS']}><BulkCertificateUpload /></ProtectedRoute>} />
+                <Route path="graduate-affairs/clearance" element={<ProtectedRoute roles={['GRADUATE_AFFAIRS']}><GraduationClearance /></ProtectedRoute>} />
+                <Route path="graduate-affairs/reports" element={<ProtectedRoute roles={['GRADUATE_AFFAIRS']}><GraduateReports /></ProtectedRoute>} />
+                <Route path="graduate-affairs/companies" element={<ProtectedRoute roles={['GRADUATE_AFFAIRS']}><ManageCompanies /></ProtectedRoute>} />
+                <Route path="graduate-affairs/jobs" element={<ProtectedRoute roles={['GRADUATE_AFFAIRS']}><ManageJobs /></ProtectedRoute>} />
+                <Route path="graduate-affairs/events" element={<ProtectedRoute roles={['GRADUATE_AFFAIRS']}><ManageEvents /></ProtectedRoute>} />
+                <Route path="graduate-affairs/news" element={<ProtectedRoute roles={['GRADUATE_AFFAIRS']}><ManageStaffNews /></ProtectedRoute>} />
 
                 {/* Staff Affairs Routes */}
                 <Route path="staff-affairs" element={<ProtectedRoute roles={['STAFF_AFFAIRS']}><StaffAffairsDashboard /></ProtectedRoute>} />

@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+import uuid
 
 
 class Department(models.Model):
@@ -448,6 +449,7 @@ class Certificate(models.Model):
     file = models.FileField(upload_to='certificates/')
     issued_at = models.DateTimeField(auto_now_add=True)
     description = models.CharField(max_length=255, blank=True)
+    verification_code = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
 
     def __str__(self):
         return f"Certificate for {self.student.username}"
@@ -471,6 +473,8 @@ class AuditLog(models.Model):
         GRADE_APPROVED = "GRADE_APPROVED", "Grade Approved"
         GRADE_REJECTED = "GRADE_REJECTED", "Grade Rejected"
         CERTIFICATE_GENERATED = "CERTIFICATE_GENERATED", "Certificate Generated"
+        GRADUATE_REQUEST_CREATED = "GRADUATE_REQUEST_CREATED", "Graduate Request Created"
+        GRADUATE_REQUEST_UPDATED = "GRADUATE_REQUEST_UPDATED", "Graduate Request Updated"
         NEWS_CREATED = "NEWS_CREATED", "News Created"
 
     action = models.CharField(max_length=50, choices=ActionType.choices)
@@ -654,6 +658,7 @@ class Announcement(models.Model):
         DOCTOR = 'DOCTOR', 'أعضاء هيئة التدريس'
         STUDENT_AFFAIRS = 'STUDENT_AFFAIRS', 'شؤون الطلاب'
         STAFF_AFFAIRS = 'STAFF_AFFAIRS', 'شؤون الموظفين'
+        GRADUATE_AFFAIRS = 'GRADUATE_AFFAIRS', 'شؤون الخريجين'
 
     title = models.CharField(max_length=300)
     message = models.TextField()

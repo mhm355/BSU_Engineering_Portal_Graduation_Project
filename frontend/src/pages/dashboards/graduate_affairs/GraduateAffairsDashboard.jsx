@@ -1,115 +1,32 @@
 import React, { useEffect, useState } from 'react';
 import {
-    Box, Container, Typography, Grid, Card, CardContent, Button, Avatar, Paper, Fade, Grow, IconButton
+    Box, Container, Typography, Grid, Card, CardContent, Avatar, Paper, Fade, Grow, IconButton, CircularProgress
 } from '@mui/material';
 import { keyframes } from '@mui/system';
+import SchoolIcon from '@mui/icons-material/School';
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import AssignmentIcon from '@mui/icons-material/Assignment';
 import PeopleIcon from '@mui/icons-material/People';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
-import CardMembershipIcon from '@mui/icons-material/CardMembership';
-import NewspaperIcon from '@mui/icons-material/Newspaper';
-import GradingIcon from '@mui/icons-material/Grading';
-import SchoolIcon from '@mui/icons-material/School';
-import AccountTreeIcon from '@mui/icons-material/AccountTree';
-import AssignmentIcon from '@mui/icons-material/Assignment';
-import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
-import CampaignIcon from '@mui/icons-material/Campaign';
+import LogoutIcon from '@mui/icons-material/Logout';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import AssessmentIcon from '@mui/icons-material/Assessment';
-import PaymentsIcon from '@mui/icons-material/Payments';
-import LogoutIcon from '@mui/icons-material/Logout';
-import HistoryIcon from '@mui/icons-material/History';
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import CampaignIcon from '@mui/icons-material/Campaign';
+import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
+import WorkIcon from '@mui/icons-material/Work';
+import EventIcon from '@mui/icons-material/Event';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
-import DomainIcon from '@mui/icons-material/Domain';
+import { useAuth } from '../../../context/AuthContext';
 import axios from 'axios';
-import DashboardCard from '../../components/DashboardCard';
+import DashboardCard from '../../../components/DashboardCard';
 
 // Animations
-const float = keyframes`
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
-`;
-
-const pulse = keyframes`
-  0% { transform: scale(1); }
-  50% { transform: scale(1.02); }
-  100% { transform: scale(1); }
-`;
-
 const avatarPulse = keyframes`
   0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4), 0 8px 25px rgba(0,0,0,0.2); transform: translateY(0px); }
   50% { box-shadow: 0 0 0 15px rgba(255, 255, 255, 0), 0 12px 30px rgba(0,0,0,0.3); transform: translateY(-4px); }
   100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0), 0 8px 25px rgba(0,0,0,0.2); transform: translateY(0px); }
 `;
-
-// Navigation Card Component
-const NavCard = ({ icon: Icon, title, description, onClick, gradient, delay = 0 }) => (
-    <Grow in={true} timeout={800 + delay}>
-        <Card
-            onClick={onClick}
-            sx={{
-                height: '100%',
-                borderRadius: 4,
-                background: '#fff',
-                boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-                border: '1px solid rgba(0,0,0,0.06)',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                position: 'relative',
-                overflow: 'hidden',
-                '&:hover': {
-                    transform: 'translateY(-8px)',
-                    boxShadow: '0 20px 40px rgba(0,0,0,0.15)',
-                    '& .nav-icon': {
-                        transform: 'scale(1.1) rotate(5deg)',
-                    },
-                    '& .nav-arrow': {
-                        opacity: 1,
-                        transform: 'translateX(0)',
-                    }
-                }
-            }}
-        >
-            {/* Gradient top bar */}
-            <Box sx={{ height: 6, background: gradient }} />
-
-            <CardContent sx={{ p: 3 }}>
-                <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2.5 }}>
-                    <Avatar
-                        className="nav-icon"
-                        sx={{
-                            width: 64,
-                            height: 64,
-                            background: gradient,
-                            boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
-                            transition: 'transform 0.3s ease',
-                        }}
-                    >
-                        <Icon sx={{ fontSize: 32 }} />
-                    </Avatar>
-                    <Box sx={{ flex: 1 }}>
-                        <Typography variant="h6" sx={{ fontFamily: 'Cairo', fontWeight: 'bold', color: '#1a2744', mb: 0.5 }}>
-                            {title}
-                        </Typography>
-                        <Typography variant="body2" sx={{ fontFamily: 'Cairo', color: '#666', lineHeight: 1.5 }}>
-                            {description}
-                        </Typography>
-                    </Box>
-                    <ArrowForwardIcon
-                        className="nav-arrow"
-                        sx={{
-                            color: '#ccc',
-                            opacity: 0.5,
-                            transition: 'all 0.3s ease',
-                            transform: 'translateX(-10px)',
-                        }}
-                    />
-                </Box>
-            </CardContent>
-        </Card>
-    </Grow>
-);
 
 // Stats Card Component
 const StatCard = ({ icon: Icon, value, label, color, delay = 0 }) => (
@@ -156,7 +73,7 @@ const StatCard = ({ icon: Icon, value, label, color, delay = 0 }) => (
     </Grow>
 );
 
-export default function StudentAffairsDashboard() {
+export default function GraduateAffairsDashboard() {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
 
@@ -168,7 +85,7 @@ export default function StudentAffairsDashboard() {
     useEffect(() => {
         if (!user) {
             navigate('/login');
-        } else if (user.role !== 'STUDENT_AFFAIRS' && user.role !== 'ADMIN') {
+        } else if (user.role !== 'GRADUATE_AFFAIRS' && user.role !== 'ADMIN') {
             navigate('/');
         }
     }, [user, navigate]);
@@ -181,85 +98,105 @@ export default function StudentAffairsDashboard() {
         );
     }
 
-    const [stats, setStats] = useState({ students: 0, departments: 0, certificates: 0, levels: 0 });
+    const [stats, setStats] = useState({ 
+        graduates: 0, 
+        pendingRequests: 0, 
+        certificates: 0, 
+        clearances: 0 
+    });
 
     useEffect(() => {
         const fetchStats = async () => {
             try {
                 const config = { withCredentials: true };
-                const [studentsRes, deptsRes, levelsRes] = await Promise.all([
-                    axios.get('/api/academic/student-affairs/students/', config).catch(() => ({ data: [] })),
-                    axios.get('/api/academic/departments/', config).catch(() => ({ data: [] })),
-                    axios.get('/api/academic/levels/', config).catch(() => ({ data: [] })),
-                ]);
+                const res = await axios.get('/api/graduate-affairs/stats/', config);
+                const data = res.data;
+                
                 setStats({
-                    students: (Array.isArray(studentsRes.data) ? studentsRes.data : studentsRes.data?.results || []).length,
-                    departments: (Array.isArray(deptsRes.data) ? deptsRes.data : deptsRes.data?.results || []).length,
-                    certificates: 0, // Migrated to Graduate Affairs
-                    levels: (Array.isArray(levelsRes.data) ? levelsRes.data : levelsRes.data?.results || []).length,
+                    graduates: data.total_graduates || 0,
+                    pendingRequests: data.pending_requests || 0,
+                    certificates: data.total_certificates || 0,
+                    clearances: data.completed_clearances || 0,
                 });
-            } catch { /* fail silently */ }
+            } catch (error) {
+                console.error("Failed to fetch graduate affairs stats:", error);
+            }
         };
         fetchStats();
     }, []);
 
     const navigationCards = [
         {
-            icon: AccountTreeIcon,
-            title: 'الهيكل الأكاديمي',
-            description: 'تصفح الطلاب حسب القسم والسنة والفرقة الدراسية',
-            buttonText: 'الهيكل الأكاديمي',
-            onClick: () => navigate('/student-affairs/hierarchy'),
+            icon: PeopleIcon,
+            title: 'قاعدة بيانات الخريجين',
+            description: 'تصفح بيانات جميع خريجي الكلية',
+            buttonText: 'قاعدة البيانات',
+            onClick: () => navigate('/graduate-affairs/graduates'),
             color: 'primary',
         },
         {
-            icon: UploadFileIcon,
-            title: 'رفع بيانات الطلاب',
-            description: 'رفع ملفات Excel/CSV لإضافة بيانات الطلاب الجدد',
-            buttonText: 'رفع البيانات',
-            onClick: () => navigate('/student-affairs/upload-students'),
-            color: 'warning',
-        },
-
-        {
-            icon: CampaignIcon,
-            title: 'الأخبار والإعلانات',
-            description: 'نشر الأخبار والإعلانات الهامة للطلاب',
-            buttonText: 'الأخبار والإعلانات',
-            onClick: () => navigate('/student-affairs/news'),
-            color: 'error',
-        },
-        {
-            icon: GradingIcon,
-            title: 'عرض درجات الطلاب',
-            description: 'عرض درجات كل فرقة (للقراءة فقط)',
-            buttonText: 'عرض الدرجات',
-            onClick: () => navigate('/student-affairs/grades'),
-            color: 'info',
-        },
-        {
-            icon: AssessmentIcon,
-            title: 'إدارة إعلان النتائج',
-            description: 'اعتماد نتائج الامتحانات ونشرها للطلاب',
-            buttonText: 'إدارة النتائج',
-            onClick: () => navigate('/student-affairs/publish-results'),
-            color: 'success',
-        },
-        {
-            icon: HistoryIcon,
-            title: 'سجل عمليات الرفع',
-            description: 'تتبع جميع عمليات الرفع السابقة وتحميل تقارير الأخطاء',
-            buttonText: 'سجل الرفع',
-            onClick: () => navigate('/student-affairs/upload-history'),
+            icon: EmojiEventsIcon,
+            title: 'الشهادات',
+            description: 'رفع وإدارة شهادات التخرج',
+            buttonText: 'الشهادات',
+            onClick: () => navigate('/graduate-affairs/bulk-certificates'),
             color: 'secondary',
         },
         {
-            icon: PaymentsIcon,
-            title: 'إدارة المصروفات',
-            description: 'متابعة وتحديث حالة سداد المصروفات الدراسية للطلاب',
-            buttonText: 'المصروفات',
-            onClick: () => navigate('/student-affairs/manage-tuition'),
+            icon: CheckCircleIcon,
+            title: 'إخلاء الطرف',
+            description: 'إدارة وتتبع إجراءات إخلاء الطرف للخريجين',
+            buttonText: 'إخلاء الطرف',
+            onClick: () => navigate('/graduate-affairs/clearance'),
+            color: 'success',
+        },
+        {
+            icon: AssignmentIcon,
+            title: 'طلبات الخريجين',
+            description: 'إدارة ومعالجة طلبات الإفادات وتحديث البيانات',
+            buttonText: 'الطلبات',
+            onClick: () => navigate('/graduate-affairs/requests'),
+            color: 'warning',
+        },
+        {
+            icon: CampaignIcon,
+            title: 'الأخبار والإعلانات',
+            description: 'نشر الأخبار وإعلانات التوظيف للخريجين',
+            buttonText: 'الأخبار',
+            onClick: () => navigate('/graduate-affairs/news'),
+            color: 'error',
+        },
+        {
+            icon: AssessmentIcon,
+            title: 'التقارير والإحصائيات',
+            description: 'تقارير شاملة عن أعداد الخريجين والخدمات',
+            buttonText: 'التقارير',
+            onClick: () => navigate('/graduate-affairs/reports'),
+            color: 'info',
+        },
+        {
+            icon: BusinessCenterIcon,
+            title: 'الشركات الشريكة',
+            description: 'إدارة بيانات الشركات وجهات التوظيف',
+            buttonText: 'الشركات',
+            onClick: () => navigate('/graduate-affairs/companies'),
             color: 'primary',
+        },
+        {
+            icon: WorkIcon,
+            title: 'الوظائف والتدريب',
+            description: 'إدارة إعلانات الوظائف وفرص التدريب',
+            buttonText: 'الوظائف',
+            onClick: () => navigate('/graduate-affairs/jobs'),
+            color: 'secondary',
+        },
+        {
+            icon: EventIcon,
+            title: 'الفعاليات',
+            description: 'إدارة ملتقيات التوظيف والورش التدريبية',
+            buttonText: 'الفعاليات',
+            onClick: () => navigate('/graduate-affairs/events'),
+            color: 'success',
         },
     ];
 
@@ -268,7 +205,7 @@ export default function StudentAffairsDashboard() {
             {/* Hero Header */}
             <Box
                 sx={{
-                    background: 'linear-gradient(135deg, #1976D2 0%, #42A5F5 100%)',
+                    background: 'linear-gradient(135deg, #7B1FA2 0%, #E1BEE7 100%)',
                     pt: 2.5,
                     pb: 3,
                     mb: 2.5,
@@ -276,11 +213,6 @@ export default function StudentAffairsDashboard() {
                     overflow: 'hidden',
                 }}
             >
-                {/* Floating Elements - REMOVED */}
-                {/* <Box sx={{ position: 'absolute', top: -50, right: -50, width: 200, height: 200, borderRadius: '50%', background: 'rgba(255,255,255,0.1)', animation: `${float} 6s ease-in-out infinite` }} />
-                <Box sx={{ position: 'absolute', bottom: -80, left: -80, width: 300, height: 300, borderRadius: '50%', background: 'rgba(255,255,255,0.08)', animation: `${float} 8s ease-in-out infinite`, animationDelay: '2s' }} />
-                <Box sx={{ position: 'absolute', top: 60, left: '30%', width: 100, height: 100, borderRadius: '50%', background: 'rgba(255,255,255,0.05)', animation: `${float} 5s ease-in-out infinite`, animationDelay: '1s' }} /> */}
-
                 <Container maxWidth="xl">
                     <Fade in={true} timeout={800}>
                         <Box>
@@ -313,7 +245,7 @@ export default function StudentAffairsDashboard() {
                                             مرحباً، {user.first_name} {user.last_name}
                                         </Typography>
                                         <Typography variant="subtitle1" sx={{ fontFamily: 'Cairo', color: 'rgba(255,255,255,0.9)' }}>
-                                            لوحة تحكم شؤون الطلاب
+                                            لوحة تحكم شؤون الخريجين
                                         </Typography>
                                     </Box>
                                 </Box>
@@ -338,30 +270,39 @@ export default function StudentAffairsDashboard() {
             <Container maxWidth="xl">
                 {/* Stats Row */}
                 <Grid container spacing={2} sx={{ mb: 3 }}>
-                    <Grid item xs={12} sm={4}>
+                    <Grid item xs={12} sm={6} md={3}>
                         <StatCard
-                            icon={PeopleIcon}
-                            value={String(stats.students)}
-                            label="إجمالي الطلاب"
-                            color="#2196F3"
+                            icon={SchoolIcon}
+                            value={String(stats.graduates)}
+                            label="إجمالي الخريجين"
+                            color="#9C27B0"
                             delay={0}
                         />
                     </Grid>
-                    <Grid item xs={12} sm={4}>
+                    <Grid item xs={12} sm={6} md={3}>
                         <StatCard
-                            icon={DomainIcon}
-                            value={String(stats.departments)}
-                            label="الأقسام"
+                            icon={AssignmentIcon}
+                            value={String(stats.pendingRequests)}
+                            label="طلبات معلقة"
                             color="#FF9800"
                             delay={100}
                         />
                     </Grid>
-                    <Grid item xs={12} sm={4}>
+                    <Grid item xs={12} sm={6} md={3}>
                         <StatCard
-                            icon={SchoolIcon}
-                            value={String(stats.levels)}
-                            label="الفرق الدراسية"
-                            color="#00BCD4"
+                            icon={EmojiEventsIcon}
+                            value={String(stats.certificates)}
+                            label="الشهادات المرفوعة"
+                            color="#4CAF50"
+                            delay={200}
+                        />
+                    </Grid>
+                    <Grid item xs={12} sm={6} md={3}>
+                        <StatCard
+                            icon={CheckCircleIcon}
+                            value={String(stats.clearances)}
+                            label="إخلاء طرف مكتمل"
+                            color="#2196F3"
                             delay={300}
                         />
                     </Grid>

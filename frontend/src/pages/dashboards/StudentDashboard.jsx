@@ -28,9 +28,12 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import LockIcon from '@mui/icons-material/Lock';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import QrCode2Icon from '@mui/icons-material/QrCode2';
+import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
+import { sanitizeFileUrl } from '../../utils/urlHelper';
 
 import DashboardCard from '../../components/DashboardCard';
 
@@ -208,7 +211,7 @@ export default function StudentDashboard() {
         return levels[level] || level;
     };
 
-    const quickActions = [
+    let quickActions = [
         {
             title: 'المواد الدراسية',
             icon: MenuBookIcon,
@@ -242,6 +245,13 @@ export default function StudentDashboard() {
             requiresPayment: true
         },
     ];
+
+    if (studentInfo?.level === 'FOURTH' || studentInfo?.level?.includes('الرابعة') || studentInfo?.level?.toLowerCase().includes('fourth') || studentInfo?.graduation_status === 'APPROVED') {
+        quickActions.push(
+            { title: 'بوابة التدريب والتوظيف', icon: BusinessCenterIcon, description: 'فرص عمل وتدريب', path: '/student/career-portal', gradient: 'linear-gradient(135deg, #ff9800 0%, #ffb74d 100%)', requiresPayment: false },
+            { title: 'خدمات وطلبات الخريجين', icon: AssessmentIcon, description: 'طلبات الافادة والبيانات', path: '/student/graduate-requests', gradient: 'linear-gradient(135deg, #8bc34a 0%, #aed581 100%)', requiresPayment: false }
+        );
+    }
 
     const currentHour = new Date().getHours();
     const greeting = currentHour < 12 ? 'صباح الخير' : currentHour < 17 ? 'مساء الخير' : 'مساء الخير';
@@ -499,42 +509,65 @@ export default function StudentDashboard() {
                                 {certificateLoading ? (
                                     <CircularProgress sx={{ color: '#fff' }} />
                                 ) : hasCertificate ? (
-                                    <Button
-                                        variant="contained"
-                                        size="large"
-                                        startIcon={<DownloadIcon />}
-                                        sx={{
-                                            fontFamily: 'Cairo',
-                                            fontWeight: 'bold',
-                                            bgcolor: '#fff',
-                                            color: '#4CAF50',
-                                            px: 4,
-                                            py: 1.5,
-                                            borderRadius: 3,
-                                            '&:hover': { bgcolor: 'rgba(255,255,255,0.9)' }
-                                        }}
-                                        onClick={() => {
-                                            if (!studentInfo?.hasPaidTuition) {
-                                                alert("يرجى سداد المصروفات الدراسية أولاً");
-                                                return;
-                                            }
-                                            let fileUrl = certificate.file || '';
-                                            // Only strip internal Docker hostname, preserve Azure Blob Storage URLs
-                                            if (fileUrl.includes('://')) {
-                                                try {
-                                                    const url = new URL(fileUrl);
-                                                    if (url.hostname === 'backend' || url.hostname === 'localhost' || url.hostname === '127.0.0.1') {
-                                                        fileUrl = url.pathname;
-                                                    }
-                                                } catch (e) { /* use as-is */ }
-                                            }
-                                            // Ensure it starts with / if it's a relative path
-                                            if (!fileUrl.startsWith('http') && fileUrl && !fileUrl.startsWith('/')) fileUrl = '/' + fileUrl;
-                                            window.open(fileUrl, '_blank');
-                                        }}
-                                    >
-                                        تحميل الشهادة
-                                    </Button>
+                                    <Box sx={{ display: 'flex', gap: 2 }}>
+                                        <Button
+                                            variant="contained"
+                                            size="large"
+                                            startIcon={<DownloadIcon />}
+                                            sx={{
+                                                fontFamily: 'Cairo',
+                                                fontWeight: 'bold',
+                                                bgcolor: '#fff',
+                                                color: '#4CAF50',
+                                                px: 4,
+                                                py: 1.5,
+                                                borderRadius: 3,
+                                                '&:hover': { bgcolor: 'rgba(255,255,255,0.9)' }
+                                            }}
+                                            onClick={() => {
+                                                if (!studentInfo?.hasPaidTuition) {
+                                                    alert("يرجى سداد المصروفات الدراسية أولاً");
+                                                    return;
+                                                }
+                                                let fileUrl = certificate.file || '';
+                                                // Only strip internal Docker hostname, preserve Azure Blob Storage URLs
+                                                if (fileUrl.includes('://')) {
+                                                    try {
+                                                        const url = new URL(fileUrl);
+                                                        if (url.hostname === 'backend' || url.hostname === 'localhost' || url.hostname === '127.0.0.1') {
+                                                            fileUrl = url.pathname;
+                                                        }
+                                                    } catch (e) { /* use as-is */ }
+                                                }
+                                                // Ensure it starts with / if it's a relative path
+                                                if (!fileUrl.startsWith('http') && fileUrl && !fileUrl.startsWith('/')) fileUrl = '/' + fileUrl;
+                                                window.open(fileUrl, '_blank');
+                                            }}
+                                        >
+                                            تحميل الشهادة
+                                        </Button>
+
+                                        {certificate.verification_code && (
+                                            <Button
+                                                variant="outlined"
+                                                size="large"
+                                                startIcon={<QrCode2Icon />}
+                                                sx={{
+                                                    fontFamily: 'Cairo',
+                                                    fontWeight: 'bold',
+                                                    color: '#fff',
+                                                    borderColor: 'rgba(255,255,255,0.5)',
+                                                    px: 3,
+                                                    py: 1.5,
+                                                    borderRadius: 3,
+                                                    '&:hover': { bgcolor: 'rgba(255,255,255,0.1)', borderColor: '#fff' }
+                                                }}
+                                                onClick={() => setShowQrModal(true)}
+                                            >
+                                                رمز التحقق
+                                            </Button>
+                                        )}
+                                    </Box>
                                 ) : (
                                     <Chip
                                         icon={<AccessTimeIcon />}
@@ -663,7 +696,13 @@ export default function StudentDashboard() {
                                 <Button
                                     size="small"
                                     endIcon={<ArrowForwardIcon />}
-                                    onClick={() => navigate('/student/grades')}
+                                    onClick={() => {
+                                        if (!studentInfo?.hasPaidTuition) {
+                                            alert("عذراً، يرجى سداد المصروفات الدراسية للوصول لهذه الخدمة.");
+                                            return;
+                                        }
+                                        navigate('/student/grades');
+                                    }}
                                     sx={{ fontFamily: 'Cairo' }}
                                 >
                                     عرض الكل
@@ -737,14 +776,14 @@ export default function StudentDashboard() {
                                     </Typography>
                                     {item.image && (
                                         <Box sx={{ borderRadius: 2, overflow: 'hidden', mt: 1, mb: 1 }}>
-                                            <img src={item.image} alt={item.title} style={{ width: '100%', maxHeight: 200, objectFit: 'cover' }} />
+                                            <img src={sanitizeFileUrl(item.image)} alt={item.title} style={{ width: '100%', height: 'auto', maxHeight: 800, objectFit: 'contain' }} />
                                         </Box>
                                     )}
                                     {item.additional_images?.length > 0 && (
-                                        <Box sx={{ display: 'flex', gap: 1, overflowX: 'auto', mt: 1, mb: 2, pb: 1 }}>
+                                        <Box sx={{ display: 'flex', gap: 2, overflowX: 'auto', mt: 1, mb: 2, pb: 1 }}>
                                             {item.additional_images.map(img => (
-                                                <Box key={img.id} sx={{ flexShrink: 0, width: 100, height: 100, borderRadius: 2, overflow: 'hidden' }}>
-                                                    <img src={img.image} alt="additional" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                                <Box key={img.id} sx={{ flexShrink: 0, width: 250, borderRadius: 2, overflow: 'hidden' }}>
+                                                    <img src={sanitizeFileUrl(img.image)} alt="additional" style={{ width: '100%', height: 'auto', objectFit: 'contain' }} />
                                                 </Box>
                                             ))}
                                         </Box>
@@ -752,12 +791,12 @@ export default function StudentDashboard() {
                                     {(item.attachment || item.additional_attachments?.length > 0) && (
                                         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 2 }}>
                                             {item.attachment && (
-                                                <Button size="small" variant="outlined" startIcon={<DownloadIcon />} href={item.attachment} target="_blank" sx={{ fontFamily: 'Cairo', alignSelf: 'flex-start' }}>
+                                                <Button size="small" variant="outlined" startIcon={<DownloadIcon />} href={sanitizeFileUrl(item.attachment)} target="_blank" sx={{ fontFamily: 'Cairo', alignSelf: 'flex-start' }}>
                                                     تحميل المرفق الرئيسي
                                                 </Button>
                                             )}
                                             {item.additional_attachments?.map(att => (
-                                                <Button key={att.id} size="small" variant="outlined" startIcon={<DownloadIcon />} href={att.file} target="_blank" sx={{ fontFamily: 'Cairo', alignSelf: 'flex-start' }}>
+                                                <Button key={att.id} size="small" variant="outlined" startIcon={<DownloadIcon />} href={sanitizeFileUrl(att.file)} target="_blank" sx={{ fontFamily: 'Cairo', alignSelf: 'flex-start' }}>
                                                     تحميل: {att.file.split('/').pop()}
                                                 </Button>
                                             ))}

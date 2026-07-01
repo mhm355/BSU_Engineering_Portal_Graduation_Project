@@ -114,6 +114,7 @@ export default function ManageUsers() {
     const [doctorUsers, setDoctorUsers] = useState([]);
     const [hodUsers, setHodUsers] = useState([]);
     const [deanUsers, setDeanUsers] = useState([]);
+    const [graduateAffairsUsers, setGraduateAffairsUsers] = useState([]);
 
     const [departments, setDepartments] = useState([]);
     const [years, setYears] = useState([]);
@@ -144,6 +145,7 @@ export default function ManageUsers() {
             setDoctorUsers(users.filter(u => u.role === 'DOCTOR'));
             setHodUsers(users.filter(u => u.role === 'HOD'));
             setDeanUsers(users.filter(u => u.role === 'DEAN'));
+            setGraduateAffairsUsers(users.filter(u => u.role === 'GRADUATE_AFFAIRS'));
         } catch (err) {
             console.error('Error fetching users:', err);
         }
@@ -495,7 +497,7 @@ export default function ManageUsers() {
         </Box>
     );
 
-    const tabColors = ['linear-gradient(135deg, #FF6B35, #F7931E)', 'linear-gradient(135deg, #2196F3, #21CBF3)', 'linear-gradient(135deg, #9C27B0, #E040FB)', 'linear-gradient(135deg, #4CAF50, #8BC34A)', 'linear-gradient(135deg, #f44336, #e57373)', 'linear-gradient(135deg, #607d8b, #90a4ae)'];
+    const tabColors = ['linear-gradient(135deg, #FF6B35, #F7931E)', 'linear-gradient(135deg, #2196F3, #21CBF3)', 'linear-gradient(135deg, #9C27B0, #E040FB)', 'linear-gradient(135deg, #4CAF50, #8BC34A)', 'linear-gradient(135deg, #f44336, #e57373)', 'linear-gradient(135deg, #607d8b, #90a4ae)', 'linear-gradient(135deg, #E91E63, #F06292)'];
 
     return (
         <Box sx={{ minHeight: '100vh', background: 'linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%)', pb: 6 }}>
@@ -539,6 +541,7 @@ export default function ManageUsers() {
                             <Tab icon={<PersonIcon />} iconPosition="start" label={`الدكاترة (${doctorUsers.length})`} />
                             <Tab icon={<SupervisorAccountIcon />} iconPosition="start" label={`رؤساء الأقسام (${hodUsers.length})`} />
                             <Tab icon={<BadgeIcon />} iconPosition="start" label={`العميد (${deanUsers.length})`} />
+                            <Tab icon={<SchoolIcon />} iconPosition="start" label={`شئون الخريجين (${graduateAffairsUsers.length})`} />
                         </Tabs>
                     </Box>
                     <Box sx={{ p: 3 }}>
@@ -548,6 +551,7 @@ export default function ManageUsers() {
                         <TabPanel value={tabValue} index={3}>{renderEditableTable(doctorUsers, 'DOCTOR', tabColors[3])}</TabPanel>
                         <TabPanel value={tabValue} index={4}>{renderEditableTable(hodUsers, 'HOD', tabColors[4])}</TabPanel>
                         <TabPanel value={tabValue} index={5}>{renderEditableTable(deanUsers, 'DEAN', tabColors[5])}</TabPanel>
+                        <TabPanel value={tabValue} index={6}>{renderEditableTable(graduateAffairsUsers, 'GRADUATE_AFFAIRS', tabColors[6])}</TabPanel>
                     </Box>
                 </Paper>
             </Container>
