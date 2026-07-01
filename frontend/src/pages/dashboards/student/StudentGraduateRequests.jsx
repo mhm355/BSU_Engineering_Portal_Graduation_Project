@@ -96,10 +96,13 @@ export default function StudentGraduateRequests() {
 
     const getStatusChip = (status) => {
         switch (status) {
+            case 'SUBMITTED': return <Chip label="تم التقديم" color="primary" size="small" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }} />;
+            case 'UNDER_REVIEW': return <Chip icon={<PendingIcon />} label="قيد المراجعة" color="info" size="small" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }} />;
+            case 'MISSING_DOCUMENTS': return <Chip label="مستندات ناقصة" color="warning" size="small" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }} />;
+            case 'APPROVED': return <Chip icon={<CheckCircleIcon />} label="تمت الموافقة" color="success" size="small" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }} />;
             case 'COMPLETED': return <Chip icon={<CheckCircleIcon />} label="مكتمل" color="success" size="small" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }} />;
             case 'REJECTED': return <Chip label="مرفوض" color="error" size="small" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }} />;
-            case 'IN_PROGRESS': return <Chip icon={<PendingIcon />} label="جاري العمل" color="info" size="small" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }} />;
-            case 'PENDING': default: return <Chip label="قيد الانتظار" color="warning" size="small" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }} />;
+            default: return <Chip label="قيد الانتظار" color="default" size="small" sx={{ fontFamily: 'Cairo', fontWeight: 'bold' }} />;
         }
     };
 
