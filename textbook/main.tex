@@ -13,7 +13,11 @@
 \usepackage{xcolor}
 \usepackage{listings}
 \usepackage{titlesec}
-\usepackage[numbib]{tocbibind} % Automatically adds TOC, LOF, LOT to the Table of Contents, and numbers the bibliography
+\usepackage{tocbibind} % Automatically adds TOC, LOF, LOT, and bibliography to the Table of Contents
+
+% Redefine chapter titles to appear vertically centered on a dedicated page before content
+\titleformat{\chapter}[display]
+  {\vspace*{\fill}\normalfont\Huge\bfseries\centering}{\chaptertitlename\ \thechapter}{20pt}{\Huge}[\vspace*{\fill}\clearpage]
 \usepackage{longtable}
 \usepackage{pifont}
 \usepackage{needspace} % Prevent page breaks in listings

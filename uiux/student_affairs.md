@@ -1,6 +1,6 @@
 # UI/UX Specification: Student Affairs Role
 
-## 1. Design System & Visual Language
+## 1. Design System and Visual Language
 
 ### Typography
 Requires high clarity for managing large volumes of student records and academic operations.
@@ -20,21 +20,19 @@ Requires high clarity for managing large volumes of student records and academic
 - **Background:** `#F0FDFA` (Teal 50) for sidebars to establish context; `#FFFFFF` for main surfaces.
 - **Semantic Actions:** `#3B82F6` for standard actions, `#10B981` for successful uploads, `#EF4444` for destructive or blocking actions.
 
-### Spacing & Geometry
+### Spacing and Geometry
 - **Spacing Scale:** 4px, 8px, 12px, 16px, 24px.
 - **Border Radii:** Medium `8px` for general components to maintain a professional look.
 
 ---
 
-## 2. Information Architecture & Navigation
+## 2. Information Architecture and Navigation
 
 ### Complete Student Affairs Sitemap
 - `/staff/dashboard` - Alternate entry route
 - `/student-affairs/dashboard` - Main Dashboard Overview
 - `/student-affairs/hierarchy` - View academic structure (Years, Departments)
 - `/student-affairs/upload-students` - Bulk upload student data via CSV/Excel
-- `/student-affairs/certificates` - Single certificate upload tool
-- `/student-affairs/bulk-certificates` - Bulk certificate generation/upload
 - `/student-affairs/news` - Manage news/announcements for students
 - `/student-affairs/exam-grades` - Upload official exam grades
 - `/student-affairs/grades` - View comprehensive student grades
@@ -45,7 +43,7 @@ Requires high clarity for managing large volumes of student records and academic
 
 ### Navigation Flow Map
 - **Global Header:** Contains Department context, Global Search for Student ID.
-- **Sidebar:** Sections grouped by logical operation: Operations (Dashboard, Hierarchy, News), Data Entry (Upload Students, Exam Grades, Tuition), Documents (Certificates, Bulk Certificates), Logs (Upload History).
+- **Sidebar:** Sections grouped by logical operation: Operations (Dashboard, Hierarchy, News), Data Entry (Upload Students, Exam Grades, Tuition), Logs (Upload History).
 
 ### Step-by-Step User Journeys (Top 3 Core Actions)
 
@@ -71,10 +69,10 @@ Requires high clarity for managing large volumes of student records and academic
 
 ---
 
-## 3. Page-by-Page Layout & Interface Elements
+## 3. Page-by-Page Layout and Interface Elements
 
 ### Screen 1: Dashboard
-- **Layout:** Metric cards across the top (Total Active Students, Pending Approvals, Total Certificates). Below: Quick links grid for frequent upload tasks.
+- **Layout:** Metric cards across the top (Total Active Students, Pending Requests). Below: Quick links grid for frequent upload tasks.
 
 ### Screen 2: Hierarchy View (`/hierarchy`)
 - **Layout:** Tree-view or Accordion layout showing Faculty -> Departments -> Levels -> Courses.

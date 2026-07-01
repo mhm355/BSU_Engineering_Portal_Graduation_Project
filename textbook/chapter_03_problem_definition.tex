@@ -5,8 +5,7 @@
 \label{chap:requirements}
 
 \section{System Scope and Limitations}
-\label{sec:system-scope}
-While the BSU Engineering Portal provides comprehensive Management Information System (MIS) capabilities for academic administration, traditional Learning Management System (LMS) features such as Discussion Forums and Live Virtual Classrooms are intentionally scoped for future phases. This distinguishes the current system from platforms like Moodle, focusing first on core administrative reliability before expanding into interactive pedagogical tools.
+While the BSU Engineering Portal provides comprehensive Management Information System (MIS) capabilities for academic administration and alumni career tracking, traditional Learning Management System (LMS) features such as Discussion Forums and Live Virtual Classrooms are intentionally scoped for future phases. This distinguishes the current system from platforms like Moodle, focusing first on core administrative reliability and the complete student-to-alumni lifecycle before expanding into interactive pedagogical tools.
 
 \section{Current Situation and Stakeholder Analysis}
 \label{sec:current-situation}
@@ -21,6 +20,7 @@ Prior to the introduction of the BSU Engineering Portal, the Faculty of Engineer
     \item \textbf{Course-Doctor Assignment}: The assignment of faculty members to courses each semester was communicated verbally or via internal paper memos, lacking a central digital record mapping doctors to subjects in the current term.
     \item \textbf{Student Access to Information}: Students lacked a self-service mechanism to view their own grades, attendance records, or exam schedules. They depended entirely on physical notice boards or direct inquiries to Student Affairs, processes that could take days.
     \item \textbf{Audit Trail}: The absence of digital logs meant there was no record of who uploaded grades, who modified student records, or when these actions occurred, making accountability impossible and dispute resolution arbitrary.
+    \item \textbf{Alumni Disconnect}: Graduation clearance required students to physically carry paper signature sheets to the library, finance, and labs. Furthermore, after graduation, the university lost structured contact with alumni, severely hindering employment tracking and the distribution of official certificates.
 \end{itemize}
 
 \subsection{Stakeholder Identification}
@@ -30,7 +30,7 @@ Identifying the exact users of the system is the first step in requirements engi
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{stakeholders.png}
-    \caption{Stakeholder Interaction Diagram showing all seven roles (Admin, Dean, HOD, Doctor, Student, Student Affairs, Staff Affairs) and their primary data flows into the centralized system.}
+    \caption{Stakeholder Interaction Diagram showing all eight roles (Admin, Dean, HOD, Doctor, Student, Student Affairs, Staff Affairs, Graduate Affairs) and their primary data flows into the centralized system.}
     \label{fig:stakeholders}
 \end{figure}
 
@@ -49,7 +49,9 @@ Identifying the exact users of the system is the first step in requirements engi
         \hline
         \textbf{Staff Affairs} & Admin staff managing HR & No structured system for managing doctor course assignments. & Batch-upload doctors, manage deletions. \\
         \hline
-        \textbf{Dean} & Executive Academic Head & Lack of visibility into grading pipelines and results. & Approve final grades, publish results, view analytics. \\
+        \textbf{Graduate Affairs} & Admin staff managing Alumni & Paper-based graduation clearance and no career portal. & Manage clearance, jobs, events, and official certificates. \\
+        \hline
+        \textbf{Dean} & Executive Academic Head & Lack of visibility into grading pipelines and results. & Publish results, view analytics. \\
         \hline
         \textbf{HOD} & Head of Department & Disjointed assignment tracking. & Assign doctors to specific courses. \\
         \hline
@@ -106,6 +108,7 @@ Agile permitted the engineering team to:
         Sprint 7 & Admin and Operations & Announcements, audit logging, deletion workflows. \\
         Sprint 8 & DevOps and Polish & Docker Compose, Nginx proxy, RTL (Arabic) UI support. \\
         Sprint 9 & Decentralized Workflows & Dean approvals, HOD assignments, Tuition constraints. \\
+        Sprint 10 & Graduate Affairs & Career portal, graduation clearance, public certificate verification. \\
         \hline
     \end{tabular}
     \caption{Agile Sprint Plan Overview}
@@ -125,8 +128,7 @@ The following functional requirements are classified using IEEE 830-style [18] p
     \item \textbf{FR-03 [Must]}: The system shall reject new passwords that match the national ID or are under 6 characters.
     \item \textbf{FR-04 [Must]}: The system shall enforce isolated UI dashboards for all seven defined user roles.
     \item \textbf{FR-05 [Must]}: Admin and authorized personnel shall be able to reset any user's password, automatically re-triggering the first-login requirement flag.
-    \item \textbf{FR-05b [Must]}: The system shall require the Dean to explicitly approve exam grades before results can be published to students.
-    \item \textbf{FR-05c [Must]}: The system shall restrict access to quizzes and attendance views for students who have not paid their tuition.
+    \item \textbf{FR-05b [Must]}: The system shall restrict access to quizzes and attendance views for students who have not paid their tuition.
 \end{itemize}
 
 \begin{lstlisting}[language=Python, caption=Enforcing First-Login Requirement in Model Save (\texttt{models.py})]
@@ -167,6 +169,14 @@ def save(self, *args, **kwargs):
     \item \textbf{FR-15 [Must]}: Doctors shall record bulk attendance for course sessions and export reports.
     \item \textbf{FR-16 [Must]}: Doctors shall enter bulk grades mapped strictly to the course's \texttt{GradingTemplate}.
     \item \textbf{FR-17 [Must]}: Doctors shall create Quizzes (MCQ, Essay, Image). MCQ attempts shall be auto-graded; Essay attempts shall queue for manual doctor review.
+\end{itemize}
+
+\subsection{Graduate Affairs Operations}
+
+\begin{itemize}
+    \item \textbf{FR-18 [Must]}: Graduate Affairs shall process multi-step graduation clearance checklists digitally.
+    \item \textbf{FR-19 [Must]}: Graduate Affairs shall manage a career portal allowing companies to post job opportunities.
+    \item \textbf{FR-20 [Must]}: The system shall provide a public verification endpoint for official graduation certificates.
 \end{itemize}
 
 \section{Non-Functional Requirements}
@@ -213,7 +223,7 @@ REST_FRAMEWORK = {
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{use_case_uml.png}
-    \caption{UML Use Case Diagram mapping the five primary system actors to their respective grouped use cases, illustrating the functional scope and permission boundaries of the portal.}
+    \caption{UML Use Case Diagram mapping the eight primary system actors to their respective grouped use cases, illustrating the functional scope and permission boundaries of the portal.}
     \label{fig:use_case_uml}
 \end{figure}
 

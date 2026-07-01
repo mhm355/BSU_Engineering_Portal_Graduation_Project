@@ -1,6 +1,6 @@
 # UI/UX Specification: Staff Affairs Role
 
-## 1. Design System & Visual Language
+## 1. Design System and Visual Language
 
 ### Typography
 Focuses on directory management, assignments, and personnel tracking.
@@ -19,13 +19,13 @@ Focuses on directory management, assignments, and personnel tracking.
 - **Background:** `#F5F3FF` (Purple 50) for navigation; `#FFFFFF` for content surfaces.
 - **Border Default:** `#E5E7EB` (Gray 200)
 
-### Spacing & Geometry
+### Spacing and Geometry
 - **Spacing Scale:** 4, 8, 16, 24px.
 - **Border Radii:** Sharp and professional (`4px` to `8px`).
 
 ---
 
-## 2. Information Architecture & Navigation
+## 2. Information Architecture and Navigation
 
 ### Complete Staff Affairs Sitemap
 - `/staff-affairs` - Base route
@@ -67,7 +67,7 @@ Focuses on directory management, assignments, and personnel tracking.
 
 ---
 
-## 3. Page-by-Page Layout & Interface Elements
+## 3. Page-by-Page Layout and Interface Elements
 
 ### Screen 1: Dashboard
 - **Layout:** Top widgets showing counts: Total Doctors, Total TAs, Total Staff. A primary table showing "Recent Personnel Changes".

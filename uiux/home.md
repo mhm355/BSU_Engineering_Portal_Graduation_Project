@@ -1,13 +1,13 @@
-# UI/UX Specification: Public Site & Home Page
+# UI/UX Specification: Public Site and Home Page
 
-## 1. Design System & Visual Language
+## 1. Design System and Visual Language
 
 ### Typography
 Unlike the internal dashboards that use `Inter`, the public-facing pages utilize an elegant, modern Arabic-first typography to communicate the university's brand effectively.
-- **Primary Font Family (All Headings & Body):** `Cairo`, sans-serif
+- **Primary Font Family (All Headings and Body):** `Cairo`, sans-serif
 - **Fallback Font:** `Roboto`, sans-serif
 
-**Typographic Scale & Weights:**
+**Typographic Scale and Weights:**
 - **Hero Title (H2 equivalent):** 3.5rem (Desktop), 2.5rem (Mobile), Weight: 800 (Extra Bold)
 - **Hero Subtitle (H4 equivalent):** 2rem (Desktop), 1.5rem (Mobile), Weight: 600 (Semi-Bold)
 - **Section Headers (H3 equivalent):** 2.25rem, Weight: Bold
@@ -27,19 +27,19 @@ The public site uses a highly vibrant, deep-contrast theme to create a premium, 
 - **Text Secondary (on Light):** `#666666`
 - **Text Primary (on Dark):** `#FFFFFF`
 
-### Spacing & Geometry
+### Spacing and Geometry
 - **Border Radii:** Heavy use of rounded corners. `16px` for Cards and Dialogs. Buttons use `12px` for a pill-like appearance.
 - **Glassmorphism:** Feature cards use `rgba(255,255,255,0.9)` with a `backdropFilter: blur(10px)` and a subtle `1px solid rgba(0,0,0,0.08)` border.
 
 ---
 
-## 2. Information Architecture & Navigation
+## 2. Information Architecture and Navigation
 
 ### Complete Public Sitemap
 - `/` - Home Page
 - `/about` - About the College
 - `/dean-word` - Message from the Dean
-- `/vision-mission` - Vision & Mission
+- `/vision-mission` - Vision and Mission
 - `/regulations` - Academic Regulations
 - `/ethics` - Code of Ethics
 - `/departments` - Academic Departments Overview
@@ -47,7 +47,7 @@ The public site uses a highly vibrant, deep-contrast theme to create a premium, 
 - `/departments/arch` - Architectural Engineering Department Page
 - `/departments/electrical` - Electrical Engineering Department Page
 - `/staff` - Public Staff Directory
-- `/contact` - Contact Information & Form
+- `/contact` - Contact Information and Form
 - `/student/results` - Public portal to query exam results using ID
 - `/login` - Gateway to protected dashboards
 - `/change-password` - Password recovery/change utility
@@ -74,7 +74,7 @@ The public site uses a highly vibrant, deep-contrast theme to create a premium, 
 
 ---
 
-## 3. Page-by-Page Layout & Interface Elements
+## 3. Page-by-Page Layout and Interface Elements
 
 ### Screen 1: Home Page - Hero Section
 - **Layout:** Min-height `85vh` (Desktop) or `90vh` (Mobile). Two-column grid on desktop (Text on left, Circular Logo on right).

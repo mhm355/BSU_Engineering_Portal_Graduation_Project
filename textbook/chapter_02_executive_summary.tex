@@ -23,6 +23,7 @@ The following localized problems were identified through direct observation and 
     \item \textbf{Attendance Tracking (The Paper Register):} Attendance is recorded on printed sheets passed around lecture halls. Records risk physical loss, offer no real-time visibility for students, and provide no analytics capability for early academic intervention.
     \item \textbf{Material Distribution (The USB Drive Problem):} Lecture slides and notes are distributed via USB drives, personal emails, or social media groups. There is no centralized repository, no access control based on enrollment, and no version management.
     \item \textbf{Administrative Isolation (The Silo Effect):} Administrative units operate in isolation. There is no shared platform for tracking doctor-to-course assignments, cross-referencing enrollment with grades, or maintaining institutional accountability.
+    \item \textbf{Alumni Disconnect (The Post-Graduation Void):} Upon graduation, the institution loses connection with its alumni. There is no unified system for processing document requests, managing graduation clearance, or connecting graduates with employment opportunities and training events.
 \end{itemize}
 
 \subsection{The Core Problem Formally Stated}
@@ -46,7 +47,7 @@ The existing approach is architecturally incompatible with the operational requi
         \textbf{Dimension} & \textbf{Current State} & \textbf{Required State} & \textbf{Severity} \\
         \hline
         \textbf{Data Integrity} & Multiple inconsistent Excel files. & Single source of truth with referential integrity. & Critical \\
-        \textbf{Access Control} & File-level (all or nothing). & Role-based (7 distinct levels). & Critical \\
+        \textbf{Access Control} & File-level (all or nothing). & Role-based (8 distinct levels). & Critical \\
         \textbf{Auditability} & None. Changes are untraceable. & Full audit trail with identity/timestamp. & Critical \\
         \textbf{Information Latency} & Days to weeks (manual pipelines). & Real-time (sub-second API queries). & High \\
         \textbf{Error Rate} & 1--5\% per manual transcription. & Near zero (database constraints). & High \\
@@ -103,12 +104,13 @@ Beyond solving operational issues, this project demonstrates the application of 
 
 \subsection{System Overview}
 
-The \textbf{Release BSU Engineering Portal} is a full-stack, role-based academic management platform. It centralizes core academic operations through four functional pillars:
+The \textbf{Release BSU Engineering Portal} is a full-stack, role-based academic management platform. It centralizes core academic operations through five functional pillars:
 \begin{enumerate}
     \item \textbf{Student Lifecycle Management}: Replaces scattered Excel files with a relational database managing enrollment, grades, and attendance.
     \item \textbf{Faculty Course Management}: Digital course assignments, lecture uploads, batch attendance, and interactive quiz generation.
-    \item \textbf{Administrative Operations}: Multi-step workflows for Excel batch uploads, grade approvals, and immutable audit logging.
-    \item \textbf{Public Information Portal}: Structured news and contact routing.
+    \item \textbf{Administrative Operations}: Multi-step workflows for Excel batch uploads, tuition management, and immutable audit logging.
+    \item \textbf{Alumni and Career Services}: Digital graduation clearance, job postings, partner companies, and document requests.
+    \item \textbf{Public Information Portal}: Structured news, contact routing, and public certificate verification.
 \end{enumerate}
 
 \subsection{High-Level Architecture}
@@ -139,15 +141,17 @@ The system utilizes a four-tier containerized architecture~\cite{docker} separat
         \hline
         \textbf{Stakeholder} & \textbf{Delivered Capabilities} \\
         \hline
-        \textbf{Student} & Real-time grade breakdown, attendance tracking, lecture downloads, interactive quizzes, exam schedules, and certificate viewing. \\
+        \textbf{Student} & Real-time grade breakdown, attendance tracking, lecture downloads, interactive quizzes, exam schedules, and applying to jobs via the Career Portal. \\
         \hline
         \textbf{Doctor} & Assigned course views, file-validated lecture uploads, Excel-exported batch attendance, bulk grade entry, and multi-type quiz management. \\
         \hline
-        \textbf{Student Affairs} & Validated Excel batch uploads for students, exam grade uploads pending Dean approval, certificate management, and password resets. \\
+        \textbf{Student Affairs} & Validated Excel batch uploads for students, exam grade uploads, tuition status tracking, and password resets. \\
         \hline
         \textbf{Staff Affairs} & Batch faculty uploads and doctor deletion request workflows. \\
         \hline
-        \textbf{Dean} & Approves final exam grades, publishes results to students, and exports data for closed academic years. \\
+        \textbf{Graduate Affairs} & Manages graduation clearance, processes document requests, uploads official certificates, and manages the career portal (jobs, events, partner companies). \\
+        \hline
+        \textbf{Dean} & Publishes final exam results to students and exports analytical data for closed academic years. \\
         \hline
         \textbf{HOD} & Assigns doctors to specific course offerings within their department. \\
         \hline
@@ -180,13 +184,14 @@ The following capabilities are fully implemented in the current release:
         S7 & Attendance & Bulk tracking with automatic Excel generation. \\
         S8 & Quiz Engine & MCQ (auto-graded), Essay (manual), Image, and Mixed types. \\
         S9 & Lecture Management & Validated uploads for PDF, Slides, and Video. \\
-        S11 & Approval Workflows & Exam grades require Dean approval and Student Affairs verification before student visibility. \\
+        S11 & Publishing Workflows & Exam grades are published directly to students by the Dean. \\
         S12 & Audit Trail & 15 distinct action types logged with JSON details. \\
         S16 & UX/UI Theming & Client-side persisted Dark/Light mode and full RTL interface. \\
         S18 & Containerization & Multi-stage Docker builds and Compose orchestration. \\
-        S19 & Manual Build Workflow & Docker Buildx with Trivy security scan and version-tagged releases. \\
+        S19 & Manual Build Workflow & Docker Buildx with version-tagged releases. \\
         S20 & Academic Cycle & Ability to open and close Academic Years and Terms. \\
         S21 & Financial Constraints & Basic tuition payment status is tracked to lock academic features like quizzes. \\
+        S22 & Graduate Services & Digital clearance, certificate verification, and career portal management. \\
         \hline
     \end{tabular}
     \caption{In-Scope System Capabilities}

@@ -85,7 +85,7 @@ A mature engineering project acknowledges its boundaries. This chapter documents
         \hline
         L-17 & \textbf{No HTTPS in default config} & Operations & Default Nginx configuration serves HTTP on port 80. HTTPS requires manual certificate setup. & Add Let's Encrypt automation using Certbot or \texttt{nginx-proxy} companion container with automatic SSL renewal. \\
         \hline
-        L-18 & \textbf{Manual deployment step} & Operations & After new image is built and pushed, admin must manually run \texttt{docker-compose~\cite{docker-compose} pull \&\& up -d} on production server. & Implement automated deployment webhook that triggers on image push to update production automatically. \\
+        L-18 & \textbf{Manual deployment step} & Operations & After new image is built and pushed, admin must manually run \texttt{docker-compose~\cite{docker-compose} pull andand up -d} on production server. & Implement automated deployment webhook that triggers on image push to update production automatically. \\
         \hline
     \end{tabular}
     \caption{Operational Limitations and Proposed Mitigations}

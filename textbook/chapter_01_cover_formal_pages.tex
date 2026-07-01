@@ -43,7 +43,7 @@
     {\Large A Comprehensive Academic Management System}\\[0.5cm]
     \rule{\textwidth}{1.5pt}
     
-    \vspace{1.5cm}
+    \vspace{2.5cm}
     
     % Authors Section
     {\Large \textbf{Prepared by:}}\\[0.3cm]
@@ -81,7 +81,7 @@ The Faculty of Engineering at Beni-Suef University (BSU) has historically relied
 
 \textbf{Release BSU Engineering Portal} addresses these systemic challenges through a modern, decoupled web architecture comprising: (a) a \textbf{Django 5.0}~\cite{django} backend with Django REST Framework~\cite{djangorest} providing secure, stateless API endpoints with cross-origin Session/CSRF protection; (b) a \textbf{React 19}~\cite{react} frontend built via Vite, utilizing Material-UI~\cite{mui} to deliver highly responsive, state-driven user interfaces; (c) \textbf{MySQL 8.0}~\cite{mysql} as the relational database ensuring strict ACID compliance for grade and attendance transactions; (d) \textbf{Redis}~\cite{redis} for session storage and application-level caching to improve performance and scalability; and (e) \textbf{Docker}~\cite{docker} containerization enabling deterministic, portable deployments across any cloud or on-premises infrastructure.
 
-Key system capabilities include hierarchical academic entity modeling (departments $\rightarrow$ specializations $\rightarrow$ levels $\rightarrow$ students), transaction-safe batch CSV/Excel import pipelines using Pandas for student enrollment and grade uploads, and a highly interactive multi-modal quiz engine. To guarantee data integrity and security, the system enforces the principle of least privilege across seven distinct user roles (Admin, Dean, HOD, Doctor, Student, Student Affairs, Staff Affairs) via custom Role-Based Access Control (RBAC) middleware, coupled with comprehensive audit logging for all administrative actions.
+Key system capabilities include hierarchical academic entity modeling (departments $\rightarrow$ specializations $\rightarrow$ levels $\rightarrow$ students), transaction-safe batch CSV/Excel import pipelines using Pandas for student enrollment and grade uploads, and a highly interactive multi-modal quiz engine. To guarantee data integrity and security, the system enforces the principle of least privilege across eight distinct user roles (Admin, Dean, HOD, Doctor, Student, Student Affairs, Staff Affairs, Graduate Affairs) via custom Role-Based Access Control (RBAC) middleware, coupled with comprehensive audit logging for all administrative actions.
 
 The project demonstrates engineering maturity through robust DevOps practices, security-hardened deployment strategies (configured CORS/CSRF boundaries, input validation, rate limiting), and explicitly defined system boundaries. By abstracting complex administrative workflows into streamlined digital processes, the portal drastically reduces operational overhead, eliminates data silos, and provides a highly scalable foundation for Beni-Suef University's ongoing digital transformation.
 
