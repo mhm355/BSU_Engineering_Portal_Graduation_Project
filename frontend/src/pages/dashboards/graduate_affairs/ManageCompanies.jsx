@@ -75,6 +75,23 @@ export default function ManageCompanies() {
             if (!isEdit) {
                 delete payload.id;
             }
+            
+            // Clean inputs
+            if (payload.contact_email) {
+                payload.contact_email = payload.contact_email.trim();
+            } else {
+                delete payload.contact_email;
+            }
+            
+            if (payload.website) {
+                payload.website = payload.website.trim();
+                if (!payload.website.startsWith('http')) {
+                    payload.website = 'https://' + payload.website;
+                }
+            } else {
+                delete payload.website;
+            }
+            
             if (isEdit) {
                 await axios.put(`/api/graduate-affairs/companies/${formData.id}/`, payload, config);
             } else {
