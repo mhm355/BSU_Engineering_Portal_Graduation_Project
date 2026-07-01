@@ -9,7 +9,7 @@ import zipfile
 from rest_framework import status, viewsets, generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
@@ -92,7 +92,7 @@ class GraduateRequestViewSet(viewsets.ModelViewSet):
     """CRUD for graduate service requests"""
     serializer_class = GraduateRequestSerializer
     permission_classes = [IsGraduateAffairsRole]
-    parser_classes = [MultiPartParser, FormParser]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def get_queryset(self):
         queryset = GraduateRequest.objects.select_related(
@@ -206,7 +206,7 @@ class StudentGraduateRequestViewSet(viewsets.ModelViewSet):
     """CRUD for graduate service requests from the student's perspective"""
     serializer_class = GraduateRequestSerializer
     permission_classes = [IsAuthenticated, IsStudentRole]
-    parser_classes = [MultiPartParser, FormParser]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def get_queryset(self):
         return GraduateRequest.objects.filter(
@@ -662,7 +662,7 @@ class CompanyViewSet(viewsets.ModelViewSet):
     queryset = Company.objects.all()
     serializer_class = CompanySerializer
     permission_classes = [IsGraduateAffairsRole]
-    parser_classes = [MultiPartParser, FormParser]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
 
 
 class JobPostingViewSet(viewsets.ModelViewSet):
@@ -682,7 +682,7 @@ class JobPostingViewSet(viewsets.ModelViewSet):
 class JobApplicationViewSet(viewsets.ModelViewSet):
     """Job Applications. Graduates can apply. Staff can review."""
     serializer_class = JobApplicationSerializer
-    parser_classes = [MultiPartParser, FormParser]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def get_permissions(self):
         if self.action in ['create', 'list', 'retrieve']:
