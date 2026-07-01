@@ -236,6 +236,17 @@ export default function Home() {
 
     const getImageUrl = (image) => {
         if (!image) return null;
+        if (image.includes('://')) {
+            try {
+                const url = new URL(image);
+                if (url.hostname === 'backend' || url.hostname === 'localhost' || url.hostname === '127.0.0.1') {
+                    return url.pathname;
+                }
+            } catch (e) { /* use as-is */ }
+        }
+        if (!image.startsWith('http') && !image.startsWith('/')) {
+            return '/' + image;
+        }
         return image;
     };
 
@@ -633,7 +644,7 @@ export default function Home() {
                                             <Button
                                                 variant="contained"
                                                 startIcon={<DownloadIcon />}
-                                                href={selectedNews.attachment}
+                                                href={getImageUrl(selectedNews.attachment)}
                                                 target="_blank"
                                                 sx={{
                                                     fontFamily: 'Cairo',
@@ -653,7 +664,7 @@ export default function Home() {
                                                 key={att.id}
                                                 variant="outlined"
                                                 startIcon={<DownloadIcon />}
-                                                href={att.file}
+                                                href={getImageUrl(att.file)}
                                                 target="_blank"
                                                 sx={{
                                                     fontFamily: 'Cairo',

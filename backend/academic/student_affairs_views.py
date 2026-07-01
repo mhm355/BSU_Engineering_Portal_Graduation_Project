@@ -1342,3 +1342,29 @@ class DirectBulkCertificateUploadView(APIView):
             'error_count': len(errors),
             'errors': errors
         }, status=status.HTTP_201_CREATED)
+
+class ResetStudentPasswordView(APIView):
+    """Admin/Student Affairs endpoint to reset a student's password to their national ID"""
+    permission_classes = [permissions.IsAuthenticated, IsStudentAffairsRole]
+
+    def post(self, request, student_id):
+        try:
+            student = Student.objects.get(id=student_id)
+            user = student.user
+            
+            if not user.national_id:
+                return Response(
+                    {"error": "لا يوجد رقم قومي مسجل لهذا الطالب."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+                
+            user.set_password(user.national_id)
+            user.first_login_required = True
+            user.save()
+            
+            return Response({"message": "تم إعادة تعيين كلمة المرور بنجاح."})
+        except Student.DoesNotExist:
+            return Response(
+                {"error": "الطالب غير موجود."},
+                status=status.HTTP_404_NOT_FOUND
+            )

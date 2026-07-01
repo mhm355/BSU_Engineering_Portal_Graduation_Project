@@ -13,7 +13,7 @@ from .student_affairs_views import (
     UploadStudentsView, StudentListView,
     FourthYearStudentsView, StudentAffairsGradesView, BulkCertificateUploadView,
     PreviewStudentsUploadView, SyncCertificatesFromStorageView,
-    DirectBulkCertificateUploadView, ToggleTuitionStatusView
+    DirectBulkCertificateUploadView, ToggleTuitionStatusView, ResetStudentPasswordView
 )
 from .staff_affairs_views import (
     UploadDoctorsView, UploadStaffAffairsUsersView, DoctorListView,
@@ -128,6 +128,7 @@ urlpatterns = [
 
     # Tuition Status Toggle
     path('student-affairs/students/<int:student_id>/toggle-tuition/', ToggleTuitionStatusView.as_view(), name='toggle-tuition-status'),
+    path('student-affairs/students/<int:student_id>/reset-password/', ResetStudentPasswordView.as_view(), name='reset_student_password'),
 
     # Bulk quiz import (Doctor)
     path('quizzes/bulk-import/', BulkQuizImportView.as_view(), name='bulk-quiz-import'),

@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'academic',
     'system',
     'content',
+    'graduate_affairs',
 ]
 
 MIDDLEWARE = [

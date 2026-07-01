@@ -28,6 +28,8 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import LockIcon from '@mui/icons-material/Lock';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import QrCode2Icon from '@mui/icons-material/QrCode2';
+import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
@@ -208,7 +210,7 @@ export default function StudentDashboard() {
         return levels[level] || level;
     };
 
-    const quickActions = [
+    let quickActions = [
         {
             title: 'المواد الدراسية',
             icon: MenuBookIcon,
@@ -242,6 +244,13 @@ export default function StudentDashboard() {
             requiresPayment: true
         },
     ];
+
+    if (studentInfo?.level?.includes('الرابعة') || studentInfo?.level?.includes('fourth') || studentInfo?.graduation_status === 'APPROVED') {
+        quickActions.push(
+            { title: 'بوابة التدريب والتوظيف', icon: BusinessCenterIcon, description: 'فرص عمل وتدريب', path: '/student/career-portal', gradient: 'linear-gradient(135deg, #ff9800 0%, #ffb74d 100%)', requiresPayment: false },
+            { title: 'خدمات وطلبات الخريجين', icon: AssessmentIcon, description: 'طلبات الافادة والبيانات', path: '/student/graduate-requests', gradient: 'linear-gradient(135deg, #8bc34a 0%, #aed581 100%)', requiresPayment: false }
+        );
+    }
 
     const currentHour = new Date().getHours();
     const greeting = currentHour < 12 ? 'صباح الخير' : currentHour < 17 ? 'مساء الخير' : 'مساء الخير';
@@ -499,42 +508,65 @@ export default function StudentDashboard() {
                                 {certificateLoading ? (
                                     <CircularProgress sx={{ color: '#fff' }} />
                                 ) : hasCertificate ? (
-                                    <Button
-                                        variant="contained"
-                                        size="large"
-                                        startIcon={<DownloadIcon />}
-                                        sx={{
-                                            fontFamily: 'Cairo',
-                                            fontWeight: 'bold',
-                                            bgcolor: '#fff',
-                                            color: '#4CAF50',
-                                            px: 4,
-                                            py: 1.5,
-                                            borderRadius: 3,
-                                            '&:hover': { bgcolor: 'rgba(255,255,255,0.9)' }
-                                        }}
-                                        onClick={() => {
-                                            if (!studentInfo?.hasPaidTuition) {
-                                                alert("يرجى سداد المصروفات الدراسية أولاً");
-                                                return;
-                                            }
-                                            let fileUrl = certificate.file || '';
-                                            // Only strip internal Docker hostname, preserve Azure Blob Storage URLs
-                                            if (fileUrl.includes('://')) {
-                                                try {
-                                                    const url = new URL(fileUrl);
-                                                    if (url.hostname === 'backend' || url.hostname === 'localhost' || url.hostname === '127.0.0.1') {
-                                                        fileUrl = url.pathname;
-                                                    }
-                                                } catch (e) { /* use as-is */ }
-                                            }
-                                            // Ensure it starts with / if it's a relative path
-                                            if (!fileUrl.startsWith('http') && fileUrl && !fileUrl.startsWith('/')) fileUrl = '/' + fileUrl;
-                                            window.open(fileUrl, '_blank');
-                                        }}
-                                    >
-                                        تحميل الشهادة
-                                    </Button>
+                                    <Box sx={{ display: 'flex', gap: 2 }}>
+                                        <Button
+                                            variant="contained"
+                                            size="large"
+                                            startIcon={<DownloadIcon />}
+                                            sx={{
+                                                fontFamily: 'Cairo',
+                                                fontWeight: 'bold',
+                                                bgcolor: '#fff',
+                                                color: '#4CAF50',
+                                                px: 4,
+                                                py: 1.5,
+                                                borderRadius: 3,
+                                                '&:hover': { bgcolor: 'rgba(255,255,255,0.9)' }
+                                            }}
+                                            onClick={() => {
+                                                if (!studentInfo?.hasPaidTuition) {
+                                                    alert("يرجى سداد المصروفات الدراسية أولاً");
+                                                    return;
+                                                }
+                                                let fileUrl = certificate.file || '';
+                                                // Only strip internal Docker hostname, preserve Azure Blob Storage URLs
+                                                if (fileUrl.includes('://')) {
+                                                    try {
+                                                        const url = new URL(fileUrl);
+                                                        if (url.hostname === 'backend' || url.hostname === 'localhost' || url.hostname === '127.0.0.1') {
+                                                            fileUrl = url.pathname;
+                                                        }
+                                                    } catch (e) { /* use as-is */ }
+                                                }
+                                                // Ensure it starts with / if it's a relative path
+                                                if (!fileUrl.startsWith('http') && fileUrl && !fileUrl.startsWith('/')) fileUrl = '/' + fileUrl;
+                                                window.open(fileUrl, '_blank');
+                                            }}
+                                        >
+                                            تحميل الشهادة
+                                        </Button>
+
+                                        {certificate.verification_code && (
+                                            <Button
+                                                variant="outlined"
+                                                size="large"
+                                                startIcon={<QrCode2Icon />}
+                                                sx={{
+                                                    fontFamily: 'Cairo',
+                                                    fontWeight: 'bold',
+                                                    color: '#fff',
+                                                    borderColor: 'rgba(255,255,255,0.5)',
+                                                    px: 3,
+                                                    py: 1.5,
+                                                    borderRadius: 3,
+                                                    '&:hover': { bgcolor: 'rgba(255,255,255,0.1)', borderColor: '#fff' }
+                                                }}
+                                                onClick={() => setShowQrModal(true)}
+                                            >
+                                                رمز التحقق
+                                            </Button>
+                                        )}
+                                    </Box>
                                 ) : (
                                     <Chip
                                         icon={<AccessTimeIcon />}
