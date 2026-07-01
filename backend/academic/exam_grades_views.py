@@ -9,7 +9,7 @@ from django.db import transaction
 import pandas as pd
 
 from .models import ExamGrade, Student, Subject, Level, AcademicYear
-from users.permissions import IsAdminRole, IsStudentAffairsRole, IsStudentRole, IsDeanRole
+from users.permissions import IsAdminRole, IsStudentAffairsRole, IsStudentRole, IsDeanRole, HasPaidTuition
 
 
 from rest_framework.permissions import IsAdminUser
@@ -218,7 +218,7 @@ class PendingExamGradesCountView(APIView):
 
 class StudentExamGradesView(APIView):
     """Student views their own grades (from Doctor input)"""
-    permission_classes = [IsStudentRole]
+    permission_classes = [IsStudentRole, HasPaidTuition]
 
     def get(self, request):
         try:

@@ -696,7 +696,13 @@ export default function StudentDashboard() {
                                 <Button
                                     size="small"
                                     endIcon={<ArrowForwardIcon />}
-                                    onClick={() => navigate('/student/grades')}
+                                    onClick={() => {
+                                        if (!studentInfo?.hasPaidTuition) {
+                                            alert("عذراً، يرجى سداد المصروفات الدراسية للوصول لهذه الخدمة.");
+                                            return;
+                                        }
+                                        navigate('/student/grades');
+                                    }}
                                     sx={{ fontFamily: 'Cairo' }}
                                 >
                                     عرض الكل

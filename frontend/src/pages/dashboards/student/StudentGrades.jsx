@@ -33,7 +33,11 @@ export default function StudentGrades() {
             setGrades(response.data);
         } catch (err) {
             console.error('Error fetching grades:', err);
-            setError('فشل تحميل الدرجات. يرجى المحاولة مرة أخرى.');
+            if (err.response?.status === 403 && err.response?.data?.detail) {
+                setError(err.response.data.detail);
+            } else {
+                setError('فشل تحميل الدرجات. يرجى المحاولة مرة أخرى.');
+            }
         } finally {
             setLoading(false);
         }
