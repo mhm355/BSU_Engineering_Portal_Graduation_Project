@@ -337,6 +337,20 @@ class GraduationClearanceViewSet(viewsets.ModelViewSet):
         instance.save()
 
 
+class StudentClearanceView(APIView):
+    """Student views their own clearance status"""
+    permission_classes = [IsAuthenticated, IsStudentRole]
+
+    def get(self, request):
+        try:
+            # Try to find a clearance record for the current user
+            clearance = GraduationClearance.objects.get(graduate=request.user)
+            serializer = GraduationClearanceSerializer(clearance)
+            return Response(serializer.data)
+        except GraduationClearance.DoesNotExist:
+            return Response({'error': 'لا يوجد بيانات إخلاء طرف مسجلة لك حتى الآن.'}, status=status.HTTP_404_NOT_FOUND)
+
+
 # ============================================================================
 # Certificate Management (Migrated from Student Affairs)
 # ============================================================================

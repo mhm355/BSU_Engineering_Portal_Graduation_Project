@@ -21,7 +21,8 @@ from .views import (
     EventRegistrationViewSet,
     NotificationViewSet,
     VerifyCertificateView,
-    StudentGraduateRequestViewSet
+    StudentGraduateRequestViewSet,
+    StudentClearanceView
 )
 
 router = DefaultRouter()
@@ -41,6 +42,9 @@ urlpatterns = [
 
     # Graduate database
     path('graduates/', GraduateDatabaseView.as_view(), name='graduate-database'),
+    
+    # Student clearance view
+    path('student-clearance/', StudentClearanceView.as_view(), name='student-clearance'),
 
     # Fourth year students (for certificate assignment)
     path('fourth-year/', FourthYearGraduatesView.as_view(), name='fourth-year-graduates'),
