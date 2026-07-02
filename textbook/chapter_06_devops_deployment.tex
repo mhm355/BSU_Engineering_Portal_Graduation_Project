@@ -710,7 +710,7 @@ Azure components provide equivalent functionality with native integration:
 \textbf{Infrastructure Provisioning:} The Terraform configuration creates 12+ AWS resources including VPC, subnets, security groups, ECS cluster, RDS instance, and Application Load Balancer. The execution plan shows exactly what will be created before any changes are applied.
 
 
-This enables declarative deployment: operators run \texttt{docker compose -f docker-compose-im.yml pull andand docker compose up -d} to deploy the exact images validated by CI.
+This enables declarative deployment: operators run \texttt{docker compose -f docker-compose-im.yml pull \&\& docker compose up -d} to deploy the exact images validated by CI.
 
 \section{Reverse Proxy Architecture}
 \label{sec:reverse-proxy}

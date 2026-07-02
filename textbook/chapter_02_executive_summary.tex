@@ -47,10 +47,15 @@ The existing approach is architecturally incompatible with the operational requi
         \textbf{Dimension} & \textbf{Current State} & \textbf{Required State} & \textbf{Severity} \\
         \hline
         \textbf{Data Integrity} & Multiple inconsistent Excel files. & Single source of truth with referential integrity. & Critical \\
+        \hline
         \textbf{Access Control} & File-level (all or nothing). & Role-based (8 distinct levels). & Critical \\
+        \hline
         \textbf{Auditability} & None. Changes are untraceable. & Full audit trail with identity/timestamp. & Critical \\
+        \hline
         \textbf{Information Latency} & Days to weeks (manual pipelines). & Real-time (sub-second API queries). & High \\
+        \hline
         \textbf{Error Rate} & 1--5\% per manual transcription. & Near zero (database constraints). & High \\
+        \hline
         \textbf{Disaster Recovery} & Paper and local files (no backups). & Containerized with persistent volumes. & Medium \\
         \hline
     \end{tabular}

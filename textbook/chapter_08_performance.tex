@@ -316,7 +316,7 @@ This means:
     \item No unnecessary API calls are made for pages the user hasn't visited
 \end{itemize}
 
-\textbf{Network Pattern Analysis:} The sequential loading pattern ensures initial page load only fetches user profile data (	extasciitilde2 KB). Subsequent navigation triggers targeted API calls:
+\textbf{Network Pattern Analysis:} The sequential loading pattern ensures initial page load only fetches user profile data (\textasciitilde2 KB). Subsequent navigation triggers targeted API calls:
 \begin{itemize}
     \item \texttt{GET /api/academic/course-offerings/my\_courses/} --- 5-10 KB per doctor
     \item \texttt{GET /api/academic/students/?level\_id=X} --- 10-50 KB for student lists

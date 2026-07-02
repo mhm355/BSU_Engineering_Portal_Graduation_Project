@@ -15,6 +15,7 @@ A mature engineering project acknowledges its boundaries. This chapter documents
     \centering
     \renewcommand{\arraystretch}{1.2}
     \footnotesize
+    \resizebox{\textwidth}{!}{
     \begin{tabular}{|c|p{3cm}|c|p{3cm}|p{4.5cm}|}
         \hline
         \textbf{ID} & \textbf{Limitation} & \textbf{Category} & \textbf{Impact} & \textbf{Proposed Mitigation} \\
@@ -30,6 +31,7 @@ A mature engineering project acknowledges its boundaries. This chapter documents
         L-05 & \textbf{No database read replicas} & Infrastructure & All read and write queries hit the same MySQL~\cite{mysql} instance. Heavy reporting queries compete with real-time CRUD. & Add MySQL read replica for reporting queries. Django's \texttt{DATABASE\_ROUTERS} supports routing reads to separate database. \\
         \hline
     \end{tabular}
+    }
     \caption{Architectural Limitations and Proposed Mitigations}
     \label{tab:arch-limitations}
 \end{table}
@@ -41,6 +43,7 @@ A mature engineering project acknowledges its boundaries. This chapter documents
     \centering
     \renewcommand{\arraystretch}{1.2}
     \footnotesize
+    \resizebox{\textwidth}{!}{
     \begin{tabular}{|c|p{3cm}|c|p{3.5cm}|p{4.5cm}|}
         \hline
         \textbf{ID} & \textbf{Limitation} & \textbf{Category} & \textbf{Impact} & \textbf{Proposed Mitigation} \\
@@ -66,6 +69,7 @@ A mature engineering project acknowledges its boundaries. This chapter documents
         L-20 & \textbf{No live virtual classrooms} & Feature & System does not support real-time remote lectures or video conferencing. & Integrate with Zoom/Teams APIs or embed an open-source solution like BigBlueButton. \\
         \hline
     \end{tabular}
+    }
     \caption{Feature Limitations and Proposed Mitigations}
     \label{tab:feature-limitations}
 \end{table}
@@ -77,6 +81,7 @@ A mature engineering project acknowledges its boundaries. This chapter documents
     \centering
     \renewcommand{\arraystretch}{1.2}
     \footnotesize
+    \resizebox{\textwidth}{!}{
     \begin{tabular}{|c|p{3cm}|c|p{3cm}|p{5cm}|}
         \hline
         \textbf{ID} & \textbf{Limitation} & \textbf{Category} & \textbf{Impact} & \textbf{Proposed Mitigation} \\
@@ -87,9 +92,10 @@ A mature engineering project acknowledges its boundaries. This chapter documents
         \hline
         L-17 & \textbf{No HTTPS in default config} & Operations & Default Nginx configuration serves HTTP on port 80. HTTPS requires manual certificate setup. & Add Let's Encrypt automation using Certbot or \texttt{nginx-proxy} companion container with automatic SSL renewal. \\
         \hline
-        L-18 & \textbf{Manual deployment step} & Operations & After new image is built and pushed, admin must manually run \texttt{docker-compose~\cite{docker-compose} pull andand up -d} on production server. & Implement automated deployment webhook that triggers on image push to update production automatically. \\
+        L-18 & \textbf{Manual deployment step} & Operations & After new image is built and pushed, admin must manually run \texttt{docker-compose~\cite{docker-compose} pull \&\& up -d} on production server. & Implement automated deployment webhook that triggers on image push to update production automatically. \\
         \hline
     \end{tabular}
+    }
     \caption{Operational Limitations and Proposed Mitigations}
     \label{tab:ops-limitations}
 \end{table}

@@ -192,9 +192,13 @@ Non-functional requirements dictate the system's operational constraints and qua
         \textbf{ID} & \textbf{Category} & \textbf{Requirement} & \textbf{Target Metric} \\
         \hline
         \textbf{NFR-01} & Security & Passwords hashed via PBKDF2-SHA256. & 0 plaintext DB records \\
+        \hline
         \textbf{NFR-02} & Security & API enforces CSRF protection with \texttt{SameSite=None} cookies for cross-origin integration. & 100\% state mutations verified \\
+        \hline
         \textbf{NFR-03} & Performance & API responses for list endpoints complete in under 2s for datasets $\leq$ 5,000 rows. & $<2$s response time \\
+        \hline
         \textbf{NFR-04} & Usability & Full RTL layout support for Arabic text via MUI plugins. & No broken RTL layouts \\
+        \hline
         \textbf{NFR-05} & Audit & All administrative mutations logged in \texttt{AuditLog}. & 100\% audit coverage \\
         \hline
     \end{tabular}
