@@ -193,6 +193,7 @@ The following diagram visualizes the transformation from the previous manual/pap
     \centering
     \renewcommand{\arraystretch}{1.3}
     \footnotesize
+    \resizebox{\textwidth}{!}{
     \begin{tabular}{|p{2.2cm}|p{3.2cm}|p{3.8cm}|p{2.8cm}|}
         \hline
         \textbf{Dimension} & \textbf{Before} & \textbf{After} & \textbf{Evidence} \\
@@ -210,6 +211,7 @@ The following diagram visualizes the transformation from the previous manual/pap
         Concurrent Edit Conflicts & Two staff editing same Excel file & Eliminated---database transactions & \texttt{transaction.atomic()} \\
         \hline
     \end{tabular}
+    }
     \caption{Before vs. After---Data Integrity Comparison}
     \label{tab:before-after-integrity}
 \end{table}
