@@ -1,17 +1,11 @@
 <div align="center">
   <p>
     <img src="./textbook/images/Beni-Suef_University_logo.png" alt="Beni-Suef University Logo" width="130" />
-    andnbsp;andnbsp;andnbsp;andnbsp;andnbsp;andnbsp;andnbsp;andnbsp;
     <img src="./textbook/images/faculty_of_engineering_logo.jpeg" alt="Faculty of Engineering Logo" width="130" />
   </p>
-
-  <!-- Note: Replace the image src below with an actual screenshot or GIF of the portal in production -->
-  <img src="https://via.placeholder.com/1000x400.png?text=BSU+Engineering+Portal+Dashboard" alt="BSU Engineering Portal" width="100%">
-  
+  <img 
   <h1>BSU Engineering Portal</h1>
   <h3>A comprehensive, role-based Faculty ERP and Website serving students, faculty, and administrative staff.</h3>
-
-  <!-- Professional Badges -->
   <p>
     <img src="https://img.shields.io/badge/Frontend-ReactJS-61DAFB?logo=reactandlogoColor=black" alt="ReactJS">
     <img src="https://img.shields.io/badge/Backend-Django-092E20?logo=djangoandlogoColor=white" alt="Django">
