@@ -39,7 +39,7 @@ The quality assurance approach organizes testing into \textbf{five layers}:
         \hline
         Django~\cite{django} Model Constraints & Layer 1 & \texttt{unique\_together}, \texttt{choices}, \texttt{max\_length} enforced at database level \\
         \hline
-        DRF~\cite{drf} Serializer Validators & Layer 1 & Type checking, format validation, 14-digit National ID validation \\
+        DRF~\cite{djangorest} Serializer Validators & Layer 1 & Type checking, format validation, 14-digit National ID validation \\
         \hline
         \texttt{test\_grades.py} Command & Layer 2 & Grade calculation verification against real database state \\
         \hline
