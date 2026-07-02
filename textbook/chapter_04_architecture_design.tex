@@ -83,6 +83,7 @@ A critical security decision was the \textbf{Virtual Private Cloud (VPC) isolati
 \section{System Modeling (UML)}
 \label{sec:system-modeling}
 
+\newpage
 \subsection{Sequence Diagram: Authentication and CSRF Handshake}
 
 Because the SPA and API are decoupled, session-based authentication requires a deliberate Cross-Site Request Forgery (CSRF) handshake. The browser must retrieve a CSRF token cookie before dispatching the POST request containing credentials.
@@ -94,6 +95,7 @@ Because the SPA and API are decoupled, session-based authentication requires a d
     \label{fig:seq_auth}
 \end{figure}
 
+\newpage
 \subsection{Activity Diagram: Fault-Tolerant Batch Operations}
 
 Batch uploads (e.g., student enrollment, attendance logs) are the system's most data-intensive operations. Rather than rejecting an entire 500-row file due to a single invalid row, the system utilizes iterative row-level processing. As demonstrated in the \texttt{BulkAttendanceView}, the system traps operational exceptions per row without halting the broader batch execution.
