@@ -316,6 +316,7 @@ The heaviest operations involve the Dean Dashboard (which computes faculty-wide 
 \begin{table}[H]
     \centering
     \renewcommand{\arraystretch}{1.3}
+    \resizebox{\textwidth}{!}{
     \begin{tabular}{|l|c|c|c|c|}
         \hline
         \textbf{Operation} & \textbf{Concurrent Users} & \textbf{Avg Response (ms)} & \textbf{95th Pct (ms)} & \textbf{Status} \\
@@ -329,6 +330,7 @@ The heaviest operations involve the Dean Dashboard (which computes faculty-wide 
         Public Cert Verification & 1,000 & 80 & 150 & \textcolor{green!80!black}{\ding{51}} Passed \\
         \hline
     \end{tabular}
+    }
     \caption{Locust Load Testing Benchmarks}
 \end{table}
 

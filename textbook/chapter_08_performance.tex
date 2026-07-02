@@ -250,6 +250,7 @@ The frontend React application uses \textbf{client-side data tables} with sortin
 \begin{table}[H]
     \centering
     \renewcommand{\arraystretch}{1.3}
+    \resizebox{\textwidth}{!}{
     \begin{tabular}{|l|c|l|p{4cm}|}
         \hline
         \textbf{Endpoint} & \textbf{Dataset Size} & \textbf{Pagination} & \textbf{Rationale} \\
@@ -265,6 +266,7 @@ The frontend React application uses \textbf{client-side data tables} with sortin
         Dean Analytics & High volume & Server-side \texttt{PageNumberPagination} & Prevents "all zeros" memory exhaustion bug on large user datasets \\
         \hline
     \end{tabular}
+    }
     \caption{Pagination Strategy by Endpoint}
     \label{tab:pagination}
 \end{table}
