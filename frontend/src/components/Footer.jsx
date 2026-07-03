@@ -324,34 +324,6 @@ export default function Footer() {
                                     © {new Date().getFullYear()} كلية الهندسة، جامعة بني سويف. جميع الحقوق محفوظة.
                                 </Typography>
                             </Grid>
-                            <Grid item xs={12} md={6}>
-                                <Typography
-                                    variant="body2"
-                                    sx={{
-                                        fontFamily: 'Cairo',
-                                        color: 'rgba(255,255,255,0.6)',
-                                        textAlign: { xs: 'center', md: 'left' },
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: { xs: 'center', md: 'flex-start' },
-                                        gap: 0.5,
-                                    }}
-                                >
-                                    صُنع بـ <FavoriteIcon sx={{ fontSize: 16, color: '#EF4444' }} /> في مصر
-                                    <Chip
-                                        label="v2.0"
-                                        size="small"
-                                        sx={{
-                                            ml: 1,
-                                            height: 20,
-                                            fontSize: '0.65rem',
-                                            bgcolor: (theme) => `${theme.palette.primary.main}20`,
-                                            color: 'primary.light',
-                                            border: (theme) => `1px solid ${theme.palette.primary.main}40`,
-                                        }}
-                                    />
-                                </Typography>
-                            </Grid>
                         </Grid>
                     </Box>
                 </Container>

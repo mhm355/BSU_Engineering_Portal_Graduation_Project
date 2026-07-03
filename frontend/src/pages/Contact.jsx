@@ -145,9 +145,9 @@ const departments = [
 
 // Social media links
 const socialLinks = [
-    { icon: <FacebookIcon />, url: 'https://facebook.com/bsu.eng', color: '#1877F2', label: 'Facebook' },
-    { icon: <TwitterIcon />, url: 'https://twitter.com/bsu_eng', color: '#1DA1F2', label: 'Twitter' },
-    { icon: <LinkedInIcon />, url: 'https://linkedin.com/company/bsu-eng', color: '#0A66C2', label: 'LinkedIn' },
+    { icon: <FacebookIcon />, url: 'https://facebook.com/BSUUniv', color: '#1877F2', label: 'Facebook' },
+    { icon: <TwitterIcon />, url: 'https://twitter.com/beni_suef', color: '#1DA1F2', label: 'Twitter' },
+    { icon: <LinkedInIcon />, url: 'https://linkedin.com/company/school/beni-suef-university', color: '#0A66C2', label: 'LinkedIn' },
     { icon: <YouTubeIcon />, url: 'https://youtube.com/@bsu_eng', color: '#FF0000', label: 'YouTube' },
     { icon: <InstagramIcon />, url: 'https://instagram.com/bsu_eng', color: '#E4405F', label: 'Instagram' }
 ];
