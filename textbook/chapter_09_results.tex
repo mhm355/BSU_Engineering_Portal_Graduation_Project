@@ -189,19 +189,19 @@ The following diagram visualizes the transformation from the previous manual/pap
     \centering
     \renewcommand{\arraystretch}{1.4}
     \small
-    \begin{tabular}{|p{2.3cm}|p{2.8cm}|p{3.5cm}|p{3.8cm}|}
+    \begin{tabular}{|p{2.2cm}|p{2.8cm}|p{4.5cm}|p{4cm}|}
         \hline
         \textbf{Dimension} & \textbf{Before} & \textbf{After} & \textbf{Evidence} \\
         \hline
-        Duplicate Records & Same student in multiple Excel files & Impossible---\texttt{national\_id} is \texttt{unique=True} & \texttt{User.national\_id}, \texttt{unique=True} \\
+        Duplicate Records & Same student in multiple Excel files & Impossible---\texttt{national\_id} is \texttt{unique=True} & \texttt{User.national\_id}, \newline \texttt{unique=True} \\
         \hline
-        Grade Tampering & Anyone with file access could modify & Audit-logged with actor identity & \texttt{AuditLog.action} \texttt{GRADE\_UPDATED} \\
+        Grade Tampering & Anyone with file access could modify & Audit-logged with actor identity & \texttt{AuditLog.action} \newline \texttt{GRADE\_UPDATED} \\
         \hline
-        Unauthorized Access & Anyone with Excel has full access & Role-based---10 permission classes & \texttt{IsAdminRole}, \texttt{IsDeanRole} \\
+        Unauthorized Access & Anyone with Excel has full access & Role-based---10 permission classes & \texttt{IsAdminRole}, \newline \texttt{IsDeanRole} \\
         \hline
-        Data Loss & High risk---paper, local files & Docker volumes + version-controlled config & \texttt{db\_data:} \texttt{/var/lib/mysql} \\
+        Data Loss & High risk---paper, local files & Docker volumes + version-controlled config & \texttt{db\_data:} \newline \texttt{/var/lib/mysql} \\
         \hline
-        Attendance Accuracy & Paper signatures---illegible, lost & Digital with PRESENT/ABSENT/EXCUSED status & \texttt{Attendance} \texttt{.unique\_together} \\
+        Attendance Accuracy & Paper signatures---illegible, lost & Digital with PRESENT / ABSENT / EXCUSED status & \texttt{Attendance.} \newline \texttt{unique\_together} \\
         \hline
         Concurrent Edit Conflicts & Two staff editing same Excel file & Eliminated---database transactions & \texttt{transaction.atomic()} \\
         \hline
