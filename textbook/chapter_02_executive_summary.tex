@@ -170,7 +170,6 @@ The system utilizes a four-tier containerized architecture~\cite{docker} separat
 \section{Project Scope}
 \label{sec:project-scope}
 
-\newpage
 \subsection{In Scope (Delivered Capabilities)}
 
 The following capabilities are fully implemented in the current release:
@@ -183,20 +182,35 @@ The following capabilities are fully implemented in the current release:
         \textbf{ID} & \textbf{Capability} & \textbf{Description} \\
         \hline
         S1 & Multi-role Auth & Session-based login (Admin, Dean, HOD, Student, Doctor, Staff/Student Affairs). \\
+        \hline
         S2 & Password Enforcement & Default National ID password forced to change on first login. \\
+        \hline
         S3/S4 & Bulk Uploads & Excel-based batch imports with pre-flight validation. \\
+        \hline
         S5 & Course Offerings & HOD assignment scoped by year, term, level, and specialization. \\
+        \hline
         S6 & Grading Engine & 7 templates with customizable weight distributions. \\
+        \hline
         S7 & Attendance & Bulk tracking with automatic Excel generation. \\
+        \hline
         S8 & Quiz Engine & MCQ (auto-graded), Essay (manual), Image, and Mixed types. \\
+        \hline
         S9 & Lecture Management & Validated uploads for PDF, Slides, and Video. \\
+        \hline
         S11 & Publishing Workflows & Exam grades are published directly to students by the Dean. \\
+        \hline
         S12 & Audit Trail & 15 distinct action types logged with JSON details. \\
+        \hline
         S16 & UX/UI Theming & Client-side persisted Dark/Light mode and full RTL interface. \\
+        \hline
         S18 & Containerization & Multi-stage Docker builds and Compose orchestration. \\
+        \hline
         S19 & Manual Build Workflow & Docker Buildx with version-tagged releases. \\
+        \hline
         S20 & Academic Cycle & Ability to open and close Academic Years and Terms. \\
+        \hline
         S21 & Financial Constraints & Basic tuition payment status is tracked to lock academic features like quizzes. \\
+        \hline
         S22 & Graduate Services & Digital clearance, certificate verification, and career portal management. \\
         \hline
     \end{tabular}
@@ -204,7 +218,6 @@ The following capabilities are fully implemented in the current release:
     \label{tab:in_scope}
 \end{table}
 
-\newpage
 \subsection{Out of Scope (Explicit Exclusions)}
 
 The project scope was deliberately bounded by the engineering principle: \textit{"A well-scoped system that works reliably is more valuable than an ambitious system that works partially."} The following features were explicitly excluded:
