@@ -15,6 +15,8 @@ The most consequential security decision in the system's design was the selectio
 
 \begin{table}[H]
     \centering
+    \caption{Authentication Architecture Trade-off Analysis}
+    \label{tab:auth_tradeoff}
     \renewcommand{\arraystretch}{1.3}
     \begin{tabular}{|p{0.25\textwidth}|p{0.35\textwidth}|p{0.35\textwidth}|}
         \hline
@@ -29,8 +31,6 @@ The most consequential security decision in the system's design was the selectio
         \textbf{Token lifecycle} & Managed natively by Django middleware. & Requires access/refresh rotation logic and secure storage handling. \\
         \hline
     \end{tabular}
-    \caption{Authentication Architecture Trade-off Analysis}
-    \label{tab:auth_tradeoff}
 \end{table}
 
 The decisive factor was the institution's strict password lifecycle. Administrators frequently reset student passwords to their National ID, forcing a password change on the next login. Sessions allow this to happen instantly and atomically, whereas JWT would require significant additional infrastructure to achieve the same immediate revocation.
@@ -223,6 +223,8 @@ To defend against brute-force credential stuffing and application-layer denial o
 
 \begin{table}[H]
     \centering
+    \caption{API Rate Limiting Thresholds}
+    \label{tab:rate_limits}
     \renewcommand{\arraystretch}{1.3}
     \begin{tabular}{|p{0.2\textwidth}|p{0.25\textwidth}|p{0.45\textwidth}|}
         \hline
@@ -233,8 +235,6 @@ To defend against brute-force credential stuffing and application-layer denial o
         Authenticated & 1,000 requests / hour & Accommodates legitimate heavy-duty tasks (like bulk grade viewing) while preventing automated data scraping. \\
         \hline
     \end{tabular}
-    \caption{API Rate Limiting Thresholds}
-    \label{tab:rate_limits}
 \end{table}
 
 Limits are enforced hourly rather than minutely to accommodate "burst" workflows, such as a Staff Affairs member rapidly submitting multiple Excel batch uploads.

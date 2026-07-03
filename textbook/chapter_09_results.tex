@@ -14,7 +14,7 @@ This chapter evaluates the BSU Engineering Portal against the \textbf{problems i
 
 The authentication system enforces \textbf{first-login password change}---no user can access any feature until they change their default password. This is enforced at three layers: backend flag verification, frontend route protection, and password validation rules.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
     \centering
     \begin{minipage}{0.48\textwidth}
         \centering
@@ -35,7 +35,7 @@ The authentication system enforces \textbf{first-login password change}---no use
 
 The Admin Dashboard serves as the system's control center, managing academic structure, user accounts, approvals, and system-wide communications. Summary cards display real-time metrics: total students, total doctors, pending approvals, and active academic year.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.95\textwidth]{admin_dashboard.png}
     \caption{Admin Dashboard showing summary cards (total students, doctors, pending approvals), academic year management, and quick access to user management and system configuration.}
@@ -148,6 +148,8 @@ The following diagram visualizes the transformation from the previous manual/pap
 
 \begin{table}[H]
     \centering
+    \caption{Before vs. After---Administrative Workflow Comparison}
+    \label{tab:before-after-workflow}
     \renewcommand{\arraystretch}{1.3}
     \small
     \resizebox{\textwidth}{!}{
@@ -178,18 +180,18 @@ The following diagram visualizes the transformation from the previous manual/pap
         Alumni Tracking and Services & Hard to reach alumni post-graduation. & Career portal, jobs, and digital requests. & \textbf{Continuous engagement} \\
         \hline
     \end{tabular}
-    }
-    \caption{Before vs. After---Administrative Workflow Comparison}
-    \label{tab:before-after-workflow}
 \end{table}
 
 \subsection{Data Integrity Comparison}
 
 \begin{table}[H]
     \centering
-    \renewcommand{\arraystretch}{1.4}
-    \small
-    \begin{tabular}{|p{2.2cm}|p{2.8cm}|p{4.5cm}|p{4cm}|}
+    \caption{Before vs. After---Data Integrity Comparison}
+    \label{tab:before-after-integrity}
+    \renewcommand{\arraystretch}{1.3}
+    \footnotesize
+    \resizebox{\textwidth}{!}{
+    \begin{tabular}{|p{2.2cm}|p{3.2cm}|p{3.8cm}|p{2.8cm}|}
         \hline
         \textbf{Dimension} & \textbf{Before} & \textbf{After} & \textbf{Evidence} \\
         \hline
@@ -206,14 +208,15 @@ The following diagram visualizes the transformation from the previous manual/pap
         Concurrent Edit Conflicts & Two staff editing same Excel file & Eliminated---database transactions & \texttt{transaction.atomic()} \\
         \hline
     \end{tabular}
-    \caption{Before vs. After---Data Integrity Comparison}
-    \label{tab:before-after-integrity}
+    }
 \end{table}
 
 \subsection{Quantitative Impact Summary}
 
 \begin{table}[H]
     \centering
+    \caption{Quantitative Impact Summary}
+    \label{tab:quantitative-impact}
     \renewcommand{\arraystretch}{1.3}
     \scriptsize
     \begin{tabular}{|p{3.2cm}|p{2.2cm}|p{4.0cm}|p{1.6cm}|}
@@ -235,8 +238,6 @@ The following diagram visualizes the transformation from the previous manual/pap
         System portability & Machine-dependent & Docker anywhere & \textbf{Portable} \\
         \hline
     \end{tabular}
-    \caption{Quantitative Impact Summary}
-    \label{tab:quantitative-impact}
 \end{table}
 
 \newpage
@@ -249,6 +250,8 @@ The system has been tested and verified with the following data volumes:
 
 \begin{table}[H]
     \centering
+    \caption{Data Volume Capacity}
+    \label{tab:data-volumes}
     \renewcommand{\arraystretch}{1.3}
     \footnotesize
     \begin{tabular}{|p{2.8cm}|p{4.5cm}|p{3.7cm}|}
@@ -268,14 +271,14 @@ The system has been tested and verified with the following data volumes:
         Concurrent dashboard users & \textasciitilde50-100 simultaneous & 2 Gunicorn workers handle comfortably \\
         \hline
     \end{tabular}
-    \caption{Data Volume Capacity}
-    \label{tab:data-volumes}
 \end{table}
 
 \subsection{Container Resource Usage}
 
 \begin{table}[H]
     \centering
+    \caption{Container Resource Usage}
+    \label{tab:container-resources}
     \renewcommand{\arraystretch}{1.3}
     \resizebox{\textwidth}{!}{
     \begin{tabular}{|l|c|c|c|c|}
@@ -293,9 +296,6 @@ The system has been tested and verified with the following data volumes:
         \textbf{Total} & \textasciitilde1,045 MB & \textasciitilde345 MB & \textasciitilde710 MB & $<$4\% \\
         \hline
     \end{tabular}
-    }
-    \caption{Container Resource Usage}
-    \label{tab:container-resources}
 \end{table}
 
 \textbf{Conclusion:} The entire system runs comfortably on a server with \textbf{2 GB RAM} and \textbf{2 CPU cores}---well within the capabilities of a basic cloud instance or a repurposed office desktop.

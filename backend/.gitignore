@@ -1,4 +1,3 @@
 venv
-/*/__*
-/*/*/_*
+**/__pycache__/
 staticfiles/

@@ -11,106 +11,88 @@ A mature engineering project acknowledges its boundaries. This chapter documents
 
 \subsection{Architectural Limitations}
 
-\begingroup
-\small
-\renewcommand{\arraystretch}{1.3}
-\begin{longtable}{|c|p{2.5cm}|c|p{3.5cm}|p{4.5cm}|}
-    \hline
-    \textbf{ID} & \textbf{Limitation} & \textbf{Category} & \textbf{Impact} & \textbf{Proposed Mitigation} \\
-    \hline
-    \endfirsthead
-    \hline
-    \textbf{ID} & \textbf{Limitation} & \textbf{Category} & \textbf{Impact} & \textbf{Proposed Mitigation} \\
-    \hline
-    \endhead
-    \hline
-    \endfoot
-    L-01 & \textbf{No horizontal scaling} & Architecture & Single-server deployment. Under extreme load ($>$5,000 concurrent users), Gunicorn's~\cite{gunicorn} 2 workers become a bottleneck. & Add Docker Swarm or Kubernetes with multiple backend replicas behind a load balancer. Redis session store already enables this. \\
-    \hline
-    L-02 & \textbf{Monolithic Django~\cite{django} application} & Architecture & All four Django apps share a single database and process. A bug in the quiz engine could affect attendance recording. & For current scale (\textasciitilde2,000 students), monolithic is correct. Microservices justified only above \textasciitilde10,000 users or with independent deployment requirements. \\
-    \hline
-    L-03 & \textbf{No WebSocket / real-time updates} & Architecture & Dashboards require manual refresh to see new data. A student must refresh to see a newly published grade. & Integrate Django Channels with Redis channel layer for WebSocket-based push notifications. Estimated effort: 2-3 sprints. \\
-    \hline
-    L-04 & \textbf{Synchronous Gunicorn workers} & Architecture & Long-running operations (large Excel uploads) block a worker. With 2 workers, this can cause queuing. & Migrate to async workers (\texttt{uvicorn} + ASGI) or offload tasks to Celery with Redis as message broker. \\
-    \hline
-    L-05 & \textbf{No database read replicas} & Infrastructure & All read and write queries hit the same MySQL~\cite{mysql} instance. Heavy reporting queries compete with real-time CRUD. & Add MySQL read replica for reporting queries. Django's \texttt{DATABASE\_ROUTERS} supports routing reads to separate database. \\
-    \hline
+\begin{table}[H]
+    \centering
     \caption{Architectural Limitations and Proposed Mitigations}
     \label{tab:arch-limitations}
-\end{longtable}
-\endgroup
+    \renewcommand{\arraystretch}{1.2}
+    \footnotesize
+    \begin{tabular}{|c|p{3cm}|c|p{3cm}|p{4.5cm}|}
+        \hline
+        \textbf{ID} & \textbf{Limitation} & \textbf{Category} & \textbf{Impact} & \textbf{Proposed Mitigation} \\
+        \hline
+        L-01 & \textbf{No horizontal scaling} & Architecture & Single-server deployment. Under extreme load ($>$5,000 concurrent users), Gunicorn's~\cite{gunicorn} 2 workers become a bottleneck. & Add Docker Swarm or Kubernetes with multiple backend replicas behind a load balancer. Redis session store already enables this. \\
+        \hline
+        L-02 & \textbf{Monolithic Django~\cite{django} application} & Architecture & All four Django apps share a single database and process. A bug in the quiz engine could affect attendance recording. & For current scale (\textasciitilde2,000 students), monolithic is correct. Microservices justified only above \textasciitilde10,000 users or with independent deployment requirements. \\
+        \hline
+        L-03 & \textbf{No WebSocket / real-time updates} & Architecture & Dashboards require manual refresh to see new data. A student must refresh to see a newly published grade. & Integrate Django Channels with Redis channel layer for WebSocket-based push notifications. Estimated effort: 2-3 sprints. \\
+        \hline
+        L-04 & \textbf{Synchronous Gunicorn workers} & Architecture & Long-running operations (large Excel uploads) block a worker. With 2 workers, this can cause queuing. & Migrate to async workers (\texttt{uvicorn} + ASGI) or offload tasks to Celery with Redis as message broker. \\
+        \hline
+        L-05 & \textbf{No database read replicas} & Infrastructure & All read and write queries hit the same MySQL~\cite{mysql} instance. Heavy reporting queries compete with real-time CRUD. & Add MySQL read replica for reporting queries. Django's \texttt{DATABASE\_ROUTERS} supports routing reads to separate database. \\
+        \hline
+    \end{tabular}
+\end{table}
 
 \newpage
 \subsection{Feature Limitations}
 
-\begingroup
-\small
-\renewcommand{\arraystretch}{1.3}
-\begin{longtable}{|c|p{2.5cm}|c|p{3.5cm}|p{4.5cm}|}
-    \hline
-    \textbf{ID} & \textbf{Limitation} & \textbf{Category} & \textbf{Impact} & \textbf{Proposed Mitigation} \\
-    \hline
-    \endfirsthead
-    \hline
-    \textbf{ID} & \textbf{Limitation} & \textbf{Category} & \textbf{Impact} & \textbf{Proposed Mitigation} \\
-    \hline
-    \endhead
-    \hline
-    \endfoot
-    L-07 & \textbf{No mobile native application} & Feature & Responsive web serves mobile users but lacks offline capability, push notifications, and native camera access. & Develop React Native companion app or implement PWA with service workers for offline-first. \\
-    \hline
-    L-08 & \textbf{No real-time chat / messaging} & Feature & Communication is one-directional (admin $\rightarrow$ users via announcements). No student-doctor messaging. & Implement Django Channels for WebSocket-based messaging. Requires Redis/RabbitMQ broker and chat UI. \\
-    \hline
-    L-09 & \textbf{No email/SMS notifications} & Feature & Users must log in to discover new announcements, grades, or quiz availability. & Integrate Django's email backend with SMTP provider (SendGrid, Mailgun). SMS requires Twilio/Vonage. \\
-    \hline
-    L-10 & \textbf{No advanced analytics / reporting} & Feature & System records data but does not generate statistical reports (GPA distributions, attendance trends). & Build reporting dashboard using Chart.js or Recharts, with Django aggregation queries providing data. \\
-    \hline
-    L-11 & \textbf{No automated exam proctoring} & Feature & Online quizzes have no anti-cheating mechanisms beyond time limits. & Integrate browser lockdown APIs, webcam monitoring, or third-party proctoring services. Requires AI/ML. \\
-    \hline
-    L-12 & \textbf{No multi-language support} & Feature & Interface is Arabic-only. No option for English-speaking faculty. & Implement Django's~\cite{django} i18n framework with \texttt{gettext} translations. React~\cite{react} frontend uses \texttt{react-i18next}. \\
-    \hline
-    L-13 & \textbf{Single quiz attempt only} & Feature & Students can only take each quiz once. No mechanism for retakes or practice modes. & Add \texttt{max\_attempts} field to Quiz model. Modify \texttt{unique\_together} to \texttt{['student', 'quiz', 'attempt\_number']}. \\
-    \hline
-    L-14 & \textbf{No GPA calculation} & Feature & System records individual course grades but does not compute cumulative or semester GPA. & Add GPA calculation service that aggregates \texttt{StudentGrade.total\_grade()} across courses, weighted by credit hours. \\
-    \hline
-    L-19 & \textbf{No discussion forums} & Feature & Students and doctors lack a structured platform for asynchronous academic discussions. & Implement a forum module with topic threads, replies, and moderation tools. \\
-    \hline
-    L-20 & \textbf{No live virtual classrooms} & Feature & System does not support real-time remote lectures or video conferencing. & Integrate with Zoom/Teams APIs or embed an open-source solution like BigBlueButton. \\
-    \hline
+\begin{table}[H]
+    \centering
     \caption{Feature Limitations and Proposed Mitigations}
     \label{tab:feature-limitations}
-\end{longtable}
-\endgroup
+    \renewcommand{\arraystretch}{1.2}
+    \footnotesize
+    \begin{tabular}{|c|p{3cm}|c|p{3.5cm}|p{4.5cm}|}
+        \hline
+        \textbf{ID} & \textbf{Limitation} & \textbf{Category} & \textbf{Impact} & \textbf{Proposed Mitigation} \\
+        \hline
+        L-07 & \textbf{No mobile native application} & Feature & Responsive web serves mobile users but lacks offline capability, push notifications, and native camera access. & Develop React Native companion app or implement PWA with service workers for offline-first. \\
+        \hline
+        L-08 & \textbf{No real-time chat / messaging} & Feature & Communication is one-directional (admin $\rightarrow$ users via announcements). No student-doctor messaging. & Implement Django Channels for WebSocket-based messaging. Requires Redis/RabbitMQ broker and chat UI. \\
+        \hline
+        L-09 & \textbf{No email/SMS notifications} & Feature & Users must log in to discover new announcements, grades, or quiz availability. & Integrate Django's email backend with SMTP provider (SendGrid, Mailgun). SMS requires Twilio/Vonage. \\
+        \hline
+        L-10 & \textbf{No advanced analytics / reporting} & Feature & System records data but does not generate statistical reports (GPA distributions, attendance trends). & Build reporting dashboard using Chart.js or Recharts, with Django aggregation queries providing data. \\
+        \hline
+        L-11 & \textbf{No automated exam proctoring} & Feature & Online quizzes have no anti-cheating mechanisms beyond time limits. & Integrate browser lockdown APIs, webcam monitoring, or third-party proctoring services. Requires AI/ML. \\
+        \hline
+        L-12 & \textbf{No multi-language support} & Feature & Interface is Arabic-only. No option for English-speaking faculty. & Implement Django's~\cite{django} i18n framework with \texttt{gettext} translations. React~\cite{react} frontend uses \texttt{react-i18next}. \\
+        \hline
+        L-13 & \textbf{Single quiz attempt only} & Feature & Students can only take each quiz once. No mechanism for retakes or practice modes. & Add \texttt{max\_attempts} field to Quiz model. Modify \texttt{unique\_together} to \texttt{['student', 'quiz', 'attempt\_number']}. \\
+        \hline
+        L-14 & \textbf{No GPA calculation} & Feature & System records individual course grades but does not compute cumulative or semester GPA. & Add GPA calculation service that aggregates \texttt{StudentGrade.total\_grade()} across courses, weighted by credit hours. \\
+        \hline
+        L-19 & \textbf{No discussion forums} & Feature & Students and doctors lack a structured platform for asynchronous academic discussions. & Implement a forum module with topic threads, replies, and moderation tools. \\
+        \hline
+        L-20 & \textbf{No live virtual classrooms} & Feature & System does not support real-time remote lectures or video conferencing. & Integrate with Zoom/Teams APIs or embed an open-source solution like BigBlueButton. \\
+        \hline
+    \end{tabular}
+\end{table}
 
 \newpage
 \subsection{Operational Limitations}
 
-\begingroup
-\small
-\renewcommand{\arraystretch}{1.3}
-\begin{longtable}{|c|p{2.5cm}|c|p{3.5cm}|p{4.5cm}|}
-    \hline
-    \textbf{ID} & \textbf{Limitation} & \textbf{Category} & \textbf{Impact} & \textbf{Proposed Mitigation} \\
-    \hline
-    \endfirsthead
-    \hline
-    \textbf{ID} & \textbf{Limitation} & \textbf{Category} & \textbf{Impact} & \textbf{Proposed Mitigation} \\
-    \hline
-    \endhead
-    \hline
-    \endfoot
-    L-15 & \textbf{No automated backup strategy} & Operations & Database persistence relies on Docker~\cite{docker} volumes. If host disk fails, all data is lost. & Implement scheduled MySQL dumps (\texttt{mysqldump}) to cloud storage (S3, GCS) via cron job. Daily backups with 30-day retention. \\
-    \hline
-    L-16 & \textbf{No monitoring / alerting} & Operations & No system health dashboard or automated alerting for container failures, high CPU, or DB exhaustion. & Deploy Prometheus + Grafana for metrics. Add Alertmanager for email/Slack notifications on critical events. \\
-    \hline
-    L-17 & \textbf{No HTTPS in default config} & Operations & Default Nginx configuration serves HTTP on port 80. HTTPS requires manual certificate setup. & Add Let's Encrypt automation using Certbot or \texttt{nginx-proxy} companion container with automatic SSL renewal. \\
-    \hline
-    L-18 & \textbf{Manual deployment step} & Operations & After new image is built and pushed, admin must manually run \texttt{docker-compose pull \&\& up -d} on production server. & Implement automated deployment webhook that triggers on image push to update production automatically. \\
-    \hline
+\begin{table}[H]
+    \centering
     \caption{Operational Limitations and Proposed Mitigations}
     \label{tab:ops-limitations}
-\end{longtable}
-\endgroup
+    \renewcommand{\arraystretch}{1.2}
+    \footnotesize
+    \begin{tabular}{|c|p{3cm}|c|p{3cm}|p{5cm}|}
+        \hline
+        \textbf{ID} & \textbf{Limitation} & \textbf{Category} & \textbf{Impact} & \textbf{Proposed Mitigation} \\
+        \hline
+        L-15 & \textbf{No automated backup strategy} & Operations & Database persistence relies on Docker~\cite{docker} volumes. If host disk fails, all data is lost. & Implement scheduled MySQL dumps (\texttt{mysqldump}) to cloud storage (S3, GCS) via cron job. Daily backups with 30-day retention. \\
+        \hline
+        L-16 & \textbf{No monitoring / alerting} & Operations & No system health dashboard or automated alerting for container failures, high CPU, or DB exhaustion. & Deploy Prometheus + Grafana for metrics. Add Alertmanager for email/Slack notifications on critical events. \\
+        \hline
+        L-17 & \textbf{No HTTPS in default config} & Operations & Default Nginx configuration serves HTTP on port 80. HTTPS requires manual certificate setup. & Add Let's Encrypt automation using Certbot or \texttt{nginx-proxy} companion container with automatic SSL renewal. \\
+        \hline
+        L-18 & \textbf{Manual deployment step} & Operations & After new image is built and pushed, admin must manually run \texttt{docker-compose~\cite{docker-compose} pull andand up -d} on production server. & Implement automated deployment webhook that triggers on image push to update production automatically. \\
+        \hline
+    \end{tabular}
+\end{table}
 
 \section{Future Work Roadmap}
 \label{sec:future-work}
@@ -119,6 +101,8 @@ A mature engineering project acknowledges its boundaries. This chapter documents
 
 \begin{table}[H]
     \centering
+    \caption{Short-Term Improvement Roadmap (1-2 Sprints)}
+    \label{tab:short-term}
     \renewcommand{\arraystretch}{1.3}
     \small
     \begin{tabular}{|c|p{4.2cm}|c|p{3.8cm}|}
@@ -136,14 +120,14 @@ A mature engineering project acknowledges its boundaries. This chapter documents
         \textcolor{yellow}{\ding{108}} Low & \textbf{Multi-attempt quizzes} (L-13) & 1-2 days & Enhanced assessment flexibility \\
         \hline
     \end{tabular}
-    \caption{Short-Term Improvement Roadmap (1-2 Sprints)}
-    \label{tab:short-term}
 \end{table}
 
 \subsection{Medium-Term Improvements (3-6 Sprints)}
 
 \begin{table}[H]
     \centering
+    \caption{Medium-Term Improvement Roadmap (3-6 Sprints)}
+    \label{tab:medium-term}
     \renewcommand{\arraystretch}{1.3}
     \small
     \begin{tabular}{|c|p{4.2cm}|c|p{3.8cm}|}
@@ -159,8 +143,6 @@ A mature engineering project acknowledges its boundaries. This chapter documents
         \textcolor{orange}{\ding{108}} Medium & \textbf{Celery task queue} (L-04) & 1-2 sprints & Non-blocking bulk operations \\
         \hline
     \end{tabular}
-    \caption{Medium-Term Improvement Roadmap (3-6 Sprints)}
-    \label{tab:medium-term}
 \end{table}
 
 \newpage
@@ -168,6 +150,8 @@ A mature engineering project acknowledges its boundaries. This chapter documents
 
 \begin{table}[H]
     \centering
+    \caption{Long-Term Vision Roadmap (6+ Sprints)}
+    \label{tab:long-term}
     \renewcommand{\arraystretch}{1.3}
     \small
     \begin{tabular}{|c|p{4.5cm}|c|p{3.5cm}|}
@@ -189,14 +173,12 @@ A mature engineering project acknowledges its boundaries. This chapter documents
         \textcolor{orange}{\ding{108}} Medium & \textbf{Live Virtual Classrooms} (L-20) & 4-5 sprints & Real-time remote learning \\
         \hline
     \end{tabular}
-    \caption{Long-Term Vision Roadmap (6+ Sprints)}
-    \label{tab:long-term}
 \end{table}
 
 
 \subsection{Architecture Evolution Path}
 
-\begin{figure}[htbp]
+\begin{figure}[H]
     \centering
     \begin{minipage}{0.45\textwidth}
         \centering

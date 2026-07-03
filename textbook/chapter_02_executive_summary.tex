@@ -41,6 +41,8 @@ The existing approach is architecturally incompatible with the operational requi
 
 \begin{table}[H]
     \centering
+    \caption{Gap Analysis: Current State vs. Required State}
+    \label{tab:gap_analysis}
     \renewcommand{\arraystretch}{1.3}
     \begin{tabular}{|p{0.2\textwidth}|p{0.3\textwidth}|p{0.3\textwidth}|p{0.1\textwidth}|}
         \hline
@@ -59,8 +61,6 @@ The existing approach is architecturally incompatible with the operational requi
         \textbf{Disaster Recovery} & Paper and local files (no backups). & Containerized with persistent volumes. & Medium \\
         \hline
     \end{tabular}
-    \caption{Gap Analysis: Current State vs. Required State}
-    \label{tab:gap_analysis}
 \end{table}
 
 \subsection{Why Not Off-the-Shelf Solutions?}
@@ -141,6 +141,8 @@ The system utilizes a four-tier containerized architecture~\cite{docker} separat
 
 \begin{table}[H]
     \centering
+    \caption{System Outcomes per Stakeholder}
+    \label{tab:outcomes}
     \renewcommand{\arraystretch}{1.3}
     \begin{tabular}{|p{0.2\textwidth}|p{0.75\textwidth}|}
         \hline
@@ -163,8 +165,6 @@ The system utilizes a four-tier containerized architecture~\cite{docker} separat
         \textbf{Admin} & Academic year/term generation and open/close statuses, department management, grading template configuration, targeted announcements, and full audit log reviews. \\
         \hline
     \end{tabular}
-    \caption{System Outcomes per Stakeholder}
-    \label{tab:outcomes}
 \end{table}
 
 \newpage
@@ -177,6 +177,8 @@ The following capabilities are fully implemented in the current release:
 
 \begin{table}[H]
     \centering
+    \caption{In-Scope System Capabilities}
+    \label{tab:in_scope}
     \renewcommand{\arraystretch}{1.2}
     \begin{tabular}{|p{0.08\textwidth}|p{0.3\textwidth}|p{0.55\textwidth}|}
         \hline
@@ -215,8 +217,6 @@ The following capabilities are fully implemented in the current release:
         S22 & Graduate Services & Digital clearance, certificate verification, and career portal management. \\
         \hline
     \end{tabular}
-    \caption{In-Scope System Capabilities}
-    \label{tab:in_scope}
 \end{table}
 
 \newpage
@@ -226,6 +226,8 @@ The project scope was deliberately bounded by the engineering principle: \textit
 
 \begin{table}[H]
     \centering
+    \caption{Out-of-Scope Capabilities and Rationale}
+    \label{tab:out_of_scope}
     \renewcommand{\arraystretch}{1.2}
     \begin{tabular}{|p{0.08\textwidth}|p{0.3\textwidth}|p{0.55\textwidth}|}
         \hline
@@ -244,6 +246,4 @@ The project scope was deliberately bounded by the engineering principle: \textit
         X9 & Student Self-Registration & Bypasses institutional enrollment validation. Student Affairs must maintain control via batch imports. \\
         \hline
     \end{tabular}
-    \caption{Out-of-Scope Capabilities and Rationale}
-    \label{tab:out_of_scope}
 \end{table}

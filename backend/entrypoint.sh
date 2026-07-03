@@ -35,6 +35,12 @@ else:
     print('WARNING: Could not connect to Redis. Sessions will fall back to database.')
 "
 
+# Ensure all migration directories are proper Python packages
+# (needed because .gitignore may exclude __init__.py files)
+for dir in */migrations/; do
+    touch "$dir/__init__.py" 2>/dev/null || true
+done
+
 # Generate missing migrations dynamically based on model changes
 echo "Generating missing migrations..."
 python manage.py makemigrations --noinput || true

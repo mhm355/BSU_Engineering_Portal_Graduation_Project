@@ -219,11 +219,11 @@ export default function Footer() {
                                 تابعنا على
                             </Typography>
                             <Box sx={{ display: 'flex', gap: 1.5 }}>
-                                <SocialButton icon={FacebookIcon} href="#" color="#1877F2" />
-                                <SocialButton icon={TwitterIcon} href="#" color="#1DA1F2" />
-                                <SocialButton icon={LinkedInIcon} href="#" color="#0A66C2" />
-                                <SocialButton icon={YouTubeIcon} href="#" color="#FF0000" />
-                                <SocialButton icon={InstagramIcon} href="#" color="#E4405F" />
+                                <SocialButton icon={FacebookIcon} href="https://facebook.com/BSUUniv" color="#1877F2" />
+                                <SocialButton icon={TwitterIcon} href="https://twitter.com/beni_suef" color="#1DA1F2" />
+                                <SocialButton icon={LinkedInIcon} href="https://linkedin.com/company/school/beni-suef-university" color="#0A66C2" />
+                                <SocialButton icon={YouTubeIcon} href="https://youtube.com/@bsu_eng" color="#FF0000" />
+                                <SocialButton icon={InstagramIcon} href="https://instagram.com/bsu_eng" color="#E4405F" />
                             </Box>
                         </Grid>
 
@@ -322,34 +322,6 @@ export default function Footer() {
                                     }}
                                 >
                                     © {new Date().getFullYear()} كلية الهندسة، جامعة بني سويف. جميع الحقوق محفوظة.
-                                </Typography>
-                            </Grid>
-                            <Grid item xs={12} md={6}>
-                                <Typography
-                                    variant="body2"
-                                    sx={{
-                                        fontFamily: 'Cairo',
-                                        color: 'rgba(255,255,255,0.6)',
-                                        textAlign: { xs: 'center', md: 'left' },
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: { xs: 'center', md: 'flex-start' },
-                                        gap: 0.5,
-                                    }}
-                                >
-                                    صُنع بـ <FavoriteIcon sx={{ fontSize: 16, color: '#EF4444' }} /> في مصر
-                                    <Chip
-                                        label="v2.0"
-                                        size="small"
-                                        sx={{
-                                            ml: 1,
-                                            height: 20,
-                                            fontSize: '0.65rem',
-                                            bgcolor: (theme) => `${theme.palette.primary.main}20`,
-                                            color: 'primary.light',
-                                            border: (theme) => `1px solid ${theme.palette.primary.main}40`,
-                                        }}
-                                    />
                                 </Typography>
                             </Grid>
                         </Grid>

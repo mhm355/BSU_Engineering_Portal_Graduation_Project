@@ -685,6 +685,8 @@ Azure components provide equivalent functionality with native integration:
 
 \begin{table}[H]
     \centering
+    \caption{Monthly Infrastructure Cost Comparison (Development Environment)}
+    \label{tab:cloud_costs}
     \renewcommand{\arraystretch}{1.3}
     \begin{tabular}{|p{0.25\textwidth}|c|c|p{0.35\textwidth}|}
         \hline
@@ -703,8 +705,6 @@ Azure components provide equivalent functionality with native integration:
         \textbf{Total (Dev)} & \textasciitilde\$60-85 & \textasciitilde\$30-45 & Azure more cost-effective for this workload \\
         \hline
     \end{tabular}
-    \caption{Monthly Infrastructure Cost Comparison (Development Environment)}
-    \label{tab:cloud_costs}
 \end{table}
 
 \textbf{Infrastructure Provisioning:} The Terraform configuration creates 12+ AWS resources including VPC, subnets, security groups, ECS cluster, RDS instance, and Application Load Balancer. The execution plan shows exactly what will be created before any changes are applied.
