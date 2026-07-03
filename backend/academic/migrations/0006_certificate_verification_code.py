@@ -3,6 +3,11 @@
 import uuid
 from django.db import migrations, models
 
+def generate_unique_uuids(apps, schema_editor):
+    Certificate = apps.get_model('academic', 'Certificate')
+    for certificate in Certificate.objects.all():
+        certificate.verification_code = uuid.uuid4()
+        certificate.save(update_fields=['verification_code'])
 
 class Migration(migrations.Migration):
 
@@ -11,7 +16,16 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        # Step 1: Add the field without unique=True and allowing nulls temporarily
         migrations.AddField(
+            model_name='certificate',
+            name='verification_code',
+            field=models.UUIDField(default=uuid.uuid4, null=True),
+        ),
+        # Step 2: Populate unique UUIDs for existing rows
+        migrations.RunPython(generate_unique_uuids, reverse_code=migrations.RunPython.noop),
+        # Step 3: Enforce unique constraint and remove null=True
+        migrations.AlterField(
             model_name='certificate',
             name='verification_code',
             field=models.UUIDField(default=uuid.uuid4, editable=False, unique=True),
