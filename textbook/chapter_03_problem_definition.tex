@@ -36,6 +36,8 @@ Identifying the exact users of the system is the first step in requirements engi
 
 \begin{table}[H]
     \centering
+    \caption{Stakeholder Summary and System Interaction Points}
+    \label{tab:stakeholders}
     \renewcommand{\arraystretch}{1.3}
     \begin{tabular}{|p{0.15\textwidth}|p{0.2\textwidth}|p{0.3\textwidth}|p{0.25\textwidth}|}
         \hline
@@ -58,8 +60,6 @@ Identifying the exact users of the system is the first step in requirements engi
         \textbf{Admin} & IT/System Administrator & No central configuration tool; ad-hoc management. & Manage academic years/terms, approve deletions, view audit logs. \\
         \hline
     \end{tabular}
-    \caption{Stakeholder Summary and System Interaction Points}
-    \label{tab:stakeholders}
 \end{table}
 
 \subsection{Stakeholder Permission Boundaries}
@@ -94,6 +94,8 @@ Agile permitted the engineering team to:
 
 \begin{table}[H]
     \centering
+    \caption{Agile Sprint Plan Overview}
+    \label{tab:sprints}
     \renewcommand{\arraystretch}{1.2}
     \begin{tabular}{|p{0.15\textwidth}|p{0.3\textwidth}|p{0.45\textwidth}|}
         \hline
@@ -111,8 +113,6 @@ Agile permitted the engineering team to:
         Sprint 10 & Graduate Affairs & Career portal, graduation clearance, public certificate verification. \\
         \hline
     \end{tabular}
-    \caption{Agile Sprint Plan Overview}
-    \label{tab:sprints}
 \end{table}
 
 \section{Functional Requirements}
@@ -186,6 +186,8 @@ Non-functional requirements dictate the system's operational constraints and qua
 
 \begin{table}[H]
     \centering
+    \caption{Non-Functional Requirements}
+    \label{tab:nfrs}
     \renewcommand{\arraystretch}{1.3}
     \begin{tabular}{|p{0.1\textwidth}|p{0.15\textwidth}|p{0.45\textwidth}|p{0.2\textwidth}|}
         \hline
@@ -198,8 +200,6 @@ Non-functional requirements dictate the system's operational constraints and qua
         \textbf{NFR-05} & Audit & All administrative mutations logged in \texttt{AuditLog}. & 100\% audit coverage \\
         \hline
     \end{tabular}
-    \caption{Non-Functional Requirements}
-    \label{tab:nfrs}
 \end{table}
 
 To protect against brute-force and denial-of-service attempts, rate limiting was configured globally in the backend:

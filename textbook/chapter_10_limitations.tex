@@ -11,8 +11,10 @@ A mature engineering project acknowledges its boundaries. This chapter documents
 
 \subsection{Architectural Limitations}
 
-\begin{table}[htbp]
+\begin{table}[H]
     \centering
+    \caption{Architectural Limitations and Proposed Mitigations}
+    \label{tab:arch-limitations}
     \renewcommand{\arraystretch}{1.2}
     \footnotesize
     \begin{tabular}{|c|p{3cm}|c|p{3cm}|p{4.5cm}|}
@@ -30,15 +32,15 @@ A mature engineering project acknowledges its boundaries. This chapter documents
         L-05 & \textbf{No database read replicas} & Infrastructure & All read and write queries hit the same MySQL~\cite{mysql} instance. Heavy reporting queries compete with real-time CRUD. & Add MySQL read replica for reporting queries. Django's \texttt{DATABASE\_ROUTERS} supports routing reads to separate database. \\
         \hline
     \end{tabular}
-    \caption{Architectural Limitations and Proposed Mitigations}
-    \label{tab:arch-limitations}
 \end{table}
 
 \newpage
 \subsection{Feature Limitations}
 
-\begin{table}[htbp]
+\begin{table}[H]
     \centering
+    \caption{Feature Limitations and Proposed Mitigations}
+    \label{tab:feature-limitations}
     \renewcommand{\arraystretch}{1.2}
     \footnotesize
     \begin{tabular}{|c|p{3cm}|c|p{3.5cm}|p{4.5cm}|}
@@ -66,15 +68,15 @@ A mature engineering project acknowledges its boundaries. This chapter documents
         L-20 & \textbf{No live virtual classrooms} & Feature & System does not support real-time remote lectures or video conferencing. & Integrate with Zoom/Teams APIs or embed an open-source solution like BigBlueButton. \\
         \hline
     \end{tabular}
-    \caption{Feature Limitations and Proposed Mitigations}
-    \label{tab:feature-limitations}
 \end{table}
 
 \newpage
 \subsection{Operational Limitations}
 
-\begin{table}[htbp]
+\begin{table}[H]
     \centering
+    \caption{Operational Limitations and Proposed Mitigations}
+    \label{tab:ops-limitations}
     \renewcommand{\arraystretch}{1.2}
     \footnotesize
     \begin{tabular}{|c|p{3cm}|c|p{3cm}|p{5cm}|}
@@ -90,8 +92,6 @@ A mature engineering project acknowledges its boundaries. This chapter documents
         L-18 & \textbf{Manual deployment step} & Operations & After new image is built and pushed, admin must manually run \texttt{docker-compose~\cite{docker-compose} pull andand up -d} on production server. & Implement automated deployment webhook that triggers on image push to update production automatically. \\
         \hline
     \end{tabular}
-    \caption{Operational Limitations and Proposed Mitigations}
-    \label{tab:ops-limitations}
 \end{table}
 
 \section{Future Work Roadmap}
@@ -99,8 +99,10 @@ A mature engineering project acknowledges its boundaries. This chapter documents
 
 \subsection{Short-Term Improvements (1-2 Sprints)}
 
-\begin{table}[htbp]
+\begin{table}[H]
     \centering
+    \caption{Short-Term Improvement Roadmap (1-2 Sprints)}
+    \label{tab:short-term}
     \renewcommand{\arraystretch}{1.3}
     \small
     \begin{tabular}{|c|p{4.2cm}|c|p{3.8cm}|}
@@ -118,14 +120,14 @@ A mature engineering project acknowledges its boundaries. This chapter documents
         \textcolor{yellow}{\ding{108}} Low & \textbf{Multi-attempt quizzes} (L-13) & 1-2 days & Enhanced assessment flexibility \\
         \hline
     \end{tabular}
-    \caption{Short-Term Improvement Roadmap (1-2 Sprints)}
-    \label{tab:short-term}
 \end{table}
 
 \subsection{Medium-Term Improvements (3-6 Sprints)}
 
-\begin{table}[htbp]
+\begin{table}[H]
     \centering
+    \caption{Medium-Term Improvement Roadmap (3-6 Sprints)}
+    \label{tab:medium-term}
     \renewcommand{\arraystretch}{1.3}
     \small
     \begin{tabular}{|c|p{4.2cm}|c|p{3.8cm}|}
@@ -141,15 +143,15 @@ A mature engineering project acknowledges its boundaries. This chapter documents
         \textcolor{orange}{\ding{108}} Medium & \textbf{Celery task queue} (L-04) & 1-2 sprints & Non-blocking bulk operations \\
         \hline
     \end{tabular}
-    \caption{Medium-Term Improvement Roadmap (3-6 Sprints)}
-    \label{tab:medium-term}
 \end{table}
 
 \newpage
 \subsection{Long-Term Vision (6+ Sprints)}
 
-\begin{table}[htbp]
+\begin{table}[H]
     \centering
+    \caption{Long-Term Vision Roadmap (6+ Sprints)}
+    \label{tab:long-term}
     \renewcommand{\arraystretch}{1.3}
     \small
     \begin{tabular}{|c|p{4.5cm}|c|p{3.5cm}|}
@@ -171,14 +173,12 @@ A mature engineering project acknowledges its boundaries. This chapter documents
         \textcolor{orange}{\ding{108}} Medium & \textbf{Live Virtual Classrooms} (L-20) & 4-5 sprints & Real-time remote learning \\
         \hline
     \end{tabular}
-    \caption{Long-Term Vision Roadmap (6+ Sprints)}
-    \label{tab:long-term}
 \end{table}
 
 \newpage
 \subsection{Architecture Evolution Path}
 
-\begin{figure}[htbp]
+\begin{figure}[H]
     \centering
     \begin{minipage}{0.45\textwidth}
         \centering

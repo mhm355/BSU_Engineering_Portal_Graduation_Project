@@ -32,6 +32,8 @@ The quality assurance approach organizes testing into \textbf{five layers}:
 
 \begin{table}[H]
     \centering
+    \caption{Testing Tools and Their Corresponding Layers}
+    \label{tab:testing_tools}
     \renewcommand{\arraystretch}{1.3}
     \begin{tabular}{|l|l|p{8cm}|}
         \hline
@@ -50,8 +52,6 @@ The quality assurance approach organizes testing into \textbf{five layers}:
         Manual Test Execution & Layer 4 & Structured acceptance testing via API client \\
         \hline
     \end{tabular}
-    \caption{Testing Tools and Their Corresponding Layers}
-    \label{tab:testing_tools}
 \end{table}
 
 \section{Layer 1: Model and Business Logic Validation}
@@ -178,6 +178,7 @@ with transaction.atomic():
 
 \begin{table}[H]
     \centering
+    \caption{Container Vulnerability Scan Results}
     \renewcommand{\arraystretch}{1.3}
     \begin{tabular}{|l|c|c|c|}
         \hline
@@ -188,13 +189,13 @@ with transaction.atomic():
         \texttt{bsu\_frontend:stable} & 0 & 0 & \textcolor{green!80!black}{\ding{51}} Passed \\
         \hline
     \end{tabular}
-    \caption{Container Vulnerability Scan Results}
 \end{table}
 
 \subsection{RBAC Boundary Testing}
 
 \begin{table}[H]
     \centering
+    \caption{Role Isolation Verification}
     \renewcommand{\arraystretch}{1.3}
     \small
     \begin{tabular}{|c|l|l|c|c|}
@@ -208,7 +209,6 @@ with transaction.atomic():
         3 & Unauthenticated & GET /api/academic/departments/ & 403 & \textcolor{green!80!black}{\ding{51}} 403 \\
         \hline
     \end{tabular}
-    \caption{Role Isolation Verification}
 \end{table}
 
 \subsubsection{Course Ownership Enforcement}
@@ -227,6 +227,7 @@ Manual testing validates end-to-end workflows for each role.
 
 \begin{table}[H]
     \centering
+    \caption{Authentication Test Cases}
     \renewcommand{\arraystretch}{1.3}
     \small
     \begin{tabular}{|c|p{2.5cm}|p{2.5cm}|p{3cm}|c|}
@@ -240,13 +241,13 @@ Manual testing validates end-to-end workflows for each role.
         TC-A03 & First login & New student & Password change redirect & \textcolor{green!80!black}{\ding{51}} Passed \\
         \hline
     \end{tabular}
-    \caption{Authentication Test Cases}
 \end{table}
 
 \subsection{Role-Specific Workflows}
 
 \begin{table}[H]
     \centering
+    \caption{Role Workflow and Constraints Test Cases}
     \renewcommand{\arraystretch}{1.3}
     \small
     \begin{tabular}{|c|p{2.8cm}|p{2.5cm}|p{3cm}|c|}
@@ -262,7 +263,6 @@ Manual testing validates end-to-end workflows for each role.
         TC-TU01 & Tuition Lock & Unpaid Student & Quiz/Attendance UI Locked & \textcolor{green!80!black}{\ding{51}} Passed \\
         \hline
     \end{tabular}
-    \caption{Role Workflow and Constraints Test Cases}
 \end{table}
 
 \section{Layer 5: Infrastructure and Health Testing}
@@ -315,6 +315,7 @@ The heaviest operations involve the Dean Dashboard (which computes faculty-wide 
 
 \begin{table}[H]
     \centering
+    \caption{Locust Load Testing Benchmarks}
     \renewcommand{\arraystretch}{1.3}
     \resizebox{\textwidth}{!}{
     \begin{tabular}{|l|c|c|c|c|}
@@ -331,7 +332,6 @@ The heaviest operations involve the Dean Dashboard (which computes faculty-wide 
         \hline
     \end{tabular}
     }
-    \caption{Locust Load Testing Benchmarks}
 \end{table}
 
 \textbf{Engineering Insight:} Early load tests of the Dean Dashboard resulted in system crashes ("all zeros" bug) due to unbounded aggregation queries. The implementation of strict DRF pagination and lazy loading resolved the bottleneck, bringing the 95th percentile response time well under the 2.0-second threshold.
@@ -341,6 +341,7 @@ The heaviest operations involve the Dean Dashboard (which computes faculty-wide 
 
 \begin{table}[H]
     \centering
+    \caption{Test Coverage Summary}
     \renewcommand{\arraystretch}{1.3}
     \begin{tabular}{|l|c|c|c|}
         \hline
@@ -359,5 +360,4 @@ The heaviest operations involve the Dean Dashboard (which computes faculty-wide 
         \textbf{TOTAL} & \textbf{25} & \textbf{25} & \textbf{0} \\
         \hline
     \end{tabular}
-    \caption{Test Coverage Summary}
 \end{table}
