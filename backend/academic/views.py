@@ -349,7 +349,6 @@ class CourseOfferingViewSet(viewsets.ModelViewSet):
         return super().create(request, *args, **kwargs)
 
     @action(detail=False, methods=['get'], permission_classes=[IsDoctorRole])
-    @method_decorator(cache_page(settings.CACHE_COURSE_DATA))
     def my_courses(self, request):
         """Get all courses assigned to the logged-in doctor"""
         user = request.user
