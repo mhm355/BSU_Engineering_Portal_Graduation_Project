@@ -275,8 +275,7 @@ const NavCard = ({ icon: Icon, title, description, buttonText, onClick, gradient
 );
 
 export default function AdminDashboard() {
-    const { logout } = useAuth();
-    const [user, setUser] = useState(null);
+    const { user, logout } = useAuth();
     const [pendingCount, setPendingCount] = useState(0);
     const [healthStatus, setHealthStatus] = useState({ status: 'checking', database: 'checking' });
     const [stats, setStats] = useState({
@@ -293,51 +292,48 @@ export default function AdminDashboard() {
     };
 
     useEffect(() => {
-        const storedUser = localStorage.getItem('user');
-        if (storedUser) {
-            setUser(JSON.parse(storedUser));
-
-            const token = localStorage.getItem('token');
-            const config = { headers: { Authorization: `Bearer ${token}` }, withCredentials: true };
-
-            // Fetch pending deletion requests count
-            axios.get('/api/academic/admin/deletion-requests/?status=PENDING', config)
-                .then(res => setPendingCount(res.data.length || 0))
-                .catch(() => { });
-
-            // Fetch real department count
-            axios.get('/api/academic/departments/', config)
-                .then(res => {
-                    const depts = Array.isArray(res.data) ? res.data : (res.data?.results || []);
-                    setStats(prev => ({ ...prev, departments: depts.length }));
-                })
-                .catch(() => { });
-
-            // Fetch real user count
-            axios.get('/api/auth/users/', config)
-                .then(res => {
-                    const users = Array.isArray(res.data) ? res.data : (res.data?.results || []);
-                    setStats(prev => ({ ...prev, users: users.length }));
-                })
-                .catch(() => { });
-
-            // Fetch current academic year
-            axios.get('/api/academic/years/', config)
-                .then(res => {
-                    const years = Array.isArray(res.data) ? res.data : (res.data?.results || []);
-                    const currentYear = years.find(y => y.is_current);
-                    if (currentYear) {
-                        setStats(prev => ({ ...prev, academicYear: currentYear.name }));
-                    } else if (years.length > 0) {
-                        setStats(prev => ({ ...prev, academicYear: years[0].name }));
-                    } else {
-                        setStats(prev => ({ ...prev, academicYear: '-' }));
-                    }
-                })
-                .catch(() => setStats(prev => ({ ...prev, academicYear: '-' })));
-        } else {
+        if (!user) {
             navigate('/login');
+            return;
         }
+
+        const config = { withCredentials: true };
+
+        // Fetch pending deletion requests count
+        axios.get('/api/academic/admin/deletion-requests/?status=PENDING', config)
+            .then(res => setPendingCount(res.data.length || 0))
+            .catch(() => { });
+
+        // Fetch real department count
+        axios.get('/api/academic/departments/', config)
+            .then(res => {
+                const depts = Array.isArray(res.data) ? res.data : (res.data?.results || []);
+                setStats(prev => ({ ...prev, departments: depts.length }));
+            })
+            .catch(() => { });
+
+        // Fetch real user count
+        axios.get('/api/auth/users/', config)
+            .then(res => {
+                const users = Array.isArray(res.data) ? res.data : (res.data?.results || []);
+                setStats(prev => ({ ...prev, users: users.length }));
+            })
+            .catch(() => { });
+
+        // Fetch current academic year
+        axios.get('/api/academic/years/', config)
+            .then(res => {
+                const years = Array.isArray(res.data) ? res.data : (res.data?.results || []);
+                const currentYear = years.find(y => y.is_current);
+                if (currentYear) {
+                    setStats(prev => ({ ...prev, academicYear: currentYear.name }));
+                } else if (years.length > 0) {
+                    setStats(prev => ({ ...prev, academicYear: years[0].name }));
+                } else {
+                    setStats(prev => ({ ...prev, academicYear: '-' }));
+                }
+            })
+            .catch(() => setStats(prev => ({ ...prev, academicYear: '-' })));
 
         // Check system health
         axios.get('/api/health/', { withCredentials: true, timeout: 5000 })
@@ -347,7 +343,7 @@ export default function AdminDashboard() {
         // Update time every second
         const timer = setInterval(() => setCurrentTime(new Date()), 1000);
         return () => clearInterval(timer);
-    }, [navigate]);
+    }, [user, navigate]);
 
     if (!user) {
         return (

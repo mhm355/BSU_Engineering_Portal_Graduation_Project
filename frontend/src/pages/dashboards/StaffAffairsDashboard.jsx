@@ -47,9 +47,8 @@ const avatarPulse = keyframes`
 `;
 
 const StaffAffairsDashboard = () => {
-    const { logout } = useAuth();
+    const { user, logout } = useAuth();
     const navigate = useNavigate();
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
     const [doctorCount, setDoctorCount] = useState(0);
     const [assignmentCount, setAssignmentCount] = useState(0);
     const [loading, setLoading] = useState(true);

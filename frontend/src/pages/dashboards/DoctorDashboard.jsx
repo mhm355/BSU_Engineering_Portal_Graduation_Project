@@ -22,7 +22,7 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import axios from 'axios';
+import api from '../../utils/api';
 
 // Animations
 const float = keyframes`
@@ -37,8 +37,7 @@ const avatarPulse = keyframes`
 `;
 
 export default function DoctorDashboard() {
-  const { logout } = useAuth();
-  const [user, setUser] = useState(null);
+  const { user, logout } = useAuth();
   const [courses, setCourses] = useState([]);
   const [academicYears, setAcademicYears] = useState([]);
   const [selectedYear, setSelectedYear] = useState('');
@@ -53,21 +52,17 @@ export default function DoctorDashboard() {
     navigate('/login');
   };
 
-  const config = { withCredentials: true };
-
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
+    if (user) {
       fetchAcademicYears();
     } else {
       navigate('/login');
     }
-  }, [navigate]);
+  }, [user, navigate]);
 
   const fetchAcademicYears = async () => {
     try {
-      const res = await axios.get('/api/academic/years/', config);
+      const res = await api.get('/api/academic/years/');
       setAcademicYears(res.data);
       const currentYear = res.data.find(y => y.is_current);
       if (currentYear) {
@@ -89,14 +84,13 @@ export default function DoctorDashboard() {
   const fetchMyCourses = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(
-        `/api/academic/course-offerings/my_courses/?academic_year=${selectedYear}`,
-        config
+      const res = await api.get(
+        `/api/academic/course-offerings/my_courses/?academic_year=${selectedYear}`
       );
       setCourses(res.data);
       // Fetch quiz count for this doctor
       try {
-        const qRes = await axios.get('/api/academic/quizzes/', config);
+        const qRes = await api.get('/api/academic/quizzes/');
         const quizzes = Array.isArray(qRes.data) ? qRes.data : (qRes.data?.results || []);
         setQuizCount(quizzes.length);
       } catch { /* quiz count is optional */ }
