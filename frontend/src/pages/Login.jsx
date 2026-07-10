@@ -39,6 +39,9 @@ export default function Login() {
         setLoading(true);
 
         try {
+            // Clear any stale data from previous session before login
+            localStorage.removeItem('user');
+
             const response = await axios.post('/api/auth/login/', {
                 username,
                 password
