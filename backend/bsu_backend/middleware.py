@@ -1,10 +1,10 @@
-from django.utils.cache import patch_vary_headers
+from django.utils.cache import patch_vary_headers, patch_cache_control
 
 class VaryCookieMiddleware:
     """
-    Middleware to ensure API responses include the 'Vary: Cookie' header.
-    This prevents browsers and CDN from serving cached responses belonging
-    to one user to another user when multiple accounts log in from the same browser.
+    Middleware to ensure API responses include 'Vary: Cookie' and
+    'Cache-Control: no-store' headers. This prevents browsers, CDNs,
+    and intermediaries from serving cached responses from one user to another.
     """
     def __init__(self, get_response):
         self.get_response = get_response
@@ -13,4 +13,6 @@ class VaryCookieMiddleware:
         response = self.get_response(request)
         if request.path.startswith('/api/'):
             patch_vary_headers(response, ['Cookie'])
+            patch_cache_control(response, no_store=True, no_cache=True, must_revalidate=True)
+            response['Pragma'] = 'no-cache'
         return response
